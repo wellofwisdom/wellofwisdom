@@ -72,42 +72,81 @@ async function chat(task, messages, opts = {}) {
   };
   if (opts.json) body.response_format = { type: "json_object" };
 
-  const res = await fetchT(`${process.env.AI_BASE_URL.replace(/\/$/, "")}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      ...(process.env.AI_API_KEY ? { authorization: `Bearer ${process.env.AI_API_KEY}` } : {}),
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`ai_http_${res.status}: ${String(await res.text()).slice(0, 300)}`);
-  const data = await res.json();
+  // DeepSeek-style models can truncate (finish_reason=length) when reasoning
+  // eats the budget — ladder the token cap until the reply actually finishes.
+  let res = await post(body);
+  let data = await readJson(res);
+  let ladder = 0;
+  while (data.choices && data.choices[0] && data.choices[0].finish_reason === "length" && ladder < 2) {
+    ladder++;
+    body.max_tokens = Math.min(body.max_tokens * 2, 32768);
+    res = await post(body);
+    data = await readJson(res);
+  }
   const choice = data.choices && data.choices[0];
   return {
     content: choice ? choice.message.content : "",
     usage: data.usage || null,
     model: data.model || model,
+    finish: choice ? choice.finish_reason : null,
   };
+
+  async function post(b) {
+    const r = await fetchT(`${process.env.AI_BASE_URL.replace(/\/$/, "")}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        ...(process.env.AI_API_KEY ? { authorization: `Bearer ${process.env.AI_API_KEY}` } : {}),
+      },
+      body: JSON.stringify(b),
+    });
+    if (!r.ok) throw new Error(`ai_http_${r.status}: ${String(await r.text()).slice(0, 300)}`);
+    return r;
+  }
+  async function readJson(r) {
+    try {
+      return await r.json();
+    } catch {
+      throw new Error("ai_bad_response: provider returned non-JSON");
+    }
+  }
 }
 
-/** chat() + parse the reply as JSON (strips ``` fences; retries once without json mode). */
+/** chat() + parse the reply as JSON. Tolerates fences, prose wrappers, and
+ *  truncation (retries without json-mode at low temperature, laddered tokens). */
 async function chatJson(task, messages, opts = {}) {
-  let out = await chat(task, messages, { ...opts, json: true });
-  let parsed = tryParse(out.content);
-  if (parsed !== undefined) return { ...out, json: parsed };
-  out = await chat(task, messages, { ...opts, json: false, temperature: 0.3 });
-  parsed = tryParse(out.content);
-  if (parsed !== undefined) return { ...out, json: parsed };
-  throw new Error("ai_bad_json: model did not return valid JSON");
+  const attempts = [
+    { json: true, temperature: opts.temperature ?? 0.7 },
+    { json: false, temperature: 0.3, maxTokens: (opts.maxTokens || 4096) * 2 },
+  ];
+  let lastContent = "";
+  for (const a of attempts) {
+    const out = await chat(task, messages, { ...opts, ...a });
+    lastContent = out.content;
+    const parsed = tryParse(out.content);
+    if (parsed !== undefined) return { ...out, json: parsed };
+  }
+  throw new Error(`ai_bad_json: model did not return valid JSON (tail: ${String(lastContent).slice(-120)})`);
 }
 
 function tryParse(text) {
-  const s = String(text || "").trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
+  let s = String(text || "").trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
   try {
     return JSON.parse(s);
   } catch {
-    return undefined;
+    /* fall through to object extraction */
   }
+  // Model wrapped the JSON in prose — grab the outermost object.
+  const first = s.indexOf("{");
+  const last = s.lastIndexOf("}");
+  if (first >= 0 && last > first) {
+    try {
+      return JSON.parse(s.slice(first, last + 1));
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
 }
 
 module.exports = { chat, chatJson, resolveRoute, configured, health };

@@ -7,9 +7,10 @@ import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Learners from "./pages/Learners";
 import Courses from "./pages/Courses";
+import CourseDetail from "./pages/CourseDetail";
 import Records from "./pages/Records";
 import Settings from "./pages/Settings";
-import LearnerHome from "./pages/LearnerHome";
+import LearnerApp from "./pages/learn/LearnerApp";
 
 function currentRoute(): string {
   const h = window.location.hash.replace(/^#\/?/, "");
@@ -68,13 +69,17 @@ export default function App() {
   }
 
   if (user.role === "learner") {
-    return <LearnerHome me={user} onLogout={logout} />;
+    const learnerRoute = route === "dashboard" ? "" : route;
+    return <LearnerApp me={user} route={learnerRoute} onNavigate={navigate} onLogout={logout} />;
   }
 
+  const detailMatch = route.match(/^course\/(\d+)$/);
+
   return (
-    <Shell me={user} route={route} onNavigate={navigate} onLogout={logout}>
+    <Shell me={user} route={detailMatch ? "courses" : route} onNavigate={navigate} onLogout={logout}>
       {route === "learners" && <Learners me={me!} onChanged={refresh} />}
-      {route === "courses" && <Courses />}
+      {route === "courses" && <Courses me={me!} onNavigate={navigate} />}
+      {detailMatch && <CourseDetail me={me!} courseId={Number(detailMatch[1])} onNavigate={navigate} />}
       {route === "records" && <Records />}
       {route === "settings" && <Settings me={me!} />}
       {route === "dashboard" && <Dashboard me={me!} onNavigate={navigate} />}

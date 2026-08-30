@@ -46,6 +46,8 @@ app.get("/api/me", async (req, res) => {
 
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/family", require("./routes/family"));
+app.use("/api/courses", require("./routes/courses"));
+app.use("/api/learn", require("./routes/learn"));
 
 app.use("/api", (req, res) => res.status(404).json({ error: "not_found" }));
 
@@ -71,6 +73,9 @@ async function boot() {
     await migrate();
   } catch (err) {
     console.error(`[migrate] FAILED (app continues degraded): ${err.message}`);
+  }
+  if (db.configured()) {
+    require("./lib/jobs").startJobs();
   }
   if (require.main === module) {
     app.listen(PORT, "0.0.0.0", () => {

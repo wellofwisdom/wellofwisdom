@@ -28,4 +28,4 @@ async function health() {
   }
 }
 
-module.exports = { query, health, configured };
+module.exports = { query, health, configured, getPool };
