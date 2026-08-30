@@ -2,8 +2,8 @@
 // Progress — real numbers per learner: completions, accuracy, active days,
 // review load, and per-course bars. For families, classes, co-ops, self-study.
 import { useEffect, useState } from "react";
-import { api } from "../api";
-import { Panel, StatBar, EmptyState } from "../components/ui";
+import { api, niceError } from "../api";
+import { Panel, StatBar, EmptyState, Modal, Field } from "../components/ui";
 
 interface ProgressLearner {
   id: number;
@@ -17,14 +17,27 @@ interface ProgressLearner {
   courses: { id: number; title: string; lens: string | null; lessons_total: number; lessons_done: number }[];
 }
 
+function quarter(offset = 0) {
+  const now = new Date();
+  const q = Math.floor(now.getMonth() / 3) - offset;
+  const start = new Date(now.getFullYear(), q * 3, 1);
+  const end = new Date(now.getFullYear(), q * 3 + 3, 0);
+  return { from: start.toISOString().slice(0, 10), to: end.toISOString().slice(0, 10), label: `Q${(q % 4) + 4} ${start.getFullYear()}` };
+}
+
 export default function Progress() {
   const [data, setData] = useState<ProgressLearner[] | null>(null);
   const [error, setError] = useState("");
+  const [reports, setReports] = useState<{ id: number; title: string; period_start: string; period_end: string; learner_name: string }[] | null>(null);
+  const [builderFor, setBuilderFor] = useState<ProgressLearner | null>(null);
 
   useEffect(() => {
     api<{ learners: ProgressLearner[] }>("/api/progress")
       .then((d) => setData(d.learners))
       .catch(() => setError("Could not load progress."));
+    api<{ reports: typeof reports }>("/api/reports")
+      .then((d) => setReports(d.reports))
+      .catch(() => setReports([]));
   }, []);
 
   if (error) return <Panel title="Progress"><div className="formerror">{error}</div></Panel>;
@@ -47,7 +60,12 @@ export default function Progress() {
       {data.map((l) => {
         const accuracy = l.attempts_total ? Math.round((l.attempts_correct / l.attempts_total) * 100) : null;
         return (
-          <Panel key={l.id} title={l.name} side={l.grade_level ? `Grade ${l.grade_level}` : undefined}>
+          <Panel key={l.id} title={l.name} side={
+            <span className="row">
+              {l.grade_level ? <span className="chip">Grade {l.grade_level}</span> : null}
+              <button className="btn small-btn" type="button" onClick={() => setBuilderFor(l)}>📄 Report</button>
+            </span>
+          }>
             <StatBar
               stats={[
                 { label: "Lessons completed", value: l.lessons_done },
@@ -80,6 +98,94 @@ export default function Progress() {
           </Panel>
         );
       })}
+
+      <Panel title="Reports" side="printable, editable">
+        {!reports ? <div className="skel" style={{ height: 60 }} /> : reports.length === 0 ? (
+          <p className="muted small">No reports yet — generate one per learner above (any date range: quarters, semesters, or custom).</p>
+        ) : (
+          reports.map((r) => (
+            <div key={r.id} className="learnerrow coursecard" style={{ cursor: "pointer" }} role="button" tabIndex={0}
+              onClick={() => onNavigateReport(r.id)} onKeyDown={(e) => e.key === "Enter" && onNavigateReport(r.id)}>
+              <span className="avatar" aria-hidden="true">📄</span>
+              <div className="meta">
+                <div className="n">{r.title}</div>
+                <div className="u">{r.learner_name} · {r.period_start} to {r.period_end}</div>
+              </div>
+              <span className="kc-go" aria-hidden="true">→</span>
+            </div>
+          ))
+        )}
+      </Panel>
+
+      {builderFor && (
+        <ReportBuilder learner={builderFor} onClose={() => setBuilderFor(null)}
+          onGenerated={(id) => { setBuilderFor(null); onNavigateReport(id); }} />
+      )}
     </>
+  );
+
+  function onNavigateReport(id: number) {
+    window.location.hash = `#/report/${id}`;
+  }
+}
+
+function ReportBuilder({ learner, onClose, onGenerated }: {
+  learner: ProgressLearner;
+  onClose: () => void;
+  onGenerated: (id: number) => void;
+}) {
+  const q = quarter();
+  const [from, setFrom] = useState(q.from);
+  const [to, setTo] = useState(q.to);
+  const [preview, setPreview] = useState<{ lessonsCompleted: number; attemptsTotal: number; accuracy: number | null; activeDays: number } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    api<{ stats: typeof preview }>(`/api/reports/preview?learnerId=${learner.id}&from=${from}&to=${to}`)
+      .then((d) => setPreview(d.stats))
+      .catch(() => setPreview(null));
+  }, [from, to, learner.id]);
+
+  async function generate() {
+    setBusy(true);
+    setErr("");
+    try {
+      const d = await api<{ id: number }>("/api/reports/generate", {
+        method: "POST",
+        body: { learnerId: learner.id, from, to },
+      });
+      onGenerated(d.id);
+    } catch (e) {
+      setErr(e instanceof Error && e.message.includes("no_activity") ? "No recorded activity in that period — pick a different range." : niceError(e));
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Modal title={`Report for ${learner.name}`} onClose={onClose}>
+      {err && <div className="formerror" role="alert">{err}</div>}
+      <div className="row wrap" style={{ marginBottom: 10 }}>
+        <button className="btn small-btn" type="button" onClick={() => { const x = quarter(); setFrom(x.from); setTo(x.to); }}>This quarter</button>
+        <button className="btn small-btn" type="button" onClick={() => { const x = quarter(1); setFrom(x.from); setTo(x.to); }}>Last quarter</button>
+        <button className="btn small-btn" type="button" onClick={() => { const n = new Date(); setFrom(new Date(n.getFullYear(), 0, 1).toISOString().slice(0, 10)); setTo(n.toISOString().slice(0, 10)); }}>Year to date</button>
+      </div>
+      <div className="row" style={{ gap: 12 }}>
+        <div className="grow"><Field label="From"><input type="date" className="input" value={from} onChange={(e) => setFrom(e.target.value)} /></Field></div>
+        <div className="grow"><Field label="To"><input type="date" className="input" value={to} onChange={(e) => setTo(e.target.value)} /></Field></div>
+      </div>
+      {preview && (
+        <p className="hint" style={{ marginTop: 4 }}>
+          In this period: {preview.lessonsCompleted} lessons · {preview.attemptsTotal} exercises{preview.accuracy !== null ? ` · ${preview.accuracy}%` : ""} · {preview.activeDays} active days
+        </p>
+      )}
+      <div className="row">
+        <button className="btn" type="button" onClick={onClose}>Cancel</button>
+        <button className="btn primary" type="button" disabled={busy} onClick={generate}>
+          {busy ? "Writing…" : "✨ Generate report"}
+        </button>
+      </div>
+      <p className="hint" style={{ marginTop: 8 }}>Stats come from real work. The AI drafts a narrative you can edit — and it works without AI too.</p>
+    </Modal>
   );
 }

@@ -13,6 +13,7 @@ import Plans from "./pages/Plans";
 import Notes from "./pages/Notes";
 import Library from "./pages/Library";
 import Calendar from "./pages/Calendar";
+import ReportView from "./pages/ReportView";
 import PlanWizard from "./pages/PlanWizard";
 import PlanDetail from "./pages/PlanDetail";
 import Settings from "./pages/Settings";
@@ -102,6 +103,7 @@ export default function App() {
 
   const detailMatch = route.match(/^course\/(\d+)$/);
   const planMatch = route.match(/^plan\/(\d+)$/);
+  const reportMatch = route.match(/^report\/(\d+)$/);
 
   return (
     <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
@@ -116,6 +118,7 @@ export default function App() {
       {route === "library" && <Library />}
       {route === "calendar" && <Calendar onNavigate={navigate} />}
       {route === "plans/new" && <PlanWizard me={me!} onNavigate={navigate} />}
+      {reportMatch && <ReportView reportId={Number(reportMatch[1])} onNavigate={navigate} />}
       {planMatch && <PlanDetail planId={Number(planMatch[1])} onNavigate={navigate} meLearners={me.learners || []} />}
       {route === "settings" && <Settings me={me!} />}
       {route === "dashboard" && <Dashboard me={me!} onNavigate={navigate} />}
