@@ -29,7 +29,7 @@ router.post("/signup", async (req, res, next) => {
     if (required) {
       const limit = auth.loginLimit(`${req.ip || "unknown"}:invite`, { max: 15 });
       if (!limit.ok) return res.status(429).json({ error: "too_many_attempts" });
-      if (String(inviteCode || "").trim() !== required) return bad(res, "invite_invalid", 403);
+      if (String(inviteCode || "").trim().toUpperCase() !== required.toUpperCase()) return bad(res, "invite_invalid", 403);
     }
 
     const existing = await db.query("select 1 from users where email = $1", [email.toLowerCase()]);
