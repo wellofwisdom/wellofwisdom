@@ -14,6 +14,14 @@ const PORT = Number(process.env.PORT || 3000);
 app.disable("x-powered-by");
 app.set("trust proxy", true); // behind Coolify/traefik; gives req.ip for rate limiting
 app.use(express.json({ limit: "2mb" }));
+
+// Basic security headers (no framework needed).
+app.use((req, res, next) => {
+  res.setHeader("x-content-type-options", "nosniff");
+  res.setHeader("referrer-policy", "strict-origin-when-cross-origin");
+  res.setHeader("x-frame-options", "SAMEORIGIN");
+  next();
+});
 app.use(auth.cookies);
 app.use(auth.attachUser);
 
@@ -49,6 +57,15 @@ app.use("/api/family", require("./routes/family"));
 app.use("/api/courses", require("./routes/courses"));
 app.use("/api/learn", require("./routes/learn"));
 
+// AI usage for this family (parent only) — spend transparency.
+app.get("/api/ai/usage", auth.parentOnly, async (req, res, next) => {
+  try {
+    res.json(await require("./lib/aiusage").familySummary(req.user.familyId));
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use("/api", (req, res) => res.status(404).json({ error: "not_found" }));
 
 // SPA: built frontend when present, plain placeholder otherwise (bare clone).
@@ -75,6 +92,7 @@ async function boot() {
     console.error(`[migrate] FAILED (app continues degraded): ${err.message}`);
   }
   if (db.configured()) {
+    ai.setUsageLogger(require("./lib/aiusage").logUsage);
     require("./lib/jobs").startJobs();
   }
   if (require.main === module) {

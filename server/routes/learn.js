@@ -33,16 +33,70 @@ function learnerItem(item) {
 
 router.get("/courses", async (req, res, next) => {
   try {
-    const { rows } = await db.query(
-      `select c.id, c.title, c.topic, c.lens, c.description,
-              (select count(*) from lessons l join units un on un.id = l.unit_id where un.course_id = c.id)::int as lesson_count
+    const courses = await db.query(
+      `select c.id, c.title, c.topic, c.lens, c.description
          from courses c
         where c.family_id = $1 and c.status = 'published'
           and (c.learner_id is null or c.learner_id = $2)
         order by c.created_at desc`,
       [req.user.familyId, req.user.id]
     );
-    res.json({ courses: rows });
+    if (!courses.rows.length) return res.json({ courses: [] });
+
+    // Everything needed to compute per-lesson completion in one pass.
+    const ids = courses.rows.map((c) => c.id);
+    const lessons = await db.query(
+      `select l.id, l.unit_id, un.course_id
+         from lessons l join units un on un.id = l.unit_id
+        where un.course_id = any($1::bigint[])`,
+      [ids]
+    );
+    const items = await db.query(
+      `select i.id, i.lesson_id, i.type, i.content
+         from lesson_items i join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id
+        where un.course_id = any($1::bigint[])`,
+      [ids]
+    );
+    const attempts = await db.query(
+      `select a.item_id, a.question_index, a.correct
+         from attempts a join lesson_items i on i.id = a.item_id
+         join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id
+        where un.course_id = any($1::bigint[]) and a.learner_id = $2`,
+      [ids, req.user.id]
+    );
+    const state = new Map();
+    for (const a of attempts.rows) {
+      if (!state.has(a.item_id)) state.set(a.item_id, { correct: new Set(), attempted: new Set() });
+      const s = state.get(a.item_id);
+      s.attempted.add(a.question_index);
+      if (a.correct === true) s.correct.add(a.question_index);
+    }
+    const lessonDone = new Set();
+    for (const l of lessons.rows) {
+      const lItems = items.rows.filter((i) => i.lesson_id === l.id);
+      const gradable = lItems.filter(
+        (i) =>
+          (i.type === "exercise" && i.content.kind !== "text") ||
+          (i.type === "video" && Array.isArray(i.content.questions) && i.content.questions.length)
+      );
+      const selfCheck = lItems.filter((i) => i.type === "exercise" && i.content.kind === "text");
+      const done =
+        gradable.length + selfCheck.length > 0 &&
+        gradable.every((i) => {
+          const s = state.get(i.id);
+          const qCount = i.type === "video" ? i.content.questions.length : 1;
+          return s && Array.from({ length: qCount }, (_, x) => x).every((x) => s.correct.has(x));
+        }) &&
+        selfCheck.every((i) => state.has(i.id));
+      if (done) lessonDone.add(l.id);
+    }
+    res.json({
+      courses: courses.rows.map((c) => {
+        const total = lessons.rows.filter((l) => l.course_id === c.id).length;
+        const done = lessons.rows.filter((l) => l.course_id === c.id && lessonDone.has(l.id)).length;
+        return { ...c, lesson_count: total, lessons_done: done };
+      }),
+    });
   } catch (err) {
     next(err);
   }
@@ -249,7 +303,7 @@ router.post("/explain", async (req, res, next) => {
             `Correct answer: ${String(correctAnswer ?? "").slice(0, 300)}\nExplain the mistake.`,
         },
       ],
-      { maxTokens: 500, temperature: 0.5 }
+      { maxTokens: 500, temperature: 0.5, usage: { familyId: req.user.familyId, note: "explain-mistake" } }
     );
     res.json({ explanation: out.content });
   } catch (err) {

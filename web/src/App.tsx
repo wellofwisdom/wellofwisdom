@@ -11,6 +11,7 @@ import CourseDetail from "./pages/CourseDetail";
 import Records from "./pages/Records";
 import Settings from "./pages/Settings";
 import LearnerApp from "./pages/learn/LearnerApp";
+import PrintLesson from "./pages/PrintLesson";
 
 function currentRoute(): string {
   const h = window.location.hash.replace(/^#\/?/, "");
@@ -69,8 +70,15 @@ export default function App() {
   }
 
   if (user.role === "learner") {
+    if (route.startsWith("print/lesson/")) {
+      return <PrintLesson lessonId={Number(route.split("/")[2])} role="learner" />;
+    }
     const learnerRoute = route === "dashboard" ? "" : route;
     return <LearnerApp me={user} route={learnerRoute} onNavigate={navigate} onLogout={logout} />;
+  }
+
+  if (route.startsWith("print/lesson/")) {
+    return <PrintLesson lessonId={Number(route.split("/")[2])} role="parent" />;
   }
 
   const detailMatch = route.match(/^course\/(\d+)$/);

@@ -33,6 +33,13 @@ function resolveRoute(task) {
   return { task, tier, model: model || null };
 }
 
+// Injected at boot to avoid a circular import (db ← aiusage → nothing ← ai).
+// Signature: usageLogger({familyId, task, model, tokensIn, tokensOut, note})
+let usageLogger = null;
+function setUsageLogger(fn) {
+  usageLogger = fn;
+}
+
 function configured() {
   return Boolean(process.env.AI_BASE_URL && process.env.AI_BASE_URL.trim());
 }
@@ -84,6 +91,20 @@ async function chat(task, messages, opts = {}) {
     data = await readJson(res);
   }
   const choice = data.choices && data.choices[0];
+  if (usageLogger && data.usage) {
+    try {
+      usageLogger({
+        familyId: opts.usage && opts.usage.familyId,
+        task,
+        model: data.model || model,
+        tokensIn: data.usage.prompt_tokens,
+        tokensOut: data.usage.completion_tokens,
+        note: opts.usage && opts.usage.note,
+      });
+    } catch {
+      /* accounting never breaks AI */
+    }
+  }
   return {
     content: choice ? choice.message.content : "",
     usage: data.usage || null,
@@ -149,4 +170,4 @@ function tryParse(text) {
   return undefined;
 }
 
-module.exports = { chat, chatJson, resolveRoute, configured, health };
+module.exports = { chat, chatJson, resolveRoute, configured, health, setUsageLogger };

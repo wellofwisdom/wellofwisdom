@@ -10,13 +10,27 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
+// Public auth config for the signup form (does the server require an invite?).
+router.get("/config", (_req, res) => {
+  res.json({ inviteRequired: Boolean(process.env.SIGNUP_INVITE_CODE && process.env.SIGNUP_INVITE_CODE.trim()) });
+});
+
 router.post("/signup", async (req, res, next) => {
   try {
-    const { familyName, name, email, password } = req.body || {};
+    const { familyName, name, email, password, inviteCode } = req.body || {};
     if (!String(familyName || "").trim()) return bad(res, "family_name_required");
     if (!String(name || "").trim()) return bad(res, "name_required");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(email || ""))) return bad(res, "email_invalid");
     if (String(password || "").length < 8) return bad(res, "password_too_short");
+
+    // Invite gate: when SIGNUP_INVITE_CODE is set, only invited families join
+    // (lets an admin safely enable AI on a public instance). Brute-force capped.
+    const required = process.env.SIGNUP_INVITE_CODE && process.env.SIGNUP_INVITE_CODE.trim();
+    if (required) {
+      const limit = auth.loginLimit(`${req.ip || "unknown"}:invite`, { max: 15 });
+      if (!limit.ok) return res.status(429).json({ error: "too_many_attempts" });
+      if (String(inviteCode || "").trim() !== required) return bad(res, "invite_invalid", 403);
+    }
 
     const existing = await db.query("select 1 from users where email = $1", [email.toLowerCase()]);
     if (existing.rowCount > 0) return bad(res, "email_taken", 409);

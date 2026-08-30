@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Logged-out screen: hero + parent sign-in / create family / learner sign-in.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { PillTabs } from "../components/ui";
 
@@ -10,6 +10,13 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
   const [tab, setTab] = useState<Tab>("signin");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [inviteRequired, setInviteRequired] = useState(false);
+
+  useEffect(() => {
+    api<{ inviteRequired: boolean }>("/api/auth/config")
+      .then((d) => setInviteRequired(Boolean(d.inviteRequired)))
+      .catch(() => setInviteRequired(false));
+  }, []);
 
   async function submit(path: string, body: Record<string, unknown>) {
     setBusy(true);
@@ -48,7 +55,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
           {error && <div className="formerror" role="alert">{error}</div>}
 
           {tab === "signin" && <SignIn busy={busy} onSubmit={(b) => submit("/api/auth/login", b)} />}
-          {tab === "signup" && <SignUp busy={busy} onSubmit={(b) => submit("/api/auth/signup", b)} />}
+          {tab === "signup" && <SignUp busy={busy} inviteRequired={inviteRequired} onSubmit={(b) => submit("/api/auth/signup", b)} />}
           {tab === "learner" && (
             <LearnerIn busy={busy} onSubmit={(b) => submit("/api/auth/learner-login", b)} />
           )}
@@ -92,18 +99,27 @@ function SignIn({ busy, onSubmit }: { busy: boolean; onSubmit: (b: Record<string
   );
 }
 
-function SignUp({ busy, onSubmit }: { busy: boolean; onSubmit: (b: Record<string, unknown>) => void }) {
+function SignUp({ busy, inviteRequired, onSubmit }: { busy: boolean; inviteRequired: boolean; onSubmit: (b: Record<string, unknown>) => void }) {
   const [familyName, setFamilyName] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ familyName, name, email, password });
+        onSubmit({ familyName, name, email, password, inviteCode });
       }}
     >
+      {inviteRequired && (
+        <div className="field">
+          <label htmlFor="su-invite">Invite code</label>
+          <input id="su-invite" className="input" required autoCapitalize="characters"
+            value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} />
+          <div className="hint">This server is invite-only. Ask the person who runs it.</div>
+        </div>
+      )}
       <div className="field">
         <label htmlFor="su-family">Family or school name</label>
         <input id="su-family" className="input" required maxLength={80} placeholder="The Treman Family"

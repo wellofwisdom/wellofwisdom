@@ -61,6 +61,8 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
     <div className="lessonwrap">
       <header className="lessontop">
         <button className="btn ghost" type="button" onClick={() => onNavigate(`course/${lesson.course_id}`)}>← {lesson.course_title}</button>
+        <button className="btn ghost" type="button" title="Print this lesson as a worksheet"
+          onClick={() => window.open(`#/print/lesson/${lesson.id}`, "_blank")}>🖨️</button>
         <span className="grow" />
         <button className="iconbtn" onClick={onLogout} aria-label="Sign out" type="button">⎋</button>
       </header>

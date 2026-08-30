@@ -3,9 +3,49 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { HealthResponse, MeResponse } from "../types";
-import { Panel, Field } from "../components/ui";
+import { Panel, Field, StatBar } from "../components/ui";
 import { BACKGROUNDS, getBg, getMode, setBg, setMode, type Mode } from "../theme";
 import { IconCheck, IconCopy } from "../components/Icons";
+
+interface AiUsageResponse {
+  month: { calls: number; tokens_in: number; tokens_out: number; cost: string | null };
+  byTask: { task: string; calls: number; cost: string | null }[];
+  recent: { task: string; model: string | null; tokens_in: number; tokens_out: number; cost: string | null; created_at: string }[];
+}
+
+function AiUsage() {
+  const [usage, setUsage] = useState<AiUsageResponse | null>(null);
+
+  useEffect(() => {
+    api<AiUsageResponse>("/api/ai/usage").then(setUsage).catch(() => setUsage(null));
+  }, []);
+
+  if (!usage) return <p className="muted small">No AI usage recorded yet. It appears here once you generate courses.</p>;
+  const cost = Number(usage.month.cost || 0);
+  return (
+    <>
+      <StatBar
+        stats={[
+          { label: "AI calls", value: usage.month.calls },
+          { label: "Tokens in", value: usage.month.tokens_in.toLocaleString() },
+          { label: "Tokens out", value: usage.month.tokens_out.toLocaleString() },
+          { label: "Est. cost (USD)", value: `$${cost.toFixed(3)}` },
+        ]}
+      />
+      {usage.byTask.length > 0 && (
+        <div>
+          {usage.byTask.map((t) => (
+            <div key={t.task} className="checkitem">
+              <span className="t">{t.task}</span>
+              <span className="muted small">{t.calls} calls · ${Number(t.cost || 0).toFixed(3)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {usage.month.calls === 0 && <p className="muted small">No calls this month.</p>}
+    </>
+  );
+}
 
 export default function Settings({ me }: { me: MeResponse }) {
   const user = me.user!;
@@ -88,6 +128,10 @@ export default function Settings({ me }: { me: MeResponse }) {
             ))}
           </div>
         </Field>
+      </Panel>
+
+      <Panel title="AI usage" side="this family, this month">
+        <AiUsage />
       </Panel>
 
       <Panel title="System" side="this server">

@@ -340,6 +340,7 @@ a:hover { text-decoration: underline; }
   height: 12px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--border); overflow: hidden;
 }
 .progressbar > div { height: 100%; background: var(--accent); transition: width 0.4s ease; }
+.progressbar.mini { height: 6px; margin-top: 8px; display: block; }
 
 .lessonbtn {
   display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
@@ -404,6 +405,29 @@ a:hover { text-decoration: underline; }
 .lessonitem { padding: 10px 4px; border-bottom: 1px dashed var(--border); }
 .lessonitem:last-child { border-bottom: none; }
 summary::marker { color: var(--muted); }
+
+/* ---------- print worksheet ---------- */
+
+.printpage { max-width: 720px; margin: 0 auto; padding: 24px 18px; background: #fff; color: #111; }
+.printpage h1 { font-size: 22px; }
+.printsub { color: #555; font-size: 13px; margin: 4px 0 10px; }
+.printsection { margin: 18px 0; }
+.printsection h2 { font-size: 16px; margin-bottom: 6px; }
+.printpage .richtext p, .printpage .richtext li { font-size: 14px; color: #111; }
+.printprompt { font-weight: 600; font-size: 14.5px; }
+.printchoices { margin: 6px 0 4px 22px; }
+.printchoices li { margin: 4px 0; font-size: 14px; }
+.printlines div { border-bottom: 1px solid #999; height: 30px; }
+@media print {
+  .noprint { display: none !important; }
+  body { background: #fff !important; }
+  .printpage { padding: 0; }
+}
+
+/* iOS: 16px+ inputs stop Safari from zooming on focus */
+@media (max-width: 820px) {
+  .input, textarea.input, select.input { font-size: 16px; }
+}
 
 /* ---------- misc ---------- */
 

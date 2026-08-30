@@ -216,4 +216,50 @@ router.patch("/items/:itemId", async (req, res, next) => {
   }
 });
 
+// Delete an item (parent trims AI output).
+router.delete("/items/:itemId", async (req, res, next) => {
+  try {
+    const { rowCount } = await db.query(
+      `delete from lesson_items i
+         using lessons l, units un, courses c
+        where i.lesson_id = l.id and l.unit_id = un.id and un.course_id = c.id
+          and i.id = $1 and c.family_id = $2`,
+      [Number(req.params.itemId), req.user.familyId]
+    );
+    if (!rowCount) return bad(res, "not_found", 404);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Edit a lesson's title/summary.
+router.patch("/lessons/:lessonId", async (req, res, next) => {
+  try {
+    const { title, summary } = req.body || {};
+    const sets = [];
+    const params = [req.user.familyId, Number(req.params.lessonId)];
+    const add = (col, val) => {
+      params.push(val);
+      sets.push(`${col} = $${params.length}`);
+    };
+    if (title !== undefined) {
+      if (!String(title || "").trim()) return bad(res, "title_required");
+      add("title", String(title).trim().slice(0, 200));
+    }
+    if (summary !== undefined) add("summary", String(summary || "").slice(0, 500) || null);
+    if (!sets.length) return bad(res, "nothing_to_update");
+    const { rowCount } = await db.query(
+      `update lessons l set ${sets.join(", ")}
+         from units un, courses c
+        where l.unit_id = un.id and un.course_id = c.id and l.id = $2 and c.family_id = $1`,
+      params
+    );
+    if (!rowCount) return bad(res, "not_found", 404);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

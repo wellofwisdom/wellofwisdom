@@ -33,6 +33,24 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
     }
   }
 
+  async function patchLesson(lessonId: number, body: Record<string, unknown>) {
+    try {
+      await api(`/api/courses/lessons/${lessonId}`, { method: "PATCH", body });
+      load();
+    } catch (e) {
+      setError(niceError(e));
+    }
+  }
+
+  async function deleteItem(itemId: number) {
+    try {
+      await api(`/api/courses/items/${itemId}`, { method: "DELETE" });
+      load();
+    } catch (e) {
+      setError(niceError(e));
+    }
+  }
+
   if (error && !course) {
     return <Panel title="Course"><div className="formerror">{error}</div></Panel>;
   }
@@ -87,9 +105,20 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
               <summary style={{ cursor: "pointer", fontWeight: 600, padding: "4px 0" }}>
                 Lesson {ui + 1}.{li + 1}: {l.title}
               </summary>
+              <div className="row" style={{ margin: "6px 0" }}>
+                <button className="btn ghost small-btn" type="button" onClick={() => {
+                  const title = window.prompt("Lesson title", l.title);
+                  if (title && title.trim()) patchLesson(l.id, { title: title.trim() });
+                }}>✏️ Rename lesson</button>
+                <button className="btn ghost small-btn" type="button"
+                  onClick={() => window.open(`#/print/lesson/${l.id}`, "_blank")}>🖨️ Worksheet</button>
+              </div>
               {l.summary && <p className="muted small" style={{ margin: "4px 0 10px" }}>{l.summary}</p>}
               {l.items.map((item) => (
-                <ItemPreview key={item.id} item={item} onEdit={() => setEditing(item)} />
+                <ItemPreview key={item.id} item={item} onEdit={() => setEditing(item)}
+                  onDelete={() => {
+                    if (window.confirm("Remove this item from the lesson?")) deleteItem(item.id);
+                  }} />
               ))}
             </details>
           ))}
@@ -122,7 +151,7 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
   );
 }
 
-function ItemPreview({ item, onEdit }: { item: ItemNode; onEdit: () => void }) {
+function ItemPreview({ item, onEdit, onDelete }: { item: ItemNode; onEdit: () => void; onDelete: () => void }) {
   const c = item.content || {};
   return (
     <div className="lessonitem">
@@ -160,6 +189,7 @@ function ItemPreview({ item, onEdit }: { item: ItemNode; onEdit: () => void }) {
           )}
         </div>
         <button className="iconbtn" aria-label="Edit item" type="button" onClick={onEdit}><IconPencil /></button>
+        <button className="iconbtn" aria-label="Remove item" type="button" onClick={onDelete}><IconTrash /></button>
       </div>
     </div>
   );

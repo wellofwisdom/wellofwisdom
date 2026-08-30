@@ -38,6 +38,7 @@ const NICE: Record<string, string> = {
   password_too_short: "Password needs at least 8 characters.",
   invalid_credentials: "That didn't match. Check it and try again.",
   too_many_attempts: "Too many tries. Wait a few minutes and try again.",
+  invite_invalid: "That invite code isn't right. Ask the person who runs this server.",
   username_taken: "That username is taken in your family. Pick another.",
   username_invalid: "Usernames: 2-24 letters/numbers, no spaces.",
   pin_invalid: "PIN is 4 to 6 digits.",

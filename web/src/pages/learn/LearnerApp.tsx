@@ -8,12 +8,12 @@ import LessonPlayer from "./LessonPlayer";
 import { IconLogout } from "../../components/Icons";
 
 export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me; route: string; onNavigate: (hash: string) => void; onLogout: () => void }) {
-  const [courses, setCourses] = useState<LearnCourse[] | null>(null);
+  const [courses, setCourses] = useState<(LearnCourse & { lessons_done?: number })[] | null>(null);
 
   useEffect(() => {
     if (route === "" || route === "home") {
-      api<{ courses: LearnCourse[] }>("/api/learn/courses")
-        .then((d: { courses: LearnCourse[] }) => setCourses(d.courses))
+      api<{ courses: (LearnCourse & { lessons_done?: number })[] }>("/api/learn/courses")
+        .then((d: { courses: (LearnCourse & { lessons_done?: number })[] }) => setCourses(d.courses))
         .catch(() => setCourses([]));
     }
   }, [route]);
@@ -48,21 +48,28 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
         </div>
       ) : (
         <div style={{ width: "100%", display: "grid", gap: 12 }}>
-          {courses.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              className="kidcourse"
-              onClick={() => onNavigate(`course/${c.id}`)}
-            >
-              <span className="kc-icon" aria-hidden="true">{c.lens ? "🧵" : "📘"}</span>
-              <span className="kc-body">
-                <span className="kc-title">{c.title}</span>
-                <span className="kc-sub">{c.lesson_count} lessons{c.lens ? ` · through ${c.lens}` : ""}</span>
-              </span>
-              <span className="kc-go" aria-hidden="true">→</span>
-            </button>
-          ))}
+          {courses.map((c) => {
+            const done = c.lessons_done ?? 0;
+            const pct = c.lesson_count ? Math.round((done / c.lesson_count) * 100) : 0;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                className="kidcourse"
+                onClick={() => onNavigate(`course/${c.id}`)}
+              >
+                <span className="kc-icon" aria-hidden="true">{pct === 100 ? "🏆" : c.lens ? "🧵" : "📘"}</span>
+                <span className="kc-body">
+                  <span className="kc-title">{c.title}</span>
+                  <span className="kc-sub">
+                    {done}/{c.lesson_count} lessons{c.lens ? ` · through ${c.lens}` : ""}
+                  </span>
+                  <span className="progressbar mini"><span style={{ width: `${pct}%` }} /></span>
+                </span>
+                <span className="kc-go" aria-hidden="true">→</span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

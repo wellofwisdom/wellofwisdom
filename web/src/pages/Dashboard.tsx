@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Parent dashboard: greeting, stat bar, getting-started checklist.
-import type { MeResponse } from "../types";
+import { useEffect, useState } from "react";
+import { api } from "../api";
+import type { CourseSummary, MeResponse } from "../types";
 import { Panel, StatBar } from "../components/ui";
 import { IconCheck } from "../components/Icons";
 
@@ -22,6 +24,15 @@ export default function Dashboard({
   const user = me.user!;
   const learners = me.learners || [];
   const hasBg = localStorage.getItem("wow-theme-bg") !== null;
+  const [courses, setCourses] = useState<CourseSummary[] | null>(null);
+
+  useEffect(() => {
+    api<{ courses: CourseSummary[] }>("/api/courses")
+      .then((d) => setCourses(d.courses))
+      .catch(() => setCourses([]));
+  }, []);
+
+  const published = courses?.filter((c) => c.status === "published").length ?? 0;
 
   const steps: { label: string; done: boolean; go?: () => void }[] = [
     { label: "Create your family", done: true },
@@ -36,8 +47,8 @@ export default function Dashboard({
       go: () => onNavigate("settings"),
     },
     {
-      label: "Generate your first course with AI (coming next)",
-      done: false,
+      label: "Generate your first course with AI",
+      done: (courses?.length ?? 0) > 0,
       go: () => onNavigate("courses"),
     },
   ];
@@ -51,9 +62,9 @@ export default function Dashboard({
       <StatBar
         stats={[
           { label: "Learners", value: learners.length, onClick: () => onNavigate("learners") },
-          { label: "Courses", value: 0, onClick: () => onNavigate("courses") },
-          { label: "Review due today", value: "—" },
-          { label: "Active this week", value: "—" },
+          { label: "Courses", value: courses?.length ?? "…", onClick: () => onNavigate("courses") },
+          { label: "Published", value: courses ? published : "…", active: published > 0, onClick: () => onNavigate("courses") },
+          { label: "Exercises", value: courses ? courses.reduce((n, c) => n + c.exercise_count, 0) : "…" },
         ]}
       />
 
