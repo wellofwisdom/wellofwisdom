@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// RichText: our markdown-lite — paragraphs, **bold**, *italic*, "- " bullets,
-// and $...$ LaTeX via KaTeX. The only grammar course bodies may use.
+// RichText: our markdown-lite — paragraphs, ## headings, **bold**, *italic*,
+// "- " bullets, "- [ ]" checklists, "> [!note]/[!tip]/[!warn]" callouts,
+// and $...$ LaTeX via KaTeX. The only grammar lessons/notes may use.
 import { Fragment, type ReactNode } from "react";
 import katex from "katex";
 
@@ -34,6 +35,12 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
   return parts;
 }
 
+const CALLOUTS: Record<string, { icon: string; cls: string }> = {
+  note: { icon: "📝", cls: "co-note" },
+  tip: { icon: "💡", cls: "co-tip" },
+  warn: { icon: "⚠️", cls: "co-warn" },
+};
+
 export function RichText({ text }: { text: string }) {
   const paragraphs = String(text || "")
     .replace(/\r\n/g, "\n")
@@ -44,6 +51,46 @@ export function RichText({ text }: { text: string }) {
     <div className="richtext">
       {paragraphs.map((p, pi) => {
         const lines = p.split("\n").map((l) => l.trim());
+
+        // callout block: > [!type] first line, "> " continuation lines
+        const co = lines[0] && lines[0].match(/^>\s*!?(note|tip|warn)\s*:?\s*(.*)$/i);
+        if (co) {
+          const meta = CALLOUTS[co[1].toLowerCase()] || CALLOUTS.note;
+          const rest = lines
+            .slice(1)
+            .map((l) => l.replace(/^>\s?/, ""))
+            .filter(Boolean)
+            .join(" ");
+          return (
+            <div key={pi} className={`callout ${meta.cls}`}>
+              <span className="co-icon" aria-hidden="true">{meta.icon}</span>
+              <div>{inline([co[2], rest].filter(Boolean).join(" "), `${pi}`)}</div>
+            </div>
+          );
+        }
+
+        // heading block: every line starts with ##
+        if (lines.every((l) => l.startsWith("## "))) {
+          return <h3 key={pi} className="rhead">{lines.map((l) => l.slice(3)).join(" ")}</h3>;
+        }
+
+        // checklist block
+        if (lines.every((l) => /^-\s\[[ xX]\]/.test(l))) {
+          return (
+            <ul key={pi} className="checklist">
+              {lines.map((l, li) => {
+                const checked = /^-\s\[[xX]\]/.test(l);
+                return (
+                  <li key={li} className={checked ? "checked" : ""}>
+                    <span className="ck" aria-hidden="true">{checked ? "☑" : "☐"}</span>{" "}
+                    {inline(l.replace(/^-\s\[[ xX]\]\s?/, ""), `${pi}-${li}`)}
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+
         if (lines.every((l) => l.startsWith("- "))) {
           return (
             <ul key={pi}>

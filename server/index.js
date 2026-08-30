@@ -58,6 +58,7 @@ app.use("/api/courses", require("./routes/courses"));
 app.use("/api/learn", require("./routes/learn"));
 app.use("/api/progress", require("./routes/progress"));
 app.use("/api/plans", require("./routes/plans"));
+app.use("/api/notes", require("./routes/notes"));
 
 // AI usage for this family (parent only) — spend transparency.
 app.get("/api/ai/usage", auth.parentOnly, async (req, res, next) => {
