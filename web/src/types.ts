@@ -18,6 +18,7 @@ export interface Learner {
   grade_level: number | null;
   interests: string[];
   reading_level: string | null;
+  ai_notes: string | null;
   created_at: string;
 }
 

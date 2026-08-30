@@ -43,6 +43,7 @@ export default function Learners({ me, onChanged }: { me: MeResponse; onChanged:
                   <div className="u">@{l.username}{l.grade_level ? ` · grade ${l.grade_level}` : ""}</div>
                 </div>
                 <div className="chips">
+                  {l.ai_notes && <span className="chip" title="Has remembered AI notes">🧠</span>}
                   {l.interests.slice(0, 3).map((i) => (
                     <span className="chip" key={i}>{i}</span>
                   ))}
@@ -70,7 +71,7 @@ export default function Learners({ me, onChanged }: { me: MeResponse; onChanged:
 
       <Panel title="How learners sign in" side="kid-friendly">
         <p className="muted small">
-          Kids use three things from any device: the family code{" "}
+          Learners sign in with three things from any device: the family code{" "}
           <code className="k">{me.user?.joinCode}</code>, their username, and their PIN.
           No email, no personal data — just learning.
         </p>
@@ -151,6 +152,7 @@ function LearnerForm({
   const [gradeLevel, setGradeLevel] = useState<string>(learner?.grade_level ? String(learner.grade_level) : "");
   const [interests, setInterests] = useState((learner?.interests || []).join(", "));
   const [readingLevel, setReadingLevel] = useState(learner?.reading_level || "");
+  const [aiNotes, setAiNotes] = useState(learner?.ai_notes || "");
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -161,6 +163,7 @@ function LearnerForm({
         gradeLevel: gradeLevel === "" ? null : Number(gradeLevel),
         interests: interests.split(",").map((s) => s.trim()).filter(Boolean),
         readingLevel: readingLevel || null,
+        aiNotes: aiNotes || null,
       };
       if (learner) {
         // username is fixed after creation (it's their login); PIN only if changed
@@ -216,6 +219,11 @@ function LearnerForm({
         <Field label="Interests" hint="Comma separated. This is what the AI builds lessons around — sewing, Minecraft, horses…">
           <input className="input" value={interests} onChange={(e) => setInterests(e.target.value)}
             placeholder="sewing, dinosaurs, soccer" />
+        </Field>
+        <Field label="🧠 AI notes (remembered for every course)"
+          hint="Standing instructions the AI applies automatically: struggles, preferences, tone. **bold** · $math$ formatting supported.">
+          <textarea className="input" rows={3} value={aiNotes} onChange={(e) => setAiNotes(e.target.value)}
+            placeholder="Struggles with common denominators. Keep examples kind and funny." maxLength={2000} />
         </Field>
         <div className="row">
           <button className="btn" type="button" onClick={onClose}>Cancel</button>

@@ -44,7 +44,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
         <div className="kidcard">
           <div className="big" aria-hidden="true">🌱</div>
           <h2 style={{ margin: "8px 0 6px" }}>No courses yet</h2>
-          <p className="muted">Your parent is setting up your first course. It'll be built around the things you love.</p>
+          <p className="muted">Your guide is setting up your first course. It'll be built around the things you love.</p>
         </div>
       ) : (
         <div style={{ width: "100%", display: "grid", gap: 12 }}>

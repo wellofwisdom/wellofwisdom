@@ -12,7 +12,7 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
-const LEARNER_FIELDS = `id, name, username, grade_level, interests, reading_level, created_at`;
+const LEARNER_FIELDS = `id, name, username, grade_level, interests, reading_level, ai_notes, created_at`;
 
 router.get("/learners", async (req, res, next) => {
   try {
@@ -28,7 +28,7 @@ router.get("/learners", async (req, res, next) => {
 
 router.post("/learners", async (req, res, next) => {
   try {
-    const { name, username, pin, gradeLevel, interests, readingLevel } = req.body || {};
+    const { name, username, pin, gradeLevel, interests, readingLevel, aiNotes } = req.body || {};
     if (!String(name || "").trim()) return bad(res, "name_required");
     const uname = String(username || "").trim().toLowerCase();
     if (!/^[a-z0-9_.-]{2,24}$/.test(uname)) return bad(res, "username_invalid");
@@ -43,8 +43,8 @@ router.post("/learners", async (req, res, next) => {
     if (exists.rowCount > 0) return bad(res, "username_taken", 409);
 
     const { rows } = await db.query(
-      `insert into users (family_id, role, name, username, pin_hash, grade_level, interests, reading_level)
-       values ($1, 'learner', $2, $3, $4, $5, $6, $7) returning ${LEARNER_FIELDS}`,
+      `insert into users (family_id, role, name, username, pin_hash, grade_level, interests, reading_level, ai_notes)
+       values ($1, 'learner', $2, $3, $4, $5, $6, $7, $8) returning ${LEARNER_FIELDS}`,
       [
         req.user.familyId,
         String(name).trim().slice(0, 80),
@@ -53,6 +53,7 @@ router.post("/learners", async (req, res, next) => {
         grade,
         Array.isArray(interests) ? interests.slice(0, 12).map((s) => String(s).trim().slice(0, 40)).filter(Boolean) : [],
         readingLevel ? String(readingLevel).slice(0, 20) : null,
+        aiNotes ? String(aiNotes).slice(0, 2000) : null,
       ]
     );
     res.status(201).json({ learner: rows[0] });
@@ -65,7 +66,7 @@ router.patch("/learners/:id", async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) return bad(res, "id_invalid");
-    const { name, pin, gradeLevel, interests, readingLevel } = req.body || {};
+    const { name, pin, gradeLevel, interests, readingLevel, aiNotes } = req.body || {};
 
     const sets = [];
     const params = [req.user.familyId, id];
@@ -91,6 +92,9 @@ router.patch("/learners/:id", async (req, res, next) => {
     }
     if (readingLevel !== undefined) {
       add("reading_level", readingLevel ? String(readingLevel).slice(0, 20) : null);
+    }
+    if (aiNotes !== undefined) {
+      add("ai_notes", aiNotes ? String(aiNotes).slice(0, 2000) : null);
     }
     if (!sets.length) return bad(res, "nothing_to_update");
 

@@ -55,7 +55,8 @@ function buildUserPrompt(spec, sourcesText) {
   if (spec.gradeLevel) lines.push(`Learner grade level: ${spec.gradeLevel}`);
   if (spec.lens) lines.push(`LENS — teach this subject through: ${spec.lens}`);
   if (spec.interests && spec.interests.length) lines.push(`Learner interests: ${spec.interests.join(", ")}`);
-  if (spec.notes) lines.push(`Parent notes: ${spec.notes}`);
+  if (spec.learnerNotes) lines.push(`REMEMBERED learner notes (the guide set these; apply automatically): ${spec.learnerNotes}`);
+  if (spec.notes) lines.push(`Guide notes for this course: ${spec.notes}`);
   if (sourcesText) {
     lines.push(`SOURCES the course must be grounded in:`);
     lines.push(sourcesText.slice(0, 20000));

@@ -24,12 +24,14 @@ router.post("/generate", async (req, res, next) => {
     if (!ai.configured()) return bad(res, "ai_not_configured", 503);
     const grade = gradeLevel == null || gradeLevel === "" ? null : Number(gradeLevel);
     if (grade != null && (!Number.isInteger(grade) || grade < 1 || grade > 14)) return bad(res, "grade_invalid");
+    let learnerProfile = null;
     if (learnerId != null) {
       const owns = await db.query(
-        "select 1 from users where id = $1 and family_id = $2 and role = 'learner'",
+        "select name, grade_level, interests, ai_notes from users where id = $1 and family_id = $2 and role = 'learner'",
         [Number(learnerId), req.user.familyId]
       );
       if (!owns.rowCount) return bad(res, "learner_not_found", 404);
+      learnerProfile = owns.rows[0];
     }
 
     // Resolve sources (max 5; URLs fetched server-side, never client-side).
@@ -58,6 +60,8 @@ router.post("/generate", async (req, res, next) => {
       learnerId: learnerId ? Number(learnerId) : null,
       lens: String(lens || "").trim().slice(0, 100) || null,
       gradeLevel: grade,
+      interests: learnerProfile ? learnerProfile.interests : [],
+      learnerNotes: learnerProfile && learnerProfile.ai_notes ? String(learnerProfile.ai_notes) : null,
       notes: String(notes || "").trim().slice(0, 1000) || null,
       sources: resolved,
     };

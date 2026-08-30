@@ -1,52 +1,67 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Parent console shell: sidebar + topbar + mobile drawer + theme toggle.
+// Guide console shell: sidebar sections + topbar + mobile drawer + palette.
 import { useEffect, useState, type ReactNode } from "react";
-import type { Me } from "../types";
+import type { CourseSummary, Me } from "../types";
 import { isDark, setMode } from "../theme";
+import Palette from "./Palette";
 import {
   IconHome, IconUsers, IconBook, IconClipboard, IconSettings,
-  IconSun, IconMoon, IconMenu, IconX, IconLogout,
+  IconSun, IconMoon, IconMenu, IconX, IconLogout, IconSparkle,
 } from "./Icons";
-
-export interface NavItem {
-  id: string;
-  label: string;
-  icon: ReactNode;
-}
-
-export const PARENT_NAV: NavItem[] = [
-  { id: "dashboard", label: "Dashboard", icon: <IconHome /> },
-  { id: "learners", label: "Learners", icon: <IconUsers /> },
-  { id: "courses", label: "Courses", icon: <IconBook /> },
-  { id: "records", label: "Records", icon: <IconClipboard /> },
-  { id: "settings", label: "Settings", icon: <IconSettings /> },
-];
 
 const TITLES: Record<string, string> = {
   dashboard: "Dashboard",
-  learners: "Learners",
+  studio: "Course Studio",
   courses: "Courses",
+  learners: "Learners",
   records: "Records",
+  experience: "Experience",
   settings: "Settings",
 };
+
+const SECTIONS: { label: string; items: { id: string; label: string; icon: ReactNode }[] }[] = [
+  {
+    label: "Learn",
+    items: [
+      { id: "dashboard", label: "Dashboard", icon: <IconHome /> },
+      { id: "studio", label: "Course Studio", icon: <IconSparkle /> },
+      { id: "courses", label: "Courses", icon: <IconBook /> },
+    ],
+  },
+  {
+    label: "Manage",
+    items: [
+      { id: "learners", label: "Learners", icon: <IconUsers /> },
+      { id: "records", label: "Records", icon: <IconClipboard /> },
+    ],
+  },
+  {
+    label: "Preferences",
+    items: [
+      { id: "experience", label: "Experience", icon: <span aria-hidden="true">🎨</span> },
+      { id: "settings", label: "Settings", icon: <IconSettings /> },
+    ],
+  },
+];
 
 export default function Shell({
   me,
   route,
   onNavigate,
   onLogout,
+  courses,
   children,
 }: {
   me: Me;
   route: string;
   onNavigate: (id: string) => void;
   onLogout: () => void;
+  courses: CourseSummary[] | null;
   children: ReactNode;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dark, setDark] = useState(isDark());
 
-  // keep the toggle in sync when the theme changes elsewhere (Settings, OS)
   useEffect(() => {
     const sync = () => setDark(isDark());
     window.addEventListener("wow-theme-change", sync);
@@ -58,6 +73,13 @@ export default function Shell({
     };
   }, []);
 
+  const toggleTheme = () => {
+    const next = dark ? "light" : "dark";
+    setMode(next);
+    setDark(next === "dark");
+    window.dispatchEvent(new Event("wow-theme-change"));
+  };
+
   const go = (id: string) => {
     onNavigate(id);
     setDrawerOpen(false);
@@ -65,17 +87,22 @@ export default function Shell({
 
   const nav = (
     <nav aria-label="Main">
-      {PARENT_NAV.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          className={`navlink${route === item.id ? " active" : ""}`}
-          onClick={() => go(item.id)}
-          aria-current={route === item.id ? "page" : undefined}
-        >
-          {item.icon}
-          {item.label}
-        </button>
+      {SECTIONS.map((section) => (
+        <div key={section.label} className="navsection">
+          <div className="navlabel">{section.label}</div>
+          {section.items.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`navlink${route === item.id ? " active" : ""}`}
+              onClick={() => go(item.id)}
+              aria-current={route === item.id ? "page" : undefined}
+            >
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+        </div>
       ))}
     </nav>
   );
@@ -106,15 +133,9 @@ export default function Shell({
           <span className="avatar" aria-hidden="true">{me.name.slice(0, 1).toUpperCase()}</span>
           <span className="who">
             <span className="n">{me.name}</span>
-            <span className="r">Parent</span>
+            <span className="r">Guide</span>
           </span>
-          <button
-            className="iconbtn"
-            onClick={onLogout}
-            aria-label="Sign out"
-            title="Sign out"
-            type="button"
-          >
+          <button className="iconbtn" onClick={onLogout} aria-label="Sign out" title="Sign out" type="button">
             <IconLogout />
           </button>
         </div>
@@ -134,12 +155,7 @@ export default function Shell({
           <div className="actions">
             <button
               className="iconbtn"
-              onClick={() => {
-                const next = dark ? "light" : "dark";
-                setMode(next);
-                setDark(next === "dark");
-                window.dispatchEvent(new Event("wow-theme-change"));
-              }}
+              onClick={toggleTheme}
               aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
               title={dark ? "Light mode" : "Dark mode"}
               type="button"
@@ -150,6 +166,8 @@ export default function Shell({
         </header>
         <main className="page">{children}</main>
       </div>
+
+      <Palette courses={courses} onNavigate={onNavigate} onToggleTheme={toggleTheme} />
     </div>
   );
 }

@@ -35,7 +35,7 @@ export default function Dashboard({
   const published = courses?.filter((c) => c.status === "published").length ?? 0;
 
   const steps: { label: string; done: boolean; go?: () => void }[] = [
-    { label: "Create your family", done: true },
+    { label: "Create your group", done: true },
     {
       label: `Add a learner${learners.length ? " — you did! 🎉" : ""}`,
       done: learners.length > 0,
@@ -57,7 +57,7 @@ export default function Dashboard({
   return (
     <>
       <h2 style={{ marginBottom: 4 }}>{greeting()}, {user.name.split(" ")[0]} 👋</h2>
-      <p className="muted" style={{ marginBottom: 18 }}>{user.familyName} · parent console</p>
+      <p className="muted" style={{ marginBottom: 18 }}>{user.familyName} · guide console</p>
 
       <StatBar
         stats={[

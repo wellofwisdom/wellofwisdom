@@ -2,9 +2,9 @@
 
 # 🌰 Well of Wisdom
 
-**Self-hosted, AI-first learning for homeschoolers — a free, open-source Khan Academy alternative.**
+**Self-hosted, AI-first learning — a free, open-source Khan Academy alternative.**
 
-Generate full courses with AI. Learn any subject through what you love.
+For homeschools, classrooms, co-ops, and self-learners. Generate full courses with AI — learn any subject through what you love.
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![CI](https://github.com/wellofwisdom/wellofwisdom/actions/workflows/ci.yml/badge.svg)](https://github.com/wellofwisdom/wellofwisdom/actions/workflows/ci.yml)

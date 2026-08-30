@@ -91,7 +91,7 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
               value={course.learner_id ?? ""}
               onChange={(e) => patch({ learnerId: e.target.value === "" ? null : Number(e.target.value) })}
             >
-              <option value="">Whole family</option>
+              <option value="">Everyone</option>
               {learners.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </Field>

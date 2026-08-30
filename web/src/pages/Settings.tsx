@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { HealthResponse, MeResponse } from "../types";
 import { Panel, Field, StatBar } from "../components/ui";
-import { BACKGROUNDS, getBg, getMode, setBg, setMode, type Mode } from "../theme";
 import { IconCheck, IconCopy } from "../components/Icons";
 
 interface AiUsageResponse {
@@ -49,8 +48,6 @@ function AiUsage() {
 
 export default function Settings({ me }: { me: MeResponse }) {
   const user = me.user!;
-  const [mode, setModeState] = useState<Mode>(getMode());
-  const [bg, setBgState] = useState(getBg());
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -88,46 +85,11 @@ export default function Settings({ me }: { me: MeResponse }) {
         </Field>
       </Panel>
 
-      <Panel title="Appearance" side="per device for now">
-        <Field label="Mode">
-          <div className="seg" role="radiogroup" aria-label="Color mode">
-            {(["light", "dark", "system"] as Mode[]).map((m) => (
-              <button
-                key={m}
-                type="button"
-                role="radio"
-                aria-checked={mode === m}
-                className={mode === m ? "on" : ""}
-                onClick={() => {
-                  setMode(m);
-                  setModeState(m);
-                }}
-              >
-                {m === "light" ? "Light" : m === "dark" ? "Dark" : "System"}
-              </button>
-            ))}
-          </div>
-        </Field>
-        <Field label="Background">
-          <div className="bggrid">
-            {BACKGROUNDS.map((b) => (
-              <button
-                key={b.id}
-                type="button"
-                className={`bgswatch${bg === b.id ? " on" : ""}`}
-                style={{ background: b.swatch }}
-                aria-label={`Background: ${b.name}`}
-                aria-pressed={bg === b.id}
-                onClick={() => {
-                  setBg(b.id);
-                  setBgState(b.id);
-                }}
-              >
-                {b.name}
-              </button>
-            ))}
-          </div>
-        </Field>
+      <Panel title="Appearance" side="themes & colors">
+        <p className="muted" style={{ marginBottom: 10 }}>
+          Backgrounds, accent colors, dark mode, reading size — everything lives in one place now.
+        </p>
+        <a className="btn primary" href="#/experience">🎨 Open Experience</a>
       </Panel>
 
       <Panel title="AI usage" side="this family, this month">

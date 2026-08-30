@@ -13,6 +13,19 @@
       var dark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
       document.documentElement.dataset.theme = dark ? "dark" : "light";
       document.documentElement.dataset.bg = localStorage.getItem("wow-theme-bg") || "plain";
+      var a = { teal:["#0f7d5c","#2dd4a7","#e0f2ec","#12362e"], blue:["#0969da","#58a6ff","#dbeafe","#12253d"], violet:["#7c3aed","#a78bfa","#ede9fe","#241b3d"], rose:["#be185d","#f472b6","#fce7f3","#3b0f26"], amber:["#b45309","#fbbf24","#fef3c7","#38240a"], green:["#15803d","#4ade80","#dcfce7","#0d2b18"], sky:["#0369a1","#38bdf8","#e0f2fe","#0c2537"], plum:["#9d174d","#e879f9","#fae8ff","#33102a"] }[localStorage.getItem("wow-accent") || "teal"] || null;
+      if (a) {
+        var r = document.documentElement.style;
+        r.setProperty("--accent", dark ? a[1] : a[0]);
+        r.setProperty("--accent-soft", dark ? a[3] : a[2]);
+        r.setProperty("--accent-contrast", dark ? "#07130f" : "#ffffff");
+      }
+      var img = localStorage.getItem("wow-bgimg");
+      if (img) {
+        document.documentElement.style.setProperty("--bg-image", 'url("' + img.replace(/"/g, "") + '")');
+        document.documentElement.dataset.bgimg = "1";
+      }
+      document.documentElement.dataset.textscale = localStorage.getItem("wow-textscale") || "normal";
     } catch (e) {}
   </script>
 </head>

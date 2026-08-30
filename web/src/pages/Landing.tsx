@@ -35,16 +35,34 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
       <div className="nutbig" aria-hidden="true">🌰</div>
       <h1>Well of Wisdom</h1>
       <p className="tag">
-        Self-hosted, AI-first learning for homeschoolers. Your server, your kids,
-        your curriculum — generated for them.
+        Self-hosted, AI-first learning. Your server, your curriculum — for homeschools,
+        classrooms, co-ops, and self-learners.
       </p>
+
+      <div className="herofeats">
+        <div className="herofeat">
+          <span className="fi" aria-hidden="true">✨</span>
+          <strong>AI builds the course</strong>
+          <span className="hs">Any topic, any level, in minutes</span>
+        </div>
+        <div className="herofeat">
+          <span className="fi" aria-hidden="true">🧵</span>
+          <strong>Learn through what you love</strong>
+          <span className="hs">Fractions through sewing. Physics through skateboarding.</span>
+        </div>
+        <div className="herofeat">
+          <span className="fi" aria-hidden="true">🔒</span>
+          <strong>Your server, your data</strong>
+          <span className="hs">Open source. Works fully offline.</span>
+        </div>
+      </div>
 
       <div className="authcard">
         <PillTabs
           ariaLabel="Sign in type"
           tabs={[
-            { id: "signin", label: "Parent sign in" },
-            { id: "signup", label: "Create family" },
+            { id: "signin", label: "Guide sign in" },
+            { id: "signup", label: "Create your group" },
             { id: "learner", label: "I'm a learner" },
           ]}
           value={tab}
@@ -84,7 +102,7 @@ function SignIn({ busy, onSubmit }: { busy: boolean; onSubmit: (b: Record<string
     >
       <div className="field">
         <label htmlFor="si-email">Email</label>
-        <input id="si-email" className="input" type="email" autoComplete="email" required
+        <input id="si-email" className="input" type="email" autoComplete="username" required
           value={email} onChange={(e) => setEmail(e.target.value)} />
       </div>
       <div className="field">
@@ -121,19 +139,19 @@ function SignUp({ busy, inviteRequired, onSubmit }: { busy: boolean; inviteRequi
         </div>
       )}
       <div className="field">
-        <label htmlFor="su-family">Family or school name</label>
-        <input id="su-family" className="input" required maxLength={80} placeholder="The Treman Family"
+        <label htmlFor="su-family">Group name</label>
+        <input id="su-family" className="input" required maxLength={80} placeholder="The Treman Family, Chem Co-op, Ms. Rivera's class"
           value={familyName} onChange={(e) => setFamilyName(e.target.value)} />
-        <div className="hint">You'll get a join code your kids use to sign in.</div>
+        <div className="hint">Your family, class, or co-op. You'll get a join code your learners use to sign in.</div>
       </div>
       <div className="field">
         <label htmlFor="su-name">Your name</label>
-        <input id="su-name" className="input" required maxLength={80} value={name}
+        <input id="su-name" className="input" autoComplete="name" required maxLength={80} value={name}
           onChange={(e) => setName(e.target.value)} />
       </div>
       <div className="field">
         <label htmlFor="su-email">Email</label>
-        <input id="su-email" className="input" type="email" autoComplete="email" required
+        <input id="su-email" className="input" type="email" autoComplete="username" required
           value={email} onChange={(e) => setEmail(e.target.value)} />
       </div>
       <div className="field">
@@ -165,7 +183,7 @@ function LearnerIn({ busy, onSubmit }: { busy: boolean; onSubmit: (b: Record<str
         <input id="li-code" className="input" required maxLength={6} placeholder="ABC123" autoCapitalize="characters"
           style={{ textTransform: "uppercase", letterSpacing: "0.15em" }}
           value={joinCode} onChange={(e) => setJoinCode(e.target.value)} />
-        <div className="hint">Ask your parent — it's in their Settings.</div>
+        <div className="hint">Ask your guide — it's in their Settings.</div>
       </div>
       <div className="field">
         <label htmlFor="li-user">Username</label>

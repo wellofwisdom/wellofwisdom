@@ -10,8 +10,11 @@ import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import Records from "./pages/Records";
 import Settings from "./pages/Settings";
+import Studio from "./pages/Studio";
+import Experience from "./pages/Experience";
 import LearnerApp from "./pages/learn/LearnerApp";
 import PrintLesson from "./pages/PrintLesson";
+import type { CourseSummary } from "./types";
 
 function currentRoute(): string {
   const h = window.location.hash.replace(/^#\/?/, "");
@@ -22,6 +25,7 @@ export default function App() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [route, setRouteState] = useState(currentRoute);
+  const [courses, setCourses] = useState<CourseSummary[] | null>(null);
 
   useEffect(() => {
     const onHash = () => setRouteState(currentRoute());
@@ -47,6 +51,15 @@ export default function App() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Keep the palette's course list fresh whenever we land back on the console.
+  useEffect(() => {
+    if (me?.user?.role === "parent") {
+      api<{ courses: CourseSummary[] }>("/api/courses")
+        .then((d) => setCourses(d.courses))
+        .catch(() => {});
+    }
+  }, [me, route]);
 
   const logout = useCallback(async () => {
     await api("/api/auth/logout", { method: "POST" }).catch(() => {});
@@ -84,9 +97,11 @@ export default function App() {
   const detailMatch = route.match(/^course\/(\d+)$/);
 
   return (
-    <Shell me={user} route={detailMatch ? "courses" : route} onNavigate={navigate} onLogout={logout}>
+    <Shell me={user} route={detailMatch ? "courses" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
       {route === "learners" && <Learners me={me!} onChanged={refresh} />}
-      {route === "courses" && <Courses me={me!} onNavigate={navigate} />}
+      {route === "studio" && <Studio me={me!} onNavigate={navigate} />}
+      {route === "courses" && <Courses onNavigate={navigate} />}
+      {route === "experience" && <Experience />}
       {detailMatch && <CourseDetail me={me!} courseId={Number(detailMatch[1])} onNavigate={navigate} />}
       {route === "records" && <Records />}
       {route === "settings" && <Settings me={me!} />}
