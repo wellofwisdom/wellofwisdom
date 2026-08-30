@@ -1,0 +1,8 @@
+# Normalize line endings: LF in repo and on checkout for source files.
+# Windows contributors keep working locally via core.autocrlf if they prefer.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff2 binary
