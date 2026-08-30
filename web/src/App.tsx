@@ -11,6 +11,7 @@ import CourseDetail from "./pages/CourseDetail";
 import Progress from "./pages/Progress";
 import Plans from "./pages/Plans";
 import Notes from "./pages/Notes";
+import Library from "./pages/Library";
 import PlanWizard from "./pages/PlanWizard";
 import PlanDetail from "./pages/PlanDetail";
 import Settings from "./pages/Settings";
@@ -111,6 +112,7 @@ export default function App() {
       {route === "records" && <Progress />}
       {route === "plans" && <Plans onNavigate={navigate} />}
       {route === "notes" && <Notes />}
+      {route === "library" && <Library />}
       {route === "plans/new" && <PlanWizard me={me!} onNavigate={navigate} />}
       {planMatch && <PlanDetail planId={Number(planMatch[1])} onNavigate={navigate} meLearners={me.learners || []} />}
       {route === "settings" && <Settings me={me!} />}

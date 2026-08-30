@@ -51,6 +51,7 @@ export default function Palette({
       { id: "n-learners", label: "Manage learners", icon: "🧑‍🎓", run: () => onNavigate("learners") },
       { id: "n-plans", label: "Learning Paths — plan a semester or year", icon: "🗺️", run: () => onNavigate("plans") },
       { id: "n-notes", label: "Workspace — notes & pages", icon: "🗒️", run: () => onNavigate("notes") },
+      { id: "n-library", label: "Library — resources & links", icon: "📚", run: () => onNavigate("library") },
       { id: "n-records", label: "Progress & achievements", icon: "📈", run: () => onNavigate("records") },
       { id: "n-exp", label: "Experience — themes & colors", icon: "🎨", run: () => onNavigate("experience") },
       { id: "n-settings", label: "Settings", icon: "⚙️", run: () => onNavigate("settings") },
