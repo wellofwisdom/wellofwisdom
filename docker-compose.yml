@@ -1,0 +1,49 @@
+# Well of Wisdom — one-command self-hosting.
+#   Full stack (app + database):   docker compose up -d
+#   With fully-local AI (Ollama):  docker compose --profile local-ai up -d
+#     then set AI_BASE_URL=http://ollama:11434/v1 in .env and restart the app.
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://wow:wow@db:5432/wellofwisdom
+      AI_BASE_URL: ${AI_BASE_URL:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL_PRO: ${AI_MODEL_PRO:-gpt-4o-mini}
+      AI_MODEL_FLASH: ${AI_MODEL_FLASH:-gpt-4o-mini}
+      AI_ROUTES: ${AI_ROUTES:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: wow
+      POSTGRES_PASSWORD: wow
+      POSTGRES_DB: wellofwisdom
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wow -d wellofwisdom"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  # Optional: fully local, offline AI. `ollama pull llama3.1` after first boot.
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["local-ai"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  ollama:

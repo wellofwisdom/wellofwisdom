@@ -1,0 +1,51 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Well of Wisdom — self-hosted, AI-first learning</title>
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #0d1117; color: #e6edf3;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  main { max-width: 640px; text-align: center; }
+  .mark { font-size: 56px; }
+  h1 { font-size: 32px; margin: 16px 0 8px; letter-spacing: -0.5px; }
+  p.tag { font-size: 18px; color: #9nbaab; margin-bottom: 28px; }
+  .card {
+    background: #161b22; border: 1px solid #30363d; border-radius: 12px;
+    padding: 20px 24px; text-align: left; font-size: 15px; line-height: 1.6;
+  }
+  .card strong { color: #7ee787; }
+  .status { margin-top: 20px; font-size: 13px; color: #8b949e; }
+  .status a { color: #58a6ff; text-decoration: none; }
+  code { background: #21262d; border-radius: 4px; padding: 2px 6px; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark">🌰</div>
+  <h1>Well of Wisdom</h1>
+  <p class="tag">Self-hosted, AI-first learning for homeschoolers.</p>
+  <div class="card">
+    <p><strong>The server is running.</strong> This is the skeleton build — the app
+    UI is under construction.</p>
+    <p style="margin-top:10px;">In the myth, nine hazel trees grow over the Well of Wisdom.
+    Their nuts fall into the water, and whoever tastes them learns all the world's knowledge.
+    Here, every learner drinks from their own well: courses generated for them,
+    through the things they love.</p>
+  </div>
+  <p class="status">
+    status: <a href="/api/health">/api/health</a> ·
+    source: <a href="https://github.com/wellofwisdom/wellofwisdom">GitHub</a> ·
+    license: AGPL-3.0
+  </p>
+</main>
+</body>
+</html>
