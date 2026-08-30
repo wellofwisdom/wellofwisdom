@@ -153,6 +153,7 @@ a:hover { text-decoration: underline; }
   --amber: #b07a0a; --amber-bg: #faf0dc; --amber-d: #8a5f07;
   --violet: #7a4fd0; --violet-bg: #f0eafb; --violet-d: #613aae;
   --slate: #5a6b80; --slate-bg: #eef2f7; --slate-d: #46586d;
+  --lime: #5c940d; --lime-bg: #eef6df; --lime-d: #4c7c0b;
 }
 [data-theme="dark"] {
   --green: #3fb950; --green-bg: #12271a; --green-d: #56d364;
@@ -162,6 +163,7 @@ a:hover { text-decoration: underline; }
   --amber: #e3a94f; --amber-bg: #2a2113; --amber-d: #f0bc69;
   --violet: #b593f2; --violet-bg: #231a38; --violet-d: #c8abf7;
   --slate: #93a4b8; --slate-bg: #1b222c; --slate-d: #aabbcd;
+  --lime: #a9d34c; --lime-bg: #1e2610; --lime-d: #bce06a;
 }
 
 .shell { display: grid; grid-template-columns: 264px 1fr; min-height: 100vh; }
@@ -225,6 +227,7 @@ a:hover { text-decoration: underline; }
 .c-amber { background: var(--amber-bg); color: var(--amber); }
 .c-violet { background: var(--violet-bg); color: var(--violet); }
 .c-slate { background: var(--slate-bg); color: var(--slate); }
+.c-lime { background: var(--lime-bg); color: var(--lime); }
 
 .navlink.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
 .navlink.on::before {

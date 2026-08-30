@@ -259,6 +259,12 @@ async function generateCourse(spec, userId, familyId) {
   const course = normalizeCourse(out.json);
   if (!course) throw new Error("ai_course_unparseable: model output failed normalization (no usable units/lessons)");
   const { courseId, counts } = await persistCourse(course, spec, userId, familyId);
+  // A milestone-generated course links back to its milestone automatically.
+  if (spec.milestoneId) {
+    await db
+      .query("update plan_milestones set course_id = $2 where id = $1", [spec.milestoneId, courseId])
+      .catch((err) => console.error(`[coursegen] milestone link failed (ignored): ${err.message}`));
+  }
   return { courseId, title: course.title, counts };
 }
 

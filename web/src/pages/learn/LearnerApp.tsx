@@ -8,9 +8,19 @@ import Practice from "./Practice";
 import LessonPlayer from "./LessonPlayer";
 import { IconLogout } from "../../components/Icons";
 
+interface PathPlan {
+  id: number;
+  title: string;
+  subject: string;
+  milestones_total: number;
+  milestones_done: number;
+  next: { id: number; title: string; target_date: string | null; course_id: number | null } | null;
+}
+
 export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me; route: string; onNavigate: (hash: string) => void; onLogout: () => void }) {
   const [courses, setCourses] = useState<(LearnCourse & { lessons_done?: number })[] | null>(null);
   const [reviewsDue, setReviewsDue] = useState<number | null>(null);
+  const [paths, setPaths] = useState<PathPlan[] | null>(null);
 
   useEffect(() => {
     if (route === "" || route === "home") {
@@ -20,6 +30,9 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
       api<{ due: number }>("/api/learn/review")
         .then((d: { due: number }) => setReviewsDue(d.due || 0))
         .catch(() => setReviewsDue(0));
+      api<{ plans: PathPlan[] }>("/api/learn/plans")
+        .then((d: { plans: PathPlan[] }) => setPaths(d.plans || []))
+        .catch(() => setPaths([]));
     }
   }, [route]);
 
@@ -45,6 +58,22 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
       </div>
       <div className="hi">Hi, {me.name.split(" ")[0]}!</div>
       <p className="sub">Pick a course and dive in.</p>
+
+      {paths && paths.map((p) => (
+        <button key={p.id} type="button" className="kidcourse" onClick={() => p.next?.course_id ? onNavigate(`course/${p.next.course_id}`) : onNavigate("")} style={{ opacity: p.next ? 1 : 0.75 }}>
+          <span className="kc-icon" aria-hidden="true">🗺️</span>
+          <span className="kc-body">
+            <span className="kc-title">{p.title}</span>
+            <span className="kc-sub">
+              {p.next
+                ? `Next up: ${p.next.title}${p.next.target_date ? ` · by ${p.next.target_date}` : ""}`
+                : "All milestones have courses — keep going below"}
+            </span>
+            <span className="progressbar mini"><span style={{ width: `${p.milestones_total ? Math.round((p.milestones_done / p.milestones_total) * 100) : 0}%`, display: "block", height: "100%", background: "var(--accent)" }} /></span>
+          </span>
+          <span className="kc-go" aria-hidden="true">→</span>
+        </button>
+      ))}
 
       {reviewsDue !== null && reviewsDue > 0 && (
         <button type="button" className="kidcourse practicecard" onClick={() => onNavigate("practice")}>

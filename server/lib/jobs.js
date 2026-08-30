@@ -11,6 +11,11 @@ const HANDLERS = {
     const spec = job.payload;
     return generateCourse(spec, spec.created_by, job.family_id);
   },
+  "plan-outline": async (job) => {
+    const spec = job.payload;
+    const { generateOutline } = require("./plangen");
+    return generateOutline(spec);
+  },
 };
 
 async function enqueue(familyId, type, payload, createdBy) {

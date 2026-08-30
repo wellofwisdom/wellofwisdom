@@ -287,6 +287,47 @@ router.get("/review", async (req, res, next) => {
   }
 });
 
+// The learner's learning paths: what's coming up next on each active plan.
+router.get("/plans", async (req, res, next) => {
+  try {
+    const plans = await db.query(
+      `select p.id, p.title, p.subject, p.end_date
+         from term_plans p join plan_enrollments e on e.plan_id = p.id
+        where p.family_id = $1 and e.learner_id = $2 and p.status = 'active'
+        order by p.created_at desc`,
+      [req.user.familyId, req.user.id]
+    );
+    const out = [];
+    for (const p of plans.rows) {
+      const ms = await db.query(
+        `select m.id, m.title, m.description, m.target_date, m.course_id, c.title as course_title,
+                (select count(*) from lessons l join units un on un.id = l.unit_id where un.course_id = m.course_id)::int as lessons_total,
+                (select count(*) from lesson_completions lc where lc.course_id = m.course_id and lc.learner_id = $2)::int as lessons_done
+           from plan_milestones m left join courses c on c.id = m.course_id
+          where m.plan_id = $1 and c.status = 'published'
+          order by m.position, m.id`,
+        [p.id, req.user.id]
+      );
+      const all = await db.query(
+        `select m.id from plan_milestones m left join courses c on c.id = m.course_id
+          where m.plan_id = $1 and (c.id is null or c.status = 'published') order by m.position`,
+        [p.id]
+      );
+      const doneCount = ms.rows.filter((m) => m.lessons_total > 0 && m.lessons_done >= m.lessons_total).length;
+      const next = ms.rows.find((m) => !(m.lessons_total > 0 && m.lessons_done >= m.lessons_total));
+      out.push({
+        ...p,
+        milestones_total: all.rows.length,
+        milestones_done: doneCount,
+        next: next || null,
+      });
+    }
+    res.json({ plans: out });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Lesson completion log (idempotent) — feeds the Progress page.
 router.post("/lessons/:id/complete", async (req, res, next) => {
   try {

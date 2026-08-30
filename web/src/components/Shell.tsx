@@ -11,6 +11,8 @@ import {
 } from "./Icons";
 
 const TITLES: Record<string, string> = {
+  plans: "Learning Paths",
+  "plans/new": "Plan Assistant",
   dashboard: "Dashboard",
   studio: "Course Studio",
   courses: "Courses",
@@ -27,6 +29,7 @@ const CHIPS: Record<string, string> = {
   courses: "c-indigo",
   learners: "c-sky",
   records: "c-amber",
+  plans: "c-lime",
   experience: "c-rose",
   settings: "c-slate",
 };
@@ -116,6 +119,7 @@ export default function Shell({
         <nav className="nav" aria-label="Manage">
           <div className="grp">Manage</div>
           <Item id="learners" label="Learners" icon={<IconUsers />} />
+          <Item id="plans" label="Learning Paths" icon={<span style={{ fontSize: 15 }}>🗺️</span>} />
           <Item id="records" label="Progress" icon={<IconClipboard />} />
         </nav>
 

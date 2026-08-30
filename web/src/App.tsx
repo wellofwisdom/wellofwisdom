@@ -9,6 +9,9 @@ import Learners from "./pages/Learners";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import Progress from "./pages/Progress";
+import Plans from "./pages/Plans";
+import PlanWizard from "./pages/PlanWizard";
+import PlanDetail from "./pages/PlanDetail";
 import Settings from "./pages/Settings";
 import Studio from "./pages/Studio";
 import Experience from "./pages/Experience";
@@ -95,15 +98,19 @@ export default function App() {
   }
 
   const detailMatch = route.match(/^course\/(\d+)$/);
+  const planMatch = route.match(/^plan\/(\d+)$/);
 
   return (
-    <Shell me={user} route={detailMatch ? "courses" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
+    <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
       {route === "learners" && <Learners me={me!} onChanged={refresh} />}
       {route === "studio" && <Studio me={me!} onNavigate={navigate} />}
       {route === "courses" && <Courses onNavigate={navigate} />}
       {route === "experience" && <Experience />}
       {detailMatch && <CourseDetail me={me!} courseId={Number(detailMatch[1])} onNavigate={navigate} />}
       {route === "records" && <Progress />}
+      {route === "plans" && <Plans onNavigate={navigate} />}
+      {route === "plans/new" && <PlanWizard me={me!} onNavigate={navigate} />}
+      {planMatch && <PlanDetail planId={Number(planMatch[1])} onNavigate={navigate} meLearners={me.learners || []} />}
       {route === "settings" && <Settings me={me!} />}
       {route === "dashboard" && <Dashboard me={me!} onNavigate={navigate} />}
     </Shell>
