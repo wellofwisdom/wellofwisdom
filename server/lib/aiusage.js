@@ -7,6 +7,8 @@ const db = require("./db");
 // JSON: {"deepseek-chat":[0.14,0.28]}. Unknown models cost 0 (flagged null).
 const DEFAULT_PRICES = {
   "deepseek-chat": [0.14, 0.28],
+  "deepseek-v4-flash": [0.14, 0.28],
+  "deepseek-v4-pro": [0.44, 1.58],
   "deepseek-reasoner": [0.44, 1.58],
   "gpt-4o-mini": [0.15, 0.6],
   "gpt-4o": [2.5, 10],
@@ -22,7 +24,11 @@ function prices() {
 }
 
 function estimateCost(model, tokensIn, tokensOut) {
-  const p = prices()[model];
+  const m = String(model || "");
+  const all = prices();
+  // exact match first, then prefix (providers report versions like deepseek-v4-flash)
+  const key = all[m] ? m : Object.keys(all).find((k) => m.startsWith(k));
+  const p = key && all[key];
   if (!p || !tokensIn || !tokensOut) return null;
   return Number(((tokensIn / 1e6) * p[0] + (tokensOut / 1e6) * p[1]).toFixed(6));
 }
