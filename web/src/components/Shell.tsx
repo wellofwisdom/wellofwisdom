@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Guide console shell: sidebar sections + topbar + mobile drawer + palette.
+// Guide console shell — sidebar matching the Trinacle design language:
+// colored icon chips, collapsible submenus, hover lift, active accent bar.
 import { useEffect, useState, type ReactNode } from "react";
 import type { CourseSummary, Me } from "../types";
 import { isDark, setMode } from "../theme";
@@ -14,35 +15,21 @@ const TITLES: Record<string, string> = {
   studio: "Course Studio",
   courses: "Courses",
   learners: "Learners",
-  records: "Records",
+  records: "Progress",
   experience: "Experience",
   settings: "Settings",
 };
 
-const SECTIONS: { label: string; items: { id: string; label: string; icon: ReactNode }[] }[] = [
-  {
-    label: "Learn",
-    items: [
-      { id: "dashboard", label: "Dashboard", icon: <IconHome /> },
-      { id: "studio", label: "Course Studio", icon: <IconSparkle /> },
-      { id: "courses", label: "Courses", icon: <IconBook /> },
-    ],
-  },
-  {
-    label: "Manage",
-    items: [
-      { id: "learners", label: "Learners", icon: <IconUsers /> },
-      { id: "records", label: "Records", icon: <IconClipboard /> },
-    ],
-  },
-  {
-    label: "Preferences",
-    items: [
-      { id: "experience", label: "Experience", icon: <span aria-hidden="true">🎨</span> },
-      { id: "settings", label: "Settings", icon: <IconSettings /> },
-    ],
-  },
-];
+// chip color per item — the Trinacle rainbow
+const CHIPS: Record<string, string> = {
+  dashboard: "c-green",
+  studio: "c-violet",
+  courses: "c-indigo",
+  learners: "c-sky",
+  records: "c-amber",
+  experience: "c-rose",
+  settings: "c-slate",
+};
 
 export default function Shell({
   me,
@@ -60,6 +47,7 @@ export default function Shell({
   children: ReactNode;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(route === "experience");
   const [dark, setDark] = useState(isDark());
 
   useEffect(() => {
@@ -85,26 +73,16 @@ export default function Shell({
     setDrawerOpen(false);
   };
 
-  const nav = (
-    <nav aria-label="Main">
-      {SECTIONS.map((section) => (
-        <div key={section.label} className="navsection">
-          <div className="navlabel">{section.label}</div>
-          {section.items.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`navlink${route === item.id ? " active" : ""}`}
-              onClick={() => go(item.id)}
-              aria-current={route === item.id ? "page" : undefined}
-            >
-              {item.icon}
-              {item.label}
-            </button>
-          ))}
-        </div>
-      ))}
-    </nav>
+  const Item = ({ id, label, icon, sub = false }: { id: string; label: string; icon: ReactNode; sub?: boolean }) => (
+    <button
+      type="button"
+      className={`navlink${route === id ? " on" : ""}${sub ? " subitem" : ""}`}
+      onClick={() => go(id)}
+      aria-current={route === id ? "page" : undefined}
+    >
+      <span className={`ic ${CHIPS[id] || "c-slate"}${sub ? " small" : ""}`} aria-hidden="true">{icon}</span>
+      {label}
+    </button>
   );
 
   return (
@@ -113,7 +91,7 @@ export default function Shell({
       <aside className={`sidebar${drawerOpen ? " open" : ""}`}>
         <div className="brand">
           <span className="nut" aria-hidden="true">🌰</span>
-          <span>
+          <span className="brandname">
             Well of Wisdom
             <span className="sub">{me.familyName}</span>
           </span>
@@ -127,17 +105,57 @@ export default function Shell({
             <IconX />
           </button>
         </div>
-        {nav}
-        <div className="spacer" />
-        <div className="sideuser">
-          <span className="avatar" aria-hidden="true">{me.name.slice(0, 1).toUpperCase()}</span>
-          <span className="who">
-            <span className="n">{me.name}</span>
-            <span className="r">Guide</span>
-          </span>
-          <button className="iconbtn" onClick={onLogout} aria-label="Sign out" title="Sign out" type="button">
-            <IconLogout />
-          </button>
+
+        <nav className="nav" aria-label="Main">
+          <div className="grp">Learn</div>
+          <Item id="dashboard" label="Dashboard" icon={<IconHome />} />
+          <Item id="studio" label="Course Studio" icon={<IconSparkle />} />
+          <Item id="courses" label="Courses" icon={<IconBook />} />
+        </nav>
+
+        <nav className="nav" aria-label="Manage">
+          <div className="grp">Manage</div>
+          <Item id="learners" label="Learners" icon={<IconUsers />} />
+          <Item id="records" label="Progress" icon={<IconClipboard />} />
+        </nav>
+
+        <div className="foot">
+          <nav className="nav" aria-label="Preferences">
+            <button
+              type="button"
+              className={`navlink${route === "settings" ? " on" : ""}`}
+              onClick={() => go("settings")}
+            >
+              <span className={`ic ${CHIPS.settings}`} aria-hidden="true"><IconSettings /></span>
+              Settings
+              <span
+                className={`caret${settingsOpen ? " exp" : ""}`}
+                aria-label={settingsOpen ? "Collapse" : "Expand"}
+                role="button"
+                tabIndex={0}
+                onClick={(e) => { e.stopPropagation(); setSettingsOpen(!settingsOpen); }}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); setSettingsOpen(!settingsOpen); } }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+              </span>
+            </button>
+            {settingsOpen && (
+              <div className="navsub">
+                <Item id="experience" label="Experience" icon={<span style={{ fontSize: 14 }}>🎨</span>} sub />
+              </div>
+            )}
+          </nav>
+
+          <div className="acct">
+            <span className="av" aria-hidden="true">{me.name.slice(0, 1).toUpperCase()}</span>
+            <span className="who">
+              <span className="nm">{me.name}</span>
+              <span className="em">Guide</span>
+            </span>
+            <button className="iconbtn ch" onClick={onLogout} aria-label="Sign out" title="Sign out" type="button">
+              <IconLogout />
+            </button>
+          </div>
         </div>
       </aside>
 

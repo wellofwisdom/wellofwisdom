@@ -34,12 +34,12 @@ Status legend: ✅ shipped · 🚧 in progress · 📋 planned
   ("fractions through sewing," "physics through skateboarding")
 - Learner profiles (age, level, interests) feeding all generators
 
-## Phase 3 — Memory + records 📋
+## Phase 3 — Memory + progress 📋
 
 - FSRS spaced-repetition scheduling for every skill ("review due today")
 - Transparent mastery (BKT-based; learner and parent can always see the math)
-- Homeschool records: attendance, hours by subject, portfolios (photos of real
-  projects), report cards, transcripts with GPA
+- Progress: time by subject, portfolios (photos of real projects), summary
+  reports, certificates, and transcripts where you need them
 - AI weekly planner (constraints → schedule)
 - Photo-worksheet import (OCR → draft exercises)
 - Read-aloud (Piper/Kokoro) + dictation (Whisper)

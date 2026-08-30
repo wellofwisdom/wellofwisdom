@@ -24,6 +24,8 @@
       if (img) {
         document.documentElement.style.setProperty("--bg-image", 'url("' + img.replace(/"/g, "") + '")');
         document.documentElement.dataset.bgimg = "1";
+      } else {
+        document.documentElement.removeAttribute("data-bgimg");
       }
       document.documentElement.dataset.textscale = localStorage.getItem("wow-textscale") || "normal";
     } catch (e) {}

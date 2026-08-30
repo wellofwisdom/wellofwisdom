@@ -95,7 +95,9 @@ function apply() {
 
   const img = getBgImage();
   root.style.setProperty("--bg-image", img ? `url("${img.replace(/"/g, "")}")` : "none");
-  root.dataset.bgimg = img ? "1" : "";
+  // empty string would still match the [data-bgimg] CSS selector — remove it
+  if (img) root.dataset.bgimg = "1";
+  else root.removeAttribute("data-bgimg");
 
   root.dataset.textscale = getTextScale();
 }

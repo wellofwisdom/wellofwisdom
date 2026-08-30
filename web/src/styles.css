@@ -142,39 +142,119 @@ a:hover { text-decoration: underline; }
   border-radius: var(--radius-sm); padding: 8px 12px; font-size: 13.5px; margin-bottom: 12px;
 }
 
-/* ---------- shell layout ---------- */
+/* ---------- shell layout (Trinacle-matching sidebar) ---------- */
 
-.shell { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+/* chip colors */
+:root {
+  --green: #1a7f37; --green-bg: #e7f3ec; --green-d: #116329;
+  --indigo: #4f6bed; --indigo-bg: #eef1fb; --indigo-d: #3453c4;
+  --sky: #0a7dbd; --sky-bg: #e7f0fd; --sky-d: #0a6294;
+  --rose: #c73e68; --rose-bg: #fbeaf0; --rose-d: #a32c51;
+  --amber: #b07a0a; --amber-bg: #faf0dc; --amber-d: #8a5f07;
+  --violet: #7a4fd0; --violet-bg: #f0eafb; --violet-d: #613aae;
+  --slate: #5a6b80; --slate-bg: #eef2f7; --slate-d: #46586d;
+}
+[data-theme="dark"] {
+  --green: #3fb950; --green-bg: #12271a; --green-d: #56d364;
+  --indigo: #7b96ff; --indigo-bg: #1a2138; --indigo-d: #93aaff;
+  --sky: #54aeff; --sky-bg: #12222f; --sky-d: #6dbcff;
+  --rose: #f0708f; --rose-bg: #2e1620; --rose-d: #ff8fa9;
+  --amber: #e3a94f; --amber-bg: #2a2113; --amber-d: #f0bc69;
+  --violet: #b593f2; --violet-bg: #231a38; --violet-d: #c8abf7;
+  --slate: #93a4b8; --slate-bg: #1b222c; --slate-d: #aabbcd;
+}
+
+.shell { display: grid; grid-template-columns: 264px 1fr; min-height: 100vh; }
 
 .sidebar {
   border-right: 1px solid var(--border); background: var(--panel);
-  display: flex; flex-direction: column; padding: 14px 10px;
-  position: sticky; top: 0; height: 100vh;
+  display: flex; flex-direction: column; padding: 20px 14px;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
 }
-.brand {
-  display: flex; align-items: center; gap: 10px; padding: 6px 10px 16px;
-  font-weight: 700; font-size: 15.5px; letter-spacing: -0.01em;
+.brand { display: flex; align-items: center; gap: 11px; padding: 2px 6px 4px; margin-bottom: 14px; }
+.brand .nut {
+  width: 40px; height: 40px; border-radius: 12px; font-size: 21px;
+  background: linear-gradient(135deg, var(--accent-soft), var(--panel-2));
+  border: 1px solid var(--border);
+  display: inline-flex; align-items: center; justify-content: center;
 }
-.brand .nut { font-size: 22px; }
-.brand .sub { display: block; font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+.brandname { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; min-width: 0; }
+.brandname .sub {
+  display: block; font-size: 11px; font-weight: 500; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;
+}
+
+.grp {
+  font-size: 0.66rem; letter-spacing: 1.4px; text-transform: uppercase;
+  color: var(--muted); margin: 14px 12px 7px; font-weight: 700;
+}
+.sidebar .nav { display: flex; flex-direction: column; gap: 3px; }
 
 .navlink {
-  display: flex; align-items: center; gap: 11px; padding: 9px 12px; margin-bottom: 2px;
-  border-radius: var(--radius-sm); color: var(--text); font-weight: 500; font-size: 14.5px;
-  border: none; background: transparent; cursor: pointer; text-align: left; width: 100%;
+  display: flex; align-items: center; gap: 12px; color: var(--muted);
+  padding: 6px 11px; border-radius: 12px; font-size: 0.93rem; font-weight: 600;
+  border: none; background: transparent; cursor: pointer; text-align: left;
+  width: 100%; position: relative;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.navlink:hover { background: var(--panel-2); text-decoration: none; }
-.navlink.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.sidebar .spacer { flex: 1; }
-.sideuser { display: flex; align-items: center; gap: 10px; padding: 10px; border-top: 1px solid var(--border); }
-.avatar {
-  width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
-  display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
-  flex: none;
+.navlink:hover { background: var(--panel-2); color: var(--text); text-decoration: none; }
+
+/* the signature Trinacle icon chip */
+.navlink .ic {
+  width: 38px; height: 38px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  flex: 0 0 38px; position: relative;
+  transition: transform 0.14s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
-.sideuser .who { min-width: 0; }
-.sideuser .who .n { font-weight: 600; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sideuser .who .r { font-size: 11.5px; color: var(--muted); }
+[data-theme="dark"] .navlink .ic { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+.navlink .ic::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 55%);
+  pointer-events: none;
+}
+[data-theme="dark"] .navlink .ic::after {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 55%);
+}
+.navlink:hover .ic { transform: scale(1.07); }
+
+.c-green { background: var(--green-bg); color: var(--green); }
+.c-indigo { background: var(--indigo-bg); color: var(--indigo); }
+.c-sky { background: var(--sky-bg); color: var(--sky); }
+.c-rose { background: var(--rose-bg); color: var(--rose); }
+.c-amber { background: var(--amber-bg); color: var(--amber); }
+.c-violet { background: var(--violet-bg); color: var(--violet); }
+.c-slate { background: var(--slate-bg); color: var(--slate); }
+
+.navlink.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.navlink.on::before {
+  content: ""; position: absolute; left: -14px; top: 9px; bottom: 9px; width: 3px;
+  border-radius: 0 3px 3px 0; background: var(--accent);
+}
+
+.navsub { margin-left: 16px; border-left: 1px solid var(--border); padding-left: 6px; }
+.navsub .subitem { padding: 6px 11px !important; font-size: 0.84rem; }
+.navsub .subitem .ic { width: 28px; height: 28px; border-radius: 9px; flex: 0 0 28px; }
+.navsub .subitem.on::before { display: none; }
+
+.caret { margin-left: auto; color: var(--muted); display: inline-flex; transition: transform 0.15s; }
+.caret.exp { transform: rotate(180deg); }
+
+.sidebar .foot { margin-top: auto; padding-top: 10px; }
+.acct {
+  display: flex; align-items: center; gap: 11px; padding: 10px 8px 2px;
+  border-top: 1px solid var(--border); margin-top: 10px;
+}
+.acct .av {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--indigo, #4f6bed));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 0.8rem; flex: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.acct .who { min-width: 0; flex: 1; }
+.acct .nm { font-size: 0.86rem; font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acct .em { font-size: 0.72rem; color: var(--muted); }
 
 .content { display: flex; flex-direction: column; min-width: 0; }
 .topbar {
@@ -485,14 +565,13 @@ summary::marker { color: var(--muted); }
 .richtext p, .richtext li { font-size: var(--read, 16px); }
 .litem .exhead { font-size: calc(var(--read, 16px) + 0.5px); }
 
-/* ---------- sidebar sections ---------- */
+/* ---------- shared avatar chip (rows/cards) ---------- */
 
-.navsection { margin-bottom: 8px; }
-.navlabel {
-  font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--muted); padding: 10px 12px 4px;
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+  flex: none;
 }
-.navlink.active { box-shadow: inset 3px 0 0 var(--accent); border-radius: 8px 4px 4px 8px; }
 
 /* ---------- stat accents ---------- */
 
