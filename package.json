@@ -8,8 +8,10 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
+    "dev:web": "npm --prefix web run dev",
+    "build": "npm --prefix web run build",
     "test": "node --test",
-    "check": "node --check server/index.js && node --check server/lib/ai.js && node --check server/lib/db.js"
+    "check": "node scripts/check.js"
   },
   "engines": {
     "node": ">=20"
