@@ -4,20 +4,28 @@ import { useEffect, useState } from "react";
 import { api } from "../../api";
 import type { Me, LearnCourse } from "../../types";
 import CourseView from "./CourseView";
+import Practice from "./Practice";
 import LessonPlayer from "./LessonPlayer";
 import { IconLogout } from "../../components/Icons";
 
 export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me; route: string; onNavigate: (hash: string) => void; onLogout: () => void }) {
   const [courses, setCourses] = useState<(LearnCourse & { lessons_done?: number })[] | null>(null);
+  const [reviewsDue, setReviewsDue] = useState<number | null>(null);
 
   useEffect(() => {
     if (route === "" || route === "home") {
       api<{ courses: (LearnCourse & { lessons_done?: number })[] }>("/api/learn/courses")
         .then((d: { courses: (LearnCourse & { lessons_done?: number })[] }) => setCourses(d.courses))
         .catch(() => setCourses([]));
+      api<{ due: number }>("/api/learn/review")
+        .then((d: { due: number }) => setReviewsDue(d.due || 0))
+        .catch(() => setReviewsDue(0));
     }
   }, [route]);
 
+  if (route === "practice") {
+    return <Practice onNavigate={onNavigate} onLogout={onLogout} />;
+  }
   if (route.startsWith("course/")) {
     const id = Number(route.split("/")[1]);
     return <CourseView courseId={id} onNavigate={onNavigate} onLogout={onLogout} />;
@@ -37,6 +45,17 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
       </div>
       <div className="hi">Hi, {me.name.split(" ")[0]}!</div>
       <p className="sub">Pick a course and dive in.</p>
+
+      {reviewsDue !== null && reviewsDue > 0 && (
+        <button type="button" className="kidcourse practicecard" onClick={() => onNavigate("practice")}>
+          <span className="kc-icon" aria-hidden="true">🔁</span>
+          <span className="kc-body">
+            <span className="kc-title">Practice — {reviewsDue} due now</span>
+            <span className="kc-sub">Quick review at exactly the right time to make it stick</span>
+          </span>
+          <span className="kc-go" aria-hidden="true">→</span>
+        </button>
+      )}
 
       {!courses ? (
         <div className="skel" style={{ width: "100%", height: 120 }} />

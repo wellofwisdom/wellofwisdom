@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The lesson player: articles, videos, exercises with grading feedback,
 // hints, explain-my-mistake, and completion. Focus mode — no nav chrome.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import type { ItemNode, LearnLesson } from "../../types";
 import { RichText, MathText } from "../../lib/rich";
@@ -19,6 +19,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [nextLesson, setNextLesson] = useState<{ id: number; title: string } | null>(null);
+  const completionLogged = useRef(false);
 
   const load = () =>
     api<{ lesson: LearnLesson; solved: Record<string, boolean> }>(`/api/learn/lessons/${lessonId}`)
@@ -64,6 +65,14 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   useEffect(() => {
     if (gradableKeys.length && gradableKeys.every((k) => solved[k])) setDone(true);
   }, [solved, gradableKeys]);
+
+  // log completion once — feeds the guide's Progress page
+  useEffect(() => {
+    if (done && lesson && !completionLogged.current) {
+      completionLogged.current = true;
+      api(`/api/learn/lessons/${lesson.id}/complete`, { method: "POST" }).catch(() => {});
+    }
+  }, [done, lesson]);
 
   if (error) return <div className="kid"><div className="kidcard"><h2>{error}</h2></div></div>;
   if (!lesson) return <div className="kid"><div className="skel" style={{ width: "100%", height: 200 }} /></div>;

@@ -7,6 +7,7 @@ const auth = require("../lib/auth");
 const db = require("../lib/db");
 const ai = require("../lib/ai");
 const { gradeExercise } = require("../lib/grade");
+const review = require("../lib/review");
 
 const router = express.Router();
 router.use(auth.authRequired);
@@ -250,7 +251,60 @@ router.post("/attempt", async (req, res, next) => {
       "insert into attempts (family_id, learner_id, item_id, question_index, correct, answer) values ($1,$2,$3,$4,$5,$6)",
       [req.user.familyId, req.user.id, id, qIdx, correct, JSON.stringify(answer ?? null)]
     );
+
+    // Spaced review: every graded exercise feeds the scheduler (fail-open).
+    if (row.type === "exercise" && c.kind && c.kind !== "text") {
+      review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
+    }
     res.json({ correct, reveal });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Spaced review queue: exercises due across all the learner's courses.
+router.get("/review", async (req, res, next) => {
+  try {
+    const rows = await review.dueForLearner(req.user.id, req.user.familyId);
+    res.json({
+      due: rows.length ? rows[0].due_total : 0,
+      items: rows.map((r) => ({
+        item_id: r.item_id,
+        reps: r.reps,
+        lapses: r.lapses,
+        lesson_title: r.lesson_title,
+        course_title: r.course_title,
+        course_id: r.course_id,
+        content: {
+          prompt: (r.content || {}).prompt,
+          kind: (r.content || {}).kind,
+          choices: (r.content || {}).choices,
+        },
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Lesson completion log (idempotent) — feeds the Progress page.
+router.post("/lessons/:id/complete", async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.id);
+    const owned = await db.query(
+      `select c.id as course_id
+         from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id
+        where l.id = $1 and c.family_id = $2 and c.status = 'published'
+          and (c.learner_id is null or c.learner_id = $3)`,
+      [lessonId, req.user.familyId, req.user.id]
+    );
+    if (!owned.rows[0]) return bad(res, "not_found", 404);
+    await db.query(
+      `insert into lesson_completions (family_id, learner_id, course_id, lesson_id)
+       values ($1,$2,$3,$4) on conflict (learner_id, lesson_id) do nothing`,
+      [req.user.familyId, req.user.id, owned.rows[0].course_id, lessonId]
+    );
+    res.json({ ok: true });
   } catch (err) {
     next(err);
   }

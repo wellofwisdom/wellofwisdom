@@ -8,7 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Learners from "./pages/Learners";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
-import Records from "./pages/Records";
+import Progress from "./pages/Progress";
 import Settings from "./pages/Settings";
 import Studio from "./pages/Studio";
 import Experience from "./pages/Experience";
@@ -103,7 +103,7 @@ export default function App() {
       {route === "courses" && <Courses onNavigate={navigate} />}
       {route === "experience" && <Experience />}
       {detailMatch && <CourseDetail me={me!} courseId={Number(detailMatch[1])} onNavigate={navigate} />}
-      {route === "records" && <Records />}
+      {route === "records" && <Progress />}
       {route === "settings" && <Settings me={me!} />}
       {route === "dashboard" && <Dashboard me={me!} onNavigate={navigate} />}
     </Shell>
