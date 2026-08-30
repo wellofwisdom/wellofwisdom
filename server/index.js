@@ -60,6 +60,7 @@ app.use("/api/progress", require("./routes/progress"));
 app.use("/api/plans", require("./routes/plans"));
 app.use("/api/notes", require("./routes/notes"));
 app.use("/api/resources", require("./routes/resources"));
+app.use("/api/mail", require("./routes/mail"));
 
 // AI usage for this family (parent only) — spend transparency.
 app.get("/api/ai/usage", auth.parentOnly, async (req, res, next) => {
@@ -98,6 +99,7 @@ async function boot() {
   if (db.configured()) {
     ai.setUsageLogger(require("./lib/aiusage").logUsage);
     require("./lib/jobs").startJobs();
+    require("./lib/digest").startDigestSchedule();
   }
   if (require.main === module) {
     app.listen(PORT, "0.0.0.0", () => {
