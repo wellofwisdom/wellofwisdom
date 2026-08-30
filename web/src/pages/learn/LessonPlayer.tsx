@@ -18,12 +18,23 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   const [solved, setSolved] = useState<Record<string, boolean>>({});
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [nextLesson, setNextLesson] = useState<{ id: number; title: string } | null>(null);
 
   const load = () =>
     api<{ lesson: LearnLesson; solved: Record<string, boolean> }>(`/api/learn/lessons/${lessonId}`)
       .then((d) => {
         setLesson(d.lesson);
         setSolved(d.solved || {});
+        // find the next lesson in course order for the completion flow
+        api<{ course: { units: { lessons: { id: number; title: string }[] }[] } }>(
+          `/api/learn/courses/${d.lesson.course_id}`
+        )
+          .then((c) => {
+            const flat = c.course.units.flatMap((u) => u.lessons);
+            const idx = flat.findIndex((l) => l.id === lessonId);
+            if (idx >= 0 && idx < flat.length - 1) setNextLesson(flat[idx + 1]);
+          })
+          .catch(() => {});
       })
       .catch(() => setError("Could not load this lesson."));
 
@@ -79,13 +90,70 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
           <div className="complete">
             <span aria-hidden="true" style={{ fontSize: 34 }}>🎉</span>
             <strong>Lesson complete!</strong>
-            <button className="btn primary big" type="button" onClick={() => onNavigate(`course/${lesson.course_id}`)}>
-              Back to the course
-            </button>
+            {nextLesson ? (
+              <button className="btn primary big" type="button" onClick={() => onNavigate(`lesson/${nextLesson.id}`)}>
+                Next lesson: {nextLesson.title} →
+              </button>
+            ) : (
+              <button className="btn primary big" type="button" onClick={() => onNavigate(`course/${lesson.course_id}`)}>
+                Back to the course
+              </button>
+            )}
+            {nextLesson && (
+              <a className="muted small" href={`#/course/${lesson.course_id}`}>back to the course</a>
+            )}
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+// Read-aloud via the browser's built-in speech (offline, no cost, no data
+// leaves the device). Speaks the lesson in the interface language.
+function ReadAloud({ text }: { text: string }) {
+  const [speaking, setSpeaking] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
+    };
+  }, []);
+
+  function toggle() {
+    if (typeof speechSynthesis === "undefined") return;
+    if (speaking) {
+      speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+    // strip markup/math so LaTeX isn't read aloud as backslash commands
+    const speakable = String(text || "")
+      .replace(/\$\$?[^$]*\$\$?/g, " ")
+      .replace(/[*#>`_-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 5000);
+    if (!speakable) return;
+    const u = new SpeechSynthesisUtterance(speakable);
+    u.rate = 1;
+    u.onend = () => setSpeaking(false);
+    u.onerror = () => setSpeaking(false);
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+    setSpeaking(true);
+  }
+
+  return (
+    <button
+      className="btn ghost small-btn"
+      type="button"
+      onClick={toggle}
+      aria-label={speaking ? "Stop reading aloud" : "Read this aloud"}
+      title={speaking ? "Stop" : "Listen"}
+    >
+      {speaking ? "⏹️ Stop" : "🔊 Listen"}
+    </button>
   );
 }
 
@@ -98,7 +166,10 @@ function LessonItem({ item, solved, onSolved }: {
   if (item.type === "article") {
     return (
       <section className="litem">
-        {c.title && <h2>{c.title}</h2>}
+        <div className="row" style={{ marginBottom: 4 }}>
+          {c.title && <h2 className="grow">{c.title}</h2>}
+          <ReadAloud text={`${c.title ? c.title + ". " : ""}${c.body || ""}`} />
+        </div>
         <RichText text={c.body || ""} />
       </section>
     );
