@@ -134,9 +134,58 @@ async function sendNow(familyId) {
   return sendDigestManual(familyId);
 }
 
-/** Weekly sweep: hourly timer, fires only in the Monday 13:00 UTC window. */
+/** Tomorrow-reminder sweep: events happening tomorrow get one email
+ *  (notified_at guards double-sends). Runs daily in the 13:00 UTC window. */
+async function sweepEventReminders({ log = console.log } = {}) {
+  const st = await mail.status().catch(() => ({ configured: false }));
+  if (!db.configured() || !st.configured) return;
+  const now = new Date();
+  if (now.getUTCHours() !== 13) return;
+  const tomorrow = new Date(now.getTime() + 86400000).toISOString().slice(0, 10);
+  const { rows } = await db.query(
+    `select e.*, f.name as family_name from events e join families f on f.id = e.family_id
+      where e.on_date = $1 and e.notified_at is null`,
+    [tomorrow]
+  ).catch(() => ({ rows: [] }));
+  for (const ev of rows) {
+    const fam = await db.query("select prefs from families where id = $1", [ev.family_id]);
+    const prefs = (fam.rows[0] && fam.rows[0].prefs) || {};
+    if (prefs.reminders === false) { await markNotified(ev.id); continue; }
+    let to = prefs.digestEmail || null;
+    if (!to) {
+      const g = await db.query(
+        "select email from users where family_id = $1 and role = 'parent' and email is not null order by id limit 1",
+        [ev.family_id]
+      );
+      to = g.rows[0] && g.rows[0].email;
+    }
+    if (!to) { await markNotified(ev.id); continue; }
+    const r = await mail.sendMail({
+      to,
+      subject: `Tomorrow: ${ev.title}`,
+      html: `<div style="font-family:system-ui,sans-serif"><div style="font-size:28px">🌰</div>
+        <h2>Tomorrow: ${esc(ev.title)}</h2>
+        <p>${esc(ev.description || "")}</p>
+        <p style="color:#5b6875">${ev.on_date}${ev.at_time ? " · " + esc(ev.at_time) : ""} · ${esc(ev.family_name)}</p></div>`,
+      text: `Tomorrow: ${ev.title}`,
+      familyId: ev.family_id,
+      kind: "event-reminder",
+    });
+    if (r.ok) log(`[reminders] event ${ev.id} "${ev.title}" reminded`);
+    await markNotified(ev.id);
+  }
+}
+
+async function markNotified(id) {
+  await db.query("update events set notified_at = now() where id = $1", [id]).catch(() => {});
+}
+
+/** Weekly + daily sweeps on one hourly timer. */
 function startDigestSchedule({ log = console.log } = {}) {
-  const timer = setInterval(() => sweepAll({ log }).catch(() => {}), 60 * 60 * 1000);
+  const timer = setInterval(() => {
+    sweepAll({ log }).catch(() => {});
+    sweepEventReminders({ log }).catch(() => {});
+  }, 60 * 60 * 1000);
   timer.unref();
 }
 

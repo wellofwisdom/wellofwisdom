@@ -1,0 +1,25 @@
+{
+  "id": "us-history",
+  "title": "US History: Peoples to Present",
+  "subject": "US History",
+  "description": "A full-year journey through American history with primary sources and a documentary project each era.",
+  "suggestedWeeks": 36,
+  "milestones": [
+    { "title": "First Peoples and early America", "description": "Indigenous civilizations before 1492 and the world they built.", "projectIdea": "Research one nation's governance, food, and trade; present as a museum-style exhibit card set.", "resourceHint": "Library books: Indigenous history of North America" },
+    { "title": "Contact and colonization", "description": "Columbian exchange, motivations for colonization, and the thirteen colonies.", "projectIdea": "Colonial recruitment poster: design an ad convincing 1600s settlers to join your colony.", "resourceHint": "Khan Academy: Colonial America" },
+    { "title": "Road to revolution", "description": "Taxes, protests, and ideas of liberty from 1763 to 1776.", "projectIdea": "Debate: patriots vs loyalists — argue both sides in character.", "resourceHint": "Khan Academy: The road to revolution" },
+    { "title": "Revolution and founding documents", "description": "The war, the Constitution, and the Bill of Rights.", "projectIdea": "Write your own Bill of Rights for a new settlement on Mars.", "resourceHint": "National Archives: Constitution resources" },
+    { "title": "Early republic and expansion", "description": "Washington to Jackson; growth, conflict, and reform movements.", "projectIdea": "Timeline mural of westward expansion marking whose land it was at every step.", "resourceHint": "Khan Academy: Early republic" },
+    { "title": "Sectionalism and Civil War", "description": "Causes, course, and consequences of the Civil War.", "projectIdea": "Letters home: write a week of correspondence from a fictional person on each side.", "resourceHint": "Khan Academy: Civil War era" },
+    { "title": "Reconstruction and its undoing", "description": "Reconstruction amendments, hope, backlash, and Jim Crow.", "projectIdea": "Analyze a Reconstruction-era primary source and present what it reveals.", "resourceHint": "Library: Reconstruction primary sources" },
+    { "title": "Industrialization and immigration", "description": "Factories, cities, railroads, and the people who built them.", "projectIdea": "Family or local history: trace one immigrant story (yours or a neighbor's) through the era.", "resourceHint": "Khan Academy: Gilded Age" },
+    { "title": "Progressive Era", "description": "Reformers, muckrakers, and the fights over who America is for.", "projectIdea": "Muckraker magazine: write an exposé (historical or modern) in the 1900s style.", "resourceHint": "Khan Academy: Progressive Era" },
+    { "title": "World War I", "description": "America's path from neutrality to world power.", "projectIdea": "Propaganda analysis: compare WWI posters, then design an honest counter-poster.", "resourceHint": "Khan Academy: World War I" },
+    { "title": "Roaring Twenties and Great Depression", "description": "Boom, bust, and the New Deal.", "projectIdea": "Oral history: interview someone about hard economic times, then map it to the 1930s.", "resourceHint": "Khan Academy: 1920s and Great Depression" },
+    { "title": "World War II", "description": "The home front and the world at war.", "projectIdea": "Build a 'home front museum box' of artifacts (real or recreated) with curator notes.", "resourceHint": "Khan Academy: World War II" },
+    { "title": "Cold War", "description": "Containment, conflict, and culture from 1945 to 1991.", "projectIdea": "Cold War timeline of one decade with a 'day in the life' diary entry.", "resourceHint": "Khan Academy: Cold War" },
+    { "title": "Civil Rights Movement", "description": "The long freedom struggle and its leaders, strategy, and songs.", "projectIdea": "Freedom songs playlist with liner notes explaining each song's role in the movement.", "resourceHint": "Library: Civil Rights movement histories" },
+    { "title": "Modern America", "description": "From the 1970s to today: technology, change, and ongoing debates.", "projectIdea": "Then and now photo essay: pair one historical image with one you take today on the same theme.", "resourceHint": "News archives: comparing coverage then and now" },
+    { "title": "Capstone: History in the making", "description": "Synthesize the year: what threads run through all of American history?", "projectIdea": "Produce a 10-minute documentary (or podcast episode) on the thread you found.", "resourceHint": "Free video editors: CapCut or OpenShot" }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "intro-python",
+  "title": "Intro to Python: Build Something Real",
+  "subject": "Computer Programming",
+  "description": "A 12-week first programming course — every concept ends in a small program that does something.",
+  "suggestedWeeks": 12,
+  "milestones": [
+    { "title": "Setup, print, and variables", "description": "Install Python, run your first program, store data in variables.", "projectIdea": "Write a program that introduces you to the computer — ask it questions about itself.", "resourceHint": "Python.org beginner guide" },
+    { "title": "Strings and input", "description": "Text manipulation and talking to the user.", "projectIdea": "Mad Libs generator: collect words, produce a ridiculous story.", "resourceHint": "Automate the Boring Stuff, chapters 1-2 (free online)" },
+    { "title": "Conditionals", "description": "Making decisions: if, elif, else.", "projectIdea": "Decision helper: a program that asks questions and recommends dinner, movies, or adventures.", "resourceHint": "Khan Academy: If statements" },
+    { "title": "Loops", "description": "Repetition with for and while.", "projectIdea": "Number guessing game with a loop, hints, and a score counter.", "resourceHint": "Automate the Boring Stuff, chapter 3" },
+    { "title": "Lists", "description": "Collections of things: storing, sorting, and searching.", "projectIdea": "Quiz maker: store questions in a list, quiz a family member, grade their answers.", "resourceHint": "Khan Academy: Lists" },
+    { "title": "Functions", "description": "Reusable blocks: inputs, outputs, and clean code.", "projectIdea": "Refactor your quiz into functions and add a high-score board saved to a file.", "resourceHint": "Automate the Boring Stuff, chapter 6" },
+    { "title": "Dictionaries", "description": "Key-value pairs and looking things up fast.", "projectIdea": "Contact book or creature codex: add, search, and list entries.", "resourceHint": "Automate the Boring Stuff, chapter 5" },
+    { "title": "Final project", "description": "Design and build a program of your own, start to finish.", "projectIdea": "Choose it: a text adventure, a flashcard trainer, a budget tracker — plan it, build it, demo it.", "resourceHint": "Your own idea" }
+  ]
+}

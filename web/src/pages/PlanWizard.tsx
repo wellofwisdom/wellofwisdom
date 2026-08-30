@@ -29,12 +29,46 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
   const [minutesPerSession, setMinutes] = useState("30");
   const [enrolled, setEnrolled] = useState<Record<number, { lens: string; note: string }>>({});
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [mode, setMode] = useState<"choose" | "ai" | "template">("choose");
+  const [templates, setTemplates] = useState<{ id: string; title: string; subject: string; description: string; suggestedWeeks: number; milestoneCount: number }[]>([]);
+  const [fromTemplate, setFromTemplate] = useState(false);
   const [busy, setBusy] = useState(false);
   const [jobId, setJobId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const pollRef = useRef<number | null>(null);
 
+  useEffect(() => {
+    if (mode === "template" && templates.length === 0) {
+      api<{ templates: typeof templates }>("/api/plans/templates")
+        .then((d) => setTemplates(d.templates))
+        .catch(() => setTemplates([]));
+    }
+  }, [mode, templates.length]);
   useEffect(() => () => { if (pollRef.current) window.clearTimeout(pollRef.current); }, []);
+
+  async function pickTemplate(id: string) {
+    try {
+      const d = await api<{ template: { id: string; title: string; description: string; subject: string; suggestedWeeks: number; milestones: { title: string; description: string; projectIdea: string; resourceHint: string }[] } }>(`/api/plans/templates/${id}`);
+      const t = d.template;
+      setSubject(t.subject);
+      const end = new Date();
+      end.setDate(end.getDate() + t.suggestedWeeks * 7);
+      setEndDate(end.toISOString().slice(0, 10));
+      setDraft({
+        title: t.title,
+        description: t.description,
+        milestones: t.milestones.map((m) => ({
+          title: m.title,
+          description: m.description || null,
+          project_ideas: m.projectIdea ? [{ title: "Project", description: m.projectIdea }] : [],
+          resources: m.resourceHint ? [{ title: m.resourceHint, url: null }] : [],
+        })),
+      });
+      setFromTemplate(true);
+    } catch (e) {
+      setError(niceError(e));
+    }
+  }
 
   const weeks = Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / (7 * 86400000)));
   const hours = Math.round((weeks * Number(sessionsPerWeek || 0) * Number(minutesPerSession || 0)) / 60);
@@ -130,6 +164,42 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
 
       {error && <div className="formerror" role="alert">{error}</div>}
 
+      {mode === "choose" && (
+        <div className="row" style={{ gap: 14, flexWrap: "wrap" }}>
+          <button type="button" className="whocard" style={{ flex: "1 1 260px", minHeight: 150, justifyContent: "center", gap: 8 }}
+            onClick={() => setMode("ai")}>
+            <span className="wc-ava" aria-hidden="true" style={{ fontSize: 30 }}>🧭</span>
+            <span className="wc-name" style={{ fontSize: 17 }}>Build with the AI assistant</span>
+            <span className="wc-sub">Answer a few questions — it drafts the whole journey for your learners.</span>
+          </button>
+          <button type="button" className="whocard" style={{ flex: "1 1 260px", minHeight: 150, justifyContent: "center", gap: 8 }}
+            onClick={() => setMode("template")}>
+            <span className="wc-ava" aria-hidden="true" style={{ fontSize: 30 }}>📋</span>
+            <span className="wc-name" style={{ fontSize: 17 }}>Start from a template</span>
+            <span className="wc-sub">Proven full-year curricula — no AI needed, ready in minutes.</span>
+          </button>
+        </div>
+      )}
+
+      {mode === "template" && !draft && (
+        <>
+          {templates.length === 0 && <div className="skel" style={{ height: 120 }} />}
+          {templates.map((t) => (
+            <div key={t.id} className="learnerrow coursecard" style={{ cursor: "pointer" }} role="button" tabIndex={0}
+              onClick={() => pickTemplate(t.id)} onKeyDown={(e) => e.key === "Enter" && pickTemplate(t.id)}>
+              <span className="avatar" aria-hidden="true">📋</span>
+              <div className="meta">
+                <div className="n">{t.title}</div>
+                <div className="u">{t.subject} · {t.suggestedWeeks} weeks · {t.milestoneCount} milestones</div>
+                <div className="u" style={{ marginTop: 2 }}>{t.description}</div>
+              </div>
+              <span className="kc-go" aria-hidden="true">→</span>
+            </div>
+          ))}
+          <button className="btn ghost" type="button" onClick={() => setMode("choose")}>← Back</button>
+        </>
+      )}
+
       {brewing ? (
         <div className="studiobrew">
           <div className="brewnut" aria-hidden="true">🧭</div>
@@ -141,7 +211,7 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
           <div className="skel" style={{ height: 12, width: "50%", margin: "0 auto 10px" }} />
           <div className="skel" style={{ height: 12, width: "60%", margin: "0 auto" }} />
         </div>
-      ) : !draft ? (
+      ) : !draft && mode === "ai" ? (
         <>
           <section className="panel step">
             <div className="stepnum" aria-hidden="true">1</div>
@@ -229,8 +299,46 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
             </button>
           </div>
         </>
-      ) : (
+      ) : draft ? (
         <>
+          {fromTemplate && (
+            <section className="panel step">
+              <div className="stepnum" aria-hidden="true">2</div>
+              <div className="grow">
+                <h2>Timeframe & learners</h2>
+                <div className="row wrap" style={{ marginBottom: 10 }}>
+                  <div><label className="small">Start</label><input type="date" className="input" value={startDate} onChange={(e) => setStartDate(e.target.value)} aria-label="Start date" /></div>
+                  <div><label className="small">End</label><input type="date" className="input" value={endDate} onChange={(e) => setEndDate(e.target.value)} aria-label="End date" /></div>
+                  <div>
+                    <label className="small">Sessions/week</label>
+                    <select className="input" value={sessionsPerWeek} onChange={(e) => setSessions(e.target.value)} aria-label="Sessions per week">
+                      {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}×</option>)}
+                    </select>
+                  </div>
+                </div>
+                {learners.map((l) => {
+                  const on = Boolean(enrolled[l.id]);
+                  const cfg = enrolled[l.id] || { lens: "", note: "" };
+                  return (
+                    <div key={l.id} className={`whocard${on ? " on" : ""}`} style={{ width: "100%", marginBottom: 8 }} role="button" tabIndex={0}
+                      onClick={() => toggleLearner(l.id)} onKeyDown={(e) => e.key === "Enter" && toggleLearner(l.id)}>
+                      <div className="row">
+                        <input type="checkbox" checked={on} onChange={() => toggleLearner(l.id)} onClick={(e) => e.stopPropagation()} aria-label={`Include ${l.name}`} />
+                        <span className="wc-name">{l.name}</span>
+                      </div>
+                      {on && (
+                        <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8, width: "100%" }}>
+                          <input className="input" placeholder="Personal lens (optional)" value={cfg.lens}
+                            onChange={(e) => setEnrolled({ ...enrolled, [l.id]: { ...cfg, lens: e.target.value } })} aria-label={`Lens for ${l.name}`} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                <p className="hint" style={{ marginTop: 6 }}>Template milestones spread over {weeks} weeks (~{hours}h) spread over {weeks} weeks (~{hours}h).</p>
+              </div>
+            </section>
+          )}
           <section className="panel step">
             <div className="stepnum" aria-hidden="true">4</div>
             <div className="grow">
@@ -262,7 +370,7 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
                       )}
                     </span>
                     <button className="iconbtn" type="button" aria-label={`Remove milestone ${i + 1}`}
-                      onClick={() => setDraft({ ...draft, milestones: draft.milestones.filter((_, j) => j !== i) })}>✕</button>
+                      onClick={() => setDraft(draft ? { ...draft, milestones: draft.milestones.filter((_, j) => j !== i) } : draft)}>✕</button>
                   </div>
                 ))}
               </div>
@@ -270,14 +378,14 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
           </section>
 
           <div className="stickybar">
-            <div className="muted small">{draft.milestones.length} milestones over {weeks} weeks</div>
-            <button className="btn" type="button" onClick={() => { setDraft(null); setJobId(null); }}>← Back</button>
-            <button className="btn primary big" type="button" disabled={busy || draft.milestones.length < 3} onClick={savePlan}>
+            <div className="muted small">{draft?.milestones.length ?? 0} milestones over {weeks} weeks</div>
+            <button className="btn" type="button" onClick={() => { setDraft(null); setJobId(null); setFromTemplate(false); setMode("choose"); }}>← Back</button>
+            <button className="btn primary big" type="button" disabled={busy || (draft?.milestones.length ?? 0) < 3} onClick={savePlan}>
               {busy ? "Saving…" : "Save learning path"}
             </button>
           </div>
         </>
-      )}
+      ) : null}
     </>
   );
 }

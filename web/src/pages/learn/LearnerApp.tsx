@@ -21,6 +21,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
   const [courses, setCourses] = useState<(LearnCourse & { lessons_done?: number })[] | null>(null);
   const [reviewsDue, setReviewsDue] = useState<number | null>(null);
   const [paths, setPaths] = useState<PathPlan[] | null>(null);
+  const [upcoming, setUpcoming] = useState<{ label: string; date: string }[] | null>(null);
 
   useEffect(() => {
     if (route === "" || route === "home") {
@@ -33,6 +34,12 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
       api<{ plans: PathPlan[] }>("/api/learn/plans")
         .then((d: { plans: PathPlan[] }) => setPaths(d.plans || []))
         .catch(() => setPaths([]));
+      api<{ events: { id: number; title: string; on_date: string; kind: string }[]; milestones: { title: string; target_date: string; plan_title: string }[] }>("/api/learn/upcoming")
+        .then((d) => setUpcoming([
+          ...(d.events || []).map((e) => ({ label: e.title, date: e.on_date })),
+          ...(d.milestones || []).map((m) => ({ label: `${m.title}`, date: m.target_date })),
+        ].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4)))
+        .catch(() => setUpcoming([]));
     }
   }, [route]);
 
@@ -56,6 +63,17 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
           <IconLogout />
         </button>
       </div>
+      {upcoming && upcoming.length > 0 && (
+        <div className="comingup">
+          {upcoming.map((u, i) => (
+            <div key={i} className="cu-row">
+              <span className="cu-date">{u.date.slice(5)}</span>
+              <span>{u.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="hi">Hi, {me.name.split(" ")[0]}!</div>
       <p className="sub">Pick a course and dive in.</p>
 

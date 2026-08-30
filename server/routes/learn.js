@@ -328,6 +328,32 @@ router.get("/plans", async (req, res, next) => {
   }
 });
 
+// Coming up for this learner: family events + milestones on their plans.
+router.get("/upcoming", async (req, res, next) => {
+  try {
+    const events = await db.query(
+      `select id, title, description, on_date, at_time, kind
+         from events
+        where family_id = $1 and on_date between current_date and current_date + 21
+        order by on_date limit 5`,
+      [req.user.familyId]
+    );
+    const milestones = await db.query(
+      `select m.title, m.target_date, p.title as plan_title
+         from plan_milestones m
+         join term_plans p on p.id = m.plan_id
+         join plan_enrollments e on e.plan_id = p.id
+        where e.learner_id = $1 and p.status = 'active'
+          and m.target_date between current_date and current_date + 21
+        order by m.target_date limit 5`,
+      [req.user.id]
+    );
+    res.json({ events: events.rows, milestones: milestones.rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Lesson completion log (idempotent) — feeds the Progress page.
 router.post("/lessons/:id/complete", async (req, res, next) => {
   try {

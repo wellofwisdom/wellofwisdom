@@ -14,6 +14,7 @@ const TITLES: Record<string, string> = {
   plans: "Learning Paths",
   notes: "Workspace",
   library: "Library",
+  calendar: "Calendar",
   "plans/new": "Plan Assistant",
   dashboard: "Dashboard",
   studio: "Course Studio",
@@ -34,6 +35,7 @@ const CHIPS: Record<string, string> = {
   plans: "c-lime",
   notes: "c-teal",
   library: "c-pink",
+  calendar: "c-sky",
   experience: "c-rose",
   settings: "c-slate",
 };
@@ -124,6 +126,7 @@ export default function Shell({
           <div className="grp">Manage</div>
           <Item id="learners" label="Learners" icon={<IconUsers />} />
           <Item id="plans" label="Learning Paths" icon={<span style={{ fontSize: 15 }}>🗺️</span>} />
+          <Item id="calendar" label="Calendar" icon={<span style={{ fontSize: 15 }}>🗓️</span>} />
           <Item id="notes" label="Workspace" icon={<span style={{ fontSize: 15 }}>🗒️</span>} />
           <Item id="library" label="Library" icon={<span style={{ fontSize: 15 }}>📚</span>} />
           <Item id="records" label="Progress" icon={<IconClipboard />} />

@@ -2,11 +2,29 @@
 // Learning-path routes (guide): outline job, create, list, detail, edit,
 // generate-a-course-from-a-milestone. Every query family-scoped.
 const express = require("express");
+const fs = require("node:fs");
+const path = require("node:path");
 const auth = require("../lib/auth");
 const db = require("../lib/db");
 const jobs = require("../lib/jobs");
 const ai = require("../lib/ai");
 const { spreadDates } = require("../lib/plangen");
+
+// Plan templates ship with the app: full curricula that need NO AI key.
+const TEMPLATE_DIR = path.join(__dirname, "..", "templates", "plans");
+function listTemplates() {
+  return fs.readdirSync(TEMPLATE_DIR)
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => jsonLoad(f))
+    .filter(Boolean);
+}
+function jsonLoad(file) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(TEMPLATE_DIR, file), "utf8"));
+  } catch {
+    return null;
+  }
+}
 
 const router = express.Router();
 router.use(auth.parentOnly);
@@ -14,6 +32,22 @@ router.use(auth.parentOnly);
 function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
+
+// Templates (list = metadata only; :id = full milestones).
+router.get("/templates", (_req, res) => {
+  res.json({
+    templates: listTemplates().map((t) => ({
+      id: t.id, title: t.title, subject: t.subject, description: t.description,
+      suggestedWeeks: t.suggestedWeeks, milestoneCount: t.milestones.length,
+    })),
+  });
+});
+
+router.get("/templates/:id", (req, res) => {
+  const t = listTemplates().find((x) => x.id === String(req.params.id || ""));
+  if (!t) return bad(res, "not_found", 404);
+  res.json({ template: t });
+});
 
 // Kick off AI outline generation (a job — takes ~a minute).
 router.post("/outline", async (req, res, next) => {

@@ -781,6 +781,7 @@ summary::marker { color: var(--muted); }
 .calcell { min-height: 86px; border: 1px solid var(--border); border-radius: 8px; padding: 4px; background: var(--panel-2); }
 .calcell.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .calnum { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 2px; }
+.calitem.evitem { background: var(--sky-bg, #e7f0fd); color: var(--sky, #0a7dbd); }
 .calitem {
   display: block; width: 100%; text-align: left; font-size: 11.5px; font: inherit;
   background: var(--accent-soft); color: var(--accent); border: none; border-radius: 6px;
@@ -803,6 +804,18 @@ summary::marker { color: var(--muted); }
   .rrow { grid-template-columns: minmax(140px, 1fr) 110px 150px; }
   .rrow > :nth-child(n+4) { display: none; }
   .rrow.rhead > :nth-child(n+4) { display: none; }
+}
+
+/* ---------- learner coming up ---------- */
+
+.comingup {
+  width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+  padding: 12px 16px; margin-bottom: 16px;
+}
+.cu-row { display: flex; gap: 10px; font-size: 14px; padding: 3px 0; align-items: baseline; }
+.cu-date {
+  font-size: 11.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft);
+  border-radius: 6px; padding: 1px 7px; flex: none;
 }
 
 /* ---------- misc ---------- */

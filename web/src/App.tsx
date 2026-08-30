@@ -12,6 +12,7 @@ import Progress from "./pages/Progress";
 import Plans from "./pages/Plans";
 import Notes from "./pages/Notes";
 import Library from "./pages/Library";
+import Calendar from "./pages/Calendar";
 import PlanWizard from "./pages/PlanWizard";
 import PlanDetail from "./pages/PlanDetail";
 import Settings from "./pages/Settings";
@@ -113,6 +114,7 @@ export default function App() {
       {route === "plans" && <Plans onNavigate={navigate} />}
       {route === "notes" && <Notes />}
       {route === "library" && <Library />}
+      {route === "calendar" && <Calendar onNavigate={navigate} />}
       {route === "plans/new" && <PlanWizard me={me!} onNavigate={navigate} />}
       {planMatch && <PlanDetail planId={Number(planMatch[1])} onNavigate={navigate} meLearners={me.learners || []} />}
       {route === "settings" && <Settings me={me!} />}

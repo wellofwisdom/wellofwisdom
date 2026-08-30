@@ -1,0 +1,27 @@
+{
+  "id": "algebra-1",
+  "title": "Algebra 1: Foundations to Quadratics",
+  "subject": "Algebra 1",
+  "description": "A full-year Algebra 1 sequence, foundations to quadratics, with a real-world project at every step.",
+  "suggestedWeeks": 36,
+  "milestones": [
+    { "title": "Number sense and operations", "description": "Integers, fractions, decimals, order of operations — the tools everything else is built on.", "projectIdea": "Personal budget spreadsheet: track real (or imagined) income and expenses for two weeks using signed numbers.", "resourceHint": "Khan Academy: Pre-algebra foundations" },
+    { "title": "Variables and expressions", "description": "Translating words into symbols and evaluating expressions.", "projectIdea": "Write your own 'word problem translator' cheat sheet with 10 real-life examples from your home.", "resourceHint": "Khan Academy: Algebra basics — variables and expressions" },
+    { "title": "Solving one-step and two-step equations", "description": "The balance method; solving for x with confidence.", "projectIdea": "Design a puzzle trail around your house where each clue is a two-step equation.", "resourceHint": "Khan Academy: One-step and two-step equations" },
+    { "title": "Multi-step equations and variables on both sides", "description": "Distribution, combining like terms, and equations that fight back.", "projectIdea": "Error-analysis poster: find and fix five planted mistakes in worked equations.", "resourceHint": "Khan Academy: Multi-step equations" },
+    { "title": "Inequalities", "description": "Solving and graphing inequalities; when the sign flips.", "projectIdea": "Set personal fitness or reading goals as inequalities and track them for a week.", "resourceHint": "Khan Academy: Inequalities" },
+    { "title": "Ratios, rates, and proportions", "description": "Unit rates, scale, and proportional reasoning.", "projectIdea": "Scale drawing of your bedroom or a fantasy map at 1:50 scale.", "resourceHint": "Khan Academy: Ratios, rates, proportions" },
+    { "title": "Percents and real-world applications", "description": "Discounts, interest, tips, and percent change.", "projectIdea": "Plan a shopping trip: calculate discounts, tax, and compare unit prices to find the real best deal.", "resourceHint": "Khan Academy: Percent problems" },
+    { "title": "Introduction to functions", "description": "What a function is, function notation, domain and range.", "projectIdea": "Machine metaphor poster: build three 'function machines' from cardboard with input-output rules.", "resourceHint": "Khan Academy: Functions introduction" },
+    { "title": "Linear functions and graphing", "description": "Slope, intercepts, and the stories lines tell.", "projectIdea": "Track something daily for a week (temperature, screen time) and graph it — find the slope of your life.", "resourceHint": "Khan Academy: Linear equations and graphs" },
+    { "title": "Systems of equations", "description": "Solving systems by graphing, substitution, and elimination.", "projectIdea": "Party planning on a budget: two constraints, one solution — show it three ways.", "resourceHint": "Khan Academy: Systems of equations" },
+    { "title": "Exponents and scientific notation", "description": "Exponent rules and describing very big and very small things.", "projectIdea": "Scale the solar system: express real astronomical distances in scientific notation and build a sidewalk model.", "resourceHint": "Khan Academy: Exponent properties" },
+    { "title": "Polynomials", "description": "Adding, subtracting, and multiplying polynomials.", "projectIdea": "Algebra tiles from paper: build and photograph each operation.", "resourceHint": "Khan Academy: Polynomials introduction" },
+    { "title": "Factoring", "description": "Common factors, trinomials, and special products.", "projectIdea": "Factoring relay: a game deck where matching trinomials to their factors wins the round.", "resourceHint": "Khan Academy: Factoring quadratics" },
+    { "title": "Quadratic equations", "description": "Solving quadratics by factoring, square roots, and the quadratic formula.", "projectIdea": "Projectile experiment: throw a ball, film it, and model its height with a quadratic.", "resourceHint": "Khan Academy: Quadratic equations" },
+    { "title": "Radicals and rational expressions", "description": "Simplifying radicals and working with rational expressions.", "projectIdea": "Design a mini golf hole and calculate exact diagonal distances using radicals.", "resourceHint": "Khan Academy: Radicals and rational exponents" },
+    { "title": "Data and statistics", "description": "Lines of best fit, scatter plots, and interpreting data honestly.", "projectIdea": "Conduct a family or co-op survey and present findings with a scatter plot and trend line.", "resourceHint": "Khan Academy: Statistics and probability" },
+    { "title": "Exponential growth and decay", "description": "Growth models, decay, and compound interest.", "projectIdea": "The paper-folding challenge: model exponential growth, then calculate when the stack reaches the moon.", "resourceHint": "Khan Academy: Exponential growth and decay" },
+    { "title": "Capstone: Algebra in the wild", "description": "A self-designed project that uses at least four skills from the year.", "projectIdea": "Choose your own: plan a business, design a game economy, or analyze a sport — prove Algebra 1 lives in it.", "resourceHint": "Your own curiosity" }
+  ]
+}
