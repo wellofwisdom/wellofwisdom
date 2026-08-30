@@ -15,6 +15,11 @@ Status legend: ✅ shipped · 🚧 in progress · 📋 planned
 - Family + parent + learner accounts (parent-created, COPPA-friendly)
 - AI Course Studio: topic + level + interests → full editable course draft
   (units → lessons → exercises → quizzes → projects)
+- **Source Library** (NotebookLM-style grounding): attach PDFs, web pages,
+  YouTube videos, and pasted text as sources; the Studio builds every lesson
+  from the family's approved sources **with citations** back to them
+- **Video lesson items**: assign any YouTube video to a lesson/course (embedded
+  player, per YouTube's terms) with comprehension questions
 - Lesson player: text lessons with KaTeX math, exercise types (multiple choice,
   numeric, expression via MathLive), instant feedback
 - "Explain my mistake" — AI diagnosis after wrong answers
@@ -55,6 +60,11 @@ Status legend: ✅ shipped · 🚧 in progress · 📋 planned
 
 ## Later (research queue)
 
+- **Audio overviews** (NotebookLM-style): AI-written two-voice podcast summary of
+  any unit, read by local TTS (Piper/Kokoro) — car-schooling gold
+- **Free content importers**: Wikipedia/Wikiversity (CC BY-SA), Project Gutenberg
+  EPUBs (public-domain literature for ELA), OpenStax chapters (CC BY-NC-SA —
+  free use only, never in paid packs)
 - Code courses with sandboxed execution (Piston)
 - Language learning: pronunciation scoring (GOP), conversation practice
 - Offline/low-connectivity mode (Kolibri-inspired)
