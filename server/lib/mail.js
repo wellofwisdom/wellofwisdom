@@ -65,14 +65,15 @@ async function status() {
   };
 }
 
-/** Send. Returns {ok, provider, error?}. Never throws. */
-async function sendMail({ to, subject, html, text, familyId, kind }) {
+/** Send. `userId` marks mail addressed to one person (learner notes),
+ *  which is how those dedupe. Returns {ok, provider, error?}. Never throws. */
+async function sendMail({ to, subject, html, text, familyId, userId, kind }) {
   const cfg = await resolveConfig();
   const log = async (status_, error) => {
     if (!db.configured()) return;
     db.query(
-      "insert into mail_log (family_id, kind, to_email, subject, provider, status, error) values ($1,$2,$3,$4,$5,$6,$7)",
-      [familyId || null, kind || "generic", to, subject || null, cfg ? cfg.provider : null, status_, error ? String(error).slice(0, 500) : null]
+      "insert into mail_log (family_id, user_id, kind, to_email, subject, provider, status, error) values ($1,$2,$3,$4,$5,$6,$7,$8)",
+      [familyId || null, userId || null, kind || "generic", to, subject || null, cfg ? cfg.provider : null, status_, error ? String(error).slice(0, 500) : null]
     ).catch(() => {});
   };
   if (!cfg) {

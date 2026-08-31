@@ -68,16 +68,26 @@ interface MailConfig {
   smtpPass?: string | null;
 }
 
+interface MailPrefs {
+  digest: boolean;
+  digestEmail: string | null;
+  defaultTo: string | null;
+  reminders: boolean;
+  learnerDigest: boolean;
+  learnerReminders: boolean;
+  learnersWithEmail: number;
+}
+
 function EmailPanel() {
   const [status, setStatus] = useState<MailStatus | null>(null);
-  const [prefs, setPrefs] = useState<{ digest: boolean; digestEmail: string | null; defaultTo: string | null } | null>(null);
+  const [prefs, setPrefs] = useState<MailPrefs | null>(null);
   const [emailInput, setEmailInput] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
 
   const load = () => {
     api<MailStatus>("/api/mail/status").then(setStatus).catch(() => setStatus(null));
-    api<{ digest: boolean; digestEmail: string | null; defaultTo: string | null }>("/api/mail/prefs")
+    api<MailPrefs>("/api/mail/prefs")
       .then((d) => { setPrefs(d); setEmailInput(d.digestEmail || d.defaultTo || ""); })
       .catch(() => setPrefs(null));
   };
@@ -97,12 +107,30 @@ function EmailPanel() {
     }
   }
 
-  async function savePrefs(digestOn: boolean) {
+  async function savePrefs(patch: Record<string, unknown>, note = "✓ Saved.") {
     setBusy(true);
     try {
-      await api("/api/mail/prefs", { method: "PUT", body: { digestOn, digestEmail: emailInput } });
-      setMsg("✓ Saved. The weekly digest arrives Mondays.");
+      await api("/api/mail/prefs", { method: "PUT", body: { digestEmail: emailInput, ...patch } });
+      setMsg(note);
       load();
+    } catch (e) {
+      setMsg(niceError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function learnerNotesNow() {
+    setBusy(true);
+    setMsg("");
+    try {
+      const r = await api<{ ok?: boolean; skipped?: string; results?: { learner: string; ok?: boolean; skipped?: string }[] }>(
+        "/api/mail/learner-notes-now", { method: "POST" });
+      if (r.results) {
+        setMsg(r.results.map((x) => `${x.learner}: ${x.ok ? "sent ✅" : x.skipped || "not sent"}`).join(" · "));
+      } else {
+        setMsg(`Not sent: ${r.skipped || "unknown"}`);
+      }
     } catch (e) {
       setMsg(niceError(e));
     } finally {
@@ -145,20 +173,49 @@ function EmailPanel() {
           </div>
           <div className="row wrap">
             <button className="btn primary" type="button" disabled={busy || !emailInput.includes("@")}
-              onClick={() => savePrefs(true)}>Save & enable weekly digest</button>
+              onClick={() => savePrefs({ digestOn: true }, "✓ Saved. The weekly digest arrives Mondays.")}>Save & enable weekly digest</button>
             {prefs && prefs.digest && (
               <>
                 <span className="chip on">✓ Weekly digest on</span>
                 <button className="btn ghost" type="button" disabled={busy} onClick={digestNow}>Send now</button>
-                <button className="btn ghost" type="button" disabled={busy} onClick={() => savePrefs(false)}>Turn off</button>
+                <button className="btn ghost" type="button" disabled={busy} onClick={() => savePrefs({ digestOn: false }, "Weekly digest turned off.")}>Turn off</button>
               </>
             )}
           </div>
         </>
       )}
+      {status.configured && prefs && (
+        <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--border)" }}>
+          <h4 style={{ margin: "0 0 4px" }}>Learners' own mail</h4>
+          <p className="hint" style={{ marginTop: 0 }}>
+            {prefs.learnersWithEmail > 0
+              ? `${prefs.learnersWithEmail} learner${prefs.learnersWithEmail === 1 ? " has" : "s have"} an email on their profile.`
+              : "No learner has an email yet — add one on a learner's profile to turn this on for them."}{" "}
+            Email is never needed to sign in; adding one is how a learner opts in.
+          </p>
+          <div className="row wrap" style={{ marginTop: 8 }}>
+            <button className="btn ghost" type="button" disabled={busy}
+              onClick={() => savePrefs(
+                { learnerDigestOn: !prefs.learnerDigest },
+                prefs.learnerDigest ? "Learner weekly notes turned off." : "✓ Learners get their own Monday note.")}>
+              {prefs.learnerDigest ? "✓ Weekly note on" : "Weekly note off"}
+            </button>
+            <button className="btn ghost" type="button" disabled={busy}
+              onClick={() => savePrefs(
+                { learnerRemindersOn: !prefs.learnerReminders },
+                prefs.learnerReminders ? "Learner event reminders turned off." : "✓ Learners get tomorrow-reminders too.")}>
+              {prefs.learnerReminders ? "✓ Event reminders on" : "Event reminders off"}
+            </button>
+            {prefs.learnerDigest && prefs.learnersWithEmail > 0 && (
+              <button className="btn ghost" type="button" disabled={busy} onClick={learnerNotesNow}>Send notes now</button>
+            )}
+          </div>
+        </div>
+      )}
       {msg && <p className="small" style={{ marginTop: 8 }}>{msg}</p>}
       <p className="hint" style={{ marginTop: 8 }}>
         The Monday digest summarizes each learner's week (lessons, accuracy, reviews due) and milestones coming up.
+        Learners with an email get their own note the same morning — only their own work, never a sibling comparison.
       </p>
     </>
   );

@@ -91,7 +91,7 @@ router.put("/config", async (req, res, next) => {
   }
 });
 
-// Family email prefs: digest on/off + where to send it.
+// Family email prefs: what goes out, and where the guide's copy is sent.
 router.get("/prefs", async (req, res, next) => {
   try {
     const { rows } = await db.query("select prefs from families where id = $1", [req.user.familyId]);
@@ -100,10 +100,20 @@ router.get("/prefs", async (req, res, next) => {
       "select email from users where family_id = $1 and role = 'parent' and email is not null order by id limit 1",
       [req.user.familyId]
     );
+    // How many learners opted in (an email on the profile IS the opt-in), so
+    // the UI can say whether the learner toggles do anything yet.
+    const l = await db.query(
+      "select count(*)::int as n from users where family_id = $1 and role = 'learner' and email is not null and email <> ''",
+      [req.user.familyId]
+    );
     res.json({
       digest: p.digest !== false,
       digestEmail: p.digestEmail || null,
       defaultTo: (g.rows[0] && g.rows[0].email) || null,
+      reminders: p.reminders !== false,
+      learnerDigest: p.learnerDigest !== false,
+      learnerReminders: p.learnerReminders !== false,
+      learnersWithEmail: (l.rows[0] && l.rows[0].n) || 0,
     });
   } catch (err) {
     next(err);
@@ -112,10 +122,13 @@ router.get("/prefs", async (req, res, next) => {
 
 router.put("/prefs", async (req, res, next) => {
   try {
-    const { digestOn, digestEmail } = req.body || {};
+    const { digestOn, digestEmail, remindersOn, learnerDigestOn, learnerRemindersOn } = req.body || {};
     const { rows } = await db.query("select prefs from families where id = $1", [req.user.familyId]);
     const p = { ...((rows[0] && rows[0].prefs) || {}) };
     if (digestOn !== undefined) p.digest = Boolean(digestOn);
+    if (remindersOn !== undefined) p.reminders = Boolean(remindersOn);
+    if (learnerDigestOn !== undefined) p.learnerDigest = Boolean(learnerDigestOn);
+    if (learnerRemindersOn !== undefined) p.learnerReminders = Boolean(learnerRemindersOn);
     if (digestEmail !== undefined) {
       if (digestEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(digestEmail))) return bad(res, "email_invalid");
       p.digestEmail = digestEmail ? String(digestEmail).slice(0, 200) : null;
@@ -153,6 +166,18 @@ router.post("/digest-now", async (req, res, next) => {
   try {
     const r = await digest.sendNow(req.user.familyId);
     res.json(r);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Send every opted-in learner their weekly note right now. `force` bypasses
+// the once-a-week guard so the guide can preview what lands.
+router.post("/learner-notes-now", async (req, res, next) => {
+  try {
+    const st = await mail.status();
+    if (!st.configured) return bad(res, "mail_not_configured", 503);
+    res.json(await digest.sendLearnerNotes(req.user.familyId, { force: true }));
   } catch (err) {
     next(err);
   }
