@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../api";
 import type { Job, Learner, MeResponse } from "../types";
+import { linkProps } from "../router";
 
 interface Draft {
   title: string;
@@ -264,7 +265,7 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
                 Same destination, personalized route: give any learner their own lens or extra instructions.
               </p>
               {learners.length === 0 ? (
-                <p className="hint">No learners yet — <a href="#/learners">add some</a>, or come back; plans work without them too.</p>
+                <p className="hint">No learners yet — <a {...linkProps("learners")}>add some</a>, or come back; plans work without them too.</p>
               ) : (
                 learners.map((l) => {
                   const on = Boolean(enrolled[l.id]);

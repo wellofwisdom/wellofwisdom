@@ -23,10 +23,10 @@ import Experience from "./pages/Experience";
 import LearnerApp from "./pages/learn/LearnerApp";
 import PrintLesson from "./pages/PrintLesson";
 import type { CourseSummary } from "./types";
+import { go, routeFromLocation, ROUTE_EVENT } from "./router";
 
 function currentRoute(): string {
-  const h = window.location.hash.replace(/^#\/?/, "");
-  return h.split("?")[0] || "dashboard";
+  return routeFromLocation();
 }
 
 export default function App() {
@@ -36,14 +36,17 @@ export default function App() {
   const [courses, setCourses] = useState<CourseSummary[] | null>(null);
 
   useEffect(() => {
-    const onHash = () => setRouteState(currentRoute());
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    const onRoute = () => setRouteState(currentRoute());
+    // popstate = back/forward; ROUTE_EVENT = our own pushState navigations.
+    window.addEventListener("popstate", onRoute);
+    window.addEventListener(ROUTE_EVENT, onRoute);
+    return () => {
+      window.removeEventListener("popstate", onRoute);
+      window.removeEventListener(ROUTE_EVENT, onRoute);
+    };
   }, []);
 
-  const navigate = useCallback((id: string) => {
-    window.location.hash = id === "dashboard" ? "/" : `/${id}`;
-  }, []);
+  const navigate = useCallback((id: string) => go(id), []);
 
   const refresh = useCallback(async () => {
     try {
@@ -71,7 +74,7 @@ export default function App() {
 
   const logout = useCallback(async () => {
     await api("/api/auth/logout", { method: "POST" }).catch(() => {});
-    window.location.hash = "/";
+    go("dashboard");
     refresh();
   }, [refresh]);
 
@@ -111,7 +114,15 @@ export default function App() {
   return (
     <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : learnerEditMatch || learnerNew ? "learners" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
       {route === "learners" && <Learners me={me!} />}
-      {(learnerNew || learnerEditMatch) && <LearnerForm learnerId={learnerEditMatch ? Number(learnerEditMatch[1]) : null} />}
+      {(learnerNew || learnerEditMatch) && (
+        // key forces a remount between learners, so switching from an edit
+        // to "add" cannot leave the previous learner's values on screen.
+        <LearnerForm
+          key={learnerEditMatch ? learnerEditMatch[1] : "new"}
+          learnerId={learnerEditMatch ? Number(learnerEditMatch[1]) : null}
+          onSaved={refresh}
+        />
+      )}
       {route === "studio" && <Studio me={me!} onNavigate={navigate} />}
       {route === "courses" && <Courses onNavigate={navigate} />}
       {route === "experience" && <Experience />}

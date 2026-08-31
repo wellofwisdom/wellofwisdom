@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../api";
 import type { Job, Learner, MeResponse } from "../types";
 import RichTextEditor from "../lib/RichTextEditor";
+import { linkProps } from "../router";
 
 const LENS_IDEAS = [
   "sewing", "Minecraft", "skateboarding", "baking", "horses", "space",
@@ -163,7 +164,7 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
           </div>
           {learners.length === 0 && (
             <p className="hint" style={{ marginTop: 8 }}>
-              No learners yet — <a href="#/learners">add some first</a> so the AI can personalize. Or generate for everyone.
+              No learners yet — <a {...linkProps("learners")}>add some first</a> so the AI can personalize. Or generate for everyone.
             </p>
           )}
           {selected && (

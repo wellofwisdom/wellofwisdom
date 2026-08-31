@@ -5,6 +5,7 @@ import { api, niceError } from "../api";
 import type { HealthResponse, MeResponse } from "../types";
 import { Panel, Field, StatBar } from "../components/ui";
 import { IconCheck, IconCopy } from "../components/Icons";
+import { linkProps } from "../router";
 
 interface AiUsageResponse {
   month: { calls: number; tokens_in: number; tokens_out: number; cost: string | null };
@@ -481,7 +482,7 @@ export default function Settings({ me }: { me: MeResponse }) {
         <p className="muted" style={{ marginBottom: 10 }}>
           Backgrounds, accent colors, dark mode, reading size — everything lives in one place now.
         </p>
-        <a className="btn primary" href="#/experience">🎨 Open Experience</a>
+        <a className="btn primary" {...linkProps("experience")}>🎨 Open Experience</a>
       </Panel>
 
       <Panel title="AI media — images & videos" side="course covers, adventures, cutscenes">

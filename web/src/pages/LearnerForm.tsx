@@ -17,7 +17,8 @@ const INTEREST_SUGGESTIONS = [
 
 const READING_LEVELS = ["", "below grade", "at grade", "above grade"];
 
-export default function LearnerForm({ learnerId }: { learnerId: number | null }) {
+export default function LearnerForm({ learnerId, onSaved }:
+  { learnerId: number | null; onSaved?: () => Promise<void> | void }) {
   const navigate = useNavigate();
   const editing = learnerId !== null;
 
@@ -73,6 +74,9 @@ export default function LearnerForm({ learnerId }: { learnerId: number | null })
         body.pin = pin;
         await api("/api/family/learners", { method: "POST", body });
       }
+      // Refetch before navigating — the list renders from App's `me`, so
+      // without this a new learner does not appear until a manual reload.
+      await onSaved?.();
       navigate("learners");
     } catch (e) {
       setError(niceError(e));
@@ -83,6 +87,7 @@ export default function LearnerForm({ learnerId }: { learnerId: number | null })
   async function remove() {
     if (!editing || !window.confirm(`Remove ${name}? Their progress is removed too. This cannot be undone.`)) return;
     await api(`/api/family/learners/${learnerId}`, { method: "DELETE" }).catch(() => {});
+    await onSaved?.();
     navigate("learners");
   }
 
@@ -135,7 +140,9 @@ export default function LearnerForm({ learnerId }: { learnerId: number | null })
                 <div className="field">
                   <label>Username (their login)</label>
                   <input className="input" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                    placeholder="maya, alex_t, wizard99…" autoCapitalize="none" />
+                    placeholder="maya, alex_t, wizard99…" autoCapitalize="none"
+                    name="learner-username" autoComplete="off" autoCorrect="off" spellCheck={false}
+                    data-lpignore="true" data-1p-ignore data-form-type="other" />
                   <div className="hint">Lowercase letters and numbers, no spaces.</div>
                 </div>
               </div>
@@ -143,7 +150,9 @@ export default function LearnerForm({ learnerId }: { learnerId: number | null })
                 <div className="field">
                   <label>PIN</label>
                   <input className="input" type="password" inputMode="numeric" value={pin}
-                    onChange={(e) => setPin(e.target.value)} placeholder="4-6 digits" />
+                    onChange={(e) => setPin(e.target.value)} placeholder="4-6 digits"
+                    name="learner-pin" autoComplete="new-password"
+                    data-lpignore="true" data-1p-ignore data-form-type="other" />
                 </div>
               </div>
             </div>
@@ -154,7 +163,9 @@ export default function LearnerForm({ learnerId }: { learnerId: number | null })
                 <div className="field">
                   <label>New PIN (optional)</label>
                   <input className="input" type="password" inputMode="numeric" value={pin}
-                    onChange={(e) => setPin(e.target.value)} placeholder="Leave blank to keep" />
+                    onChange={(e) => setPin(e.target.value)} placeholder="Leave blank to keep"
+                    name="learner-new-pin" autoComplete="new-password"
+                    data-lpignore="true" data-1p-ignore data-form-type="other" />
                 </div>
               </div>
               <div className="grow" style={{ paddingTop: 28 }}>
@@ -210,7 +221,9 @@ export default function LearnerForm({ learnerId }: { learnerId: number | null })
             If they have an email, they can receive reminder notifications. Login stays username + PIN regardless.
           </p>
           <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-            placeholder="maya@example.com (leave blank if none)" />
+            placeholder="maya@example.com (leave blank if none)"
+            name="learner-email" autoComplete="off"
+            data-lpignore="true" data-1p-ignore data-form-type="other" />
         </div>
       </section>
 

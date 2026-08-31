@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { Panel, StatBar, EmptyState, Modal, Field } from "../components/ui";
+import { go } from "../router";
 
 interface ProgressLearner {
   id: number;
@@ -127,7 +128,7 @@ export default function Progress() {
   );
 
   function onNavigateReport(id: number) {
-    window.location.hash = `#/report/${id}`;
+    go(`report/${id}`);
   }
 }
 
