@@ -6,6 +6,7 @@ import type { CourseTree, ItemNode, Learner, MeResponse } from "../types";
 import { Panel, Modal, Field } from "../components/ui";
 import { MathText } from "../lib/rich";
 import { IconPencil, IconTrash, IconCheck } from "../components/Icons";
+import { AdventureDialog, AdventuresPanel, CoverButton } from "../components/AdventureUI";
 
 const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️", video: "▶️", project: "🛠️" };
 
@@ -14,6 +15,7 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
   const [error, setError] = useState("");
   const [editing, setEditing] = useState<ItemNode | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [advOpen, setAdvOpen] = useState(false);
 
   const load = () =>
     api<{ course: CourseTree }>(`/api/courses/${courseId}`)
@@ -91,6 +93,8 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
               setError(niceError(e));
             }
           }}>⬇ Export</button>
+        <CoverButton courseId={courseId} onDone={load} onError={setError} />
+        <button className="btn primary" type="button" onClick={() => setAdvOpen(true)}>⚔️ Adventure</button>
         <button className="btn danger ghost" aria-label="Delete course" type="button" onClick={() => setConfirmDelete(true)}>
           <IconTrash />
         </button>
@@ -139,6 +143,11 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
         </Panel>
       ))}
 
+      <AdventuresPanel courseId={courseId} onChanged={load} />
+
+      {advOpen && (
+        <AdventureDialog courseId={courseId} me={me} onClose={() => setAdvOpen(false)} onCreated={() => setAdvOpen(false)} />
+      )}
       {editing && (
         <EditItemDialog
           item={editing}

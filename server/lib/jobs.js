@@ -56,6 +56,39 @@ const HANDLERS = {
     const r = await persistCourse(course, { topic: title, lens: null, gradeLevel: null, sources: [] }, spec.created_by, job.family_id);
     return { courseId: r.courseId, addedToExisting: false, items: items.length, title };
   },
+  image: async (job) => {
+    const spec = job.payload;
+    const media = require("./media");
+    const r = await media.generateImage({
+      prompt: spec.prompt,
+      size: spec.size,
+      purpose: spec.purpose,
+      refType: spec.refType,
+      refId: spec.refId,
+      familyId: job.family_id,
+      userId: spec.created_by,
+    });
+    // course covers update the course row for cheap listing
+    if (spec.purpose === "course-cover" && spec.refType === "course" && r.url && !r.url.startsWith("data:")) {
+      await db.query("update courses set cover_url = $2 where id = $1 and family_id = $3",
+        [spec.refId, r.url, job.family_id]).catch(() => {});
+    }
+    return r;
+  },
+  video: async (job) => {
+    const spec = job.payload;
+    const media = require("./media");
+    return media.generateVideo({
+      prompt: spec.prompt,
+      duration: spec.duration,
+      resolution: spec.resolution,
+      purpose: spec.purpose,
+      refType: spec.refType,
+      refId: spec.refId,
+      familyId: job.family_id,
+      userId: spec.created_by,
+    });
+  },
   "plan-outline": async (job) => {
     const spec = job.payload;
     const { generateOutline } = require("./plangen");

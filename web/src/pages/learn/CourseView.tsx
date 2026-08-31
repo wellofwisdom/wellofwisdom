@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../api";
 import type { LearnCourseTree } from "../../types";
 import { IconLogout } from "../../components/Icons";
+import AdventureBanner from "./AdventureBanner";
 
 export default function CourseView({ courseId, onNavigate, onLogout }: {
   courseId: number; onNavigate: (hash: string) => void; onLogout: () => void;
@@ -40,6 +41,10 @@ export default function CourseView({ courseId, onNavigate, onLogout }: {
           {course.progress.lessonsDone} of {course.progress.lessonsTotal} lessons done{pct === 100 ? " — you finished it! 🎉" : ""}
         </p>
       </div>
+
+      <AdventureBanner courseId={courseId}
+        lessonsDone={course.progress.lessonsDone}
+        lessonsTotal={course.progress.lessonsTotal} />
 
       {course.units.map((u, ui) => (
         <div key={u.id} style={{ width: "100%", marginBottom: 16 }}>

@@ -256,6 +256,18 @@ router.post("/attempt", async (req, res, next) => {
     if (row.type === "exercise" && c.kind && c.kind !== "text") {
       review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
     }
+
+    // Adventure XP: correct answers on adventured courses earn XP (fail-open).
+    if (correct === true) {
+      db.query(
+        `update adventures set xp = xp + 10
+          where course_id = (select un.course_id from lesson_items i
+                              join lessons l on l.id = i.lesson_id
+                              join units un on un.id = l.unit_id where i.id = $1)
+            and (learner_id = $2 or learner_id is null) and family_id = $3`,
+        [id, req.user.id, req.user.familyId]
+      ).catch(() => {});
+    }
     res.json({ correct, reveal });
   } catch (err) {
     next(err);
@@ -282,6 +294,25 @@ router.get("/review", async (req, res, next) => {
         },
       })),
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// The learner's adventure for a course (world + xp + chapter unlocks).
+router.get("/adventure/:courseId", async (req, res, next) => {
+  try {
+    const { rows } = await db.query(
+      `select a.id, a.world, a.xp, a.learner_id,
+              (select url from media_assets m where m.ref_type = 'adventure' and m.ref_id = a.id and m.purpose = 'adventure-cover' order by m.id desc limit 1) as cover_url
+         from adventures a
+        where a.course_id = $1 and a.family_id = $2
+          and (a.learner_id = $3 or a.learner_id is null)
+        order by a.created_at desc limit 1`,
+      [Number(req.params.courseId), req.user.familyId, req.user.id]
+    );
+    if (!rows[0]) return res.json({ adventure: null });
+    res.json({ adventure: rows[0] });
   } catch (err) {
     next(err);
   }

@@ -281,6 +281,106 @@ function ProviderForm({ onSaved }: { onSaved: () => void }) {
   );
 }
 
+
+interface MediaStatus {
+  configured: boolean;
+  canImage: boolean;
+  canVideo: boolean;
+  imageProvider: string | null;
+  videoProvider: string | null;
+  source: string | null;
+}
+
+function MediaPanel() {
+  const [status, setStatus] = useState<MediaStatus | null>(null);
+  const [cfg, setCfg] = useState<Record<string, string> | null>(null);
+  const [models, setModels] = useState<{ imageModels: { id: string; label: string }[]; videoModels: { id: string; label: string }[]; imageSizes: string[]; videoResolutions: string[]; videoDurations: number[] } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const load = () => {
+    api<MediaStatus>("/api/media/status").then(setStatus).catch(() => setStatus(null));
+    api<typeof cfg & { config: Record<string, string> } & typeof models>("/api/media/config")
+      .then((d) => { setCfg(d.config || {}); setModels(d); })
+      .catch(() => setCfg({}));
+  };
+  useEffect(() => { load(); }, []);
+
+  const set = (k: string, v: string) => setCfg((c) => ({ ...(c || {}), [k]: v }));
+
+  async function save() {
+    setBusy(true);
+    setMsg("");
+    try {
+      await api("/api/media/config", { method: "PUT", body: cfg });
+      setMsg("✓ Saved");
+      load();
+    } catch (e) {
+      setMsg(niceError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!status) return <p className="muted small">Loading…</p>;
+
+  return (
+    <>
+      <div className="checkitem">
+        <span className="dot done" style={{ borderColor: status.canImage ? "var(--good)" : "var(--border)", background: status.canImage ? "var(--good)" : "transparent" }} />
+        <span className="t">Images: {status.canImage ? `via ${status.imageProvider}` : "not configured"}</span>
+      </div>
+      <div className="checkitem">
+        <span className="dot done" style={{ borderColor: status.canVideo ? "var(--good)" : "var(--border)", background: status.canVideo ? "var(--good)" : "transparent" }} />
+        <span className="t">Videos: {status.canVideo ? "via kie.ai" : "not configured (needs a kie.ai key)"}</span>
+      </div>
+      <details style={{ margin: "10px 0" }}>
+        <summary className="small" style={{ cursor: "pointer", color: "var(--accent)", fontWeight: 600 }}>⚙️ Configure generators</summary>
+        <div style={{ marginTop: 10 }}>
+          <div className="row" style={{ gap: 12 }}>
+            <div className="grow"><Field label="kie.ai API key" hint="Powers Nano Banana images + Seedance/Veo videos."><input className="input" type="password" value={cfg?.kieKey || ""} onChange={(e) => set("kieKey", e.target.value)} placeholder={(cfg?.kieKey || "").startsWith("•") ? "saved — paste new to change" : "kie.ai key"} /></Field></div>
+            <div className="grow"><Field label="OpenAI API key (images alternative)"><input className="input" type="password" value={cfg?.openaiKey || ""} onChange={(e) => set("openaiKey", e.target.value)} placeholder={(cfg?.openaiKey || "").startsWith("•") ? "saved — paste new to change" : "sk-…"} /></Field></div>
+          </div>
+          <div className="row" style={{ gap: 12 }}>
+            <div className="grow"><Field label="Image model">
+              <select className="input" value={cfg?.imageModel || ""} onChange={(e) => { set("imageModel", e.target.value); set("imageProvider", e.target.value.startsWith("google") ? "kie" : "openai"); }}>
+                {(models?.imageModels || []).map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+              </select>
+            </Field></div>
+            <div style={{ maxWidth: 140 }}><Field label="Image size">
+              <select className="input" value={cfg?.imageSize || "1536x1024"} onChange={(e) => set("imageSize", e.target.value)}>
+                {(models?.imageSizes || []).map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </Field></div>
+          </div>
+          <div className="row" style={{ gap: 12 }}>
+            <div className="grow"><Field label="Video model">
+              <select className="input" value={cfg?.videoModel || ""} onChange={(e) => set("videoModel", e.target.value)}>
+                {(models?.videoModels || []).map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+              </select>
+            </Field></div>
+            <div><Field label="Resolution">
+              <select className="input" value={cfg?.videoResolution || "720p"} onChange={(e) => set("videoResolution", e.target.value)}>
+                {(models?.videoResolutions || []).map((r) => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </Field></div>
+            <div><Field label="Length (s)">
+              <select className="input" value={String(cfg?.videoDuration || "5")} onChange={(e) => set("videoDuration", e.target.value)}>
+                {(models?.videoDurations || []).map((d) => <option key={d} value={String(d)}>{d}</option>)}
+              </select>
+            </Field></div>
+          </div>
+          <div className="row">
+            <button className="btn primary" type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</button>
+            {msg && <span className="small">{msg}</span>}
+          </div>
+        </div>
+      </details>
+      <p className="hint">Images appear on course covers and adventure art. Videos play as course cutscenes. Everything respects your AI spend tracking.</p>
+    </>
+  );
+}
+
 export default function Settings({ me }: { me: MeResponse }) {
   const user = me.user!;
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -325,6 +425,10 @@ export default function Settings({ me }: { me: MeResponse }) {
           Backgrounds, accent colors, dark mode, reading size — everything lives in one place now.
         </p>
         <a className="btn primary" href="#/experience">🎨 Open Experience</a>
+      </Panel>
+
+      <Panel title="AI media — images & videos" side="course covers, adventures, cutscenes">
+        <MediaPanel />
       </Panel>
 
       <Panel title="Email & weekly digest" side="notifications">
