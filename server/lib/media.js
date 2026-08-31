@@ -87,6 +87,24 @@ async function kieCreateTask(key, model, input) {
   return String(taskId);
 }
 
+// Pull result URLs out of a finished recordInfo payload. kie is inconsistent
+// about where they land: some models nest them under `response`, others put
+// `resultJson` (a JSON *string*) at the top level. Check every shape.
+function resultUrls(d) {
+  const r = (d && d.response) || {};
+  for (const urls of [r.resultUrls, d && d.resultUrls]) {
+    if (Array.isArray(urls) && urls.length) return urls;
+  }
+  for (const raw of [r.resultJson, d && d.resultJson]) {
+    if (!raw) continue;
+    try {
+      const urls = JSON.parse(raw).resultUrls;
+      if (Array.isArray(urls) && urls.length) return urls;
+    } catch { /* not JSON — try the next shape */ }
+  }
+  return [];
+}
+
 async function kiePollTask(key, taskId, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -99,11 +117,7 @@ async function kiePollTask(key, taskId, timeoutMs) {
     const d = (info && info.data) || {};
     const state = String(d.state || d.status || "").toLowerCase();
     if (state.includes("succ")) {
-      let urls = d.response && d.response.resultUrls;
-      if (!urls && d.response && d.response.resultJson) {
-        try { urls = JSON.parse(d.response.resultJson).resultUrls; } catch { urls = null; }
-      }
-      return { ok: true, urls: urls || [] };
+      return { ok: true, urls: resultUrls(d) };
     }
     if (state.includes("fail") || state.includes("error")) {
       throw new Error(`kie_job_failed: ${String(d.failMsg || d.error || "generation failed").slice(0, 200)}`);
@@ -179,4 +193,4 @@ async function generateVideo({ prompt, duration, resolution, purpose, refType, r
   return { url };
 }
 
-module.exports = { generateImage, generateVideo, status, resolveConfig, invalidateCache, IMAGE_MODELS, VIDEO_MODELS };
+module.exports = { generateImage, generateVideo, status, resolveConfig, invalidateCache, resultUrls, IMAGE_MODELS, VIDEO_MODELS };
