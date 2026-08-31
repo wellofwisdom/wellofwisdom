@@ -126,3 +126,49 @@ test("LICENSES: the publish route's allowlist is closed", () => {
   assert.ok(share.LICENSES.includes(share.DEFAULT_LICENSE));
   assert.ok(!share.LICENSES.includes("whatever-i-typed"));
 });
+
+// --- seo: what a crawler or research tool actually receives ---
+const seo = require("./seo");
+
+const SHELL = '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+  '<title>Well of Wisdom</title><meta name="description" content="generic">' +
+  '<meta property="og:title" content="generic"></head><body></body></html>';
+
+const META = {
+  title: "Fractions through Sewing", topic: "fractions", lens: "sewing",
+  grade_level: 5, description: "Halves and quarters at the cutting table.",
+  public_slug: "fractions-through-sewing", published_at: new Date("2026-08-31"),
+  license: "CC-BY-4.0", author_name: "Kevin", cover_url: null, lessons: 9,
+};
+
+test("seo: the shell's generic tags are replaced, not duplicated", () => {
+  const out = seo.injectHead(SHELL, seo.courseHead(META, "https://wellofwisdom.app"));
+  assert.equal((out.match(/name="description"/g) || []).length, 1);
+  assert.equal((out.match(/property="og:title"/g) || []).length, 1);
+  assert.match(out, /<title>Fractions through Sewing/);
+  assert.doesNotMatch(out, /content="generic"/);
+});
+
+test("seo: emits schema.org Course JSON-LD a research tool can read", () => {
+  const head = seo.courseHead(META, "https://wellofwisdom.app");
+  const json = JSON.parse(head.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.equal(json["@type"], "Course");
+  assert.equal(json.name, "Fractions through Sewing");
+  assert.equal(json.isAccessibleForFree, true);
+  assert.equal(json.license, "https://creativecommons.org/licenses/by/4.0/");
+  assert.equal(json.url, "https://wellofwisdom.app/c/fractions-through-sewing");
+});
+
+test("seo: escapes a course title that contains markup", () => {
+  const head = seo.courseHead({ ...META, title: '<script>alert(1)</script>' }, "https://x.test");
+  assert.doesNotMatch(head, /<script>alert/);
+  assert.match(head, /&lt;script&gt;/);
+});
+
+test("seo: robots keeps the app private and the shared courses crawlable", () => {
+  const txt = seo.robotsTxt("https://wellofwisdom.app");
+  assert.match(txt, /Allow: \/c\//);
+  assert.match(txt, /Disallow: \/learners/);
+  assert.match(txt, /Disallow: \/records/);
+  assert.match(txt, /Sitemap: https:\/\/wellofwisdom\.app\/sitemap\.xml/);
+});

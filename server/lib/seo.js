@@ -84,10 +84,17 @@ function courseHead(meta, base) {
 
 /** Replace the shell's <title> with real metadata. */
 function injectHead(html, headBlock) {
-  if (/<title>[\s\S]*?<\/title>/.test(html)) {
-    return html.replace(/<title>[\s\S]*?<\/title>/, headBlock);
+  // Drop the shell's generic tags first — shipping two descriptions or two
+  // og:titles is ambiguous, and the generic one wins in some parsers.
+  const out = html
+    .replace(/\s*<meta\s+name=["']description["'][^>]*>/gi, "")
+    .replace(/\s*<meta\s+property=["']og:[^"']*["'][^>]*>/gi, "")
+    .replace(/\s*<link\s+rel=["']canonical["'][^>]*>/gi, "");
+  if (/<title>[\s\S]*?<\/title>/.test(out)) {
+    return out.replace(/<title>[\s\S]*?<\/title>/, headBlock);
   }
-  return html.replace(/<\/head>/i, `    ${headBlock}\n  </head>`);
+  return out.replace(/<\/head>/i, `    ${headBlock}
+  </head>`);
 }
 
 /** robots.txt — public course pages are crawlable, the app itself is not. */
