@@ -19,6 +19,7 @@ export interface Learner {
   interests: string[];
   reading_level: string | null;
   ai_notes: string | null;
+  email: string | null;
   created_at: string;
 }
 

@@ -4,6 +4,7 @@
 const express = require("express");
 const db = require("../lib/db");
 const auth = require("../lib/auth");
+const learners = require("../lib/learners");
 
 const router = express.Router();
 router.use(auth.parentOnly);
@@ -12,15 +13,11 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
-const LEARNER_FIELDS = `id, name, username, grade_level, interests, reading_level, ai_notes, email, created_at`;
+const LEARNER_FIELDS = learners.FIELDS;
 
 router.get("/learners", async (req, res, next) => {
   try {
-    const { rows } = await db.query(
-      `select ${LEARNER_FIELDS} from users where family_id = $1 and role = 'learner' order by created_at`,
-      [req.user.familyId]
-    );
-    res.json({ learners: rows });
+    res.json({ learners: await learners.listForFamily(db, req.user.familyId) });
   } catch (err) {
     next(err);
   }
@@ -57,7 +54,7 @@ router.post("/learners", async (req, res, next) => {
         email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(email)) ? String(email).toLowerCase() : null,
       ]
     );
-    res.status(201).json({ learner: rows[0] });
+    res.status(201).json({ learner: learners.shape(rows[0]) });
   } catch (err) {
     next(err);
   }
@@ -109,7 +106,7 @@ router.patch("/learners/:id", async (req, res, next) => {
       params
     );
     if (!rows[0]) return bad(res, "not_found", 404);
-    res.json({ learner: rows[0] });
+    res.json({ learner: learners.shape(rows[0]) });
   } catch (err) {
     next(err);
   }

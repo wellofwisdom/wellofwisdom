@@ -4,6 +4,7 @@ const express = require("express");
 const path = require("node:path");
 const fs = require("node:fs");
 const db = require("./lib/db");
+const learners = require("./lib/learners");
 const ai = require("./lib/ai");
 const auth = require("./lib/auth");
 const { migrate } = require("./lib/migrate");
@@ -42,13 +43,7 @@ app.get("/api/me", async (req, res) => {
   const me = req.user;
   if (!me) return res.json({ user: null });
   if (me.role !== "parent") return res.json({ user: me });
-  const { rows } = await db
-    .query(
-      `select id, name, username, grade_level, interests, reading_level
-         from users where family_id = $1 and role = 'learner' order by created_at`,
-      [me.familyId]
-    )
-    .catch(() => ({ rows: [] }));
+  const rows = await learners.listForFamily(db, me.familyId).catch(() => []);
   res.json({ user: me, learners: rows });
 });
 

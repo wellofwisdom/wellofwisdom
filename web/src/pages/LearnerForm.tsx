@@ -44,7 +44,7 @@ export default function LearnerForm({ learnerId }: { learnerId: number | null })
       if (!l) { navigate("learners"); return; }
       setName(l.name);
       setUsername(l.username);
-      setEmail((l as any).email || "");
+      setEmail(l.email || "");
       setGradeLevel(l.grade_level ? String(l.grade_level) : "");
       setReadingLevel(l.reading_level || "");
       setInterests(l.interests || []);

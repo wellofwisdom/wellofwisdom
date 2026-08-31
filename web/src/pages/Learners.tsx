@@ -46,7 +46,7 @@ export default function Learners({ me }: { me: MeResponse }) {
                 <div className="n">{l.name}</div>
                 <div className="u">
                   @{l.username}{l.grade_level ? ` · Grade ${l.grade_level}` : ""}
-                  {l.ai_notes ? " · 🧠" : ""}{(l as any).email ? " · 📧" : ""}
+                  {l.ai_notes ? " · 🧠" : ""}{l.email ? " · 📧" : ""}
                 </div>
               </div>
               <div className="chips">
