@@ -79,6 +79,19 @@ interface MailPrefs {
   learnersWithEmail: number;
 }
 
+const SKIP_REASON: Record<string, string> = {
+  no_content: "nothing to report yet — no lessons, reviews or dates coming up",
+  already_sent: "already got this week's note",
+  no_email: "no email on their profile",
+  disabled: "learner notes are turned off",
+  no_learner_emails: "no learner has an email yet",
+  no_family: "family not found",
+};
+
+function explainSkip(reason?: string) {
+  return (reason && SKIP_REASON[reason]) || reason || "not sent";
+}
+
 function EmailPanel() {
   const [status, setStatus] = useState<MailStatus | null>(null);
   const [prefs, setPrefs] = useState<MailPrefs | null>(null);
@@ -128,9 +141,9 @@ function EmailPanel() {
       const r = await api<{ ok?: boolean; skipped?: string; results?: { learner: string; ok?: boolean; skipped?: string }[] }>(
         "/api/mail/learner-notes-now", { method: "POST" });
       if (r.results) {
-        setMsg(r.results.map((x) => `${x.learner}: ${x.ok ? "sent ✅" : x.skipped || "not sent"}`).join(" · "));
+        setMsg(r.results.map((x) => `${x.learner}: ${x.ok ? "sent ✅" : explainSkip(x.skipped)}`).join(" · "));
       } else {
-        setMsg(`Not sent: ${r.skipped || "unknown"}`);
+        setMsg(explainSkip(r.skipped));
       }
     } catch (e) {
       setMsg(niceError(e));
@@ -144,7 +157,7 @@ function EmailPanel() {
     setMsg("");
     try {
       const r = await api<{ ok?: boolean; skipped?: string; error?: string }>("/api/mail/digest-now", { method: "POST" });
-      setMsg(r.ok ? "✅ Digest sent." : `Not sent: ${r.skipped || r.error}`);
+      setMsg(r.ok ? "✅ Digest sent." : `Not sent: ${explainSkip(r.skipped) || r.error}`);
     } catch (e) {
       setMsg(niceError(e));
     } finally {
