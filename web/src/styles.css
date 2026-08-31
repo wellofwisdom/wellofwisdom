@@ -883,6 +883,23 @@ summary::marker { color: var(--muted); }
 }
 .tag-x:hover { opacity: 1; }
 
+
+/* ---------- gamification strip ---------- */
+
+.gamstrip { width: 100%; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.gamstreak { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 10px 16px; }
+.gamstreak.hot { border-color: var(--amber, #b07a0a); }
+.gs-flame { font-size: 28px; }
+.gs-count { font-weight: 800; font-size: 16px; }
+.gs-best { font-size: 11.5px; color: var(--muted); }
+.gambadges { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.gambadge { display: inline-flex; align-items: center; gap: 5px; border-radius: 10px; padding: 6px 10px; font-size: 12px; border: 1px solid var(--border); background: var(--panel); cursor: default; }
+.gambadge.earned { border-color: var(--amber, #b07a0a); background: var(--amber-bg, #faf0dc); }
+.gambadge.locked { opacity: 0.45; }
+.gb-icon { font-size: 16px; }
+.gb-label { font-weight: 600; }
+.adv-crew-portrait { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+
 /* ---------- misc ---------- */
 
 .row { display: flex; align-items: center; gap: 10px; }

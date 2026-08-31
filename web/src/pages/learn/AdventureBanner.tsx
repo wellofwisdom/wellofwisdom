@@ -17,6 +17,7 @@ interface Adventure {
   world: World;
   xp: number;
   cover_url: string | null;
+  portraits?: string[];
 }
 
 export default function AdventureBanner({ courseId, lessonsDone, lessonsTotal }: {
@@ -74,9 +75,13 @@ export default function AdventureBanner({ courseId, lessonsDone, lessonsTotal }:
           <div className="adv-crew">
             {w.characters.map((ch, i) => (
               <div key={i} className="adv-crew-card" title={ch.description}>
-                <span className="adv-crew-avatar" aria-hidden="true">
-                  {["🧭", "⚔️", "🔭", "🛠️", "🎨", "🦜"][i % 6]}
-                </span>
+                {adv.portraits && adv.portraits[i] ? (
+                  <img className="adv-crew-portrait" src={adv.portraits[i]} alt={ch.name} loading="lazy" />
+                ) : (
+                  <span className="adv-crew-avatar" aria-hidden="true">
+                    {["🧭", "⚔️", "🔭", "🛠️", "🎨", "🦜"][i % 6]}
+                  </span>
+                )}
                 <span className="adv-crew-name">{ch.name}</span>
                 <span className="adv-crew-role">{ch.role}</span>
               </div>

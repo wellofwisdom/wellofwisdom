@@ -7,6 +7,7 @@ import CourseView from "./CourseView";
 import Practice from "./Practice";
 import LessonPlayer from "./LessonPlayer";
 import { IconLogout } from "../../components/Icons";
+import GamificationStrip from "./GamificationStrip";
 
 interface PathPlan {
   id: number;
@@ -74,6 +75,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
         </div>
       )}
 
+      <GamificationStrip />
       <div className="hi">Hi, {me.name.split(" ")[0]}!</div>
       <p className="sub">Pick a course and dive in.</p>
 

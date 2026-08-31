@@ -257,6 +257,9 @@ router.post("/attempt", async (req, res, next) => {
       review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
     }
 
+    // Badges: check after any attempt (fail-open)
+    require("../lib/badges").checkAndAward(req.user.id, req.user.familyId).catch(() => {});
+
     // Adventure XP: correct answers on adventured courses earn XP (fail-open).
     if (correct === true) {
       db.query(
@@ -299,12 +302,33 @@ router.get("/review", async (req, res, next) => {
   }
 });
 
-// The learner's adventure for a course (world + xp + chapter unlocks).
+// Streak + badges for the learner's home screen.
+router.get("/gamification", async (req, res, next) => {
+  try {
+    const streak = await require("../lib/badges").computeStreak(req.user.id);
+    const badges = await require("../lib/badges").forLearner(req.user.id);
+    const all = require("../lib/badges").BADGES;
+    res.json({
+      streak,
+      badges,
+      locked: all.filter((b) => !badges.some((e) => e.id === b.id)),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// The learner's adventure for a course (world + xp + portraits).
 router.get("/adventure/:courseId", async (req, res, next) => {
   try {
     const { rows } = await db.query(
       `select a.id, a.world, a.xp, a.learner_id,
-              (select url from media_assets m where m.ref_type = 'adventure' and m.ref_id = a.id and m.purpose = 'adventure-cover' order by m.id desc limit 1) as cover_url
+              (select url from media_assets m where m.ref_type = 'adventure' and m.ref_id = a.id and m.purpose = 'adventure-cover' order by m.id desc limit 1) as cover_url,
+              (select json_agg(url) from (
+                select url from media_assets m
+                 where m.ref_type = 'adventure' and m.ref_id = a.id and m.purpose = 'character-portrait'
+                 order by m.id
+              ) p) as portraits
          from adventures a
         where a.course_id = $1 and a.family_id = $2
           and (a.learner_id = $3 or a.learner_id is null)

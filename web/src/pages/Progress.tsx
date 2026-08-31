@@ -14,6 +14,7 @@ interface ProgressLearner {
   active_days: number;
   lessons_done: number;
   reviews_due: number;
+  badge_count: number;
   courses: { id: number; title: string; lens: string | null; lessons_total: number; lessons_done: number }[];
 }
 
@@ -73,6 +74,7 @@ export default function Progress() {
                 { label: "Accuracy", value: accuracy === null ? "—" : `${accuracy}%` },
                 { label: "Active days", value: l.active_days },
                 { label: "Review due now", value: l.reviews_due, active: l.reviews_due > 0 },
+                { label: "Badges earned", value: l.badge_count, active: l.badge_count > 0 },
               ]}
             />
             {l.courses.length === 0 ? (

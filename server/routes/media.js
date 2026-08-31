@@ -188,6 +188,20 @@ router.post("/adventures", async (req, res, next) => {
         refId: adventureId,
       }, req.user.id).catch(() => {});
     }
+    // kick off character portraits (best-effort, one per character)
+    if (st.canImage && world.characters) {
+      world.characters.slice(0, 5).forEach((ch, idx) => {
+        if (ch.portraitPrompt) {
+          jobs.enqueue(req.user.familyId, "image", {
+            prompt: ch.portraitPrompt,
+            size: "1024x1024",
+            purpose: "character-portrait",
+            refType: "adventure",
+            refId: adventureId,
+          }, req.user.id).catch(() => {});
+        }
+      });
+    }
     res.status(201).json({ adventureId, world, themeTitle });
   } catch (err) {
     next(err);

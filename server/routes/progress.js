@@ -15,7 +15,8 @@ router.get("/", async (req, res, next) => {
               (select count(*) from attempts a where a.learner_id = u.id and a.correct)::int as attempts_correct,
               (select count(distinct date(a.created_at)) from attempts a where a.learner_id = u.id)::int as active_days,
               (select count(*) from lesson_completions lc where lc.learner_id = u.id)::int as lessons_done,
-              (select count(*) from review_schedule rs where rs.learner_id = u.id and rs.due_at <= now())::int as reviews_due
+              (select count(*) from review_schedule rs where rs.learner_id = u.id and rs.due_at <= now())::int as reviews_due,
+              (select count(*) from badges b where b.learner_id = u.id)::int as badge_count
          from users u where u.family_id = $1 and u.role = 'learner' order by u.created_at`,
       [req.user.familyId]
     );
