@@ -6,6 +6,7 @@ import Shell from "./components/Shell";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Learners from "./pages/Learners";
+import LearnerForm from "./pages/LearnerForm";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import Progress from "./pages/Progress";
@@ -104,10 +105,13 @@ export default function App() {
   const detailMatch = route.match(/^course\/(\d+)$/);
   const planMatch = route.match(/^plan\/(\d+)$/);
   const reportMatch = route.match(/^report\/(\d+)$/);
+  const learnerEditMatch = route.match(/^learners\/(\d+)$/);
+  const learnerNew = route === "learners/new";
 
   return (
-    <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
-      {route === "learners" && <Learners me={me!} onChanged={refresh} />}
+    <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : learnerEditMatch || learnerNew ? "learners" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
+      {route === "learners" && <Learners me={me!} />}
+      {(learnerNew || learnerEditMatch) && <LearnerForm learnerId={learnerEditMatch ? Number(learnerEditMatch[1]) : null} />}
       {route === "studio" && <Studio me={me!} onNavigate={navigate} />}
       {route === "courses" && <Courses onNavigate={navigate} />}
       {route === "experience" && <Experience />}

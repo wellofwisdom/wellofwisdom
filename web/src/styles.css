@@ -852,6 +852,37 @@ summary::marker { color: var(--muted); }
 .adv-crew-name { font-weight: 700; font-size: 12.5px; }
 .adv-crew-role { font-size: 10.5px; color: var(--muted); text-align: center; }
 
+
+/* ---------- tag input ---------- */
+
+.taginput { }
+.tagbox {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--panel); min-height: 42px; align-items: center;
+}
+.tagbox:focus-within { border-color: var(--accent); }
+.tagfield {
+  border: none; background: transparent; color: inherit; font: inherit;
+  flex: 1; min-width: 120px; padding: 2px 0; outline: none;
+}
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 500;
+  background: var(--accent-soft); color: var(--accent); border: 1px solid transparent;
+}
+.tag.on { background: var(--accent-soft); color: var(--accent); }
+.tag.suggest {
+  background: var(--panel-2); color: var(--muted); cursor: pointer;
+  border: 1px solid var(--border); font-size: 12.5px; padding: 2px 8px;
+}
+.tag.suggest:hover { border-color: var(--accent); color: var(--accent); }
+.tag-x {
+  border: none; background: transparent; color: inherit; cursor: pointer;
+  font-size: 14px; padding: 0 2px; line-height: 1; opacity: 0.7;
+}
+.tag-x:hover { opacity: 1; }
+
 /* ---------- misc ---------- */
 
 .row { display: flex; align-items: center; gap: 10px; }
