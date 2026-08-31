@@ -268,4 +268,4 @@ async function generateCourse(spec, userId, familyId) {
   return { courseId, title: course.title, counts };
 }
 
-module.exports = { generateCourse, normalizeCourse, normalizeItem, normalizeExercise, buildUserPrompt };
+module.exports = { generateCourse, normalizeCourse, normalizeItem, normalizeExercise, buildUserPrompt, persistCourse };

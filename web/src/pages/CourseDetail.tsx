@@ -77,6 +77,20 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
             <IconCheck /> Publish to learners
           </button>
         )}
+        <button className="btn" type="button" title="Download this course as a shareable .json file"
+          onClick={async () => {
+            try {
+              const d = await api<Record<string, unknown>>(`/api/courses/${courseId}/export`);
+              const blob = new Blob([JSON.stringify(d, null, 2)], { type: "application/json" });
+              const a = document.createElement("a");
+              a.href = URL.createObjectURL(blob);
+              a.download = `${course.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.wow-course.json`;
+              a.click();
+              URL.revokeObjectURL(a.href);
+            } catch (e) {
+              setError(niceError(e));
+            }
+          }}>⬇ Export</button>
         <button className="btn danger ghost" aria-label="Delete course" type="button" onClick={() => setConfirmDelete(true)}>
           <IconTrash />
         </button>

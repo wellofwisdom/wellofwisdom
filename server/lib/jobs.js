@@ -11,6 +11,51 @@ const HANDLERS = {
     const spec = job.payload;
     return generateCourse(spec, spec.created_by, job.family_id);
   },
+  "worksheet-import": async (job) => {
+    const spec = job.payload;
+    const { importWorksheet } = require("./worksheet");
+    const { items, title } = await importWorksheet(spec, spec.created_by, job.family_id);
+
+    const db = require("./db");
+    // existing course -> new unit at the end; otherwise a fresh standalone course
+    if (spec.courseId) {
+      const owned = await db.query(
+        `select id from courses where id = $1 and family_id = $2`,
+        [Number(spec.courseId), job.family_id]
+      );
+      if (owned.rows[0]) {
+        const maxPos = await db.query(
+          "select coalesce(max(position), -1) + 1 as p from units where course_id = $1", [Number(spec.courseId)]
+        );
+        const unit = await db.query(
+          "insert into units (course_id, title, position) values ($1, $2, $3) returning id",
+          [Number(spec.courseId), "Imported worksheets", maxPos.rows[0].p]
+        );
+        const lesson = await db.query(
+          "insert into lessons (unit_id, title, summary, position) values ($1, $2, $3, 0) returning id",
+          [unit.rows[0].id, title, "Imported from a worksheet — review before publishing."]
+        );
+        let pos = 0;
+        for (const item of items) {
+          await db.query(
+            "insert into lesson_items (lesson_id, type, position, content) values ($1, $2, $3, $4)",
+            [lesson.rows[0].id, "exercise", pos++, JSON.stringify(item.content)]
+          );
+        }
+        await db.query("update courses set updated_at = now() where id = $1", [Number(spec.courseId)]);
+        return { courseId: Number(spec.courseId), addedToExisting: true, items: items.length, title };
+      }
+    }
+    // fresh course
+    const { persistCourse } = require("./coursegen");
+    const course = {
+      title: title,
+      description: "Imported from a worksheet.",
+      units: [{ title: "Worksheet", lessons: [{ title, summary: "Imported from a worksheet — review, then publish.", items }] }],
+    };
+    const r = await persistCourse(course, { topic: title, lens: null, gradeLevel: null, sources: [] }, spec.created_by, job.family_id);
+    return { courseId: r.courseId, addedToExisting: false, items: items.length, title };
+  },
   "plan-outline": async (job) => {
     const spec = job.payload;
     const { generateOutline } = require("./plangen");

@@ -2,9 +2,9 @@
 
 # 🌰 Well of Wisdom
 
-**Self-hosted, AI-first learning — a free, open-source Khan Academy alternative.**
+**Self-hosted, AI-first learning — a free, open-source platform for homeschools, classrooms, co-ops, and self-learners.**
 
-For homeschools, classrooms, co-ops, and self-learners. Generate full courses with AI — learn any subject through what you love.
+Plan a whole year. Generate courses through what you love. Remember everything.
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![CI](https://github.com/wellofwisdom/wellofwisdom/actions/workflows/ci.yml/badge.svg)](https://github.com/wellofwisdom/wellofwisdom/actions/workflows/ci.yml)
@@ -21,28 +21,66 @@ In Irish mythology, nine hazel trees grow over the Well of Wisdom. Their nuts dr
 into the water, and the Salmon of Knowledge eats them — one nut for each of the
 worlds. The point of the myth: **wisdom doesn't come one way. It comes in many flavors.**
 
-Khan Academy changed education, and it's free. But it's a walled garden:
+Khan Academy changed education, and it's free. But it's a walled garden: you can't
+create your own courses, content gets retired, review isn't scheduled by memory
+science, and your family's data lives on someone else's servers.
 
-- You **can't create your own courses** or exercises — the most-requested teacher feature, officially declined.
-- **Content gets retired**, and your kids' progress disappears with it.
-- Mastery levels **drop without warning**, review isn't scheduled by memory science, and the points can't buy anything.
-- Your family's learning data lives on **someone else's servers**.
-
-**Well of Wisdom is the answer for families who want more** — a platform you run
-yourself, where AI builds the curriculum *for your specific learner*, and you own
-everything.
+**Well of Wisdom is the alternative you own.**
 
 ## What it does
 
-| | |
-|---|---|
-| 🧵 **Learn through what you love** | The same fractions through a sewing project, a Minecraft build, or a basketball season. One curriculum, many "lenses." |
-| ✨ **AI Course Studio** | Describe a topic, level, and your learner's interests. Get a full course — units, lessons, explanations, exercises, quizzes, projects. Everything editable. Nothing reaches your kids unreviewed. |
-| 🧠 **A tutor that doesn't cheat** | A Socratic AI tutor with strictness you control — from hints-only to full explanations. Every conversation visible to the parent. |
-| 🔁 **Real memory science** | Spaced repetition (FSRS) schedules review. Mastery is transparent — no mystery downgrades. |
-| 📚 **Homeschool records** | Attendance, hours by subject, portfolios, report cards, and transcripts that satisfy state requirements. |
-| 🔒 **Private by design** | Self-hosted. Plug in any OpenAI-compatible AI — including fully local Ollama — and your family's data never leaves your server. |
-| 🆓 **Free forever** | AGPL-3.0. No accounts on our servers. No tracking. No ads. Export everything, any time. |
+### 🧭 Learning paths — plan a whole semester or year
+An AI assistant walks you through designing the arc (subject, goals, timeframe,
+learners), then drafts the milestone sequence for your review. Or start from a
+**built-in template** — Algebra 1, US History, Biology, Intro to Python, Creative
+Writing — with **no AI key needed at all**. Each learner gets their own lens and
+instructions on the same path.
+
+### ✨ AI Course Studio — courses through what they love
+Describe a topic, pick a lens, and get a full course — units, lessons, exercises,
+projects — in about a minute. *"Fractions through sewing." "Physics through
+skateboarding."* Ground it in your own sources (pasted text or links). Every
+remembered note about a learner is applied automatically. You review and edit
+every word before anyone sees it.
+
+### 📝 Worksheets in, courses out
+Paste any worksheet's text — the AI turns each question into a graded exercise
+with an explanation and a hint. Paper curriculum becomes interactive.
+
+### 🧠 Lessons that actually teach
+Articles with real math (KaTeX), multiple choice, numeric answers that understand
+`5/8` and `1 3/4`, written self-checks, YouTube videos with questions, hands-on
+projects. Hints that nudge without telling. **"Why was I wrong?"** — an AI that
+walks from the learner's mistake to the right idea. Read-aloud on every article.
+Printable worksheets for screen-free days.
+
+### 🔁 Spaced review — the memory-science advantage
+Every graded exercise feeds a spaced-repetition scheduler (1 → 3 → 7 days, then
+longer; mistakes return today). Learners get a "practice due now" queue across
+all their courses. Most platforms don't do this at all.
+
+### 📈 Progress that's real, reports that print
+Live dashboards per learner (lessons, accuracy, active days). **Quarterly
+reports** generated from real work — stats, per-course breakdown, an AI-written
+narrative you can edit — printable with signature lines for any authority that
+asks.
+
+### 🗓️ Calendar & notifications
+Events (sessions, deadlines, field trips, exams) merged with milestone target
+dates on one month grid. **Weekly email digests** (each learner's week at a
+glance) and **tomorrow-reminder emails** — via Resend, SparkPost, Amazon SES, or
+your own SMTP, configured from the UI.
+
+### 📚 A workspace, not a walled garden
+A Notion-style free-form layer (nested pages, slash blocks, callouts, math) and
+a resource library with four views (table, drag-and-drop board, calendar,
+gallery). Export any course as a portable file; import courses from any other
+instance — sharing between families needs no platform at all.
+
+### 🔒 Yours
+Self-hosted in one Docker command. Works with any OpenAI-compatible AI —
+including **fully local Ollama**, so nothing ever leaves your server.
+AGPL-3.0. No accounts on our servers, no tracking, no ads.
 
 ## Quick start
 
@@ -63,13 +101,8 @@ docker compose exec ollama ollama pull llama3.1
 ```
 
 Or point `AI_BASE_URL` at any OpenAI-compatible provider (DeepSeek, OpenAI, LM
-Studio, …). See [`.env.example`](.env.example).
-
-> ### ⚠️ Status: early development
-> This repo is at the skeleton stage. The first alpha (Course Studio + lesson
-> player + AI tutor) is under active construction. **Watch/star to follow along —
-> or jump in, there are `good first issue`s.** Everything runs; there's just not
-> much to learn yet.
+Studio, …). See [`.env.example`](.env.example). No AI key? Templates, lessons,
+review, progress, reports, calendar, and email all still work.
 
 ## How it compares
 
@@ -78,32 +111,44 @@ Studio, …). See [`.env.example`](.env.example).
 | Self-hostable | ❌ | ✅ | ✅ | ✅ |
 | AI course creation | ❌ | ❌ | ❌ | ✅ |
 | Learn through your interests | ❌ | ❌ | ❌ | ✅ |
+| Works with no AI key | ✅ | ✅ | ✅ | ✅ |
+| Spaced review built in | ❌ | plugin | ❌ | ✅ |
 | Kid-safe AI tutor | paid add-on | ❌ | ❌ | ✅ |
-| Spaced repetition | ❌ | plugin | ❌ | ✅ built in |
-| Homeschool records & transcripts | ❌ | ❌ | ❌ | ✅ |
+| Year-long curriculum planning | ❌ | manual | ❌ | ✅ |
+| Printable progress reports | ❌ | ✅ | ❌ | ✅ |
+| Email digests & reminders | ❌ | ✅ | ❌ | ✅ |
+| Course portability (export/import) | ❌ | ✅ | ❌ | ✅ |
 | Works with fully local AI | ❌ | ❌ | — | ✅ |
 | License | content CC BY-NC-SA | GPL-3.0 | MIT | **AGPL-3.0** |
 
 ## Roadmap
 
-- [x] **Phase 0** — repo, AGPL license, Docker one-command install, AI routing layer
-- [ ] **Phase 1** — AI Course Studio + lesson player (exercises, math rendering)
-- [ ] **Phase 2** — Socratic tutor + Lenses ("math through sewing")
-- [ ] **Phase 3** — FSRS review, mastery, records, transcripts
-- [ ] **Phase 4** — private beta (real teens, real schoolwork)
-- [ ] **Phase 5** — public launch, course-sharing library
+- [x] Foundation: auth, families, learners, Docker, AI routing
+- [x] AI Course Studio + lesson player + explain-my-mistake
+- [x] Spaced review + real progress tracking
+- [x] Learning paths (AI + no-AI templates), per-learner lenses
+- [x] Calendar, email digests, reminder emails
+- [x] Quarterly reports (AI narrative, printable)
+- [x] Worksheet import + course export/import
+- [x] Workspace (Notion-style) + resource library (4 views)
+- [ ] Essay/project grading with rubrics
+- [ ] Photo → worksheet (camera capture + OCR)
+- [ ] Audio overviews (podcast-style unit summaries)
+- [ ] Community template gallery (contributed curricula)
+- [ ] Co-op mode: multiple guides, shared learners
 
 Full detail in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Contributing
 
-We'd love your help — especially homeschool parents and teachers. See
-[CONTRIBUTING.md](CONTRIBUTING.md) for the dev setup (Node 20, `npm install`,
-`npm test`). Be kind; read the [Code of Conduct](CODE_OF_CONDUCT.md).
+We'd love your help — especially guides (parents, teachers, tutors) and
+developers. See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev setup (Node 20,
+`npm install`, `npm test`). Adding a curriculum template is one JSON file.
+Be kind; read the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License & name
 
 Code is licensed under the **GNU AGPL-3.0** ([LICENSE](LICENSE)) — free for any
 family, school, or co-op to run, forever. The name **"Well of Wisdom"** and the
-project logo are reserved by the project: forks that diverge meaningfully should
-rebrand, so the name always means the same thing to families.
+project logo are reserved by the project: forks that diverge meaningfully
+should rebrand, so the name always means the same thing to learners.

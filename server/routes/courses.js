@@ -134,6 +134,80 @@ async function courseTree(courseId, familyId) {
   return { ...c.rows[0], units: byUnit };
 }
 
+// Paste-a-worksheet -> AI parses into exercises (job; poll /jobs/:id).
+router.post("/worksheet-import", async (req, res, next) => {
+  try {
+    const { text, title, courseId } = req.body || {};
+    if (!String(text || "").trim() || String(text).trim().length < 30) return bad(res, "text_required");
+    if (!ai.configured()) return bad(res, "ai_not_configured", 503);
+    if (courseId != null) {
+      const owns = await db.query("select 1 from courses where id = $1 and family_id = $2", [Number(courseId), req.user.familyId]);
+      if (!owns.rowCount) return bad(res, "course_not_found", 404);
+    }
+    const jobId = await jobs.enqueue(req.user.familyId, "worksheet-import", {
+      text: String(text).slice(0, 12000),
+      title: String(title || "").trim().slice(0, 160) || "Imported worksheet",
+      courseId: courseId ? Number(courseId) : null,
+    }, req.user.id);
+    res.status(202).json({ jobId });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Export a course as portable JSON (with answers — for guides, for sharing).
+router.get("/:id/export", async (req, res, next) => {
+  try {
+    const tree = await courseTree(Number(req.params.id), req.user.familyId);
+    if (!tree) return bad(res, "not_found", 404);
+    res.json({
+      format: "wellofwisdom-course",
+      version: 1,
+      title: tree.title,
+      topic: tree.topic,
+      lens: tree.lens,
+      gradeLevel: tree.grade_level,
+      description: tree.description,
+      units: tree.units.map((u) => ({
+        title: u.title,
+        lessons: u.lessons.map((l) => ({
+          title: l.title,
+          summary: l.summary,
+          items: l.items.map((i) => ({ type: i.type, content: i.content })),
+        })),
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Import a course from exported JSON (reuses the generation normalizer as
+// the trust boundary — nothing lands unvalidated).
+router.post("/import", async (req, res, next) => {
+  try {
+    const payload = req.body && req.body.course ? req.body.course : req.body;
+    if (!payload || payload.format !== "wellofwisdom-course") return bad(res, "format_invalid");
+    const { normalizeCourse, persistCourse } = require("../lib/coursegen");
+    const course = normalizeCourse(payload);
+    if (!course) return bad(res, "course_unparseable");
+    const r = await persistCourse(
+      course,
+      {
+        topic: String(payload.topic || course.title).slice(0, 300),
+        lens: payload.lens ? String(payload.lens).slice(0, 100) : null,
+        gradeLevel: payload.gradeLevel != null ? Number(payload.gradeLevel) : null,
+        sources: [],
+      },
+      req.user.id,
+      req.user.familyId
+    );
+    res.status(201).json({ courseId: r.courseId });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get("/:id", async (req, res, next) => {
   try {
     const tree = await courseTree(Number(req.params.id), req.user.familyId);
