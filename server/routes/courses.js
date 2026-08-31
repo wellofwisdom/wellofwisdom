@@ -3,6 +3,7 @@
 const express = require("express");
 const auth = require("../lib/auth");
 const db = require("../lib/db");
+const share = require("../lib/share");
 const jobs = require("../lib/jobs");
 const ai = require("../lib/ai");
 const { fetchT } = require("../lib/http");
@@ -335,6 +336,99 @@ router.patch("/lessons/:lessonId", async (req, res, next) => {
     );
     if (!rowCount) return bad(res, "not_found", 404);
     res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+// ---- sharing ----
+
+// Publish to this instance's public page. Nothing leaves the server until a
+// guide asks: sharing is opt-in, per course.
+router.post("/:id/publish", async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return bad(res, "id_invalid");
+    const { license, author, shareAnswers } = req.body || {};
+    if (license && !share.LICENSES.includes(license)) return bad(res, "license_invalid");
+
+    const cur = await db.query(
+      "select id, title, public_slug from courses where id = $1 and family_id = $2",
+      [id, req.user.familyId]
+    );
+    if (!cur.rows[0]) return bad(res, "not_found", 404);
+    const slug = cur.rows[0].public_slug || (await share.uniqueSlug(cur.rows[0].title, id));
+
+    const { rows } = await db.query(
+      `update courses
+          set public_slug = $3, published_at = now(), status = 'published',
+              license = $4, author_name = $5, share_answers = $6
+        where id = $1 and family_id = $2
+        returning public_slug, published_at, license, author_name, share_answers`,
+      [
+        id, req.user.familyId, slug,
+        license || share.DEFAULT_LICENSE,
+        author ? String(author).slice(0, 120) : null,
+        shareAnswers !== false,
+      ]
+    );
+    res.json({ ok: true, ...rows[0], url: `/c/${rows[0].public_slug}` });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post("/:id/unpublish", async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return bad(res, "id_invalid");
+    // Keep the slug so re-publishing restores the same URL and old links heal.
+    const { rowCount } = await db.query(
+      "update courses set published_at = null where id = $1 and family_id = $2",
+      [id, req.user.familyId]
+    );
+    if (!rowCount) return bad(res, "not_found", 404);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Import straight from another instance's public course URL. This is the whole
+// federation story: no registry, no accounts, just a URL between two servers.
+router.post("/import-url", async (req, res, next) => {
+  try {
+    const raw = String((req.body && req.body.url) || "").trim();
+    const safe = safeSourceUrl(raw); // returns a URL object, or null if unsafe
+    if (!safe) return bad(res, "url_invalid");
+    // Accept either the page URL or the export URL; normalize to the export.
+    let target = safe.href.replace(/\/+$/, "");
+    if (!/\/export$/.test(target)) {
+      const m = target.match(/\/c\/([A-Za-z0-9-]+)$/);
+      if (m) target = `${target.slice(0, m.index)}/api/public/courses/${m[1]}/export`;
+      else if (/\/api\/public\/courses\/[A-Za-z0-9-]+$/.test(target)) target = `${target}/export`;
+    }
+    const r = await fetchT(target, { headers: { accept: "application/json" } }, { timeoutMs: 20000, retries: 1 });
+    if (!r.ok) return bad(res, `fetch_failed_${r.status}`);
+    const payload = await r.json().catch(() => null);
+    if (!payload || payload.format !== "wellofwisdom-course") return bad(res, "not_a_course");
+
+    const { normalizeCourse, persistCourse } = require("../lib/coursegen");
+    const course = normalizeCourse(payload);
+    if (!course) return bad(res, "course_unparseable");
+    const out = await persistCourse(
+      course,
+      {
+        topic: String(payload.topic || course.title).slice(0, 300),
+        lens: payload.lens ? String(payload.lens).slice(0, 100) : null,
+        gradeLevel: payload.gradeLevel != null ? Number(payload.gradeLevel) : null,
+        sources: [{ type: "url", title: `Imported from ${target}`, url: target }],
+      },
+      req.user.id,
+      req.user.familyId
+    );
+    res.status(201).json({ courseId: out.courseId, title: course.title, from: target });
   } catch (err) {
     next(err);
   }

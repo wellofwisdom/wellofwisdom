@@ -171,8 +171,25 @@ function WorksheetDialog({ onClose, onDone }: { onClose: () => void; onDone: (co
 
 function ImportDialog({ onClose, onDone }: { onClose: () => void; onDone: (courseId: number) => void }) {
   const [json, setJson] = useState("");
+  const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+
+  // Pull straight from another instance's public course page. This is the
+  // whole sharing story: a URL between two servers, no registry in between.
+  async function submitUrl() {
+    setBusy(true);
+    setErr("");
+    try {
+      const d = await api<{ courseId: number }>("/api/courses/import-url", {
+        method: "POST", body: { url: url.trim() },
+      });
+      onDone(d.courseId);
+    } catch (e) {
+      setErr(niceError(e));
+      setBusy(false);
+    }
+  }
 
   async function submit() {
     setBusy(true);
@@ -190,6 +207,17 @@ function ImportDialog({ onClose, onDone }: { onClose: () => void; onDone: (cours
   return (
     <Modal title="Import a course" onClose={onClose}>
       {err && <div className="formerror" role="alert">{err}</div>}
+      <Field label="Paste a shared course link"
+        hint="A /c/… page from any Well of Wisdom instance. The course is fetched and copied into your own library.">
+        <div className="row">
+          <input className="input grow" value={url} onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.org/c/fractions-through-sewing" />
+          <button className="btn primary" type="button" disabled={busy || !url.trim()} onClick={submitUrl}>
+            {busy ? "Fetching…" : "Import"}
+          </button>
+        </div>
+      </Field>
+      <p className="muted small" style={{ textAlign: "center", margin: "10px 0" }}>— or —</p>
       <Field label="Paste an exported course file (.json)" hint="Exported from any Well of Wisdom instance — share courses between families, classes, or servers.">
         <textarea className="input" rows={6} value={json} onChange={(e) => setJson(e.target.value)} placeholder='{ "format": "wellofwisdom-course", …' />
       </Field>

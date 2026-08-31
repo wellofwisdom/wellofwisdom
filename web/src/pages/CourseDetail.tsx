@@ -10,6 +10,95 @@ import { AdventureDialog, AdventuresPanel, CoverButton } from "../components/Adv
 
 const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️", video: "▶️", project: "🛠️" };
 
+
+const LICENSES = [
+  { id: "CC-BY-4.0", label: "CC BY 4.0 — reuse with credit" },
+  { id: "CC-BY-SA-4.0", label: "CC BY-SA 4.0 — credit, share alike" },
+  { id: "CC0-1.0", label: "CC0 — public domain" },
+  { id: "all-rights-reserved", label: "All rights reserved" },
+];
+
+function SharePanel({ courseId, initialSlug, initialPublished }:
+  { courseId: number; initialSlug: string | null; initialPublished: boolean }) {
+  const [slug, setSlug] = useState<string | null>(initialSlug);
+  const [published, setPublished] = useState(initialPublished);
+  const [license, setLicense] = useState("CC-BY-4.0");
+  const [author, setAuthor] = useState("");
+  const [shareAnswers, setShareAnswers] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const url = slug ? `${window.location.origin}/c/${slug}` : "";
+
+  async function publish() {
+    setBusy(true); setMsg("");
+    try {
+      const r = await api<{ public_slug: string }>(`/api/courses/${courseId}/publish`, {
+        method: "POST", body: { license, author: author || null, shareAnswers },
+      });
+      setSlug(r.public_slug); setPublished(true);
+      setMsg("✅ Published. Anyone with the link can read it and download the course file.");
+    } catch (e) { setMsg(niceError(e)); } finally { setBusy(false); }
+  }
+
+  async function unpublish() {
+    setBusy(true); setMsg("");
+    try {
+      await api(`/api/courses/${courseId}/unpublish`, { method: "POST" });
+      setPublished(false);
+      setMsg("Unpublished. The public page is gone; the link is kept in case you republish.");
+    } catch (e) { setMsg(niceError(e)); } finally { setBusy(false); }
+  }
+
+  return (
+    <Panel title="Share this course" side={published ? "public" : "private"}>
+      {!published && (
+        <>
+          <p className="muted small">
+            Publishing puts this course on a public, read-only page on this server. Answer keys are
+            never shown there. Anyone can download the course file and teach with it — including
+            people running their own Well of Wisdom.
+          </p>
+          <div className="field">
+            <label htmlFor="share-license">License</label>
+            <select id="share-license" className="input" value={license} onChange={(e) => setLicense(e.target.value)}>
+              {LICENSES.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="share-author">Credit as (optional)</label>
+            <input id="share-author" className="input" value={author} maxLength={120}
+              onChange={(e) => setAuthor(e.target.value)} placeholder="Your name, or your co-op" />
+          </div>
+          <label className="checkitem" style={{ cursor: "pointer" }}>
+            <input type="checkbox" checked={shareAnswers} onChange={(e) => setShareAnswers(e.target.checked)} />
+            <span className="t">
+              Include answer keys in the downloadable file
+              <span className="hint"> — other teachers need these to grade. The public page never shows them either way.</span>
+            </span>
+          </label>
+          <button className="btn primary" type="button" disabled={busy} onClick={publish}>
+            🌍 Publish this course
+          </button>
+        </>
+      )}
+      {published && slug && (
+        <>
+          <p className="small">Live at <a href={url} target="_blank" rel="noopener noreferrer">{url}</a></p>
+          <div className="row wrap">
+            <button className="btn" type="button" onClick={() => { navigator.clipboard?.writeText(url); setMsg("Link copied."); }}>
+              Copy link
+            </button>
+            <a className="btn ghost" href={`/api/public/courses/${slug}/export`} download>Download course file</a>
+            <button className="btn ghost" type="button" disabled={busy} onClick={unpublish}>Unpublish</button>
+          </div>
+        </>
+      )}
+      {msg && <p className="small" style={{ marginTop: 8 }}>{msg}</p>}
+    </Panel>
+  );
+}
+
 export default function CourseDetail({ me, courseId, onNavigate }: { me: MeResponse; courseId: number; onNavigate: (hash: string) => void }) {
   const [course, setCourse] = useState<CourseTree | null>(null);
   const [error, setError] = useState("");
@@ -129,7 +218,7 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
                   if (title && title.trim()) patchLesson(l.id, { title: title.trim() });
                 }}>✏️ Rename lesson</button>
                 <button className="btn ghost small-btn" type="button"
-                  onClick={() => window.open(`#/print/lesson/${l.id}`, "_blank")}>🖨️ Worksheet</button>
+                  onClick={() => window.open(`/print/lesson/${l.id}`, "_blank")}>🖨️ Worksheet</button>
               </div>
               {l.summary && <p className="muted small" style={{ margin: "4px 0 10px" }}>{l.summary}</p>}
               {l.items.map((item) => (
@@ -142,6 +231,12 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
           ))}
         </Panel>
       ))}
+
+      <SharePanel
+        courseId={courseId}
+        initialSlug={course.public_slug || null}
+        initialPublished={Boolean(course.published_at)}
+      />
 
       <AdventuresPanel courseId={courseId} onChanged={load} />
 

@@ -24,6 +24,7 @@ import LearnerApp from "./pages/learn/LearnerApp";
 import PrintLesson from "./pages/PrintLesson";
 import type { CourseSummary } from "./types";
 import { go, routeFromLocation, ROUTE_EVENT } from "./router";
+import { PublicGallery, PublicCourse } from "./pages/PublicCourse";
 
 function currentRoute(): string {
   return routeFromLocation();
@@ -77,6 +78,12 @@ export default function App() {
     go("dashboard");
     refresh();
   }, [refresh]);
+
+  // Public course pages answer before anything else — no session required, and
+  // no /api/me round trip, so a crawler or a logged-out visitor sees content.
+  const publicCourseMatch = route.match(/^c\/([A-Za-z0-9-]+)$/);
+  if (publicCourseMatch) return <PublicCourse slug={publicCourseMatch[1]} />;
+  if (route === "c") return <PublicGallery />;
 
   if (loading) {
     return (

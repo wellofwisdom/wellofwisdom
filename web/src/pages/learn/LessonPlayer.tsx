@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import type { ItemNode, LearnLesson } from "../../types";
 import { RichText, MathText } from "../../lib/rich";
+import { linkProps } from "../../router";
 
 interface AttemptResponse {
   correct: boolean | null;
@@ -82,7 +83,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
       <header className="lessontop">
         <button className="btn ghost" type="button" onClick={() => onNavigate(`course/${lesson.course_id}`)}>← {lesson.course_title}</button>
         <button className="btn ghost" type="button" title="Print this lesson as a worksheet"
-          onClick={() => window.open(`#/print/lesson/${lesson.id}`, "_blank")}>🖨️</button>
+          onClick={() => window.open(`/print/lesson/${lesson.id}`, "_blank")}>🖨️</button>
         <span className="grow" />
         <button className="iconbtn" onClick={onLogout} aria-label="Sign out" type="button">⎋</button>
       </header>
@@ -109,7 +110,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
               </button>
             )}
             {nextLesson && (
-              <a className="muted small" href={`#/course/${lesson.course_id}`}>back to the course</a>
+              <a className="muted small" {...linkProps(`course/${lesson.course_id}`)}>back to the course</a>
             )}
           </div>
         )}

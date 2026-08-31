@@ -5,6 +5,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const db = require("./lib/db");
 const learners = require("./lib/learners");
+const seo = require("./lib/seo");
 const ai = require("./lib/ai");
 const auth = require("./lib/auth");
 const { migrate } = require("./lib/migrate");
@@ -59,6 +60,7 @@ app.use("/api/mail", require("./routes/mail"));
 app.use("/api/events", require("./routes/events"));
 app.use("/api/reports", require("./routes/reports"));
 app.use("/api/media", require("./routes/media"));
+app.use("/api/public", require("./routes/public"));
 
 // AI usage for this family (parent only) — spend transparency.
 app.get("/api/ai/usage", auth.parentOnly, async (req, res, next) => {
@@ -75,6 +77,36 @@ app.use("/api", (req, res) => res.status(404).json({ error: "not_found" }));
 const distDir = path.join(__dirname, "..", "web", "dist");
 const staticDir = fs.existsSync(distDir) ? distDir : path.join(__dirname, "..", "public");
 app.use(express.static(staticDir));
+
+// Discovery surface for published courses. These are the only routes that
+// answer without a session besides /api/public and the static shell.
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain").send(seo.robotsTxt(seo.origin(req)));
+});
+
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    res.type("application/xml").send(await seo.sitemapXml(seo.origin(req)));
+  } catch {
+    res.type("application/xml").send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+  }
+});
+
+// A shared course must be readable by things that do not run JavaScript —
+// crawlers, link unfurlers, research tools. Inject real metadata into the
+// shell rather than shipping an empty <div id="root">.
+app.get("/c/:slug", async (req, res, next) => {
+  try {
+    if (!db.configured()) return next();
+    const meta = await seo.publishedMeta(String(req.params.slug));
+    if (!meta) return next();
+    const shell = fs.readFileSync(path.join(staticDir, "index.html"), "utf8");
+    res.type("html").send(seo.injectHead(shell, seo.courseHead(meta, seo.origin(req))));
+  } catch {
+    next();
+  }
+});
+
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
   res.sendFile(path.join(staticDir, "index.html"));

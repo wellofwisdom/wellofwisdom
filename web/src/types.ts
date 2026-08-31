@@ -69,6 +69,8 @@ export interface CourseTree {
   description: string | null;
   learner_id: number | null;
   learner_name: string | null;
+  public_slug: string | null;
+  published_at: string | null;
   units: {
     id: number;
     title: string;
