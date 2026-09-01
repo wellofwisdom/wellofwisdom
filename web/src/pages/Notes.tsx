@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Workspace — the free-form layer: nested pages for notes, links, records,
+// Workspace. The free-form layer: nested pages for notes, links, records,
 // anything. Notion-style: tree on the left, editor on the right, autosaves.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, niceError } from "../api";
@@ -115,7 +115,7 @@ export default function Notes() {
         {!pages ? <div className="skel" style={{ height: 60, margin: 6 }} /> : (
           roots.length === 0 ? (
             <p className="muted small" style={{ padding: "0 10px" }}>
-              Your workspace — notes, links, records, plans, anything. Create your first page.
+              Your workspace, notes, links, records, plans, anything. Create your first page.
             </p>
           ) : roots.map((r) => <TreeNode key={r.id} row={r} depth={0} />)
         )}
@@ -125,7 +125,7 @@ export default function Notes() {
         {!page ? (
           <div className="empty" style={{ paddingTop: "18vh" }}>
             <div className="eicon" aria-hidden="true">🗒️</div>
-            <div className="etitle">Pick a page — or start a new one</div>
+            <div className="etitle">Pick a page, or start a new one</div>
             <p className="emsg">This is your group's free space: lesson notes, reading lists, field trip plans, portfolio records. Type “/” in the editor for blocks.</p>
             <button className="btn primary" type="button" onClick={() => createPage(null)}>＋ New page</button>
           </div>

@@ -1,5 +1,5 @@
 -- SPDX-License-Identifier: AGPL-3.0-or-later
--- 007: workspace pages — the free-form layer (notes, links, records,
+-- 007: workspace pages. The free-form layer (notes, links, records,
 -- anything). Nested like a wiki, one editor, family-scoped.
 
 create table if not exists workspace_pages (

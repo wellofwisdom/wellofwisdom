@@ -2,7 +2,7 @@
 
 # 🌰 Well of Wisdom
 
-**Self-hosted, AI-first learning — a free, open-source platform for homeschools, classrooms, co-ops, and self-learners.**
+**Self-hosted, AI-first learning: a free, open-source platform for homeschools, classrooms, co-ops, and self-learners.**
 
 Plan a whole year. Generate courses through what you love. Remember everything.
 
@@ -18,7 +18,7 @@ Plan a whole year. Generate courses through what you love. Remember everything.
 ## Why
 
 In Irish mythology, nine hazel trees grow over the Well of Wisdom. Their nuts drop
-into the water, and the Salmon of Knowledge eats them — one nut for each of the
+into the water, and the Salmon of Knowledge eats them. One nut for each of the
 worlds. The point of the myth: **wisdom doesn't come one way. It comes in many flavors.**
 
 Khan Academy changed education, and it's free. But it's a walled garden: you can't
@@ -29,56 +29,56 @@ science, and your family's data lives on someone else's servers.
 
 ## What it does
 
-### 🧭 Learning paths — plan a whole semester or year
+### 🧭 Learning paths: plan a whole semester or year
 An AI assistant walks you through designing the arc (subject, goals, timeframe,
 learners), then drafts the milestone sequence for your review. Or start from a
-**built-in template** — Algebra 1, US History, Biology, Intro to Python, Creative
-Writing — with **no AI key needed at all**. Each learner gets their own lens and
+**built-in template**: Algebra 1, US History, Biology, Intro to Python, Creative
+Writing, with **no AI key needed at all**. Each learner gets their own lens and
 instructions on the same path.
 
-### ✨ AI Course Studio — courses through what they love
-Describe a topic, pick a lens, and get a full course — units, lessons, exercises,
-projects — in about a minute. *"Fractions through sewing." "Physics through
+### ✨ AI Course Studio: courses through what they love
+Describe a topic, pick a lens, and get a full course (units, lessons, exercises,
+projects) in about a minute. *"Fractions through sewing." "Physics through
 skateboarding."* Ground it in your own sources (pasted text or links). Every
 remembered note about a learner is applied automatically. You review and edit
 every word before anyone sees it.
 
 ### 📝 Worksheets in, courses out
-Paste any worksheet's text — the AI turns each question into a graded exercise
+Paste any worksheet's text. The AI turns each question into a graded exercise
 with an explanation and a hint. Paper curriculum becomes interactive.
 
 ### 🧠 Lessons that actually teach
 Articles with real math (KaTeX), multiple choice, numeric answers that understand
 `5/8` and `1 3/4`, written self-checks, YouTube videos with questions, hands-on
-projects. Hints that nudge without telling. **"Why was I wrong?"** — an AI that
+projects. Hints that nudge without telling. **"Why was I wrong?"**, an AI that
 walks from the learner's mistake to the right idea. Read-aloud on every article.
 Printable worksheets for screen-free days.
 
-### 🔁 Spaced review — the memory-science advantage
+### 🔁 Spaced review: the memory-science advantage
 Every graded exercise feeds a spaced-repetition scheduler (1 → 3 → 7 days, then
 longer; mistakes return today). Learners get a "practice due now" queue across
 all their courses. Most platforms don't do this at all.
 
 ### 📈 Progress that's real, reports that print
 Live dashboards per learner (lessons, accuracy, active days). **Quarterly
-reports** generated from real work — stats, per-course breakdown, an AI-written
-narrative you can edit — printable with signature lines for any authority that
+reports** generated from real work: stats, per-course breakdown, an AI-written
+narrative you can edit, printable with signature lines for any authority that
 asks.
 
 ### 🗓️ Calendar & notifications
 Events (sessions, deadlines, field trips, exams) merged with milestone target
 dates on one month grid. **Weekly email digests** (each learner's week at a
-glance) and **tomorrow-reminder emails** — via Resend, SparkPost, Amazon SES, or
+glance) and **tomorrow-reminder emails**: via Resend, SparkPost, Amazon SES, or
 your own SMTP, configured from the UI.
 
 ### 📚 A workspace, not a walled garden
 A Notion-style free-form layer (nested pages, slash blocks, callouts, math) and
 a resource library with four views (table, drag-and-drop board, calendar,
 gallery). Export any course as a portable file; import courses from any other
-instance — sharing between families needs no platform at all.
+instance: sharing between families needs no platform at all.
 
 ### 🔒 Yours
-Self-hosted in one Docker command. Works with any OpenAI-compatible AI —
+Self-hosted in one Docker command. Works with any OpenAI-compatible AI
 including **fully local Ollama**, so nothing ever leaves your server.
 AGPL-3.0. No accounts on our servers, no tracking, no ads.
 
@@ -90,7 +90,7 @@ cd wellofwisdom
 docker compose up -d
 ```
 
-Open `http://localhost:3000`. That's it — app plus database, one command.
+Open `http://localhost:3000`. That's it: app plus database, one command.
 
 **Fully offline AI** (no cloud, no API keys):
 
@@ -118,7 +118,7 @@ review, progress, reports, calendar, and email all still work.
 | Printable progress reports | ❌ | ✅ | ❌ | ✅ |
 | Email digests & reminders | ❌ | ✅ | ❌ | ✅ |
 | Course portability (export/import) | ❌ | ✅ | ❌ | ✅ |
-| Works with fully local AI | ❌ | ❌ | — | ✅ |
+| Works with fully local AI | ❌ | ❌ | n/a | ✅ |
 | License | content CC BY-NC-SA | GPL-3.0 | MIT | **AGPL-3.0** |
 
 ## Roadmap
@@ -141,14 +141,14 @@ Full detail in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Contributing
 
-We'd love your help — especially guides (parents, teachers, tutors) and
+We'd love your help, especially guides (parents, teachers, tutors) and
 developers. See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev setup (Node 20,
 `npm install`, `npm test`). Adding a curriculum template is one JSON file.
 Be kind; read the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License & name
 
-Code is licensed under the **GNU AGPL-3.0** ([LICENSE](LICENSE)) — free for any
+Code is licensed under the **GNU AGPL-3.0** ([LICENSE](LICENSE)): free for any
 family, school, or co-op to run, forever. The name **"Well of Wisdom"** and the
 project logo are reserved by the project: forks that diverge meaningfully
 should rebrand, so the name always means the same thing to learners.

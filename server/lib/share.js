@@ -3,13 +3,13 @@
 //
 // The model is deliberately platform-free. An instance publishes a course at
 // /c/<slug>; any other instance imports it straight from that URL. There is no
-// registry to join and nothing to sign up for, so a fork keeps working — which
+// registry to join and nothing to sign up for, so a fork keeps working. Which
 // is the point: the network grows by people running their own copies, not by
 // everyone depending on one server.
 //
 // Two different shapes, on purpose:
-//   publicItem()  — what a browser sees on the public page. NEVER answers.
-//   packageItem() — what another instance downloads to teach from. Answers
+//   publicItem(), what a browser sees on the public page. NEVER answers.
+//   packageItem(), what another instance downloads to teach from. Answers
 //                   included only when the publisher opted in.
 const db = require("./db");
 
@@ -40,7 +40,7 @@ async function uniqueSlug(title, courseId) {
   return `${base}-${Date.now().toString(36)}`;
 }
 
-/** Strip answer keys for the public browse page. Allowlist, not blocklist —
+/** Strip answer keys for the public browse page. Allowlist, not blocklist
  *  a new field on an exercise must be opted in, never leak by default. */
 function publicItem(item) {
   const c = (item && item.content) || {};
@@ -54,7 +54,7 @@ function publicItem(item) {
     if (c.questions) out.questions = c.questions.map((q) => ({ prompt: q.prompt, choices: q.choices }));
     return { type: item.type, position: item.position, content: out };
   }
-  // Articles and projects are the teaching material — that is what sharing is for.
+  // Articles and projects are the teaching material. That is what sharing is for.
   return { type: item.type, position: item.position, content: c };
 }
 
@@ -96,7 +96,7 @@ function publicCourse(tree) {
   };
 }
 
-/** The portable package — the same format /import already accepts. */
+/** The portable package. The same format /import already accepts. */
 function coursePackage(tree) {
   const withAnswers = tree.share_answers !== false;
   return {

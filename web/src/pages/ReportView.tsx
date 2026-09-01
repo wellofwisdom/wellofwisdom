@@ -91,7 +91,7 @@ export default function ReportView({ reportId, onNavigate }: { reportId: number;
         <div className="rp-stats">
           <div className="rp-stat"><b>{s.lessonsCompleted}</b><span>lessons completed</span></div>
           <div className="rp-stat"><b>{s.attemptsTotal}</b><span>exercises answered</span></div>
-          <div className="rp-stat"><b>{s.accuracy === null ? "—" : `${s.accuracy}%`}</b><span>accuracy</span></div>
+          <div className="rp-stat"><b>{s.accuracy === null ? ": " : `${s.accuracy}%`}</b><span>accuracy</span></div>
           <div className="rp-stat"><b>{s.activeDays}</b><span>active days</span></div>
           <div className="rp-stat"><b>{s.skillsReviewed}</b><span>skills reviewed</span></div>
         </div>

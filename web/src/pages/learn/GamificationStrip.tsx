@@ -55,7 +55,7 @@ export default function GamificationStrip() {
             </span>
           ))}
           {locked.slice(0, 4).map((b) => (
-            <span key={b.id} className="gambadge locked" title={`${b.description} — not yet earned`}>
+            <span key={b.id} className="gambadge locked" title={`${b.description}: not yet earned`}>
               <span className="gb-icon" aria-hidden="true">{b.icon}</span>
               <span className="gb-label">{b.label}</span>
             </span>

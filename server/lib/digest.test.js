@@ -27,7 +27,7 @@ test("shouldSendLearnerNote: any one signal is enough", () => {
 });
 
 test("shouldSendLearnerNote: a quiet week still mails when reviews are waiting", () => {
-  // The nudge case — no activity, but work is due, so silence would be worse.
+  // The nudge case. No activity, but work is due, so silence would be worse.
   assert.equal(digest.shouldSendLearnerNote({ ...QUIET, reviews_due: 7 }), true);
 });
 
@@ -44,7 +44,7 @@ test("learnerNoteHtml: reports the learner's own week", () => {
   );
   assert.match(html, /Hi Hazel/);
   assert.match(html, /3 lessons finished/);
-  assert.match(html, /20 questions answered — 85% right/);
+  assert.match(html, /20 questions answered: 85% right/);
   assert.match(html, /5-day streak/);
   assert.match(html, /Warming Up/);
   assert.match(html, /4 reviews ready/);

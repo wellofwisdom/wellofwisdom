@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Syntax-check every server file AND require() them — node --check alone misses
+// Syntax-check every server file AND require() them: node --check alone misses
 // load-time crashes (lesson hard-won in production ops).
 const fs = require("node:fs");
 const path = require("node:path");
@@ -21,7 +21,7 @@ for (const file of serverFiles) {
 }
 
 // require() each lib + route (module side effects must be safe; index.js boots
-// degraded when no DATABASE_URL is set — that's intentional and tested).
+// degraded when no DATABASE_URL is set: that's intentional and tested).
 for (const file of serverFiles) {
   try {
     require(path.resolve(file));

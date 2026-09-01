@@ -87,7 +87,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
             <span className="kc-sub">
               {p.next
                 ? `Next up: ${p.next.title}${p.next.target_date ? ` · by ${p.next.target_date}` : ""}`
-                : "All milestones have courses — keep going below"}
+                : "All milestones have courses. Keep going below"}
             </span>
             <span className="progressbar mini"><span style={{ width: `${p.milestones_total ? Math.round((p.milestones_done / p.milestones_total) * 100) : 0}%`, display: "block", height: "100%", background: "var(--accent)" }} /></span>
           </span>
@@ -99,7 +99,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
         <button type="button" className="kidcourse practicecard" onClick={() => onNavigate("practice")}>
           <span className="kc-icon" aria-hidden="true">🔁</span>
           <span className="kc-body">
-            <span className="kc-title">Practice — {reviewsDue} due now</span>
+            <span className="kc-title">Practice: {reviewsDue} due now</span>
             <span className="kc-sub">Quick review at exactly the right time to make it stick</span>
           </span>
           <span className="kc-go" aria-hidden="true">→</span>

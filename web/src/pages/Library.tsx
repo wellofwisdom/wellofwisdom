@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Resource Library — a Notion-style database: one collection, four views.
+// Resource Library. A Notion-style database: one collection, four views.
 // Table for scanning, Board for status flow (drag cards), Calendar for
 // scheduling, Gallery for browsing.
 import { useEffect, useMemo, useState } from "react";
@@ -108,7 +108,7 @@ export default function Library() {
           <EmptyState
             icon="📚"
             title="Your resource library"
-            message="Everything worth using — links, videos, books, tools, field trips. Drop it in the Inbox, queue it, use it, mark it done. Four views of the same collection."
+            message="Everything worth using: links, videos, books, tools, field trips. Drop it in the Inbox, queue it, use it, mark it done. Four views of the same collection."
             action={<button className="btn primary" type="button" onClick={() => setAdding(true)}>＋ Add your first resource</button>}
           />
         </Panel>
@@ -128,7 +128,7 @@ export default function Library() {
                       {r.url ? <a href={r.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>{r.title}</a> : r.title}
                     </span>
                     <span className="muted small">{TYPE_LABEL[r.type]}</span>
-                    <span className="muted small">{r.subject || "—"}</span>
+                    <span className="muted small">{r.subject || "No subject"}</span>
                     <span>
                       <select className="input small-input" value={r.status}
                         onClick={(e) => e.stopPropagation()}
@@ -136,8 +136,8 @@ export default function Library() {
                         {STATUSES.map((s) => <option key={s.id} value={s.id}>{s.icon} {s.label}</option>)}
                       </select>
                     </span>
-                    <span className="muted small">{r.date_for || "—"}</span>
-                    <span>{r.rating ? "★".repeat(r.rating) : "—"}</span>
+                    <span className="muted small">{r.date_for || "No date"}</span>
+                    <span>{r.rating ? "★".repeat(r.rating) : "Not rated"}</span>
                   </div>
                 ))}
               </div>
@@ -328,7 +328,7 @@ function ResourceDialog({ resource, subjects, onClose, onSaved }: {
         <div style={{ maxWidth: 110 }}>
           <Field label="Rating">
             <select className="input" value={rating} onChange={(e) => setRating(e.target.value)}>
-              {[0, 1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n ? "★".repeat(n) : "—"}</option>)}
+              {[0, 1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n ? "★".repeat(n) : "Not rated"}</option>)}
             </select>
           </Field>
         </div>

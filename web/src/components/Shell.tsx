@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Guide console shell — sidebar matching the Trinacle design language:
+// Guide console shell: sidebar matching the Trinacle design language:
 // colored icon chips, collapsible submenus, hover lift, active accent bar.
 import { useEffect, useState, type ReactNode } from "react";
 import type { CourseSummary, Me } from "../types";
@@ -25,7 +25,7 @@ const TITLES: Record<string, string> = {
   settings: "Settings",
 };
 
-// chip color per item — the Trinacle rainbow
+// chip color per item. The Trinacle rainbow
 const CHIPS: Record<string, string> = {
   dashboard: "c-green",
   studio: "c-violet",

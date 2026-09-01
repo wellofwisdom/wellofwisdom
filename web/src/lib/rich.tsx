@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// RichText: our markdown-lite — paragraphs, ## headings, **bold**, *italic*,
+// RichText: our markdown-lite: paragraphs, ## headings, **bold**, *italic*,
 // "- " bullets, "- [ ]" checklists, "> [!note]/[!tip]/[!warn]" callouts,
 // and $...$ LaTeX via KaTeX. The only grammar lessons/notes may use.
 import { Fragment, type ReactNode } from "react";

@@ -35,7 +35,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
       <div className="nutbig" aria-hidden="true">🌰</div>
       <h1>Well of Wisdom</h1>
       <p className="tag">
-        Self-hosted, AI-first learning. Your server, your curriculum — for homeschools,
+        Self-hosted, AI-first learning. Your server, your curriculum: for homeschools,
         classrooms, co-ops, and self-learners.
       </p>
 
@@ -183,7 +183,7 @@ function LearnerIn({ busy, onSubmit }: { busy: boolean; onSubmit: (b: Record<str
         <input id="li-code" className="input" required maxLength={6} placeholder="ABC123" autoCapitalize="characters"
           style={{ textTransform: "uppercase", letterSpacing: "0.15em" }}
           value={joinCode} onChange={(e) => setJoinCode(e.target.value)} />
-        <div className="hint">Ask your guide — it's in their Settings.</div>
+        <div className="hint">Ask your guide: it's in their Settings.</div>
       </div>
       <div className="field">
         <label htmlFor="li-user">Username</label>

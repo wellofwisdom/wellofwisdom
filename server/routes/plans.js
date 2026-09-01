@@ -49,7 +49,7 @@ router.get("/templates/:id", (req, res) => {
   res.json({ template: t });
 });
 
-// Kick off AI outline generation (a job — takes ~a minute).
+// Kick off AI outline generation (a job: takes ~a minute).
 router.post("/outline", async (req, res, next) => {
   try {
     const { subject, goal, startDate, endDate, lens, learnerNotes } = req.body || {};
@@ -298,7 +298,7 @@ router.post("/milestones/:mid/course", async (req, res, next) => {
     }
 
     const spec = {
-      topic: `${row.title}${row.description ? ` — ${row.description}` : ""}`,
+      topic: `${row.title}${row.description ? `: ${row.description}` : ""}`,
       lens,
       learnerId: learnerId ? Number(learnerId) : null,
       gradeLevel: learnerProfile ? learnerProfile.grade_level : null,

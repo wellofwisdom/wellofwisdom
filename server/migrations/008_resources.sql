@@ -1,5 +1,5 @@
 -- SPDX-License-Identifier: AGPL-3.0-or-later
--- 008: resource library — links, videos, books, tools, places. Notion-style
+-- 008: resource library, links, videos, books, tools, places. Notion-style
 -- database: one collection, many views (table/board/calendar/gallery).
 
 create table if not exists resources (

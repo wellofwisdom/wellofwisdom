@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// The AI Plan Assistant — walks the guide through designing a whole
+// The AI Plan Assistant: walks the guide through designing a whole
 // semester/year path, then drafts the milestone outline for review.
 import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../api";
@@ -159,7 +159,7 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
       <div className="studiohead">
         <h1>🧭 Plan Assistant</h1>
         <p className="muted">
-          Answer a few questions — the AI drafts the whole journey. You review, edit, and approve every milestone.
+          Answer a few questions. The AI drafts the whole journey. You review, edit, and approve every milestone.
         </p>
       </div>
 
@@ -171,13 +171,13 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
             onClick={() => setMode("ai")}>
             <span className="wc-ava" aria-hidden="true" style={{ fontSize: 30 }}>🧭</span>
             <span className="wc-name" style={{ fontSize: 17 }}>Build with the AI assistant</span>
-            <span className="wc-sub">Answer a few questions — it drafts the whole journey for your learners.</span>
+            <span className="wc-sub">Answer a few questions. It drafts the whole journey for your learners.</span>
           </button>
           <button type="button" className="whocard" style={{ flex: "1 1 260px", minHeight: 150, justifyContent: "center", gap: 8 }}
             onClick={() => setMode("template")}>
             <span className="wc-ava" aria-hidden="true" style={{ fontSize: 30 }}>📋</span>
             <span className="wc-name" style={{ fontSize: 17 }}>Start from a template</span>
-            <span className="wc-sub">Proven full-year curricula — no AI needed, ready in minutes.</span>
+            <span className="wc-sub">Proven full-year curricula. No AI needed, ready in minutes.</span>
           </button>
         </div>
       )}
@@ -260,12 +260,12 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
           <section className="panel step">
             <div className="stepnum" aria-hidden="true">3</div>
             <div className="grow">
-              <h2>Who's on this path — and how is each journey different?</h2>
+              <h2>Who's on this path, and how is each journey different?</h2>
               <p className="muted small" style={{ marginBottom: 10 }}>
                 Same destination, personalized route: give any learner their own lens or extra instructions.
               </p>
               {learners.length === 0 ? (
-                <p className="hint">No learners yet — <a {...linkProps("learners")}>add some</a>, or come back; plans work without them too.</p>
+                <p className="hint">No learners yet: <a {...linkProps("learners")}>add some</a>, or come back; plans work without them too.</p>
               ) : (
                 learners.map((l) => {
                   const on = Boolean(enrolled[l.id]);
@@ -280,9 +280,9 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
                       </div>
                       {on && (
                         <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8, width: "100%" }}>
-                          <input className="input" placeholder="Personal lens (optional) — e.g. fashion, robotics" value={cfg.lens}
+                          <input className="input" placeholder="Personal lens (optional), e.g. fashion, robotics" value={cfg.lens}
                             onChange={(e) => setEnrolled({ ...enrolled, [l.id]: { ...cfg, lens: e.target.value } })} aria-label={`Lens for ${l.name}`} />
-                          <input className="input" style={{ marginTop: 6 }} placeholder="Extra instructions — e.g. more visual, slower pace" value={cfg.note}
+                          <input className="input" style={{ marginTop: 6 }} placeholder="Extra instructions, e.g. more visual, slower pace" value={cfg.note}
                             onChange={(e) => setEnrolled({ ...enrolled, [l.id]: { ...cfg, note: e.target.value } })} aria-label={`Notes for ${l.name}`} />
                         </div>
                       )}
@@ -344,7 +344,7 @@ export default function PlanWizard({ me, onNavigate }: { me: MeResponse; onNavig
             <div className="stepnum" aria-hidden="true">4</div>
             <div className="grow">
               <h2>Review the journey</h2>
-              <p className="muted small">Edit anything — titles, order (cut what you don't want), remove milestones with ✕. Dates are spread evenly; you can adjust them on the plan page.</p>
+              <p className="muted small">Edit anything: titles, order (cut what you don't want), or remove milestones with ✕. Dates are spread evenly; you can adjust them on the plan page.</p>
               <div className="field" style={{ marginTop: 10 }}>
                 <label>Plan title</label>
                 <input className="input biginput" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />

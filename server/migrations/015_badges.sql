@@ -1,5 +1,5 @@
 -- SPDX-License-Identifier: AGPL-3.0-or-later
--- 015: gamification completion — badges (auto-awarded from real work) and
+-- 015: gamification completion: badges (auto-awarded from real work) and
 -- streak state. Streaks derive from attempt dates; badges are persistent.
 
 create table if not exists badges (

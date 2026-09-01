@@ -2,9 +2,9 @@
 
 Two interfaces, one product:
 
-1. **Parent console** — dense, efficient, panels and tables. Desktop-first.
+1. **Parent console**: dense, efficient, panels and tables. Desktop-first.
    The working surface for building courses, reviewing work, and records.
-2. **Learner space** — big cards, icon-first navigation, minimal chrome,
+2. **Learner space**: big cards, icon-first navigation, minimal chrome,
    touch-first, phone-first. A **focus mode** hides all navigation during a
    lesson. Celebrations on completion; calm by default.
 
@@ -13,15 +13,15 @@ apply in the learner space.
 
 ## Patterns adopted from production-proven internal systems
 
-Reimplemented fresh in this repo (this is a public AGPL codebase — copy the
+Reimplemented fresh in this repo (this is a public AGPL codebase, copy the
 *pattern*, never paste proprietary files):
 
 | Pattern | Implementation notes |
 |---|---|
 | Sidebar nav w/ icons + panel layout | Collapsible left rail; content area composed of panels |
-| Light/dark mode | CSS variables on `:root` + `[data-theme=dark]`; **systemic guards from day one**: `button, select, input, textarea { color: inherit }` + blanket dark-mode rules for form controls — this pre-solves the recurring black-on-dark bug class |
+| Light/dark mode | CSS variables on `:root` + `[data-theme=dark]`; **systemic guards from day one**: `button, select, input, textarea { color: inherit }` + blanket dark-mode rules for form controls. This pre-solves the recurring black-on-dark bug class |
 | Themes (was "experience") | Per-family + per-learner backgrounds/themes; gradients gallery with live preview |
-| Stat bars | Single row, `grid-template-columns: repeat(N, 1fr)`, `overflow: hidden; min-width: 0` on items — never wraps, never scrolls |
+| Stat bars | Single row, `grid-template-columns: repeat(N, 1fr)`, `overflow: hidden; min-width: 0` on items. Never wraps, never scrolls |
 | Pill tabs | Bordered, active state, no fixed width (never reuse tiny icon-button classes for text tabs) |
 | Skeleton loading | Shimmer ~150ms after navigation if content hasn't landed; clears on first content mutation |
 | Empty states | One global helper: icon + message + action button |
@@ -51,7 +51,7 @@ Target **WCAG 2.1 AA**. Education tools get picked *because* of this.
 - Touch targets ≥ 48px; primary action always reachable one-handed
 - Reading level adjustable per learner; icons paired with words for young kids
 - Progress visible as a map/tree the kid understands, not a spreadsheet
-- No streaks that shame (a missed day never "resets" anything — the
+- No streaks that shame (a missed day never "resets" anything, the
   demotivating-streak failure of big platforms, documented; our streaks pause,
   they don't break)
 - Zero dark patterns: no infinite scroll on lesson lists, no notification

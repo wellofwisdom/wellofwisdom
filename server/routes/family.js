@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Family routes (parent only). Every query is scoped to req.user.familyId —
+// Family routes (parent only). Every query is scoped to req.user.familyId
 // the multi-tenant rule from docs/ARCHITECTURE.md.
 const express = require("express");
 const db = require("../lib/db");

@@ -57,8 +57,8 @@ function templateNarrative(learnerName, stats) {
   const courseLines = stats.courses.map((c) => `${c.title}: ${c.lessons_done} lessons`).join("; ");
   return [
     `During this period, ${learnerName} completed ${stats.lessonsCompleted} lessons across ${stats.courses.length} course${stats.courses.length === 1 ? "" : "s"}${courseLines ? ` (${courseLines})` : ""}, answering ${stats.attemptsTotal} exercises with ${stats.accuracy === null ? "" : stats.accuracy + "% "}accuracy over ${stats.activeDays} active learning days.`,
-    stats.skillsReviewed ? `${stats.skillsReviewed} skills came back for spaced review — that's long-term memory being built.` : "",
-    "— Edit this narrative to add your own observations.",
+    stats.skillsReviewed ? `${stats.skillsReviewed} skills came back for spaced review: that's long-term memory being built.` : "",
+    "Edit this narrative to add your own observations.",
   ].filter(Boolean).join("\n\n");
 }
 
@@ -70,7 +70,7 @@ async function aiNarrative(learnerName, stats, familyId) {
         role: "system",
         content:
           "You write warm, specific progress summaries for a learning report that a guide (parent/teacher) will review, edit, and possibly hand to a school authority or keep for records. " +
-          "3 short paragraphs max: what they did (concrete), strengths and growth (honest, kind), one encouragement. Plain language. No invented facts — only the numbers given.",
+          "3 short paragraphs max: what they did (concrete), strengths and growth (honest, kind), one encouragement. Plain language. No invented facts: only the numbers given.",
       },
       {
         role: "user",
@@ -128,7 +128,7 @@ router.post("/generate", async (req, res, next) => {
        values ($1,$2,$3,$4,$5,$6,$7,$8) returning id`,
       [
         req.user.familyId, Number(learnerId), from, to,
-        String(title || `Progress report — ${from} to ${to}`).slice(0, 200),
+        String(title || `Progress report: ${from} to ${to}`).slice(0, 200),
         JSON.stringify(stats), narrative, req.user.id,
       ]
     );

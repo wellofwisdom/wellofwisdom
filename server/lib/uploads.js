@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// File storage for uploaded media — video first (a NotebookLM export, a
+// File storage for uploaded media: video first (a NotebookLM export, a
 // recorded explainer, a boss-fight clip), plus images and audio.
 //
 // Files go on disk under UPLOAD_DIR, which must be a persistent volume: the
@@ -142,7 +142,7 @@ async function stream(res, key, mime, { rangeHeader, download } = {}) {
   return true;
 }
 
-/** Total bytes a family is using — for a quota, and for an honest Settings row. */
+/** Total bytes a family is using, for a quota, and for an honest Settings row. */
 async function familyUsage(db, familyId) {
   const { rows } = await db.query(
     "select coalesce(sum(bytes),0)::bigint as bytes, count(*)::int as files from uploads where family_id = $1",

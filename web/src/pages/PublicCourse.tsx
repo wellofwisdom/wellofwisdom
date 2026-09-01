@@ -60,7 +60,7 @@ export function PublicGallery() {
         <h1>Shared courses</h1>
         <p className="muted">
           Courses published from this instance. Every one is a free download you can import into your
-          own Well of Wisdom — no account, no platform in the middle.
+          own Well of Wisdom. No account, no platform in the middle.
         </p>
         {error && <div className="formerror" role="alert">{error}</div>}
         {!courses && !error && <p className="muted small">Loading…</p>}
@@ -116,7 +116,7 @@ function ItemView({ item }: { item: PublicItem }) {
             {c.choices.map((ch) => <li key={ch.id}>{ch.text}</li>)}
           </ul>
         )}
-        <p className="muted small">Answers are not shown here — import the course to teach with it.</p>
+        <p className="muted small">Answers are not shown here: import the course to teach with it.</p>
       </div>
     );
   }
@@ -172,7 +172,7 @@ export function PublicCourse({ slug }: { slug: string }) {
         </div>
         {data.trailerUploadId && (
           <div style={{ margin: "14px 0" }}>
-            <VideoPlayer content={{ uploadId: data.trailerUploadId, title: `${data.title} — trailer` }} />
+            <VideoPlayer content={{ uploadId: data.trailerUploadId, title: `${data.title}: trailer` }} />
           </div>
         )}
         {data.description && <p className="lead">{data.description}</p>}
@@ -208,7 +208,7 @@ export function PublicCourse({ slug }: { slug: string }) {
         <footer className="publicfooter">
           <p className="muted small">
             Published with <a href="https://github.com/wellofwisdom/wellofwisdom"
-              target="_blank" rel="noopener noreferrer">Well of Wisdom</a> — open source, self-hosted,
+              target="_blank" rel="noopener noreferrer">Well of Wisdom</a>. Open source, self-hosted,
             AGPL-3.0. This course is licensed {data.license}.
           </p>
         </footer>

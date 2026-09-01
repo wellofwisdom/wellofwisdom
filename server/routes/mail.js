@@ -148,7 +148,7 @@ router.post("/test", async (req, res, next) => {
     if (!st.configured) return bad(res, "mail_not_configured", 503);
     const r = await mail.sendMail({
       to,
-      subject: "Well of Wisdom — test email",
+      subject: "Well of Wisdom: test email",
       html: `<div style="font-family:system-ui,sans-serif"><div style="font-size:28px">🌰</div>
         <h2>It works!</h2><p>Weekly digests and notifications will arrive from this address.</p>
         <p style="color:#5b6875;font-size:13px">Sent by your self-hosted Well of Wisdom.</p></div>`,

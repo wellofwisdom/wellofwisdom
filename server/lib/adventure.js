@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The Adventure world builder: turns a theme template + course + learner
 // interests into an original story world (characters, chapters, cover art
-// prompt). All characters and settings are ORIGINAL — no company IP.
+// prompt). All characters and settings are ORIGINAL. No company IP.
 const fs = require("node:fs");
 const path = require("node:path");
 const ai = require("./ai");
@@ -19,7 +19,7 @@ function getTheme(id) {
   return listThemes().find((t) => t.id === String(id || ""));
 }
 
-const SYSTEM = `You design ORIGINAL story worlds that wrap a learning course in an adventure game. You never use characters, names, or settings from existing franchises, anime, games, or books — everything you write is original, inspired by genre conventions only.
+const SYSTEM = `You design ORIGINAL story worlds that wrap a learning course in an adventure game. You never use characters, names, or settings from existing franchises, anime, games, or books: everything you write is original, inspired by genre conventions only.
 Respond with ONE valid JSON object, nothing else:
 {
   "title": string (the adventure's name),
@@ -31,8 +31,8 @@ Respond with ONE valid JSON object, nothing else:
 }
 Rules:
 - Map the course's units onto the story's chapters in order. Chapter hooks reference the unit's actual topic cleverly disguised as story.
-- The protagonist character is the learner ("you") — write their description in second person.
-- Honor the learner's interests in the world's flavor (hobbies can appear as motifs, crew skills, gadgets) — but never name real-world franchises.`;
+- The protagonist character is the learner ("you"). Write their description in second person.
+- Honor the learner's interests in the world's flavor (hobbies can appear as motifs, crew skills, gadgets). But never name real-world franchises.`;
 
 function normalizeWorld(raw, unitCount) {
   const str = (v, max = 400) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -72,7 +72,7 @@ async function buildWorld({ themeId, course, learner }) {
   const theme = themeId === "custom" ? null : getTheme(themeId);
   const base = theme
     ? theme.worldPrompt
-    : `Invent an ORIGINAL adventure world built around what this learner loves: ${(learner && learner.interests || []).join(", ") || "discovery and wonder"}. Genre is your choice — pick whatever their interests imply (sailing, mecha, fantasy, mystery…). Original characters and places ONLY.`;
+    : `Invent an ORIGINAL adventure world built around what this learner loves: ${(learner && learner.interests || []).join(", ") || "discovery and wonder"}. Genre is your choice. Pick whatever their interests imply (sailing, mecha, fantasy, mystery…). Original characters and places ONLY.`;
 
   const out = await ai.chatJson(
     "lens",

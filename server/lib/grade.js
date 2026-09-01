@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Server-side grading. Answers NEVER go to the learner's browser — the client
+// Server-side grading. Answers NEVER go to the learner's browser. The client
 // sends an answer, the server compares, records the attempt, returns the verdict.
 
 // Parse kid-typed numbers: "5/8" → 0.625, "1 3/4" → 1.75, "$3.50" → 3.5, "2.5" → 2.5.
@@ -20,7 +20,7 @@ function parseNumeric(v) {
 }
 
 // mcq: answer = choice id. numeric: answer = number (0.5% tolerance).
-// text: self-check — model answer is shown, learner judges themselves (null).
+// text: self-check: model answer is shown, learner judges themselves (null).
 function gradeExercise(item, learnerAnswer) {
   switch (item.kind) {
     case "mcq": {

@@ -213,7 +213,7 @@ router.get("/lessons/:id", async (req, res, next) => {
   }
 });
 
-// Submit an answer. Grading happens here — answers never reach the client.
+// Submit an answer. Grading happens here: answers never reach the client.
 router.post("/attempt", async (req, res, next) => {
   try {
     const { itemId, questionIndex, answer } = req.body || {};
@@ -409,7 +409,7 @@ router.get("/upcoming", async (req, res, next) => {
   }
 });
 
-// Lesson completion log (idempotent) — feeds the Progress page.
+// Lesson completion log (idempotent): feeds the Progress page.
 router.post("/lessons/:id/complete", async (req, res, next) => {
   try {
     const lessonId = Number(req.params.id);
@@ -432,7 +432,7 @@ router.post("/lessons/:id/complete", async (req, res, next) => {
   }
 });
 
-// "Explain my mistake" — AI diagnosis, kid-friendly. Flash tier.
+// "Explain my mistake", AI diagnosis, kid-friendly. Flash tier.
 router.post("/explain", async (req, res, next) => {
   try {
     const { itemId, questionIndex, myAnswer } = req.body || {};
@@ -470,7 +470,7 @@ router.post("/explain", async (req, res, next) => {
           role: "system",
           content:
             "You explain mistakes to a school kid. Warm, never condescending, max 120 words. " +
-            "Do NOT just restate the correct answer — walk from the learner's wrong thinking to the right idea, one step at a time. Plain language.",
+            "Do NOT just restate the correct answer. Walk from the learner's wrong thinking to the right idea, one step at a time. Plain language.",
         },
         {
           role: "user",

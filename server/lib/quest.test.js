@@ -23,7 +23,7 @@ test("isUnlocked: lessons gate play on real work, and the reason says what to do
   assert.match(locked.reason, /2 more lessons/);
   assert.equal(quest.isUnlocked(enc, { lessonsDone: 5 }).unlocked, true);
 
-  // Singular reads correctly — a child sees this string.
+  // Singular reads correctly. A child sees this string.
   assert.match(quest.isUnlocked(enc, { lessonsDone: 4 }).reason, /1 more lesson\b/);
 });
 
@@ -61,7 +61,7 @@ test("rollRarity: bosses cannot drop junk, scenes cannot drop legendaries", () =
   assert.ok(["rare", "epic", "legendary"].includes(lowest()));
   assert.ok(["rare", "epic", "legendary"].includes(highest()));
   assert.equal(quest.rollRarity("scene", () => 0.999), "common");
-  // Every roll is a real rarity — nothing ever drops "undefined".
+  // Every roll is a real rarity. Nothing ever drops "undefined".
   for (const kind of ["scene", "battle", "puzzle", "treasure", "miniboss", "boss", "choice", "weird"]) {
     for (const r of [0, 0.5, 0.999]) {
       assert.ok(quest.RARITIES.includes(quest.rollRarity(kind, () => r)), `${kind}@${r}`);

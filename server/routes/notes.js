@@ -11,7 +11,7 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
-// Flat list — the client builds the tree (families have dozens, not thousands).
+// Flat list. The client builds the tree (families have dozens, not thousands).
 router.get("/", async (req, res, next) => {
   try {
     const { rows } = await db.query(

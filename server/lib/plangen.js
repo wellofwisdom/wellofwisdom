@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // AI learning-path outline generator: turns subject + goals + time into a
-// milestone plan. Dates are spread deterministically in JS (not by the AI) —
+// milestone plan. Dates are spread deterministically in JS (not by the AI)
 // the AI designs the sequence, the server owns the calendar.
 const ai = require("./ai");
 
@@ -9,14 +9,14 @@ Respond with a single valid JSON object, nothing else.
 
 Schema:
 {
-  "title": string (short, inspiring — e.g. "Algebra Adventures: A Year of X"),
+  "title": string (short, inspiring, e.g. "Algebra Adventures: A Year of X"),
   "description": string (2-3 sentences: the arc of the year),
   "milestones": [
     {
       "title": string (a coherent topic block, 1-2 weeks of work),
       "description": string (1-2 sentences: what they'll understand and be able to do),
-      "projectIdea": string (one hands-on project that proves the skill — described, no URLs),
-      "resourceHint": string (one free/known resource by NAME only, e.g. "Khan Academy: fractions unit" or "library books on Roman Britain" — NEVER a URL)
+      "projectIdea": string (one hands-on project that proves the skill: described, no URLs),
+      "resourceHint": string (one free/known resource by NAME only, e.g. "Khan Academy: fractions unit" or "library books on Roman Britain". NEVER a URL)
     }
   ]
 }
@@ -39,7 +39,7 @@ async function generateOutline({ subject, goal, startDate, endDate, lens, learne
           `Subject: ${subject}`,
           `Timeframe: ${startDate} to ${endDate} (about ${weeks} weeks)`,
           goal ? `Goals / what success looks like: ${goal}` : "",
-          lens ? `LENS — weave this through everything: ${lens}` : "",
+          lens ? `LENS: weave this through everything, ${lens}` : "",
           learnerNotes ? `About the learners: ${learnerNotes}` : "",
           "Return only the JSON object.",
         ].filter(Boolean).join("\n"),

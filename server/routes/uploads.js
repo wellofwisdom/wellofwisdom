@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Upload and stream media. The upload body is the raw file — no multipart, so
+// Upload and stream media. The upload body is the raw file. No multipart, so
 // no parser dependency: the browser sends the File object straight as the
 // request body and names it in a header.
 const express = require("express");
@@ -20,7 +20,7 @@ const rawBody = express.raw({
   limit: `${Number(process.env.UPLOAD_MAX_VIDEO_MB || 500)}mb`,
 });
 
-/** POST /api/uploads — body is the file, Content-Type is its mime. */
+/** POST /api/uploads, body is the file, Content-Type is its mime. */
 router.post("/", auth.parentOnly, rawBody, async (req, res, next) => {
   try {
     const mime = String(req.get("content-type") || "").split(";")[0].trim();
@@ -105,7 +105,7 @@ router.delete("/:id", auth.parentOnly, async (req, res, next) => {
   }
 });
 
-/** GET /media/:id — the streaming endpoint, mounted at the app root.
+/** GET /media/:id. The streaming endpoint, mounted at the app root.
  *  Public files are open (a trailer on a shared course); everything else needs
  *  a session in the owning family. Learners included: they have to watch it. */
 async function streamHandler(req, res, next) {

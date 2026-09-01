@@ -2,7 +2,7 @@
 // Multi-provider email, Trinacle pattern: provider config stored in the DB
 // (Settings → Email form) with env-var fallback (RESEND_API_KEY /
 // SPARKPOST_API_KEY / SES_ACCESS_KEY+SES_SECRET_KEY+SES_REGION / SMTP_*).
-// Providers: Resend, SparkPost, SES (raw SigV4 — zero AWS SDK), SMTP.
+// Providers: Resend, SparkPost, SES (raw SigV4: zero AWS SDK), SMTP.
 // Fail-open: nothing configured = a clean no-op, never a crash.
 const crypto = require("node:crypto");
 const db = require("./db");
@@ -123,7 +123,7 @@ async function viaSparkPost(cfg, { to, subject, html, text, from }) {
   return { id: data.results && data.results.id };
 }
 
-// Raw SES SendEmail with SigV4 — no AWS SDK dependency (Trinacle production pattern).
+// Raw SES SendEmail with SigV4. No AWS SDK dependency (Trinacle production pattern).
 async function viaSes(cfg, { to, subject, html, text, from }) {
   const region = cfg.sesRegion || "us-east-1";
   const host = `email.${region}.amazonaws.com`;

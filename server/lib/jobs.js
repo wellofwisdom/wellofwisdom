@@ -33,7 +33,7 @@ const HANDLERS = {
         );
         const lesson = await db.query(
           "insert into lessons (unit_id, title, summary, position) values ($1, $2, $3, 0) returning id",
-          [unit.rows[0].id, title, "Imported from a worksheet — review before publishing."]
+          [unit.rows[0].id, title, "Imported from a worksheet: review before publishing."]
         );
         let pos = 0;
         for (const item of items) {
@@ -51,7 +51,7 @@ const HANDLERS = {
     const course = {
       title: title,
       description: "Imported from a worksheet.",
-      units: [{ title: "Worksheet", lessons: [{ title, summary: "Imported from a worksheet — review, then publish.", items }] }],
+      units: [{ title: "Worksheet", lessons: [{ title, summary: "Imported from a worksheet: review, then publish.", items }] }],
     };
     const r = await persistCourse(course, { topic: title, lens: null, gradeLevel: null, sources: [] }, spec.created_by, job.family_id);
     return { courseId: r.courseId, addedToExisting: false, items: items.length, title };

@@ -80,7 +80,7 @@ interface MailPrefs {
 }
 
 const SKIP_REASON: Record<string, string> = {
-  no_content: "nothing to report yet — no lessons, reviews or dates coming up",
+  no_content: "nothing to report yet. No lessons, reviews or dates coming up",
   already_sent: "already got this week's note",
   no_email: "no email on their profile",
   disabled: "learner notes are turned off",
@@ -113,7 +113,7 @@ function EmailPanel() {
     setMsg("");
     try {
       const r = await api<{ ok?: boolean; error?: string }>("/api/mail/test", { method: "POST", body: { to: emailInput } });
-      setMsg(r.ok ? "✅ Sent — check the inbox (and spam folder the first time)." : `❌ ${r.error}`);
+      setMsg(r.ok ? "✅ Sent. Check the inbox (and spam folder the first time)." : `❌ ${r.error}`);
     } catch (e) {
       setMsg(niceError(e));
     } finally {
@@ -174,7 +174,7 @@ function EmailPanel() {
         <span className="t">
           {status.configured
             ? `Email active via ${status.provider} (from ${status.from})${status.source === "settings" ? " · configured here" : " · from server env"}`
-            : "Email not set up yet — pick a provider below (or an admin can set env vars)."}
+            : "Email not set up yet. Pick a provider below (or an admin can set env vars)."}
         </span>
       </div>
       <ProviderForm onSaved={load} />
@@ -204,7 +204,7 @@ function EmailPanel() {
           <p className="hint" style={{ marginTop: 0 }}>
             {prefs.learnersWithEmail > 0
               ? `${prefs.learnersWithEmail} learner${prefs.learnersWithEmail === 1 ? " has" : "s have"} an email on their profile.`
-              : "No learner has an email yet — add one on a learner's profile to turn this on for them."}{" "}
+              : "No learner has an email yet. Add one on a learner's profile to turn this on for them."}{" "}
             Email is never needed to sign in; adding one is how a learner opts in.
           </p>
           <div className="row wrap" style={{ marginTop: 8 }}>
@@ -229,7 +229,7 @@ function EmailPanel() {
       {msg && <p className="small" style={{ marginTop: 8 }}>{msg}</p>}
       <p className="hint" style={{ marginTop: 8 }}>
         The Monday digest summarizes each learner's week (lessons, accuracy, reviews due) and milestones coming up.
-        Learners with an email get their own note the same morning — only their own work, never a sibling comparison.
+        Learners with an email get their own note the same morning: only their own work, never a sibling comparison.
       </p>
     </>
   );
@@ -301,31 +301,31 @@ function ProviderForm({ onSaved }: { onSaved: () => void }) {
       <div style={{ marginTop: 10 }}>
         <Field label="Provider">
           <select className="input" value={provider} onChange={(e) => setProvider(e.target.value)}>
-            <option value="resend">Resend — easiest, generous free tier</option>
+            <option value="resend">Resend: easiest, generous free tier</option>
             <option value="sparkpost">SparkPost</option>
-            <option value="ses">Amazon SES — cheapest at volume</option>
-            <option value="smtp">SMTP — self-hosted (Mailcow, Postfix…)</option>
+            <option value="ses">Amazon SES: cheapest at volume</option>
+            <option value="smtp">SMTP: self-hosted (Mailcow, Postfix…)</option>
           </select>
         </Field>
-        <Field label="From address" hint="e.g. Well of Wisdom <learn@yourdomain.com> — the domain must be verified with the provider.">
+        <Field label="From address" hint="e.g. Well of Wisdom <learn@yourdomain.com>. The domain must be verified with the provider.">
           <input className="input" value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Well of Wisdom <learn@yourdomain.com>" />
         </Field>
         {provider === "resend" && (
           <Field label="Resend API key">
             <input className="input" value={resendKey} onChange={(e) => setResendKey(e.target.value)}
-              placeholder={/^•/.test(resendKey) ? "saved — paste a new key to change it" : "re_…"} />
+              placeholder={/^•/.test(resendKey) ? "saved. Paste a new key to change it" : "re_…"} />
           </Field>
         )}
         {provider === "sparkpost" && (
           <Field label="SparkPost API key">
             <input className="input" value={sparkpostKey} onChange={(e) => setSparkpostKey(e.target.value)}
-              placeholder={/^•/.test(sparkpostKey) ? "saved — paste a new key to change it" : ""} />
+              placeholder={/^•/.test(sparkpostKey) ? "saved. Paste a new key to change it" : ""} />
           </Field>
         )}
         {provider === "ses" && (
           <div className="row" style={{ gap: 12 }}>
             <div className="grow"><Field label="Access key"><input className="input" value={sesKey} onChange={(e) => setSesKey(e.target.value)} /></Field></div>
-            <div className="grow"><Field label="Secret key"><input className="input" type="password" value={sesSecret} onChange={(e) => setSesSecret(e.target.value)} placeholder={/^•/.test(sesSecret) ? "saved — paste new to change" : ""} /></Field></div>
+            <div className="grow"><Field label="Secret key"><input className="input" type="password" value={sesSecret} onChange={(e) => setSesSecret(e.target.value)} placeholder={/^•/.test(sesSecret) ? "saved. Paste new to change" : ""} /></Field></div>
             <div style={{ maxWidth: 140 }}><Field label="Region"><input className="input" value={sesRegion} onChange={(e) => setSesRegion(e.target.value)} /></Field></div>
           </div>
         )}
@@ -337,7 +337,7 @@ function ProviderForm({ onSaved }: { onSaved: () => void }) {
             </div>
             <div className="row" style={{ gap: 12 }}>
               <div className="grow"><Field label="Username"><input className="input" value={smtpUser} onChange={(e) => setSmtpUser(e.target.value)} /></Field></div>
-              <div className="grow"><Field label="Password"><input className="input" type="password" value={smtpPass} onChange={(e) => setSmtpPass(e.target.value)} placeholder={/^•/.test(smtpPass) ? "saved — paste new to change" : ""} /></Field></div>
+              <div className="grow"><Field label="Password"><input className="input" type="password" value={smtpPass} onChange={(e) => setSmtpPass(e.target.value)} placeholder={/^•/.test(smtpPass) ? "saved. Paste new to change" : ""} /></Field></div>
             </div>
           </>
         )}
@@ -409,8 +409,8 @@ function MediaPanel() {
         <summary className="small" style={{ cursor: "pointer", color: "var(--accent)", fontWeight: 600 }}>⚙️ Configure generators</summary>
         <div style={{ marginTop: 10 }}>
           <div className="row" style={{ gap: 12 }}>
-            <div className="grow"><Field label="kie.ai API key" hint="Powers Nano Banana images + Seedance/Veo videos."><input className="input" type="password" value={cfg?.kieKey || ""} onChange={(e) => set("kieKey", e.target.value)} placeholder={(cfg?.kieKey || "").startsWith("•") ? "saved — paste new to change" : "kie.ai key"} /></Field></div>
-            <div className="grow"><Field label="OpenAI API key (images alternative)"><input className="input" type="password" value={cfg?.openaiKey || ""} onChange={(e) => set("openaiKey", e.target.value)} placeholder={(cfg?.openaiKey || "").startsWith("•") ? "saved — paste new to change" : "sk-…"} /></Field></div>
+            <div className="grow"><Field label="kie.ai API key" hint="Powers Nano Banana images + Seedance/Veo videos."><input className="input" type="password" value={cfg?.kieKey || ""} onChange={(e) => set("kieKey", e.target.value)} placeholder={(cfg?.kieKey || "").startsWith("•") ? "saved. Paste new to change" : "kie.ai key"} /></Field></div>
+            <div className="grow"><Field label="OpenAI API key (images alternative)"><input className="input" type="password" value={cfg?.openaiKey || ""} onChange={(e) => set("openaiKey", e.target.value)} placeholder={(cfg?.openaiKey || "").startsWith("•") ? "saved. Paste new to change" : "sk-…"} /></Field></div>
           </div>
           <div className="row" style={{ gap: 12 }}>
             <div className="grow"><Field label="Image model">
@@ -493,12 +493,12 @@ export default function Settings({ me }: { me: MeResponse }) {
 
       <Panel title="Appearance" side="themes & colors">
         <p className="muted" style={{ marginBottom: 10 }}>
-          Backgrounds, accent colors, dark mode, reading size — everything lives in one place now.
+          Backgrounds, accent colors, dark mode, reading size: everything lives in one place now.
         </p>
         <a className="btn primary" {...linkProps("experience")}>🎨 Open Experience</a>
       </Panel>
 
-      <Panel title="AI media — images & videos" side="course covers, adventures, cutscenes">
+      <Panel title="AI media: images & videos" side="course covers, adventures, cutscenes">
         <MediaPanel />
       </Panel>
 
@@ -513,12 +513,12 @@ export default function Settings({ me }: { me: MeResponse }) {
       <Panel title="System" side="this server">
         <div className="checkitem">
           <span className={`dot${dbOk ? " done" : ""}`} style={{ borderColor: dbOk ? "var(--good)" : "var(--border)" }} />
-          <span className="t">Database {health?.db.configured ? (dbOk ? "connected" : "error — check logs") : "not configured"}</span>
+          <span className="t">Database {health?.db.configured ? (dbOk ? "connected" : "error. Check logs") : "not configured"}</span>
         </div>
         <div className="checkitem">
           <span className={`dot${aiOn ? " done" : ""}`} style={{ borderColor: aiOn ? "var(--good)" : "var(--border)" }} />
           <span className="t">
-            AI {aiOn ? "connected" : "not configured"} —{" "}
+            AI {aiOn ? "connected" : "not configured"}: {" "}
             <a href="https://github.com/wellofwisdom/wellofwisdom#quick-start" target="_blank" rel="noreferrer">
               how to connect an AI provider
             </a>{" "}

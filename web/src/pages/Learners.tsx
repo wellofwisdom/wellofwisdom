@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Learners list — clean cards that link to the full profile page.
+// Learners list: clean cards that link to the full profile page.
 import { useNavigate } from "../router";
 import type { MeResponse } from "../types";
 import { Panel, EmptyState } from "../components/ui";
@@ -22,7 +22,7 @@ export default function Learners({ me }: { me: MeResponse }) {
           <EmptyState
             icon="🧑‍🎓"
             title="No learners yet"
-            message="Add each person who's learning. They sign in with a username and PIN — no email needed unless they want notifications."
+            message="Add each person who's learning. They sign in with a username and PIN. No email needed unless they want notifications."
             action={
               <button className="btn primary big" type="button" onClick={() => navigate("learners/new")}>
                 ＋ Add your first learner

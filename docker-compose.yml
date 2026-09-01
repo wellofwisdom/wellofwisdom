@@ -1,4 +1,4 @@
-# Well of Wisdom — one-command self-hosting.
+# Well of Wisdom. One-command self-hosting.
 #   Full stack (app + database):   docker compose up -d
 #   With fully-local AI (Ollama):  docker compose --profile local-ai up -d
 #     then set AI_BASE_URL=http://ollama:11434/v1 in .env and restart the app.

@@ -4,7 +4,7 @@
 // only, read-only, answer keys stripped, and rate limited.
 //
 // It exists so a course can be linked, crawled, cited, fed to a research tool,
-// and imported by any other instance — without anyone signing up for anything.
+// and imported by any other instance. Without anyone signing up for anything.
 const express = require("express");
 const db = require("../lib/db");
 const share = require("../lib/share");
@@ -44,7 +44,7 @@ router.use((_req, res, next) => {
   next();
 });
 
-/** Published course tree by slug — no family scoping, that is the point. */
+/** Published course tree by slug. No family scoping, that is the point. */
 async function publicTree(slug) {
   const c = await db.query(
     `select id, title, topic, lens, grade_level, description, public_slug,
@@ -116,7 +116,7 @@ router.get("/courses/:slug", async (req, res, next) => {
   }
 });
 
-/** The portable package — this is what another instance imports. */
+/** The portable package. This is what another instance imports. */
 router.get("/courses/:slug/export", async (req, res, next) => {
   try {
     const tree = await publicTree(String(req.params.slug));

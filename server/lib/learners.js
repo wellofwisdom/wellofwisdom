@@ -4,7 +4,7 @@
 // Two things this exists to stop:
 //  1. node-pg returns bigint as a *string*, so an id arrives as "13". The
 //     Learner type says `number`, and `learners.find(l => l.id === 13)`
-//     silently misses — which is how the profile page used to bounce straight
+//     silently misses. Which is how the profile page used to bounce straight
 //     back to the list.
 //  2. Endpoints picking their own column lists. /api/me used to omit ai_notes
 //     and email, so the profile form loaded them blank and saving wrote that

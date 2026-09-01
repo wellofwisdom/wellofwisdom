@@ -14,9 +14,9 @@ const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️",
 
 
 const LICENSES = [
-  { id: "CC-BY-4.0", label: "CC BY 4.0 — reuse with credit" },
-  { id: "CC-BY-SA-4.0", label: "CC BY-SA 4.0 — credit, share alike" },
-  { id: "CC0-1.0", label: "CC0 — public domain" },
+  { id: "CC-BY-4.0", label: "CC BY 4.0: reuse with credit" },
+  { id: "CC-BY-SA-4.0", label: "CC BY-SA 4.0: credit, share alike" },
+  { id: "CC0-1.0", label: "CC0: public domain" },
   { id: "all-rights-reserved", label: "All rights reserved" },
 ];
 
@@ -58,7 +58,7 @@ function SharePanel({ courseId, initialSlug, initialPublished }:
         <>
           <p className="muted small">
             Publishing puts this course on a public, read-only page on this server. Answer keys are
-            never shown there. Anyone can download the course file and teach with it — including
+            never shown there. Anyone can download the course file and teach with it, including
             people running their own Well of Wisdom.
           </p>
           <div className="field">
@@ -76,7 +76,7 @@ function SharePanel({ courseId, initialSlug, initialPublished }:
             <input type="checkbox" checked={shareAnswers} onChange={(e) => setShareAnswers(e.target.checked)} />
             <span className="t">
               Include answer keys in the downloadable file
-              <span className="hint"> — other teachers need these to grade. The public page never shows them either way.</span>
+              <span className="hint"> Other teachers need these to grade. The public page never shows them either way.</span>
             </span>
           </label>
           <button className="btn primary" type="button" disabled={busy} onClick={publish}>

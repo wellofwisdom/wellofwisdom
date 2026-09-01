@@ -2,7 +2,7 @@
 // AI media engine: images + videos via kie.ai's jobs API (createTask ->
 // recordInfo polling). Also supports OpenAI images directly. Configured in
 // Settings → AI Media (server_settings) with env fallback. kie wraps
-// business errors in HTTP 200 + code != 200 — BOTH layers checked.
+// business errors in HTTP 200 + code != 200. BOTH layers checked.
 const db = require("./db");
 const { fetchT } = require("./http");
 
@@ -100,7 +100,7 @@ function resultUrls(d) {
     try {
       const urls = JSON.parse(raw).resultUrls;
       if (Array.isArray(urls) && urls.length) return urls;
-    } catch { /* not JSON — try the next shape */ }
+    } catch { /* not JSON. Try the next shape */ }
   }
   return [];
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Weekly guide digest: what happened, what's due, what's coming — one email.
+// Weekly guide digest: what happened, what's due, what's coming. One email.
 // Deduped per family per ISO week via mail_log.
 const db = require("./db");
 const mail = require("./mail");
@@ -34,7 +34,7 @@ async function guideRecipient(familyId, prefs) {
 }
 
 /** Learners who opted in by having an email on their profile. Email is never
- *  required to use the app — having one IS the opt-in. */
+ *  required to use the app, having one IS the opt-in. */
 async function learnersWithEmail(familyId) {
   const { rows } = await db.query(
     "select id, name, email from users where family_id = $1 and role = 'learner' and email is not null and email <> '' order by name",
@@ -53,7 +53,7 @@ async function sendDigest(familyId) {
 
   // dedupe: one digest per family per week
   // One digest per family per week. (This used to compare mail_log.subject to
-  // the ISO week, but the logged subject is the human one — so it never
+  // the ISO week, but the logged subject is the human one. So it never
   // matched and a restart inside the send window could double-send.)
   const already = await db.query(
     "select 1 from mail_log where family_id = $1 and kind = 'digest' and status = 'sent' and created_at > now() - interval '6 days' limit 1",
@@ -70,7 +70,7 @@ async function sendDigest(familyId) {
 
   return mail.sendMail({
     to,
-    subject: `Your week at a glance — ${fam.rows[0].name}`,
+    subject: `Your week at a glance: ${fam.rows[0].name}`,
     html,
     text: html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 3000),
     familyId,
@@ -114,7 +114,7 @@ async function buildDigestHtml(familyId, familyName, week) {
 
   const upcomingHtml = upcoming.rows.length
     ? `<h3 style="color:#0f7d5c">Coming up (next 2 weeks)</h3><ul>${upcoming.rows
-        .map((m) => `<li><b>${esc(m.title)}</b> — ${m.target_date}${m.plan_title ? ` · ${esc(m.plan_title)}` : ""}</li>`)
+        .map((m) => `<li><b>${esc(m.title)}</b>, ${m.target_date}${m.plan_title ? ` · ${esc(m.plan_title)}` : ""}</li>`)
         .join("")}</ul>`
     : "";
 
@@ -134,7 +134,7 @@ async function buildDigestHtml(familyId, familyName, week) {
 
 // ---------- learner note (the learner's own weekly mail) ----------
 //
-// A learner's email is optional and never used for login — having one on the
+// A learner's email is optional and never used for login: having one on the
 // profile IS the opt-in. The note is addressed to the learner, so it reports
 // only their own work: no sibling comparisons, no family-wide stats.
 
@@ -187,7 +187,7 @@ function learnerNoteHtml(learner, w, appUrl) {
   const bits = [];
   if (w.lessons) bits.push(`<li>${w.lessons} lesson${w.lessons === 1 ? "" : "s"} finished</li>`);
   if (w.answers) {
-    bits.push(`<li>${w.answers} question${w.answers === 1 ? "" : "s"} answered${acc !== null ? ` — ${acc}% right` : ""}</li>`);
+    bits.push(`<li>${w.answers} question${w.answers === 1 ? "" : "s"} answered${acc !== null ? `: ${acc}% right` : ""}</li>`);
   }
   if (w.streak.current >= 2) bits.push(`<li>🔥 ${w.streak.current}-day streak</li>`);
 
@@ -204,12 +204,12 @@ function learnerNoteHtml(learner, w, appUrl) {
 
   const upcomingHtml = w.upcoming.length
     ? `<h3 style="color:#0f7d5c;margin-bottom:4px">Coming up</h3><ul style="margin-top:0">${w.upcoming
-        .map((u) => `<li><b>${esc(u.title)}</b> — ${u.on_date}</li>`).join("")}</ul>`
+        .map((u) => `<li><b>${esc(u.title)}</b>: ${u.on_date}</li>`).join("")}</ul>`
     : "";
 
   const weekHtml = bits.length
     ? `<h3 style="color:#0f7d5c;margin-bottom:4px">Your week</h3><ul style="margin-top:0">${bits.join("")}</ul>`
-    : "<p>Nothing logged this past week — an easy one to restart is waiting whenever you are.</p>";
+    : "<p>Nothing logged this past week. An easy one to restart is waiting whenever you are.</p>";
 
   return `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">
     <div style="font-size:28px">🌰</div>
@@ -245,7 +245,7 @@ async function sendLearnerNote(learner, familyId, { force = false } = {}) {
     to: learner.email,
     subject: `Your week at the well, ${firstName(learner.name)}`,
     html: learnerNoteHtml(learner, w, appUrl),
-    text: `Hi ${firstName(learner.name)} — ${w.lessons} lessons and ${w.answers} questions this week.` +
+    text: `Hi ${firstName(learner.name)}: ${w.lessons} lessons and ${w.answers} questions this week.` +
       (w.reviews_due ? ` ${w.reviews_due} reviews are ready.` : "") + ` ${appUrl}`,
     familyId,
     userId: learner.id,
@@ -278,7 +278,7 @@ async function sweepAll({ log = console.log } = {}) {
   const isMonday = now.getUTCDay() === 1;
   const isDigestHour = now.getUTCHours() === 13;
   if (!isMonday || !isDigestHour) return;
-  log("[digest] weekly window open — sending");
+  log("[digest] weekly window open: sending");
   const families = await db.query("select id from families").catch(() => ({ rows: [] }));
   for (const f of families.rows) {
     const r = await sendDigest(f.id);
@@ -332,7 +332,7 @@ async function sweepEventReminders({ log = console.log } = {}) {
       recipients.push({
         to: l.email,
         userId: l.id,
-        greeting: `<p style="margin:0;color:#5b6875">Hi ${esc(firstName(l.name))} —</p>`,
+        greeting: `<p style="margin:0;color:#5b6875">Hi ${esc(firstName(l.name))},</p>`,
       });
     }
 
@@ -342,7 +342,7 @@ async function sweepEventReminders({ log = console.log } = {}) {
         to: r.to,
         subject: `Tomorrow: ${ev.title}`,
         html: body(r.greeting),
-        text: `Tomorrow: ${ev.title} — ${when}`,
+        text: `Tomorrow: ${ev.title}: ${when}`,
         familyId: ev.family_id,
         userId: r.userId,
         kind: "event-reminder",
@@ -377,7 +377,7 @@ async function sendDigestManual(familyId) {
   if (!to) return { skipped: "no_recipient" };
   const html = await buildDigestHtml(familyId, fam.rows[0].name, week);
   if (!html) return { skipped: "no_content" };
-  return mail.sendMail({ to, subject: `Your week at a glance — ${fam.rows[0].name}`, html, text: "Weekly digest", familyId, kind: "digest-manual" });
+  return mail.sendMail({ to, subject: `Your week at a glance: ${fam.rows[0].name}`, html, text: "Weekly digest", familyId, kind: "digest-manual" });
 }
 
 module.exports = {

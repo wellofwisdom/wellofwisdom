@@ -10,13 +10,13 @@ Well of Wisdom ships as **one codebase and one Docker image**, deployed two ways
 | AI | any OpenAI-compatible endpoint, incl. local Ollama | our pooled endpoints |
 | Sessions/queue | in-Postgres (single container works) | Redis + BullMQ, web/worker split |
 
-Same image, env-configured. No "cloud edition" feature flags on learning features —
+Same image, env-configured. No "cloud edition" feature flags on learning features
 the product is identical; only plumbing differs.
 
 ## The five scale rules (decided day one)
 
 1. **Sessions live in Postgres** (cookie carries only a signed session id).
-   Never in-memory — in-memory state assumes one process and blocks horizontal
+   Never in-memory: in-memory state assumes one process and blocks horizontal
    scaling. Redis session store is a cloud-side drop-in behind the same interface.
 2. **Every table is tenant-scoped.** `family_id` on every row, every query goes
    through helpers that enforce it. Multi-tenant from the first table, not
@@ -28,7 +28,7 @@ the product is identical; only plumbing differs.
 4. **Long work runs as jobs, not HTTP handlers.** Course generation takes
    minutes. A `job` table is the queue (Postgres-backed by default; BullMQ
    adapter in cloud). A role selector in the entrypoint boots a process as
-   `web`, `worker`, or `all` — self-hosters run `all` in one container; cloud
+   `web`, `worker`, or `all`: self-hosters run `all` in one container; cloud
    runs many stateless web replicas + a worker pool. (Proven pattern: the
    broadcast-worker split.)
 5. **Postgres is the only hard dependency** at small scale. Redis, S3, Ollama
@@ -38,7 +38,7 @@ the product is identical; only plumbing differs.
 
 - Any OpenAI-compatible endpoint (see `.env.example`); works fully offline with
   Ollama. Task-routed pro/flash tiers, env-overridable without redeploys.
-- **Per-family usage accounting + spend caps** from the day AI calls start —
+- **Per-family usage accounting + spend caps** from the day AI calls start
   tokens, cost estimate, monthly limit with warn → stop. Fail-open: accounting
   never takes learning features down. (Proven pattern.)
 - All provider calls go through `fetchT` (timeout + retry). Providers stall;
@@ -56,7 +56,7 @@ the product is identical; only plumbing differs.
 
 ## Capacity expectations (honest)
 
-A single modest server (2–4 vCPU) runs web + worker + Postgres comfortably for
+A single modest server (2 to 4 vCPU) runs web + worker + Postgres comfortably for
 hundreds of active families. Bottleneck is AI generation throughput, bounded by
 the job queue, per-family rate limits, and spend caps. The web tier is stateless
 → horizontal scaling is a load balancer + replicas when needed. Read replicas,
@@ -68,4 +68,4 @@ rewrites under the rules above.
 - `node --check` on changed files + `npm test` before every push (CI enforces).
 - A view/system smoke suite (jsdom render) once the frontend exists.
 - Deploy verification: deployment finished + running image matches commit +
-  logs clean — a green push is not proof.
+  logs clean. A green push is not proof.

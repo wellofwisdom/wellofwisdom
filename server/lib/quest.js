@@ -63,7 +63,7 @@ function encounterXp(kind) {
 /**
  * Can this learner take this encounter on?
  * `progress` is a snapshot: { lessonsDone, correctStreak, xp, inventory:Set, won:Set }
- * Returns { unlocked, reason } — reason is learner-facing, so it says what to
+ * Returns { unlocked, reason }: reason is learner-facing, so it says what to
  * do next rather than what is missing.
  */
 function isUnlocked(encounter, progress) {
@@ -99,7 +99,7 @@ function bossAttempt(state, { correct, usedHint }) {
     need,
     streak,
     won: streak >= need,
-    // A miss costs the streak, never the progress — the point is practice.
+    // A miss costs the streak, never the progress. The point is practice.
     broke: Boolean(state && state.streak) && streak === 0,
   };
 }
@@ -114,7 +114,7 @@ function totalXp(kind, lootEffects = []) {
 /**
  * Which real-life rewards has this learner just earned?
  * A reward is earned when its XP cost is met and every stated requirement is.
- * The app never grants anything automatically — a guide still hands it over.
+ * The app never grants anything automatically. A guide still hands it over.
  */
 function newlyEarnedRewards(rewards, progress) {
   const p = progress || {};
@@ -147,7 +147,7 @@ function planEncounters({ gameTypeId, chapters }) {
         chapter_index: ci,
         kind,
         title: lastBeat
-          ? `${chapter.title || `Chapter ${ci + 1}`} — ${kind === "boss" ? "the final stand" : "the guardian"}`
+          ? `${chapter.title || `Chapter ${ci + 1}`}: ${kind === "boss" ? "the final stand" : "the guardian"}`
           : `${chapter.title || `Chapter ${ci + 1}`}: ${beat}`,
         narration: chapter.hook || null,
         // Gate on lessons finished so play tracks real work, not clicking.

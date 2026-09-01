@@ -27,7 +27,7 @@ function verifyPassword(password, stored) {
   }
 }
 
-// ---- PINs (learners) — same scheme, kept in a separate column ----
+// ---- PINs (learners): same scheme, kept in a separate column ----
 
 const hashPin = hashPassword;
 const verifyPin = verifyPassword;

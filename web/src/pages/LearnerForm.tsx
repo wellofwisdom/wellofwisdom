@@ -74,7 +74,7 @@ export default function LearnerForm({ learnerId, onSaved }:
         body.pin = pin;
         await api("/api/family/learners", { method: "POST", body });
       }
-      // Refetch before navigating — the list renders from App's `me`, so
+      // Refetch before navigating. The list renders from App's `me`, so
       // without this a new learner does not appear until a manual reload.
       await onSaved?.();
       navigate("learners");
@@ -110,14 +110,14 @@ export default function LearnerForm({ learnerId, onSaved }:
                 <label>What should we call them?</label>
                 <input className="input biginput" value={name} onChange={(e) => setName(e.target.value)}
                   placeholder="Maya, Ms. Rivera, Alex…" maxLength={80} autoFocus={!editing} />
-                <div className="hint">Just what they go by — first name, nickname, formal, anything.</div>
+                <div className="hint">Just what they go by. First name, nickname, formal, anything.</div>
               </div>
             </div>
             <div style={{ maxWidth: 130 }}>
               <div className="field">
                 <label>Grade</label>
                 <select className="input" value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)}>
-                  <option value="">—</option>
+                  <option value="">Auto</option>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => <option key={g} value={g}>Grade {g}</option>)}
                   <option value="13">College</option>
                   <option value="14">Adult</option>
@@ -181,7 +181,7 @@ export default function LearnerForm({ learnerId, onSaved }:
         <div className="grow">
           <h2>What do they love?</h2>
           <p className="muted small" style={{ marginBottom: 10 }}>
-            These become the <strong>lens</strong> — the AI weaves them through every course.
+            These become the <strong>lens</strong>. The AI weaves them through every course.
             Type and press Enter to add.
           </p>
           <TagInput
@@ -197,7 +197,7 @@ export default function LearnerForm({ learnerId, onSaved }:
       <section className="panel step">
         <div className="stepnum" aria-hidden="true">3</div>
         <div className="grow">
-          <h2>🧠 AI notes — remembered for every course</h2>
+          <h2>🧠 AI notes: remembered for every course</h2>
           <p className="muted small" style={{ marginBottom: 10 }}>
             Standing instructions the AI applies automatically. Format with the toolbar or type "/" for blocks.
           </p>
@@ -208,7 +208,7 @@ export default function LearnerForm({ learnerId, onSaved }:
             placeholder="Struggles with common denominators. Loves period dramas. Keep examples kind and funny. Needs visual explanations."
           />
           {editing && !notesSaved && aiNotes && (
-            <p className="hint" style={{ marginTop: 4, color: "var(--warn)" }}>Unsaved changes — click Save below.</p>
+            <p className="hint" style={{ marginTop: 4, color: "var(--warn)" }}>Unsaved changes. Click Save below.</p>
           )}
         </div>
       </section>

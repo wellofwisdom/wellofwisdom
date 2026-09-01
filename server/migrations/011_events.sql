@@ -1,5 +1,5 @@
 -- SPDX-License-Identifier: AGPL-3.0-or-later
--- 011: calendar events — sessions, deadlines, field trips, exams. Powers the
+-- 011: calendar events, sessions, deadlines, field trips, exams. Powers the
 -- calendar view and tomorrow-reminder emails (Trinacle appointment pattern).
 
 create table if not exists events (

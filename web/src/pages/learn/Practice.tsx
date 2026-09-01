@@ -51,14 +51,14 @@ export default function Practice({ onNavigate, onLogout }: {
       <p className="sub">
         {items.length === 0
           ? "Nothing due right now."
-          : `${items.length} exercise${items.length > 1 ? "s" : ""} ready — these came back at exactly the right time to stick.`}
+          : `${items.length} exercise${items.length > 1 ? "s" : ""} ready. These came back at exactly the right time to stick.`}
       </p>
 
       {items.length === 0 && (
         <div className="kidcard">
           <div className="big" aria-hidden="true">🎉</div>
           <h2 style={{ margin: "8px 0 6px" }}>All caught up!</h2>
-          <p className="muted">Everything you've learned is scheduled for later. Come back tomorrow — or keep going in a course.</p>
+          <p className="muted">Everything you've learned is scheduled for later. Come back tomorrow. Or keep going in a course.</p>
           <div style={{ marginTop: 14 }}>
             <button className="btn primary" type="button" onClick={() => onNavigate("")}>Back home</button>
           </div>
@@ -70,7 +70,7 @@ export default function Practice({ onNavigate, onLogout }: {
           <div className="big" aria-hidden="true">✅</div>
           <h2 style={{ margin: "8px 0 6px" }}>Session done!</h2>
           <p className="muted">
-            {session.right} of {session.done} right. The ones you missed will come back today — that's the system working.
+            {session.right} of {session.done} right. The ones you missed will come back today: that's the system working.
           </p>
           <div style={{ marginTop: 14 }}>
             <button className="btn primary" type="button" onClick={() => onNavigate("")}>Back home</button>

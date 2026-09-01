@@ -26,9 +26,9 @@ export default function RichTextEditor({
     { id: "heading", label: "Heading", icon: "H", insert: "\n\n## Heading\n\n" },
     { id: "bullet", label: "Bullet list", icon: "•", insert: "\n- item one\n- item two\n" },
     { id: "check", label: "Checklist", icon: "☑", insert: "\n- [ ] first step\n- [ ] second step\n" },
-    { id: "note", label: "Callout — note", icon: "📝", insert: "\n> note: " },
-    { id: "tip", label: "Callout — tip", icon: "💡", insert: "\n> tip: " },
-    { id: "warn", label: "Callout — warning", icon: "⚠️", insert: "\n> warn: " },
+    { id: "note", label: "Callout: note", icon: "📝", insert: "\n> note: " },
+    { id: "tip", label: "Callout: tip", icon: "💡", insert: "\n> tip: " },
+    { id: "warn", label: "Callout: warning", icon: "⚠️", insert: "\n> warn: " },
     { id: "math", label: "Math (LaTeX)", icon: "∑", insert: "$x^2$" },
     { id: "bold", label: "Bold", icon: "B", insert: "****" },
   ];
@@ -93,7 +93,7 @@ export default function RichTextEditor({
       <div className="rtebar" role="toolbar" aria-label="Formatting">
         <button type="button" className="rtebtn" title="Bold" aria-label="Bold" onClick={() => wrap("**")}><b>B</b></button>
         <button type="button" className="rtebtn" title="Italic" aria-label="Italic" onClick={() => wrap("*")}><i>I</i></button>
-        <button type="button" className="rtebtn" title="Bullet list" aria-label="Bullet list" onClick={() => prefixLines("- ")}>• —</button>
+        <button type="button" className="rtebtn" title="Bullet list" aria-label="Bullet list" onClick={() => prefixLines("- ")}>• list</button>
         <button type="button" className="rtebtn" title="Math (LaTeX)" aria-label="Math" onClick={() => insert("$x$")}>∑</button>
         <span className="grow" />
         <button type="button" className={`rtebtn${preview ? " on" : ""}`} onClick={() => setPreview(!preview)}>

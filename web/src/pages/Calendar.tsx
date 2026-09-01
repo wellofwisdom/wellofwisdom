@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Calendar — events (sessions, deadlines, field trips, exams) merged with
+// Calendar: events (sessions, deadlines, field trips, exams) merged with
 // plan milestone target dates on one month grid.
 import { useEffect, useState } from "react";
 import { api, niceError } from "../api";

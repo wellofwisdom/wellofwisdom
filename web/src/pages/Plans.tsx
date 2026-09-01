@@ -45,7 +45,7 @@ export default function Plans({ onNavigate }: { onNavigate: (hash: string) => vo
         <EmptyState
           icon="🗺️"
           title="Plan a whole semester or year"
-          message="A learning path maps the journey — milestones, projects, resources — for a subject over months. Courses are generated for each milestone at the right time, personalized per learner. An AI assistant walks you through setting it up."
+          message="A learning path maps the journey (milestones, projects, resources) for a subject over months. Courses are generated for each milestone at the right time, personalized per learner. An AI assistant walks you through setting it up."
           action={
             <button className="btn primary big" type="button" onClick={() => onNavigate("plans/new")}>
               <IconSparkle /> Start with the AI assistant

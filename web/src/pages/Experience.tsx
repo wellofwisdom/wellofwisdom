@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Experience — the full theming surface: mode, background washes, accent
+// Experience. The full theming surface: mode, background washes, accent
 // colors, custom background image, reading size. Live preview always on.
 import { useState } from "react";
 import { BACKGROUNDS, ACCENTS, getMode, setMode, getBg, setBg, getAccent, setAccent, getBgImage, setBgImage, getTextScale, setTextScale, type Mode, type TextScale } from "../theme";
@@ -18,7 +18,7 @@ export default function Experience() {
     <>
       <div className="studiohead">
         <h1>🎨 Experience</h1>
-        <p className="muted">Make it yours. Everything applies instantly — and per device for now.</p>
+        <p className="muted">Make it yours. Everything applies instantly, and per device for now.</p>
       </div>
 
       <Panel title="Mode">
@@ -68,7 +68,7 @@ export default function Experience() {
             </button>
           ))}
         </div>
-        <p className="hint" style={{ marginTop: 8 }}>Buttons, links, highlights — everywhere.</p>
+        <p className="hint" style={{ marginTop: 8 }}>Buttons, links and highlights, everywhere.</p>
       </Panel>
 
       <Panel title="Reading size" side="accessibility">

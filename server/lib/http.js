@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // fetch with timeout + retries. Every outbound server fetch goes through
-// fetchT — bare fetch hangs forever when a provider stalls.
+// fetchT: bare fetch hangs forever when a provider stalls.
 async function fetchT(url, opts = {}, { timeoutMs = 60000, retries = 2, retryDelayMs = 1000 } = {}) {
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {

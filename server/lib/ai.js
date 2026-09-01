@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Task-routed AI layer. Point AI_BASE_URL at ANY OpenAI-compatible endpoint:
 // Ollama, LM Studio, DeepSeek, OpenAI, ... All features degrade gracefully
-// when no endpoint is configured — generated courses stay usable offline.
+// when no endpoint is configured: generated courses stay usable offline.
 const { fetchT } = require("./http");
 
 // Which model class each task uses. "pro" = quality (course generation),
 // "flash" = speed (hints, grading, tutor turns). Override per-task via
-// AI_ROUTES env JSON: {"tutor": {"model": "llama3.1"}} — no redeploy needed.
+// AI_ROUTES env JSON: {"tutor": {"model": "llama3.1"}}. No redeploy needed.
 const DEFAULT_ROUTES = {
   "course-gen": "pro",
   "lesson-content": "pro",
@@ -67,7 +67,7 @@ async function chat(task, messages, opts = {}) {
   }
   const { model } = resolveRoute(task);
   if (!model) {
-    const err = new Error(`ai_no_model: task "${task}" resolved to tier with no model — set AI_MODEL_PRO/AI_MODEL_FLASH`);
+    const err = new Error(`ai_no_model: task "${task}" resolved to tier with no model. Set AI_MODEL_PRO/AI_MODEL_FLASH`);
     err.code = "ai_no_model";
     throw err;
   }
@@ -80,7 +80,7 @@ async function chat(task, messages, opts = {}) {
   if (opts.json) body.response_format = { type: "json_object" };
 
   // DeepSeek-style models can truncate (finish_reason=length) when reasoning
-  // eats the budget — ladder the token cap until the reply actually finishes.
+  // eats the budget: ladder the token cap until the reply actually finishes.
   let res = await post(body);
   let data = await readJson(res);
   let ladder = 0;
@@ -157,7 +157,7 @@ function tryParse(text) {
   } catch {
     /* fall through to object extraction */
   }
-  // Model wrapped the JSON in prose — grab the outermost object.
+  // Model wrapped the JSON in prose: grab the outermost object.
   const first = s.indexOf("{");
   const last = s.lastIndexOf("}");
   if (first >= 0 && last > first) {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// The Course Studio — its own page, so the magic has room to breathe.
+// The Course Studio. Its own page, so the magic has room to breathe.
 // Four clear steps in separate panels, then generate.
 import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../api";
@@ -15,16 +15,16 @@ const LENS_IDEAS = [
 export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate: (hash: string) => void }) {
   const learners: Learner[] = me.learners || [];
 
-  // Step 1 — who
+  // Step 1. Who
   const [learnerId, setLearnerId] = useState<number | null>(null); // null = everyone
   const [learnerNotes, setLearnerNotes] = useState("");
   const [notesSaved, setNotesSaved] = useState("");
-  // Step 2 — what
+  // Step 2: what
   const [topic, setTopic] = useState("");
   const [gradeLevel, setGradeLevel] = useState("");
-  // Step 3 — lens
+  // Step 3: lens
   const [lens, setLens] = useState("");
-  // Step 4 — grounding
+  // Step 4: grounding
   const [notes, setNotes] = useState("");
   const [srcTitle, setSrcTitle] = useState("");
   const [srcUrl, setSrcUrl] = useState("");
@@ -119,7 +119,7 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
         <div className="brewnut" aria-hidden="true">🌰</div>
         <h1>Brewing your course</h1>
         <p className="muted">
-          {topic}{lens ? ` · through ${lens}` : ""} — drafting units, writing lessons, building exercises.
+          {topic}{lens ? ` · through ${lens}` : ""}: drafting units, writing lessons, building exercises.
           This usually takes a minute or two.
         </p>
         <div className="skel" style={{ height: 12, width: "70%", margin: "18px auto" }} />
@@ -140,7 +140,7 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
 
       {error && <div className="formerror" role="alert">{error}</div>}
 
-      {/* STEP 1 — who */}
+      {/* STEP 1. Who */}
       <section className="panel step">
         <div className="stepnum" aria-hidden="true">1</div>
         <div className="grow">
@@ -164,13 +164,13 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
           </div>
           {learners.length === 0 && (
             <p className="hint" style={{ marginTop: 8 }}>
-              No learners yet — <a {...linkProps("learners")}>add some first</a> so the AI can personalize. Or generate for everyone.
+              No learners yet, <a {...linkProps("learners")}>add some first</a> so the AI can personalize. Or generate for everyone.
             </p>
           )}
           {selected && (
             <div className="ainotes">
               <label className="small" style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
-                🧠 AI notes for {selected.name} — remembered for <em>every</em> course
+                🧠 AI notes for {selected.name}: remembered for <em>every</em> course
               </label>
               <RichTextEditor value={learnerNotes} onChange={setLearnerNotes} rows={4}
                 placeholder="Struggles with common denominators. Loves period dramas. Keep examples kind and funny." />
@@ -185,7 +185,7 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
         </div>
       </section>
 
-      {/* STEP 2 — what */}
+      {/* STEP 2: what */}
       <section className="panel step">
         <div className="stepnum" aria-hidden="true">2</div>
         <div className="grow">
@@ -205,13 +205,13 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
         </div>
       </section>
 
-      {/* STEP 3 — lens */}
+      {/* STEP 3: lens */}
       <section className="panel step">
         <div className="stepnum" aria-hidden="true">3</div>
         <div className="grow">
-          <h2>The magic — a lens <span className="muted small">(optional but try it)</span></h2>
+          <h2>The magic. A lens <span className="muted small">(optional but try it)</span></h2>
           <p className="muted small" style={{ marginBottom: 10 }}>
-            Teach the subject through something they love. Same math — different world.
+            Teach the subject through something they love. Same math: different world.
           </p>
           <input className="input biginput" placeholder="sewing · Minecraft · skateboarding · baking · horses…"
             value={lens} maxLength={100} onChange={(e) => setLens(e.target.value)} aria-label="Lens" />
@@ -223,19 +223,19 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
           </div>
           {topic && lens && (
             <p className="lenspreview" aria-live="polite">
-              ✨ “{topic}” taught through <strong>{lens}</strong> — every example, problem, and project comes from the world of {lens}.
+              ✨ “{topic}” taught through <strong>{lens}</strong>. Every example, problem, and project comes from the world of {lens}.
             </p>
           )}
         </div>
       </section>
 
-      {/* STEP 4 — sources */}
+      {/* STEP 4: sources */}
       <section className="panel step">
         <div className="stepnum" aria-hidden="true">4</div>
         <div className="grow">
           <h2>Ground it in sources <span className="muted small">(optional)</span></h2>
           <p className="muted small" style={{ marginBottom: 10 }}>
-            Paste notes or add links — the course sticks to these facts instead of guessing.
+            Paste notes or add links. The course sticks to these facts instead of guessing.
           </p>
           {sources.length > 0 && (
             <div className="row wrap" style={{ marginBottom: 10 }}>

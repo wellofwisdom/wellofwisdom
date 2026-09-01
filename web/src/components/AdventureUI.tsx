@@ -66,7 +66,7 @@ export function AdventureDialog({ courseId, me, onClose, onCreated }: {
               {(me.learners || []).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </Field>
-          <Field label="Theme (all original worlds — no franchise IP)">
+          <Field label="Theme (all original worlds, no franchise IP)">
             {!themes ? (
               <div className="skel" style={{ height: 40 }} />
             ) : (
@@ -106,7 +106,7 @@ export function AdventuresPanel({ courseId, onChanged }: { courseId: number; onC
       {adventures.map((a) => (
         <div key={a.id} className="checkitem">
           <span className="t">
-            <strong>{a.world.title}</strong> — {a.world.tagline}
+            <strong>{a.world.title}</strong>: {a.world.tagline}
             {a.learner_name ? ` · for ${a.learner_name}` : " · everyone"}
           </span>
           <button className="btn ghost small-btn" type="button" onClick={async () => {

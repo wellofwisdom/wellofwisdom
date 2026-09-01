@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Tiny history router — real paths (/learners/13), no "#/". Avoids a routing
+// Tiny history router, real paths (/learners/13), no "#/". Avoids a routing
 // dependency. The server serves index.html for any non-/api path, so deep
 // links and refreshes work; built assets are absolute (/assets/...), so they
 // still resolve from a nested path.
@@ -40,7 +40,7 @@ export function useNavigate() {
   return useCallback((id: string) => go(id), []);
 }
 
-/** Props for an anchor that navigates in-app but is still a real link —
+/** Props for an anchor that navigates in-app but is still a real link
  *  middle-click and "open in new tab" keep working. */
 export function linkProps(id: string) {
   return {

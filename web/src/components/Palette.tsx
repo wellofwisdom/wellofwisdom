@@ -46,15 +46,15 @@ export default function Palette({
   const commands: PaletteCommand[] = useMemo(() => {
     const nav: PaletteCommand[] = [
       { id: "n-dash", label: "Go to Dashboard", icon: "🏠", run: () => onNavigate("dashboard") },
-      { id: "n-studio", label: "Generate a course — Course Studio", icon: "✨", run: () => onNavigate("studio") },
+      { id: "n-studio", label: "Generate a course: Course Studio", icon: "✨", run: () => onNavigate("studio") },
       { id: "n-courses", label: "Go to Courses", icon: "📘", run: () => onNavigate("courses") },
       { id: "n-learners", label: "Manage learners", icon: "🧑‍🎓", run: () => onNavigate("learners") },
-      { id: "n-plans", label: "Learning Paths — plan a semester or year", icon: "🗺️", run: () => onNavigate("plans") },
-      { id: "n-notes", label: "Workspace — notes & pages", icon: "🗒️", run: () => onNavigate("notes") },
-      { id: "n-library", label: "Library — resources & links", icon: "📚", run: () => onNavigate("library") },
-      { id: "n-calendar", label: "Calendar — events & deadlines", icon: "🗓️", run: () => onNavigate("calendar") },
+      { id: "n-plans", label: "Learning Paths: plan a semester or year", icon: "🗺️", run: () => onNavigate("plans") },
+      { id: "n-notes", label: "Workspace: notes & pages", icon: "🗒️", run: () => onNavigate("notes") },
+      { id: "n-library", label: "Library: resources & links", icon: "📚", run: () => onNavigate("library") },
+      { id: "n-calendar", label: "Calendar: events & deadlines", icon: "🗓️", run: () => onNavigate("calendar") },
       { id: "n-records", label: "Progress & achievements", icon: "📈", run: () => onNavigate("records") },
-      { id: "n-exp", label: "Experience — themes & colors", icon: "🎨", run: () => onNavigate("experience") },
+      { id: "n-exp", label: "Experience: themes & colors", icon: "🎨", run: () => onNavigate("experience") },
       { id: "n-settings", label: "Settings", icon: "⚙️", run: () => onNavigate("settings") },
       { id: "a-theme", label: "Toggle light / dark mode", icon: "🌗", run: onToggleTheme },
     ];

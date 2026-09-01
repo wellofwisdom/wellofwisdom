@@ -107,7 +107,7 @@ test("coursePackage: is the format /import already accepts", () => {
 
 test("slugify: url-safe, deduped by uniqueSlug's caller", () => {
   assert.equal(share.slugify("Fractions through Sewing! (Grade 5)"), "fractions-through-sewing-grade-5");
-  assert.equal(share.slugify("Café Niño — Español"), "cafe-nino-espanol");
+  assert.equal(share.slugify("Café Niño: Español"), "cafe-nino-espanol");
   assert.equal(share.slugify("   "), "course");
   assert.ok(share.slugify("x".repeat(200)).length <= 60);
 });

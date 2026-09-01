@@ -19,7 +19,7 @@ test("grading: numeric with tolerance, currency, fractions, mixed numbers", () =
   assert.equal(gradeExercise(ex, "4"), false);
   assert.equal(gradeExercise(ex, "banana"), false);
   assert.equal(gradeExercise(ex, ""), false);
-  // fraction answers — kids type these constantly
+  // fraction answers: kids type these constantly
   const frac = { kind: "numeric", answer: 0.625 };
   assert.equal(gradeExercise(frac, "5/8"), true);
   assert.equal(gradeExercise(frac, "10/16"), true);

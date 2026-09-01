@@ -1,7 +1,7 @@
 # Contributing to Well of Wisdom
 
 Thanks for helping build a free, open education platform. Whether you're a
-homeschool parent, a teacher, a developer, or just curious — you're welcome here.
+homeschool parent, a teacher, a developer, or just curious, you're welcome here.
 
 ## Dev setup
 
@@ -14,7 +14,7 @@ npm run dev        # starts the server with auto-reload on :3000
 
 Optional but recommended: copy `.env.example` to `.env` and fill in a
 `DATABASE_URL` (any Postgres) and an `AI_BASE_URL` (any OpenAI-compatible
-endpoint — [Ollama](https://ollama.com) is free and local).
+endpoint: [Ollama](https://ollama.com) is free and local).
 
 ## Before you open a PR
 
@@ -23,7 +23,7 @@ npm run check      # syntax check on server code
 npm test           # unit tests (node --test)
 ```
 
-Both must pass — CI runs them on every push.
+Both must pass: CI runs them on every push.
 
 ## Ground rules
 
@@ -40,7 +40,7 @@ Both must pass — CI runs them on every push.
 
 Issues labeled [`good first issue`](https://github.com/wellofwisdom/wellofwisdom/labels/good%20first%20issue)
 are hand-picked landing spots. If you're a teacher or parent and not a coder,
-open a Discussion — feature feedback from real homeschool use is the most
+open a Discussion: feature feedback from real homeschool use is the most
 valuable contribution there is.
 
 ## Reporting safety problems

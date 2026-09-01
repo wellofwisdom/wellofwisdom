@@ -7,7 +7,7 @@
   <meta name="description" content="Self-hosted, AI-first learning for homeschoolers.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌰</text></svg>">
   <script>
-    // Apply saved theme before first paint — no flash of wrong theme.
+    // Apply saved theme before first paint. No flash of wrong theme.
     try {
       var mode = localStorage.getItem("wow-theme-mode") || "system";
       var dark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);

@@ -7,7 +7,7 @@ const ai = require("./ai");
 const { youtubeId } = require("./grade");
 
 const GEN_SYSTEM = `You are an expert curriculum designer building courses for a homeschool family.
-You ALWAYS respond with a single valid JSON object and nothing else — no markdown fences, no commentary.
+You ALWAYS respond with a single valid JSON object and nothing else. No markdown fences, no commentary.
 
 Schema (obey exactly):
 {
@@ -41,7 +41,7 @@ Schema (obey exactly):
 
 Rules:
 - EXACTLY 3 units, each with 3 lessons. Every lesson: exactly ONE article first, then 2-3 exercises. Use a "project" item as the final item of the final lesson of the course when it fits naturally. Use "video" items ONLY when you are certain of a real, relevant, well-known YouTube video id; otherwise omit them entirely.
-- Keep article bodies 120-220 words. Keep the whole JSON compact — no commentary outside the JSON.
+- Keep article bodies 120-220 words. Keep the whole JSON compact. No commentary outside the JSON.
 - Article body: plain paragraphs separated by blank lines. Bold with **word**. Bullet lines start with "- ". Math MUST be wrapped in $...$ using LaTeX (e.g. $\\frac{3}{4}$). No other markdown.
 - Language must match the learner's grade level. Explain like a brilliant, warm tutor.
 - If a LENS (interest context) is given, weave it through: examples, word problems, and projects use the lens constantly. A sewing lens means fraction problems about fabric, seam allowances, and patterns.
@@ -53,7 +53,7 @@ function buildUserPrompt(spec, sourcesText) {
   lines.push(`Design a complete course.`);
   lines.push(`Topic: ${spec.topic}`);
   if (spec.gradeLevel) lines.push(`Learner grade level: ${spec.gradeLevel}`);
-  if (spec.lens) lines.push(`LENS — teach this subject through: ${spec.lens}`);
+  if (spec.lens) lines.push(`LENS: teach this subject through: ${spec.lens}`);
   if (spec.interests && spec.interests.length) lines.push(`Learner interests: ${spec.interests.join(", ")}`);
   if (spec.learnerNotes) lines.push(`REMEMBERED learner notes (the guide set these; apply automatically): ${spec.learnerNotes}`);
   if (spec.notes) lines.push(`Guide notes for this course: ${spec.notes}`);

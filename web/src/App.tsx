@@ -79,7 +79,7 @@ export default function App() {
     refresh();
   }, [refresh]);
 
-  // Public course pages answer before anything else — no session required, and
+  // Public course pages answer before anything else. No session required, and
   // no /api/me round trip, so a crawler or a logged-out visitor sees content.
   const publicCourseMatch = route.match(/^c\/([A-Za-z0-9-]+)$/);
   if (publicCourseMatch) return <PublicCourse slug={publicCourseMatch[1]} />;

@@ -2,7 +2,7 @@
 -- 018: uploaded media. Files live on disk under UPLOAD_DIR (a persistent
 -- volume); this table is the index, the permission record, and the only thing
 -- that maps a public id to a path on disk. A storage_key is never taken from
--- the client — it is generated here and resolved through a safe join.
+-- the client. It is generated here and resolved through a safe join.
 
 create table if not exists uploads (
   id bigserial primary key,
@@ -25,7 +25,7 @@ create table if not exists uploads (
 create index if not exists uploads_family_idx on uploads (family_id, created_at desc);
 create index if not exists uploads_kind_idx on uploads (family_id, kind);
 
--- A short video that introduces a course — the thing you would put at the top
+-- A short video that introduces a course. The thing you would put at the top
 -- of a shared course page.
 alter table courses add column if not exists trailer_upload_id bigint
   references uploads(id) on delete set null;

@@ -54,7 +54,7 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
           <EmptyState
             icon="✨"
             title="No courses yet"
-            message="The Course Studio builds a complete course around any topic — lessons, exercises, projects — woven through what your learners love. You can also import a paper worksheet, or a course file from another family."
+            message="The Course Studio builds a complete course around any topic: lessons, exercises, projects, all woven through what your learners love. You can also import a paper worksheet, or a course file from another family."
             action={
               <span className="row">
                 <button className="btn big" type="button" onClick={() => setWorksheetOpen(true)}>📥 Import a worksheet</button>
@@ -154,7 +154,7 @@ function WorksheetDialog({ onClose, onDone }: { onClose: () => void; onDone: (co
       ) : (
         <>
           <Field label="Worksheet title">
-            <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Fractions practice — page 42" />
+            <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Fractions practice: page 42" />
           </Field>
           <Field label="Paste the worksheet text" hint="Questions in order. The AI turns each question into a graded exercise with an explanation and a hint.">
             <textarea className="input" rows={8} value={text} onChange={(e) => setText(e.target.value)} />
@@ -199,7 +199,7 @@ function ImportDialog({ onClose, onDone }: { onClose: () => void; onDone: (cours
       const d = await api<{ courseId: number }>("/api/courses/import", { method: "POST", body: parsed });
       onDone(d.courseId);
     } catch (e) {
-      setErr(e instanceof SyntaxError ? "That's not valid JSON — paste the whole exported file." : niceError(e));
+      setErr(e instanceof SyntaxError ? "That's not valid JSON. Paste the whole exported file." : niceError(e));
       setBusy(false);
     }
   }
@@ -217,8 +217,8 @@ function ImportDialog({ onClose, onDone }: { onClose: () => void; onDone: (cours
           </button>
         </div>
       </Field>
-      <p className="muted small" style={{ textAlign: "center", margin: "10px 0" }}>— or —</p>
-      <Field label="Paste an exported course file (.json)" hint="Exported from any Well of Wisdom instance — share courses between families, classes, or servers.">
+      <p className="muted small" style={{ textAlign: "center", margin: "10px 0" }}>or</p>
+      <Field label="Paste an exported course file (.json)" hint="Exported from any Well of Wisdom instance. Share courses between families, classes, or servers.">
         <textarea className="input" rows={6} value={json} onChange={(e) => setJson(e.target.value)} placeholder='{ "format": "wellofwisdom-course", …' />
       </Field>
       <div className="row">

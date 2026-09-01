@@ -91,7 +91,7 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
         if (item.type === "video") {
           return (
             <section key={item.id} className="printsection printex">
-              <div className="printprompt">▶️ Watch: {item.content.title} — then answer in your notebook.</div>
+              <div className="printprompt">▶️ Watch: {item.content.title}. Then answer in your notebook.</div>
             </section>
           );
         }

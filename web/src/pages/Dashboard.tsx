@@ -37,7 +37,7 @@ export default function Dashboard({
   const steps: { label: string; done: boolean; go?: () => void }[] = [
     { label: "Create your group", done: true },
     {
-      label: `Add a learner${learners.length ? " — you did! 🎉" : ""}`,
+      label: `Add a learner${learners.length ? " (you did! 🎉)" : ""}`,
       done: learners.length > 0,
       go: () => onNavigate("learners"),
     },

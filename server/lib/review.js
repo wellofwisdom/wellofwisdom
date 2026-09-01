@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Spaced review scheduler — an SM-2-style ladder, the decades-proven core of
+// Spaced review scheduler. An SM-2-style ladder, the decades-proven core of
 // spaced repetition. (An FSRS adapter can slot in behind this same interface
 // later; the schema already stores everything it needs.)
 //
@@ -23,7 +23,7 @@ function nextSchedule(prev, correct) {
   }
   return {
     ease: Math.max(1.3, ease - 0.2),
-    interval_days: 0, // due immediately — mistakes come back today
+    interval_days: 0, // due immediately: mistakes come back today
     reps: 0,
     lapses: s.lapses + 1,
   };

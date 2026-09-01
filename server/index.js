@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Well of Wisdom — server entrypoint.
+// Well of Wisdom: server entrypoint.
 const express = require("express");
 const path = require("node:path");
 const fs = require("node:fs");
@@ -39,7 +39,7 @@ app.get("/api/health", async (req, res) => {
   });
 });
 
-// Who am I (null when logged out — the SPA's session bootstrap).
+// Who am I (null when logged out. The SPA's session bootstrap).
 app.get("/api/me", async (req, res) => {
   const me = req.user;
   if (!me) return res.json({ user: null });
@@ -69,7 +69,7 @@ app.use("/api/worlds", require("./routes/worlds"));
 // the viewer is in the owning family; public files need no session at all.
 app.get("/media/:id", require("./routes/uploads").streamHandler);
 
-// AI usage for this family (parent only) — spend transparency.
+// AI usage for this family (parent only): spend transparency.
 app.get("/api/ai/usage", auth.parentOnly, async (req, res, next) => {
   try {
     res.json(await require("./lib/aiusage").familySummary(req.user.familyId));
@@ -99,7 +99,7 @@ app.get("/sitemap.xml", async (req, res) => {
   }
 });
 
-// A shared course must be readable by things that do not run JavaScript —
+// A shared course must be readable by things that do not run JavaScript
 // crawlers, link unfurlers, research tools. Inject real metadata into the
 // shell rather than shipping an empty <div id="root">.
 app.get("/c/:slug", async (req, res, next) => {
@@ -127,7 +127,7 @@ app.use((err, req, res, next) => {
 
 async function boot() {
   // Migrations run on boot; failure logs loudly but the app stays up
-  // (degraded, no DB features) — fail soft, per docs/ARCHITECTURE.md.
+  // (degraded, no DB features): fail soft, per docs/ARCHITECTURE.md.
   try {
     await migrate();
   } catch (err) {

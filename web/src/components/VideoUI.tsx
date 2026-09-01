@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Video: one player for both sources, and the upload panel.
 //
-// A course video is either a YouTube id or a file this family uploaded — a
+// A course video is either a YouTube id or a file this family uploaded. A
 // NotebookLM export, a recorded explainer, a boss-fight clip. Uploads stream
 // from /media/<id> with byte ranges, so scrubbing works.
 import { useRef, useState } from "react";
@@ -68,7 +68,7 @@ export function VideoPlayer({ content, poster }: { content: VideoContent; poster
 
 const ACCEPT = "video/mp4,video/webm,video/quicktime";
 
-/** Upload one video file. The body IS the file — no multipart, so no parser
+/** Upload one video file. The body IS the file. No multipart, so no parser
  *  on the server and no dependency to keep patched. */
 export function VideoUploader({ onUploaded, label = "Upload a video" }:
   { onUploaded: (u: UploadRow) => void; label?: string }) {
@@ -99,11 +99,11 @@ export function VideoUploader({ onUploaded, label = "Upload a video" }:
           } else {
             let msg = `Upload failed (${xhr.status})`;
             if (xhr.status === 413) msg = "That file is too large.";
-            if (xhr.status === 415) msg = "That file type isn't supported — MP4, WebM or MOV.";
+            if (xhr.status === 415) msg = "That file type isn't supported: MP4, WebM or MOV.";
             reject(new Error(msg));
           }
         };
-        xhr.onerror = () => reject(new Error("Upload failed — check the connection."));
+        xhr.onerror = () => reject(new Error("Upload failed. Check the connection."));
         xhr.send(file);
       });
       onUploaded(up);
@@ -139,7 +139,7 @@ export function VideoUploader({ onUploaded, label = "Upload a video" }:
       </div>
       {err && <p className="formerror" role="alert" style={{ marginTop: 8 }}>{err}</p>}
       <p className="hint" style={{ marginTop: 6 }}>
-        MP4, WebM or MOV. A NotebookLM video download works as-is — save it, then pick it here.
+        MP4, WebM or MOV. A NotebookLM video download works as-is. Save it, then pick it here.
       </p>
     </div>
   );

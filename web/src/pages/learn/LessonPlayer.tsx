@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The lesson player: articles, videos, exercises with grading feedback,
-// hints, explain-my-mistake, and completion. Focus mode — no nav chrome.
+// hints, explain-my-mistake, and completion. Focus mode. No nav chrome.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import type { ItemNode, LearnLesson } from "../../types";
@@ -68,7 +68,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
     if (gradableKeys.length && gradableKeys.every((k) => solved[k])) setDone(true);
   }, [solved, gradableKeys]);
 
-  // log completion once — feeds the guide's Progress page
+  // log completion once: feeds the guide's Progress page
   useEffect(() => {
     if (done && lesson && !completionLogged.current) {
       completionLogged.current = true;
@@ -369,7 +369,7 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
       {textSelfCheck && !result && (
         <div className="feedback selfcheck">
           <p><strong>Model answer:</strong> {revealed.reveal?.answer}</p>
-          <p className="muted small">Be honest — nobody's watching. 😊</p>
+          <p className="muted small">Be honest, nobody's watching. 😊</p>
           <div className="row">
             <button className="btn" type="button" onClick={() => selfCheck(true)}>I got it</button>
             <button className="btn ghost" type="button" onClick={() => selfCheck(false)}>Need more practice</button>

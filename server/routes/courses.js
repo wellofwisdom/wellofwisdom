@@ -17,7 +17,7 @@ function bad(res, msg, code = 400) {
 }
 
 // Start course generation. Sources may be {type:'text',title,text} or
-// {type:'url',title,url} — URLs are fetched + stripped to text here (SSRF-guarded).
+// {type:'url',title,url}: URLs are fetched + stripped to text here (SSRF-guarded).
 router.post("/generate", async (req, res, next) => {
   try {
     const { topic, learnerId, lens, gradeLevel, notes, sources } = req.body || {};
@@ -156,7 +156,7 @@ router.post("/worksheet-import", async (req, res, next) => {
   }
 });
 
-// Export a course as portable JSON (with answers — for guides, for sharing).
+// Export a course as portable JSON (with answers: for guides, for sharing).
 router.get("/:id/export", async (req, res, next) => {
   try {
     const tree = await courseTree(Number(req.params.id), req.user.familyId);
@@ -184,7 +184,7 @@ router.get("/:id/export", async (req, res, next) => {
 });
 
 // Import a course from exported JSON (reuses the generation normalizer as
-// the trust boundary — nothing lands unvalidated).
+// the trust boundary. Nothing lands unvalidated).
 router.post("/import", async (req, res, next) => {
   try {
     const payload = req.body && req.body.course ? req.body.course : req.body;
@@ -328,7 +328,7 @@ router.delete("/items/:itemId", async (req, res, next) => {
 // Edit a lesson's title/summary.
 
 // Add an item to a lesson. The guide is adding it by hand (a video they
-// uploaded, a note), so it goes through the same normalizer as AI output —
+// uploaded, a note), so it goes through the same normalizer as AI output
 // there is one trust boundary, not two.
 router.post("/lessons/:lessonId/items", async (req, res, next) => {
   try {

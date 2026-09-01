@@ -23,7 +23,7 @@ community include:
 * Accepting responsibility and apologizing to those affected by our mistakes,
   and learning from the experience
 * Focusing on what is best not just for us as individuals, but for the overall
-  community — and especially for the young learners this project serves
+  community. And especially for the young learners this project serves
 
 Examples of unacceptable behavior include:
 

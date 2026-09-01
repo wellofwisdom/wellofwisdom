@@ -2,7 +2,7 @@
 // Worlds: encounters, characters, loot, inventory and real-life rewards.
 //
 // Guides build the world; learners play it. Both sides live here because they
-// share the same ownership check — everything hangs off an adventure, and an
+// share the same ownership check: everything hangs off an adventure, and an
 // adventure belongs to exactly one family.
 //
 // One rule worth stating out loud: a real-life reward is never granted by the
@@ -329,7 +329,7 @@ router.post("/encounters/:id/resolve", async (req, res, next) => {
 // ---------------------------------------------------------------- characters
 
 /** A learner inventing their own character is the co-creation path, so this is
- *  open to learners — but theirs arrives unapproved. */
+ *  open to learners. But theirs arrives unapproved. */
 router.post("/:adventureId/characters", async (req, res, next) => {
   try {
     const adventureId = num(req.params.adventureId);

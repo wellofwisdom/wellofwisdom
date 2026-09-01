@@ -38,7 +38,7 @@ export default function CourseView({ courseId, onNavigate, onLogout }: {
           <div style={{ width: `${pct}%` }} />
         </div>
         <p className="muted small" style={{ textAlign: "center", marginTop: 6 }}>
-          {course.progress.lessonsDone} of {course.progress.lessonsTotal} lessons done{pct === 100 ? " — you finished it! 🎉" : ""}
+          {course.progress.lessonsDone} of {course.progress.lessonsTotal} lessons done{pct === 100 ? ". You finished it! 🎉" : ""}
         </p>
       </div>
 

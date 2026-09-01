@@ -4,7 +4,7 @@
 // The app is a SPA, so a crawler, a link unfurler, or a research tool that
 // reads HTML without running JavaScript would otherwise see an empty shell.
 // For /c/<slug> we inject a real title, description, Open Graph tags and
-// schema.org JSON-LD into index.html before sending it — which is what makes a
+// schema.org JSON-LD into index.html before sending it. Which is what makes a
 // shared course quotable, linkable, and ingestible by tools like NotebookLM.
 const db = require("./db");
 
@@ -41,7 +41,7 @@ const LICENSE_URL = {
 /** The <head> block for one published course. */
 function courseHead(meta, base) {
   const url = `${base}/c/${meta.public_slug}`;
-  const title = `${meta.title} — a free course from Well of Wisdom`;
+  const title = `${meta.title}. A free course from Well of Wisdom`;
   const desc = (meta.description
     || `A ${meta.lens ? `${meta.lens}-flavoured ` : ""}course on ${meta.topic}`
        + `${meta.grade_level ? ` for grade ${meta.grade_level}` : ""}, `
@@ -84,7 +84,7 @@ function courseHead(meta, base) {
 
 /** Replace the shell's <title> with real metadata. */
 function injectHead(html, headBlock) {
-  // Drop the shell's generic tags first — shipping two descriptions or two
+  // Drop the shell's generic tags first: shipping two descriptions or two
   // og:titles is ambiguous, and the generic one wins in some parsers.
   const out = html
     .replace(/\s*<meta\s+name=["']description["'][^>]*>/gi, "")
@@ -97,7 +97,7 @@ function injectHead(html, headBlock) {
   </head>`);
 }
 
-/** robots.txt — public course pages are crawlable, the app itself is not. */
+/** robots.txt, public course pages are crawlable, the app itself is not. */
 function robotsTxt(base) {
   return [
     "User-agent: *",
