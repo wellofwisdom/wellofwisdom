@@ -182,6 +182,21 @@ export default function WorldBuilder({ adventureId, learners }:
     }
   }
 
+  /** Loot lives on the encounter's rewards, so attaching is a rewards patch.
+   *  Sent as the full list rather than a delta: the server takes rewards
+   *  wholesale, and a delta would race two quick clicks. */
+  async function attachLoot(enc: Encounter, lootIds: number[]) {
+    try {
+      await api(`/api/worlds/encounters/${enc.id}`, {
+        method: "PATCH",
+        body: { rewards: { ...enc.rewards, loot: lootIds } },
+      });
+      await load();
+    } catch (e) {
+      setMsg(niceError(e));
+    }
+  }
+
   async function setWinVideo(enc: Encounter, uploadId: number | null) {
     try {
       await api(`/api/worlds/encounters/${enc.id}`, { method: "PATCH", body: { videoUploadId: uploadId } });
@@ -294,6 +309,7 @@ export default function WorldBuilder({ adventureId, learners }:
                       <div className="muted small">unlocks after {e.requires.lessonsDone} lessons</div>
                     ) : null}
                   </span>
+                  <EncounterLoot encounter={e} loot={loot} onChange={attachLoot} />
                   <select
                     className="input"
                     style={{ maxWidth: 190 }}
@@ -311,7 +327,8 @@ export default function WorldBuilder({ adventureId, learners }:
             </details>
           ))}
           <p className="hint">
-            A win video plays when the learner clears that encounter. Upload one in the Videos panel first.
+            A win video plays when the learner clears that encounter. Upload one in the Videos panel
+            first. Loot attached here drops when they win, and any XP bonus on it stacks on top.
           </p>
         </div>
       )}
@@ -321,6 +338,53 @@ export default function WorldBuilder({ adventureId, learners }:
 
       {msg && <p className="small" style={{ marginTop: 10 }}>{msg}</p>}
     </Panel>
+  );
+}
+
+/** Attach loot to one encounter. Shows what is already on it as removable
+ *  chips, and offers the rest. Nothing to attach means nothing rendered, so a
+ *  guide who has not made loot yet is not shown an empty control. */
+function EncounterLoot({ encounter, loot, onChange }:
+  { encounter: Encounter; loot: Loot[]; onChange: (e: Encounter, ids: number[]) => void }) {
+  const attached = Array.isArray(encounter.rewards.loot) ? encounter.rewards.loot : [];
+  const available = loot.filter((l) => !attached.includes(l.id));
+  if (!loot.length) return null;
+
+  return (
+    <span className="row wrap" style={{ gap: 4, alignItems: "center" }}>
+      {attached.map((id) => {
+        const l = loot.find((x) => x.id === id);
+        if (!l) return null;
+        return (
+          <button
+            key={id}
+            type="button"
+            className={`lootchip ${l.rarity}`}
+            style={{ cursor: "pointer", padding: "2px 8px" }}
+            title={`Remove ${l.name} from this encounter`}
+            onClick={() => onChange(encounter, attached.filter((x) => x !== id))}
+          >
+            <span className="looticon" aria-hidden="true">{l.icon || "🎁"}</span>
+            <span className="lootname">{l.name}</span>
+            <span aria-hidden="true">✕</span>
+          </button>
+        );
+      })}
+      {available.length > 0 && (
+        <select
+          className="input"
+          style={{ maxWidth: 150 }}
+          value=""
+          aria-label={`Add loot to ${encounter.title}`}
+          onChange={(ev) => ev.target.value && onChange(encounter, [...attached, Number(ev.target.value)])}
+        >
+          <option value="">+ loot</option>
+          {available.map((l) => (
+            <option key={l.id} value={l.id}>{l.icon || "🎁"} {l.name}</option>
+          ))}
+        </select>
+      )}
+    </span>
   );
 }
 
