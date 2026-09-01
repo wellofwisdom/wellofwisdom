@@ -349,6 +349,14 @@ router.post("/lessons/:lessonId/items", async (req, res, next) => {
     const clean = normalizeItem({ type, content: content || {} });
     if (!clean) return bad(res, "content_invalid");
 
+    // A pasted YouTube link is verified now, while the guide is still here to
+    // fix it, rather than failing silently in front of a learner later.
+    if (clean.type === "video" && clean.content.youtubeId) {
+      const { checkYouTube } = require("../lib/video");
+      const v = await checkYouTube(clean.content.youtubeId);
+      if (!v.ok) return bad(res, "video_unavailable");
+      if (v.title && !content.title) clean.content.title = v.title;
+    }
     // A video item pointing at an upload must point at one of OUR uploads.
     if (clean.type === "video" && clean.content.uploadId) {
       const own = await db.query(

@@ -265,6 +265,16 @@ async function generateCourse(spec, userId, familyId) {
 
   const course = normalizeCourse(out.json);
   if (!course) throw new Error("ai_course_unparseable: model output failed normalization (no usable units/lessons)");
+
+  // A model asked for a real video id will invent a plausible one. Verify each
+  // against oEmbed and drop the dead ones BEFORE they reach a learner: a dead
+  // embed mid-lesson reads to a child as something they broke.
+  const { pruneDeadVideos } = require("./video");
+  const video = await pruneDeadVideos(course).catch(() => ({ checked: 0, dropped: 0 }));
+  if (video.dropped) {
+    console.log(`[coursegen] dropped ${video.dropped} of ${video.checked} invented videos`);
+  }
+
   const { courseId, counts } = await persistCourse(course, spec, userId, familyId);
   // A milestone-generated course links back to its milestone automatically.
   if (spec.milestoneId) {
