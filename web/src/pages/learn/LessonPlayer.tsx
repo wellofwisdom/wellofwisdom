@@ -7,6 +7,7 @@ import type { ItemNode, LearnLesson } from "../../types";
 import { RichText, MathText } from "../../lib/rich";
 import { linkProps } from "../../router";
 import { VideoPlayer } from "../../components/VideoUI";
+import TutorChat from "./TutorChat";
 
 interface AttemptResponse {
   correct: boolean | null;
@@ -245,6 +246,7 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
   const [revealed, setRevealed] = useState<AttemptResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
+  const [tutorOpen, setTutorOpen] = useState(false);
   const [explain, setExplain] = useState("");
   const [explainBusy, setExplainBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -322,6 +324,7 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
           ))}
           <div className="row">
             {c.hint && !hint && <button className="btn ghost" type="button" onClick={() => setHint(c.hint)}>💡 Hint</button>}
+            <button className="btn ghost" type="button" onClick={() => setTutorOpen(true)}>🌰 Ask for help</button>
             <button className="btn primary" type="button" disabled={busy || !picked} onClick={() => submit(picked!)}>
               {busy ? "Checking…" : "Check"}
             </button>
@@ -341,6 +344,7 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
             onKeyDown={(e) => e.key === "Enter" && answer && submit()}
           />
           {c.hint && !hint && <button className="btn ghost" type="button" onClick={() => setHint(c.hint)}>💡 Hint</button>}
+          <button className="btn ghost" type="button" onClick={() => setTutorOpen(true)}>🌰 Ask for help</button>
           <button className="btn primary" type="button" disabled={busy || !answer.trim()} onClick={() => submit()}>
             {busy ? "Checking…" : "Check"}
           </button>
@@ -365,6 +369,7 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
       )}
 
       {hint && !result && <p className="hintbox">💡 {hint}</p>}
+      {tutorOpen && <TutorChat itemId={item.id} onClose={() => setTutorOpen(false)} />}
 
       {textSelfCheck && !result && (
         <div className="feedback selfcheck">

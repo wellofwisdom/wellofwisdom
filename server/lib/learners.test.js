@@ -32,7 +32,7 @@ test("FIELDS carries the columns the profile form writes back", () => {
   // A missing column here loads blank in the form and the save writes the
   // blank over real data: how ai_notes and email would have been lost.
   for (const col of ["id", "name", "username", "grade_level", "interests",
-    "reading_level", "ai_notes", "email", "created_at"]) {
+    "reading_level", "ai_notes", "email", "tutor_mode", "created_at"]) {
     assert.match(learners.FIELDS, new RegExp(`\\b${col}\\b`), `FIELDS is missing ${col}`);
   }
 });

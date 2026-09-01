@@ -9,7 +9,7 @@
 //  2. Endpoints picking their own column lists. /api/me used to omit ai_notes
 //     and email, so the profile form loaded them blank and saving wrote that
 //     blank back over real data.
-const FIELDS = "id, name, username, grade_level, interests, reading_level, ai_notes, email, created_at";
+const FIELDS = "id, name, username, grade_level, interests, reading_level, ai_notes, email, tutor_mode, created_at";
 
 /** Normalize one learner row for the API. */
 function shape(row) {

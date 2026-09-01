@@ -13,6 +13,7 @@ import {
 const TITLES: Record<string, string> = {
   plans: "Learning Paths",
   notes: "Workspace",
+  tutor: "Tutor",
   library: "Library",
   calendar: "Calendar",
   "plans/new": "Plan Assistant",
@@ -34,6 +35,7 @@ const CHIPS: Record<string, string> = {
   records: "c-amber",
   plans: "c-lime",
   notes: "c-teal",
+  tutor: "c-amber",
   library: "c-pink",
   calendar: "c-sky",
   experience: "c-rose",
@@ -130,6 +132,7 @@ export default function Shell({
           <Item id="notes" label="Workspace" icon={<span style={{ fontSize: 15 }}>🗒️</span>} />
           <Item id="library" label="Library" icon={<span style={{ fontSize: 15 }}>📚</span>} />
           <Item id="records" label="Progress" icon={<IconClipboard />} />
+          <Item id="tutor" label="Tutor" icon={<span style={{ fontSize: 15 }}>🌰</span>} />
         </nav>
 
         <div className="foot">

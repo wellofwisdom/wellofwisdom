@@ -25,6 +25,7 @@ import PrintLesson from "./pages/PrintLesson";
 import type { CourseSummary } from "./types";
 import { go, routeFromLocation, ROUTE_EVENT } from "./router";
 import { PublicGallery, PublicCourse } from "./pages/PublicCourse";
+import TutorLog from "./pages/TutorLog";
 
 function currentRoute(): string {
   return routeFromLocation();
@@ -135,6 +136,7 @@ export default function App() {
       {route === "experience" && <Experience />}
       {detailMatch && <CourseDetail me={me!} courseId={Number(detailMatch[1])} onNavigate={navigate} />}
       {route === "records" && <Progress />}
+      {route === "tutor" && <TutorLog me={me!} />}
       {route === "plans" && <Plans onNavigate={navigate} />}
       {route === "notes" && <Notes />}
       {route === "library" && <Library />}

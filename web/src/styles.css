@@ -1105,3 +1105,29 @@ code.k {
   .celebratein { animation: pop .28s cubic-bezier(.2,.9,.3,1.2); }
   @keyframes pop { from { transform: scale(.86); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 }
+
+/* ---------- tutor ---------- */
+.tutorwrap {
+  position: fixed; inset: 0; z-index: 65; display: grid; place-items: end center;
+  background: rgba(0,0,0,.45); padding: 0;
+}
+@media (min-width: 700px) { .tutorwrap { place-items: center; padding: 20px; } }
+.tutorin {
+  background: var(--panel); width: 100%; max-width: 620px; max-height: 92vh;
+  border-radius: 16px 16px 0 0; display: flex; flex-direction: column; padding: 16px;
+}
+@media (min-width: 700px) { .tutorin { border-radius: 16px; max-height: 80vh; } }
+.tutorhead { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.tutorhead h2 { margin: 0; font-size: 19px; flex: 1; }
+.tutorlog {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
+  padding: 4px 2px; min-height: 140px;
+}
+.tutorlog.readonly { max-height: 460px; margin: 8px 0 14px; padding-left: 10px; border-left: 2px solid var(--border); }
+.tutormsg { padding: 9px 13px; border-radius: 14px; max-width: 86%; line-height: 1.5; }
+.tutormsg.learner { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.tutormsg.tutor { align-self: flex-start; background: var(--panel2, rgba(127,127,127,.12)); border-bottom-left-radius: 4px; }
+.tutormsg.refused { border: 1px solid var(--warn, #a06a12); }
+.tutormsg.thinking { opacity: .6; font-style: italic; }
+.tutorbar { display: flex; gap: 8px; align-items: flex-end; margin-top: 10px; }
+.tutorbar textarea { flex: 1; resize: none; }

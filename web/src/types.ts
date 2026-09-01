@@ -20,6 +20,7 @@ export interface Learner {
   reading_level: string | null;
   ai_notes: string | null;
   email: string | null;
+  tutor_mode: "hints" | "guided" | "full";
   created_at: string;
 }
 
