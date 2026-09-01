@@ -50,7 +50,7 @@ function publicItem(item) {
     return { type: item.type, position: item.position, content: out };
   }
   if (item.type === "video") {
-    const out = { youtubeId: c.youtubeId, title: c.title, note: c.note };
+    const out = { youtubeId: c.youtubeId, uploadId: c.uploadId, title: c.title, note: c.note };
     if (c.questions) out.questions = c.questions.map((q) => ({ prompt: q.prompt, choices: q.choices }));
     return { type: item.type, position: item.position, content: out };
   }
@@ -75,6 +75,9 @@ function courseMeta(c) {
     license: c.license || DEFAULT_LICENSE,
     author: c.author_name || null,
     publishedAt: c.published_at,
+    // A trailer is only playable publicly if the upload itself is public;
+    // the publish flow marks it so when the guide sets one.
+    trailerUploadId: c.trailer_upload_id ? Number(c.trailer_upload_id) : null,
   };
 }
 

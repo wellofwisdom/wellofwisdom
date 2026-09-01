@@ -48,7 +48,7 @@ router.use((_req, res, next) => {
 async function publicTree(slug) {
   const c = await db.query(
     `select id, title, topic, lens, grade_level, description, public_slug,
-            published_at, license, author_name, share_answers
+            published_at, license, author_name, share_answers, trailer_upload_id
        from courses where public_slug = $1 and published_at is not null`,
     [slug]
   );
@@ -86,7 +86,7 @@ router.get("/courses", async (_req, res, next) => {
   try {
     const { rows } = await db.query(
       `select c.public_slug, c.title, c.topic, c.lens, c.grade_level, c.description,
-              c.license, c.author_name, c.published_at,
+              c.license, c.author_name, c.published_at, c.trailer_upload_id,
               (select count(*) from units u where u.course_id = c.id)::int as units,
               (select count(*) from lessons l join units u on u.id = l.unit_id where u.course_id = c.id)::int as lessons
          from courses c

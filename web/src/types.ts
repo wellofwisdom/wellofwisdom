@@ -71,6 +71,7 @@ export interface CourseTree {
   learner_name: string | null;
   public_slug: string | null;
   published_at: string | null;
+  trailer_upload_id: number | null;
   units: {
     id: number;
     title: string;

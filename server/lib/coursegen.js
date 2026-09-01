@@ -109,9 +109,16 @@ function normalizeExercise(content) {
 }
 
 function normalizeVideo(content) {
+  // A video item is EITHER a YouTube id or an uploaded file (a NotebookLM
+  // export, a recorded explainer, a boss-fight clip). uploadId is a local
+  // reference, so it is only trusted as a positive integer.
   const id = youtubeId(content.youtubeId || content.url || "");
-  if (!id) return null;
-  const v = { youtubeId: id, title: clean(content.title, 300) || "Video", note: str(content.note, 1000) };
+  const uploadId = Number(content.uploadId);
+  const hasUpload = Number.isInteger(uploadId) && uploadId > 0;
+  if (!id && !hasUpload) return null;
+  const v = { title: clean(content.title, 300) || "Video", note: str(content.note, 1000) };
+  if (id) v.youtubeId = id;
+  if (hasUpload) v.uploadId = uploadId;
   const questions = [];
   if (Array.isArray(content.questions)) {
     for (const q of content.questions.slice(0, 4)) {

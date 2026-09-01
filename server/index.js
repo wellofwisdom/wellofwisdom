@@ -61,6 +61,12 @@ app.use("/api/events", require("./routes/events"));
 app.use("/api/reports", require("./routes/reports"));
 app.use("/api/media", require("./routes/media"));
 app.use("/api/public", require("./routes/public"));
+app.use("/api/uploads", require("./routes/uploads"));
+
+// Media streaming sits at the app root, not under /api, so a <video src> is a
+// plain URL. auth.attachUser has already run, so the handler can tell whether
+// the viewer is in the owning family; public files need no session at all.
+app.get("/media/:id", require("./routes/uploads").streamHandler);
 
 // AI usage for this family (parent only) — spend transparency.
 app.get("/api/ai/usage", auth.parentOnly, async (req, res, next) => {

@@ -14,6 +14,9 @@ services:
       AI_MODEL_PRO: ${AI_MODEL_PRO:-gpt-4o-mini}
       AI_MODEL_FLASH: ${AI_MODEL_FLASH:-gpt-4o-mini}
       AI_ROUTES: ${AI_ROUTES:-}
+    volumes:
+      # Uploaded video/images. Without this they vanish on every rebuild.
+      - uploads:/app/data
     depends_on:
       db:
         condition: service_healthy
@@ -46,4 +49,5 @@ services:
 
 volumes:
   pgdata:
+  uploads:
   ollama:

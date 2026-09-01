@@ -25,7 +25,7 @@ function learnerItem(item) {
     return { id: item.id, type: item.type, position: item.position, content: out };
   }
   if (item.type === "video") {
-    const out = { youtubeId: c.youtubeId, title: c.title, note: c.note };
+    const out = { youtubeId: c.youtubeId, uploadId: c.uploadId, title: c.title, note: c.note };
     if (c.questions) out.questions = c.questions.map((q) => ({ prompt: q.prompt, choices: q.choices }));
     return { id: item.id, type: item.type, position: item.position, content: out };
   }

@@ -7,6 +7,8 @@ import { Panel, Modal, Field } from "../components/ui";
 import { MathText } from "../lib/rich";
 import { IconPencil, IconTrash, IconCheck } from "../components/Icons";
 import { AdventureDialog, AdventuresPanel, CoverButton } from "../components/AdventureUI";
+import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from "../components/VideoUI";
+import type { UploadRow } from "../components/VideoUI";
 
 const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️", video: "▶️", project: "🛠️" };
 
@@ -97,6 +99,118 @@ function SharePanel({ courseId, initialSlug, initialPublished }:
       {msg && <p className="small" style={{ marginTop: 8 }}>{msg}</p>}
     </Panel>
   );
+}
+
+
+function VideoPanel({ courseId, trailerUploadId, onChanged }:
+  { courseId: number; trailerUploadId: number | null; onChanged: () => void }) {
+  const [uploads, setUploads] = useState<UploadRow[]>([]);
+  const [usage, setUsage] = useState<{ bytes: number; files: number } | null>(null);
+  const [lessons, setLessons] = useState<{ id: number; label: string }[]>([]);
+  const [msg, setMsg] = useState("");
+
+  const reload = () => loadVideos().then((d) => { setUploads(d.uploads); setUsage(d.usage); }).catch(() => {});
+  useEffect(() => { reload(); }, []);
+
+  async function setTrailer(u: UploadRow | null) {
+    setMsg("");
+    try {
+      await api(`/api/courses/${courseId}`, { method: "PATCH", body: { trailerUploadId: u ? u.id : null } });
+      // A trailer on a shared course has to be readable without a session.
+      if (u && !u.is_public) await api(`/api/uploads/${u.id}`, { method: "PATCH", body: { isPublic: true } });
+      setMsg(u ? "✅ Set as the course trailer." : "Trailer removed.");
+      reload();
+      onChanged();
+    } catch (e) { setMsg(niceError(e)); }
+  }
+
+  async function addToLesson(u: UploadRow, lessonId: number) {
+    setMsg("");
+    try {
+      await api(`/api/courses/lessons/${lessonId}/items`, {
+        method: "POST",
+        body: { type: "video", content: { uploadId: u.id, title: u.title || "Video" } },
+      });
+      setMsg("✅ Added to the lesson.");
+      onChanged();
+    } catch (e) { setMsg(niceError(e)); }
+  }
+
+  async function remove(u: UploadRow) {
+    if (!window.confirm(`Delete "${u.title || u.original_name}"? Any lesson using it will lose the video.`)) return;
+    try {
+      await api(`/api/uploads/${u.id}`, { method: "DELETE" });
+      reload();
+      onChanged();
+    } catch (e) { setMsg(niceError(e)); }
+  }
+
+  const trailer = uploads.find((u) => u.id === trailerUploadId) || null;
+
+  return (
+    <Panel title="Videos" side={usage ? `${usage.files} files · ${humanBytes(usage.bytes)}` : undefined}>
+      <VideoUploader onUploaded={() => reload()} />
+
+      {trailer && (
+        <div style={{ marginTop: 14 }}>
+          <h4 style={{ margin: "0 0 6px" }}>Course trailer</h4>
+          <VideoPlayer content={{ uploadId: trailer.id, title: trailer.title || "Trailer" }} />
+          <div className="row" style={{ marginTop: 6 }}>
+            <button className="btn ghost small-btn" type="button" onClick={() => setTrailer(null)}>Remove trailer</button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ marginTop: 14 }}>
+        <VideoLibrary
+          uploads={uploads}
+          pickLabel="Set as trailer"
+          onPick={setTrailer}
+          onDelete={remove}
+        />
+      </div>
+
+      {uploads.length > 0 && lessons.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <h4 style={{ margin: "0 0 6px" }}>Add a video to a lesson</h4>
+          <div className="row wrap" style={{ gap: 8 }}>
+            <select className="input" id="vid-pick" style={{ maxWidth: 220 }}>
+              {uploads.map((u) => <option key={u.id} value={u.id}>{u.title || u.original_name}</option>)}
+            </select>
+            <select className="input" id="vid-lesson" style={{ maxWidth: 260 }}>
+              {lessons.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
+            </select>
+            <button className="btn" type="button" onClick={() => {
+              const uid = Number((document.getElementById("vid-pick") as HTMLSelectElement).value);
+              const lid = Number((document.getElementById("vid-lesson") as HTMLSelectElement).value);
+              const u = uploads.find((x) => x.id === uid);
+              if (u) addToLesson(u, lid);
+            }}>Add</button>
+          </div>
+        </div>
+      )}
+
+      {msg && <p className="small" style={{ marginTop: 8 }}>{msg}</p>}
+      <LessonOptions courseId={courseId} onLessons={setLessons} />
+    </Panel>
+  );
+}
+
+/** Pulls the course's lesson list for the "add to lesson" picker. */
+function LessonOptions({ courseId, onLessons }:
+  { courseId: number; onLessons: (l: { id: number; label: string }[]) => void }) {
+  useEffect(() => {
+    api<{ course: CourseTree }>(`/api/courses/${courseId}`)
+      .then((d) => {
+        const out: { id: number; label: string }[] = [];
+        d.course.units.forEach((u, ui) =>
+          u.lessons.forEach((l, li) => out.push({ id: l.id, label: `${ui + 1}.${li + 1} ${l.title}` })));
+        onLessons(out);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseId]);
+  return null;
 }
 
 export default function CourseDetail({ me, courseId, onNavigate }: { me: MeResponse; courseId: number; onNavigate: (hash: string) => void }) {
@@ -231,6 +345,12 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
           ))}
         </Panel>
       ))}
+
+      <VideoPanel
+        courseId={courseId}
+        trailerUploadId={course.trailer_upload_id ?? null}
+        onChanged={load}
+      />
 
       <SharePanel
         courseId={courseId}

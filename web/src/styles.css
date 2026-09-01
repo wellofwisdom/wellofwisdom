@@ -973,3 +973,20 @@ code.k {
   :root { --border: currentColor; }
   .btn, .input, .panel, .publiccard { border-width: 2px; }
 }
+
+/* ---------- video ---------- */
+.videowrap video { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; border-radius: 8px; }
+.videolist { display: flex; flex-direction: column; gap: 8px; }
+.videorow {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px; border: 1px solid var(--border); border-radius: 10px;
+}
+.videothumb {
+  width: 108px; height: 61px; object-fit: cover; border-radius: 6px;
+  background: #000; flex: 0 0 auto;
+}
+.videorow .n { font-weight: 600; }
+@media (max-width: 560px) {
+  .videorow { flex-wrap: wrap; }
+  .videothumb { width: 84px; height: 48px; }
+}

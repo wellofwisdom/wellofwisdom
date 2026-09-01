@@ -6,6 +6,7 @@ import { api, niceError } from "../../api";
 import type { ItemNode, LearnLesson } from "../../types";
 import { RichText, MathText } from "../../lib/rich";
 import { linkProps } from "../../router";
+import { VideoPlayer } from "../../components/VideoUI";
 
 interface AttemptResponse {
   correct: boolean | null;
@@ -208,15 +209,7 @@ function VideoItem({ item, solved, onSolved }: {
     <section className="litem">
       <h2>▶️ {c.title}</h2>
       {c.note && <p className="muted">{c.note}</p>}
-      <div className="ytwrap">
-        <iframe
-          src={`https://www.youtube-nocookie.com/embed/${c.youtubeId}?rel=0`}
-          title={c.title || "Video lesson"}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          loading="lazy"
-        />
-      </div>
+      <VideoPlayer content={{ youtubeId: c.youtubeId, uploadId: c.uploadId, title: c.title }} />
       {questions.map((q, i) => (
         <ExerciseItem
           key={i}

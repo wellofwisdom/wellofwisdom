@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { linkProps } from "../router";
 import { RichText } from "../lib/rich";
+import { VideoPlayer } from "../components/VideoUI";
 
 interface PublicMeta {
   slug: string;
@@ -17,6 +18,7 @@ interface PublicMeta {
   license: string;
   author: string | null;
   publishedAt: string | null;
+  trailerUploadId: number | null;
 }
 
 /** Gallery cards carry counts; the course page carries the actual units. */
@@ -85,7 +87,9 @@ export function PublicGallery() {
 }
 
 function ItemView({ item }: { item: PublicItem }) {
-  const c = item.content as Record<string, string | undefined> & { choices?: { id: string; text: string }[] };
+  const c = item.content as Record<string, string | undefined> & {
+    choices?: { id: string; text: string }[]; uploadId?: number | string;
+  };
   if (item.type === "article") {
     return (
       <div className="publicitem">
@@ -94,16 +98,11 @@ function ItemView({ item }: { item: PublicItem }) {
       </div>
     );
   }
-  if (item.type === "video" && c.youtubeId) {
+  if (item.type === "video" && (c.youtubeId || c.uploadId)) {
     return (
       <div className="publicitem">
         <h4>{c.title || "Video"}</h4>
-        <div className="videowrap">
-          <iframe title={c.title || "Course video"} loading="lazy"
-            src={`https://www.youtube-nocookie.com/embed/${c.youtubeId}?rel=0`}
-            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen />
-        </div>
+        <VideoPlayer content={{ youtubeId: c.youtubeId, uploadId: c.uploadId ? Number(c.uploadId) : undefined, title: c.title }} />
         {c.note && <p className="muted small">{c.note}</p>}
       </div>
     );
@@ -171,6 +170,11 @@ export function PublicCourse({ slug }: { slug: string }) {
           <span className="tag">{data.license}</span>
           {data.author && <span className="tag">by {data.author}</span>}
         </div>
+        {data.trailerUploadId && (
+          <div style={{ margin: "14px 0" }}>
+            <VideoPlayer content={{ uploadId: data.trailerUploadId, title: `${data.title} — trailer` }} />
+          </div>
+        )}
         {data.description && <p className="lead">{data.description}</p>}
         {stats && (
           <p className="muted small">

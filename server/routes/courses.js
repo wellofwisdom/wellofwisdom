@@ -222,7 +222,7 @@ router.get("/:id", async (req, res, next) => {
 router.patch("/:id", async (req, res, next) => {
   try {
     const id = Number(req.params.id);
-    const { title, description, status, learnerId } = req.body || {};
+    const { title, description, status, learnerId, trailerUploadId } = req.body || {};
     const sets = [];
     const params = [req.user.familyId, id];
     const add = (col, val) => {
@@ -234,6 +234,19 @@ router.patch("/:id", async (req, res, next) => {
       add("title", String(title).trim().slice(0, 200));
     }
     if (description !== undefined) add("description", String(description || "").slice(0, 1000) || null);
+    if (trailerUploadId !== undefined) {
+      if (trailerUploadId === null) {
+        add("trailer_upload_id", null);
+      } else {
+        // Only this family's own upload, and only a video.
+        const own = await db.query(
+          "select 1 from uploads where id = $1 and family_id = $2 and kind = 'video'",
+          [Number(trailerUploadId), req.user.familyId]
+        );
+        if (!own.rowCount) return bad(res, "upload_not_found", 404);
+        add("trailer_upload_id", Number(trailerUploadId));
+      }
+    }
     if (status !== undefined) {
       if (!["draft", "published", "archived"].includes(status)) return bad(res, "status_invalid");
       add("status", status);
@@ -313,6 +326,53 @@ router.delete("/items/:itemId", async (req, res, next) => {
 });
 
 // Edit a lesson's title/summary.
+
+// Add an item to a lesson. The guide is adding it by hand (a video they
+// uploaded, a note), so it goes through the same normalizer as AI output —
+// there is one trust boundary, not two.
+router.post("/lessons/:lessonId/items", async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    if (!Number.isInteger(lessonId)) return bad(res, "id_invalid");
+    const { type, content } = req.body || {};
+    if (!["article", "exercise", "video", "project"].includes(type)) return bad(res, "type_invalid");
+
+    const owns = await db.query(
+      `select l.id from lessons l join units un on un.id = l.unit_id
+         join courses c on c.id = un.course_id
+        where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!owns.rowCount) return bad(res, "not_found", 404);
+
+    const { normalizeItem } = require("../lib/coursegen");
+    const clean = normalizeItem({ type, content: content || {} });
+    if (!clean) return bad(res, "content_invalid");
+
+    // A video item pointing at an upload must point at one of OUR uploads.
+    if (clean.type === "video" && clean.content.uploadId) {
+      const own = await db.query(
+        "select 1 from uploads where id = $1 and family_id = $2 and kind = 'video'",
+        [clean.content.uploadId, req.user.familyId]
+      );
+      if (!own.rowCount) return bad(res, "upload_not_found", 404);
+    }
+
+    const pos = await db.query(
+      "select coalesce(max(position), -1) + 1 as p from lesson_items where lesson_id = $1",
+      [lessonId]
+    );
+    const { rows } = await db.query(
+      `insert into lesson_items (lesson_id, type, position, content)
+       values ($1, $2, $3, $4) returning id, type, position, content`,
+      [lessonId, clean.type, pos.rows[0].p, JSON.stringify(clean.content)]
+    );
+    res.status(201).json({ item: { ...rows[0], id: Number(rows[0].id) } });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.patch("/lessons/:lessonId", async (req, res, next) => {
   try {
     const { title, summary } = req.body || {};
