@@ -44,7 +44,8 @@ export default function CourseView({ courseId, onNavigate, onLogout }: {
 
       <AdventureBanner courseId={courseId}
         lessonsDone={course.progress.lessonsDone}
-        lessonsTotal={course.progress.lessonsTotal} />
+        lessonsTotal={course.progress.lessonsTotal}
+        onNavigate={onNavigate} />
 
       {course.units.map((u, ui) => (
         <div key={u.id} style={{ width: "100%", marginBottom: 16 }}>

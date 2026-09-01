@@ -8,6 +8,7 @@ import Practice from "./Practice";
 import LessonPlayer from "./LessonPlayer";
 import { IconLogout } from "../../components/Icons";
 import GamificationStrip from "./GamificationStrip";
+import WorldView from "./WorldView";
 
 interface PathPlan {
   id: number;
@@ -50,6 +51,10 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
   if (route.startsWith("course/")) {
     const id = Number(route.split("/")[1]);
     return <CourseView courseId={id} onNavigate={onNavigate} onLogout={onLogout} />;
+  }
+  if (route.startsWith("world/")) {
+    const id = Number(route.split("/")[1]);
+    return <WorldView adventureId={id} onNavigate={onNavigate} />;
   }
   if (route.startsWith("lesson/")) {
     const id = Number(route.split("/")[1]);

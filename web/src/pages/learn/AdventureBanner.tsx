@@ -20,10 +20,11 @@ interface Adventure {
   portraits?: string[];
 }
 
-export default function AdventureBanner({ courseId, lessonsDone, lessonsTotal }: {
+export default function AdventureBanner({ courseId, lessonsDone, lessonsTotal, onNavigate }: {
   courseId: number;
   lessonsDone: number;
   lessonsTotal: number;
+  onNavigate?: (route: string) => void;
 }) {
   const [adv, setAdv] = useState<Adventure | null | undefined>(undefined);
 
@@ -53,6 +54,13 @@ export default function AdventureBanner({ courseId, lessonsDone, lessonsTotal }:
           <span className="adv-xp">{adv.xp} XP</span>
         </div>
         <p className="adv-tag">{w.tagline}</p>
+
+        {onNavigate && (
+          <button className="btn primary" type="button" style={{ marginBottom: 10 }}
+            onClick={() => onNavigate(`world/${adv.id}`)}>
+            🗺️ Enter the world
+          </button>
+        )}
 
         {chapters.length > 0 && (
           <div className="adv-chapters">
