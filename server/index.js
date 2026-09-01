@@ -26,6 +26,9 @@ app.use((req, res, next) => {
 });
 app.use(auth.cookies);
 app.use(auth.attachUser);
+// An observer may read anything in their family and change nothing. Enforced
+// once, here, so a route added later cannot forget it.
+app.use("/api", auth.denyReadOnly);
 
 // Health probe: always 200 if the process is up; component states inside.
 app.get("/api/health", async (req, res) => {
@@ -64,6 +67,7 @@ app.use("/api/public", require("./routes/public"));
 app.use("/api/uploads", require("./routes/uploads"));
 app.use("/api/worlds", require("./routes/worlds"));
 app.use("/api/tutor", require("./routes/tutor"));
+app.use("/api/guides", require("./routes/guides"));
 
 // Media streaming sits at the app root, not under /api, so a <video src> is a
 // plain URL. auth.attachUser has already run, so the handler can tell whether

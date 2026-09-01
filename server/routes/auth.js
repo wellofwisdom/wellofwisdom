@@ -64,6 +64,67 @@ router.post("/signup", async (req, res, next) => {
   }
 });
 
+
+/** Accept an invite: join an EXISTING family as a second grown-up.
+ *
+ *  The token is the credential, so it is rate limited like a login and the
+ *  invite is consumed in the same statement that reads it. Two people opening
+ *  the same link cannot both get in.
+ */
+router.post("/join", async (req, res, next) => {
+  try {
+    const { token, name, email, password } = req.body || {};
+    if (!String(name || "").trim()) return bad(res, "name_required");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(email || ""))) return bad(res, "email_invalid");
+    if (String(password || "").length < 8) return bad(res, "password_too_short");
+
+    const limit = auth.loginLimit(`${req.ip || "unknown"}:join`, { max: 15 });
+    if (!limit.ok) return res.status(429).json({ error: "too_many_attempts" });
+
+    const { hashToken } = require("./guides");
+    // Claim it and read it at once: `used_at is null` in the WHERE makes this
+    // single-use even if two people submit the same link together.
+    const claimed = await db.query(
+      `update invites set used_at = now()
+        where token_hash = $1 and used_at is null and expires_at > now()
+        returning id, family_id, guide_role, learner_ids`,
+      [hashToken(String(token || ""))]
+    );
+    const invite = claimed.rows[0];
+    if (!invite) return bad(res, "invite_invalid", 403);
+
+    const existing = await db.query("select 1 from users where email = $1", [String(email).toLowerCase()]);
+    if (existing.rowCount > 0) {
+      // Give the invite back rather than burning it on a failed attempt.
+      await db.query("update invites set used_at = null where id = $1", [invite.id]).catch(() => {});
+      return bad(res, "email_taken", 409);
+    }
+
+    const user = await db.query(
+      `insert into users (family_id, role, guide_role, name, email, password_hash)
+       values ($1, 'parent', $2, $3, $4, $5) returning id`,
+      [invite.family_id, invite.guide_role, String(name).trim().slice(0, 80),
+        String(email).toLowerCase(), auth.hashPassword(password)]
+    );
+    const newId = user.rows[0].id;
+
+    // An assistant arrives already scoped to the learners named on the invite.
+    for (const learnerId of invite.learner_ids || []) {
+      await db.query(
+        "insert into guide_learners (guide_id, learner_id) values ($1,$2) on conflict do nothing",
+        [newId, learnerId]
+      ).catch(() => {});
+    }
+    await db.query("update invites set used_by = $2 where id = $1", [invite.id, newId]).catch(() => {});
+
+    const { token: sess } = await auth.createSession(newId);
+    res.setHeader("set-cookie", auth.sessionCookie(sess));
+    res.json({ ok: true, role: invite.guide_role });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body || {};

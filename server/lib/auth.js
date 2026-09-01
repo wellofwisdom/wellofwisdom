@@ -61,7 +61,7 @@ async function destroySession(token) {
 async function userForToken(token) {
   if (!token) return null;
   const { rows } = await db.query(
-    `select u.id, u.role, u.name, u.family_id, u.prefs, u.grade_level, u.interests,
+    `select u.id, u.role, u.name, u.family_id, u.prefs, u.grade_level, u.interests, u.guide_role,
             f.name as family_name, f.join_code,
             (u.email is not null) as has_email,
             (s.expires_at > now()) as valid
@@ -83,6 +83,9 @@ async function userForToken(token) {
     prefs: row.prefs || {},
     gradeLevel: row.grade_level,
     interests: row.interests || [],
+    // A parent with no guide_role predates roles entirely. Treat them as an
+    // owner: nobody who could do something yesterday loses it today.
+    guideRole: row.role === "parent" ? (row.guide_role || "owner") : null,
   };
 }
 
@@ -122,6 +125,27 @@ async function attachUser(req, _res, next) {
 
 function authRequired(req, res, next) {
   if (!req.user) return res.status(401).json({ error: "auth_required" });
+  next();
+}
+
+/** Gate one route on a named permission from lib/perm. */
+function requirePerm(action) {
+  const perm = require("./perm");
+  return (req, res, next) => {
+    if (!req.user) return res.status(401).json({ error: "auth_required" });
+    if (!perm.can(req.user, action)) {
+      return res.status(403).json({ error: "not_allowed", action });
+    }
+    next();
+  };
+}
+
+/** Blocks an observer from anything that changes state, whatever the route. */
+function denyReadOnly(req, res, next) {
+  const perm = require("./perm");
+  if (req.user && perm.isReadOnly(req.user) && !["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+    return res.status(403).json({ error: "read_only" });
+  }
   next();
 }
 
@@ -178,6 +202,8 @@ module.exports = {
   attachUser,
   authRequired,
   parentOnly,
+  requirePerm,
+  denyReadOnly,
   loginLimit,
   newJoinCode,
 };
