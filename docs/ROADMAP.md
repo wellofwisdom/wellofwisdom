@@ -123,9 +123,20 @@ and why. Anything marked shipped has a commit and is live.
       the normalizer on every PR, contributors submit a PR, any instance
       imports from a raw URL. This is what makes the project grow with the
       content rather than with the code, and a fork inherits all of it.
-- [ ] **World UI.** The learner's world view (chapters as a journey, encounter
-      cards, loot, crew, rewards) and the guide's side: pick a game type, build
-      the encounters, create loot, create and grant real rewards.
+- [x] **World UI** (`48c9ced`, `69c7156`). The learner's world view: chapters as
+      a journey, encounter cards that are locked, open or won, loot, crew and
+      real rewards. The guide's builder on the course page: pick a game type,
+      build the encounters, attach a win video, make loot, set up and grant real
+      rewards, approve learner-invented characters.
+- [x] **Encounter prose** (`2884e8a`). AI writes a beat for every encounter,
+      set in the world, gesturing at the real skill without naming the subject.
+      Runs as a job, fails soft per chapter.
+- [ ] **Encounter art.** The illustrator line is already stored on each
+      encounter by the prose pass. This is a job that feeds it to the image
+      generator and hangs the result on the card, which is what will make the
+      world look like a world rather than read like one.
+- [ ] **Loot on encounters from the UI.** Loot exists and can be attached
+      through the API, but the builder has no picker for it yet.
 
 ## Next
 
