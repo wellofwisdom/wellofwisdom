@@ -6,7 +6,7 @@ import type { CourseTree, ItemNode, Learner, MeResponse } from "../types";
 import { Panel, Modal, Field } from "../components/ui";
 import { MathText } from "../lib/rich";
 import { IconPencil, IconTrash, IconCheck } from "../components/Icons";
-import { AdventureDialog, AdventuresPanel, CoverButton } from "../components/AdventureUI";
+import { AdventureDialog, AdventuresPanel, CoverButton, WorldBuilders } from "../components/AdventureUI";
 import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from "../components/VideoUI";
 import type { UploadRow } from "../components/VideoUI";
 
@@ -359,6 +359,8 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
       />
 
       <AdventuresPanel courseId={courseId} onChanged={load} />
+
+      <WorldBuilders courseId={courseId} learners={learners} />
 
       {advOpen && (
         <AdventureDialog courseId={courseId} me={me} onClose={() => setAdvOpen(false)} onCreated={() => setAdvOpen(false)} />

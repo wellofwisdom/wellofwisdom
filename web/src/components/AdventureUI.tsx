@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { Modal, Field, Panel } from "./ui";
 import type { Job, MeResponse } from "../types";
+import WorldBuilder from "./WorldBuilder";
 
 interface ThemeRow {
   id: string;
@@ -90,7 +91,8 @@ export function AdventureDialog({ courseId, me, onClose, onCreated }: {
   );
 }
 
-export function AdventuresPanel({ courseId, onChanged }: { courseId: number; onChanged: () => void }) {
+export function AdventuresPanel({ courseId, onChanged }:
+  { courseId: number; onChanged: () => void }) {
   const [adventures, setAdventures] = useState<{ id: number; world: { title: string; tagline: string }; learner_name: string | null }[] | null>(null);
 
   const load = () =>
@@ -118,6 +120,26 @@ export function AdventuresPanel({ courseId, onChanged }: { courseId: number; onC
         </div>
       ))}
     </Panel>
+  );
+}
+
+/** Each adventure gets its own builder: the world is per adventure, not per
+ *  course, because two learners can play the same course differently. */
+export function WorldBuilders({ courseId, learners }:
+  { courseId: number; learners: { id: number; name: string }[] }) {
+  const [adventures, setAdventures] = useState<{ id: number }[] | null>(null);
+  useEffect(() => {
+    api<{ adventures: { id: number }[] }>(`/api/media/adventures/for-course/${courseId}`)
+      .then((d) => setAdventures(d.adventures))
+      .catch(() => setAdventures([]));
+  }, [courseId]);
+  if (!adventures || adventures.length === 0) return null;
+  return (
+    <>
+      {adventures.map((a) => (
+        <WorldBuilder key={a.id} adventureId={a.id} learners={learners} />
+      ))}
+    </>
   );
 }
 
