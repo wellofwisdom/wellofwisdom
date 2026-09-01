@@ -154,4 +154,64 @@ async function fleshOutWorld({ adventureId, familyId }) {
   return { written, chapters: chapters.size };
 }
 
-module.exports = { fleshOutWorld, normalizeBeats, buildPrompt, SYSTEM };
+
+/** Illustrate the encounters that have a prompt waiting and no art yet.
+ *
+ *  Costs real money per image, so it only ever runs when a guide asks, it
+ *  never re-illustrates something that already has art, and a single failure
+ *  is skipped rather than aborting the batch. `max` caps one run so a large
+ *  world cannot quietly spend a fortune.
+ */
+async function illustrateWorld({ adventureId, familyId, userId, max = 24 }) {
+  const media = require("./media");
+  const adv = await db.query(
+    "select id, world from adventures where id = $1 and family_id = $2",
+    [adventureId, familyId]
+  );
+  if (!adv.rows[0]) throw new Error("adventure_not_found");
+  const world = adv.rows[0].world || {};
+
+  const { rows } = await db.query(
+    `select id, title, kind, rewards
+       from adventure_encounters
+      where adventure_id = $1 and art_url is null
+        and rewards ? 'artPrompt'
+      order by chapter_index, position, id
+      limit $2`,
+    [adventureId, max]
+  );
+  if (!rows.length) return { drawn: 0, skipped: 0, reason: "nothing_to_draw" };
+
+  // One house style for the whole world, so the cards look like a set.
+  const style = `Children's storybook illustration, warm and inviting, painterly,
+consistent style across the set. Setting: ${world.setting || world.tagline || "an adventure"}.
+No text, no words, no letters anywhere in the image.`;
+
+  let drawn = 0;
+  let skipped = 0;
+  for (const e of rows) {
+    const line = e.rewards && e.rewards.artPrompt;
+    if (!line) { skipped++; continue; }
+    try {
+      const { url } = await media.generateImage({
+        prompt: `${line}
+
+${style}`,
+        size: "1536x1024",
+        purpose: "adventure-art",
+        refType: "adventure",
+        refId: adventureId,
+        familyId,
+        userId,
+      });
+      await db.query("update adventure_encounters set art_url = $2 where id = $1", [e.id, url]);
+      drawn++;
+    } catch (err) {
+      skipped++;
+      console.error(`[questgen] art for encounter ${e.id} failed (skipped): ${err.message}`);
+    }
+  }
+  return { drawn, skipped };
+}
+
+module.exports = { fleshOutWorld, illustrateWorld, normalizeBeats, buildPrompt, SYSTEM };

@@ -22,7 +22,7 @@ interface Encounter {
   art_url: string | null;
   video_upload_id: number | null;
   requires: Record<string, number>;
-  rewards: { xp?: number; loot?: number[] };
+  rewards: { xp?: number; loot?: number[]; artPrompt?: string };
   state: string;
 }
 
@@ -142,6 +142,46 @@ export default function WorldBuilder({ adventureId, learners }:
     }
   }
 
+  /** Illustrate the encounters. Every image costs, so the count is confirmed
+   *  before anything is spent. */
+  async function illustrate() {
+    setBusy(true);
+    setMsg("");
+    try {
+      const r = await api<{ jobId: number; pending: number }>(`/api/worlds/${adventureId}/art`, { method: "POST" });
+      setMsg(`Drawing ${r.pending} scenes. They appear as they finish.`);
+      const started = Date.now();
+      const poll = async (): Promise<void> => {
+        if (Date.now() - started > 8 * 60 * 1000) {
+          setMsg("Still drawing. Reload in a few minutes to see them.");
+          setBusy(false);
+          return;
+        }
+        const j = await api<{ job: { status: string; error: string | null; result: { drawn: number; skipped: number } | null } }>(
+          `/api/courses/jobs/${r.jobId}`
+        ).catch(() => null);
+        if (!j) return void setTimeout(poll, 4000);
+        if (j.job.status === "done") {
+          const res = j.job.result || { drawn: 0, skipped: 0 };
+          setMsg(`✅ Drew ${res.drawn} scenes${res.skipped ? `, skipped ${res.skipped}` : ""}.`);
+          setBusy(false);
+          await load();
+          return;
+        }
+        if (j.job.status === "error") {
+          setMsg(`Could not draw them: ${j.job.error}`);
+          setBusy(false);
+          return;
+        }
+        setTimeout(poll, 4000);
+      };
+      setTimeout(poll, 4000);
+    } catch (e) {
+      setMsg(niceError(e));
+      setBusy(false);
+    }
+  }
+
   async function setWinVideo(enc: Encounter, uploadId: number | null) {
     try {
       await api(`/api/worlds/encounters/${enc.id}`, { method: "PATCH", body: { videoUploadId: uploadId } });
@@ -173,6 +213,7 @@ export default function WorldBuilder({ adventureId, learners }:
   if (!world) return null;
 
   const pending = world.characters.filter((c) => !c.approved);
+  const needsArt = world.encounters.filter((e) => !e.art_url && e.rewards && e.rewards.artPrompt).length;
   const byChapter = new Map<number, Encounter[]>();
   for (const e of world.encounters) {
     const list = byChapter.get(e.chapter_index) || [];
@@ -200,6 +241,10 @@ export default function WorldBuilder({ adventureId, learners }:
             <button className="btn primary" type="button" disabled={busy} onClick={writeStory}>
               ✍️ Write the story
             </button>
+            <button className="btn" type="button" disabled={busy || !needsArt} onClick={illustrate}
+              title={needsArt ? `${needsArt} scenes waiting to be drawn` : "Write the story first"}>
+              🎨 Illustrate it{needsArt ? ` (${needsArt})` : ""}
+            </button>
             <button className="btn ghost" type="button" disabled={busy} onClick={() => build(true)}>
               Rebuild with this style
             </button>
@@ -210,6 +255,8 @@ export default function WorldBuilder({ adventureId, learners }:
         <p className="hint">
           Writing the story fills every encounter with prose set in this world, nodding at the real
           work behind each chapter without ever naming the subject. Run it again any time to reroll.
+          Illustrating draws one picture per encounter, which costs a few cents each, so it only
+          ever runs when you ask and never redraws a scene that already has art.
         </p>
       )}
 

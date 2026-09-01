@@ -216,6 +216,34 @@ router.post("/:adventureId/beats", auth.parentOnly, async (req, res, next) => {
   }
 });
 
+/** Illustrate the encounters. Costs money per image, so it is always an
+ *  explicit request and it reports how many are waiting before it starts. */
+router.post("/:adventureId/art", auth.parentOnly, async (req, res, next) => {
+  try {
+    const adventureId = num(req.params.adventureId);
+    const adv = await ownedAdventure(adventureId, req.user.familyId);
+    if (!adv) return bad(res, "not_found", 404);
+    const media = require("../lib/media");
+    const st = await media.status();
+    if (!st.canImage) return bad(res, "image_generation_not_configured", 503);
+
+    const pending = await db.query(
+      `select count(*)::int as n from adventure_encounters
+        where adventure_id = $1 and art_url is null and rewards ? 'artPrompt'`,
+      [adventureId]
+    );
+    if (!pending.rows[0].n) return bad(res, "nothing_to_draw");
+
+    const jobs = require("../lib/jobs");
+    const jobId = await jobs.enqueue(
+      req.user.familyId, "world-art", { adventureId, created_by: req.user.id }, req.user.id
+    );
+    res.status(202).json({ jobId, pending: pending.rows[0].n });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ---------------------------------------------------------------- encounters
 
 router.patch("/encounters/:id", auth.parentOnly, async (req, res, next) => {

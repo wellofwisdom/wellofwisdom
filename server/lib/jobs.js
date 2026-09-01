@@ -15,6 +15,14 @@ const HANDLERS = {
     const { fleshOutWorld } = require("./questgen");
     return fleshOutWorld({ adventureId: job.payload.adventureId, familyId: job.family_id });
   },
+  "world-art": async (job) => {
+    const { illustrateWorld } = require("./questgen");
+    return illustrateWorld({
+      adventureId: job.payload.adventureId,
+      familyId: job.family_id,
+      userId: job.payload.created_by || null,
+    });
+  },
   "worksheet-import": async (job) => {
     const spec = job.payload;
     const { importWorksheet } = require("./worksheet");
