@@ -169,6 +169,7 @@ test("seo: robots keeps the app private and the shared courses crawlable", () =>
   const txt = seo.robotsTxt("https://wellofwisdom.app");
   assert.match(txt, /Allow: \/c\//);
   assert.match(txt, /Disallow: \/learners/);
+  assert.match(txt, /Disallow: \/join/, "an invite link must never be crawled");
   assert.match(txt, /Disallow: \/records/);
   assert.match(txt, /Sitemap: https:\/\/wellofwisdom\.app\/sitemap\.xml/);
 });

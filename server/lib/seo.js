@@ -104,6 +104,7 @@ function robotsTxt(base) {
     "Allow: /c/",
     "Allow: /api/public/",
     "Disallow: /api/",
+    "Disallow: /join",
     "Disallow: /learners",
     "Disallow: /settings",
     "Disallow: /records",

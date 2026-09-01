@@ -6,6 +6,7 @@ import type { HealthResponse, MeResponse } from "../types";
 import { Panel, Field, StatBar } from "../components/ui";
 import { IconCheck, IconCopy } from "../components/Icons";
 import { linkProps } from "../router";
+import GuidesPanel from "../components/GuidesPanel";
 
 interface AiUsageResponse {
   month: { calls: number; tokens_in: number; tokens_out: number; cost: string | null };
@@ -501,6 +502,8 @@ export default function Settings({ me }: { me: MeResponse }) {
       <Panel title="AI media: images & videos" side="course covers, adventures, cutscenes">
         <MediaPanel />
       </Panel>
+
+      <GuidesPanel learners={(me.learners || []).map((l) => ({ id: l.id, name: l.name }))} />
 
       <Panel title="Email & weekly digest" side="notifications">
         <EmailPanel />

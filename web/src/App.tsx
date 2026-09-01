@@ -26,6 +26,7 @@ import type { CourseSummary } from "./types";
 import { go, routeFromLocation, ROUTE_EVENT } from "./router";
 import { PublicGallery, PublicCourse } from "./pages/PublicCourse";
 import TutorLog from "./pages/TutorLog";
+import Join from "./pages/Join";
 
 function currentRoute(): string {
   return routeFromLocation();
@@ -85,6 +86,10 @@ export default function App() {
   const publicCourseMatch = route.match(/^c\/([A-Za-z0-9-]+)$/);
   if (publicCourseMatch) return <PublicCourse slug={publicCourseMatch[1]} />;
   if (route === "c") return <PublicGallery />;
+
+  // Accepting an invite happens logged out, so it resolves before the gate.
+  const joinMatch = route.match(/^join\/([A-Za-z0-9_-]+)$/);
+  if (joinMatch) return <Join token={joinMatch[1]} />;
 
   if (loading) {
     return (
