@@ -105,6 +105,43 @@ export default function WorldBuilder({ adventureId, learners }:
     }
   }
 
+  /** Ask the AI to write the beats. Slow, so it is a job we poll. */
+  async function writeStory() {
+    setBusy(true);
+    setMsg("Writing the story…");
+    try {
+      const { jobId } = await api<{ jobId: number }>(`/api/worlds/${adventureId}/beats`, { method: "POST" });
+      const started = Date.now();
+      const poll = async (): Promise<void> => {
+        if (Date.now() - started > 4 * 60 * 1000) {
+          setMsg("Still writing. It will appear when it finishes: reload in a minute.");
+          setBusy(false);
+          return;
+        }
+        const j = await api<{ job: { status: string; error: string | null; result: { written: number } | null } }>(
+          `/api/courses/jobs/${jobId}`
+        ).catch(() => null);
+        if (!j) return void setTimeout(poll, 3000);
+        if (j.job.status === "done") {
+          setMsg(`✅ Wrote ${(j.job.result && j.job.result.written) || 0} beats.`);
+          setBusy(false);
+          await load();
+          return;
+        }
+        if (j.job.status === "error") {
+          setMsg(`Could not write it: ${j.job.error}`);
+          setBusy(false);
+          return;
+        }
+        setTimeout(poll, 3000);
+      };
+      setTimeout(poll, 2500);
+    } catch (e) {
+      setMsg(niceError(e));
+      setBusy(false);
+    }
+  }
+
   async function setWinVideo(enc: Encounter, uploadId: number | null) {
     try {
       await api(`/api/worlds/encounters/${enc.id}`, { method: "PATCH", body: { videoUploadId: uploadId } });
@@ -159,11 +196,22 @@ export default function WorldBuilder({ adventureId, learners }:
             🗺️ Build the world
           </button>
         ) : (
-          <button className="btn ghost" type="button" disabled={busy} onClick={() => build(true)}>
-            Rebuild with this style
-          </button>
+          <>
+            <button className="btn primary" type="button" disabled={busy} onClick={writeStory}>
+              ✍️ Write the story
+            </button>
+            <button className="btn ghost" type="button" disabled={busy} onClick={() => build(true)}>
+              Rebuild with this style
+            </button>
+          </>
         )}
       </div>
+      {world.encounters.length > 0 && (
+        <p className="hint">
+          Writing the story fills every encounter with prose set in this world, nodding at the real
+          work behind each chapter without ever naming the subject. Run it again any time to reroll.
+        </p>
+      )}
 
       {pending.length > 0 && (
         <div className="card" style={{ marginTop: 14 }}>

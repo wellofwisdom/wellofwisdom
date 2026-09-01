@@ -197,6 +197,25 @@ router.post("/:adventureId/plan", auth.parentOnly, async (req, res, next) => {
   }
 });
 
+/** Write the story into the encounters. Slow, so it runs as a job. */
+router.post("/:adventureId/beats", auth.parentOnly, async (req, res, next) => {
+  try {
+    const adventureId = num(req.params.adventureId);
+    const adv = await ownedAdventure(adventureId, req.user.familyId);
+    if (!adv) return bad(res, "not_found", 404);
+    const n = await db.query(
+      "select count(*)::int as n from adventure_encounters where adventure_id = $1",
+      [adventureId]
+    );
+    if (!n.rows[0].n) return bad(res, "build_the_world_first");
+    const jobs = require("../lib/jobs");
+    const jobId = await jobs.enqueue(req.user.familyId, "world-beats", { adventureId }, req.user.id);
+    res.status(202).json({ jobId });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ---------------------------------------------------------------- encounters
 
 router.patch("/encounters/:id", auth.parentOnly, async (req, res, next) => {

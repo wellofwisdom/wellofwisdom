@@ -11,6 +11,10 @@ const HANDLERS = {
     const spec = job.payload;
     return generateCourse(spec, spec.created_by, job.family_id);
   },
+  "world-beats": async (job) => {
+    const { fleshOutWorld } = require("./questgen");
+    return fleshOutWorld({ adventureId: job.payload.adventureId, familyId: job.family_id });
+  },
   "worksheet-import": async (job) => {
     const spec = job.payload;
     const { importWorksheet } = require("./worksheet");
