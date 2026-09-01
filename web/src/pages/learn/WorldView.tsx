@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api, niceError } from "../../api";
 import { VideoPlayer } from "../../components/VideoUI";
 import { RichText } from "../../lib/rich";
+import { useReveal, useScrollProgress } from "../../lib/scrollReveal";
 
 interface Encounter {
   id: number;
@@ -148,42 +149,7 @@ export default function WorldView({ adventureId, onNavigate }:
         </p>
       )}
 
-      <div className="chapters">
-        {byChapter.map((ch) => (
-          <section className="chapter" key={ch.index}>
-            <div className="chapterhead">
-              <span className="chapternum">{ch.index + 1}</span>
-              <div>
-                <h2>{ch.title}</h2>
-                {ch.hook && <p className="muted small">{ch.hook}</p>}
-              </div>
-            </div>
-            <div className="encounters">
-              {ch.encounters.map((e) => (
-                <button
-                  key={e.id}
-                  type="button"
-                  className={`enccard ${e.state}`}
-                  onClick={() => e.state !== "locked" && setOpen(e)}
-                  aria-disabled={e.state === "locked"}
-                  title={e.state === "locked" ? e.lockedReason || "Locked" : e.title}
-                >
-                  <span className="encicon" aria-hidden="true">
-                    {e.state === "locked" ? "🔒" : e.state === "won" ? "✅" : KIND_ICON[e.kind] || "✨"}
-                  </span>
-                  <span className="encbody">
-                    <span className="enckind">{e.kind}</span>
-                    <span className="enctitle">{e.title}</span>
-                    {e.state === "locked" && e.lockedReason && (
-                      <span className="encgate">{e.lockedReason}</span>
-                    )}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
+      <Journey chapters={byChapter} onOpen={setOpen} />
 
       {loot.length > 0 && (
         <section className="worldpanel">
@@ -262,6 +228,67 @@ export default function WorldView({ adventureId, onNavigate }:
         </div>
       )}
     </div>
+  );
+}
+
+/** The chapters as a path the learner travels. The line fills as they scroll,
+ *  which is the whole point: the page should feel like distance covered. */
+function Journey({ chapters, onOpen }: {
+  chapters: { title: string; hook: string; index: number; encounters: Encounter[] }[];
+  onOpen: (e: Encounter) => void;
+}) {
+  const { ref, progress } = useScrollProgress<HTMLDivElement>();
+  return (
+    <div className="chapters" ref={ref}>
+      <div className="journeyline" aria-hidden="true">
+        <span className="journeyfill" style={{ height: `${Math.round(progress * 100)}%` }} />
+      </div>
+      {chapters.map((ch) => (
+        <Chapter key={ch.index} chapter={ch} onOpen={onOpen} />
+      ))}
+    </div>
+  );
+}
+
+function Chapter({ chapter, onOpen }: {
+  chapter: { title: string; hook: string; index: number; encounters: Encounter[] };
+  onOpen: (e: Encounter) => void;
+}) {
+  const { ref, shown } = useReveal<HTMLElement>();
+  return (
+    <section className={`chapter${shown ? " shown" : ""}`} ref={ref}>
+      <div className="chapterhead">
+        <span className="chapternum">{chapter.index + 1}</span>
+        <div>
+          <h2>{chapter.title}</h2>
+          {chapter.hook && <p className="muted small">{chapter.hook}</p>}
+        </div>
+      </div>
+      <div className="encounters">
+        {chapter.encounters.map((e, i) => (
+          <button
+            key={e.id}
+            type="button"
+            className={`enccard ${e.state}`}
+            style={{ transitionDelay: shown ? `${Math.min(i, 5) * 60}ms` : undefined }}
+            onClick={() => e.state !== "locked" && onOpen(e)}
+            aria-disabled={e.state === "locked"}
+            title={e.state === "locked" ? e.lockedReason || "Locked" : e.title}
+          >
+            <span className="encicon" aria-hidden="true">
+              {e.state === "locked" ? "🔒" : e.state === "won" ? "✅" : KIND_ICON[e.kind] || "✨"}
+            </span>
+            <span className="encbody">
+              <span className="enckind">{e.kind}</span>
+              <span className="enctitle">{e.title}</span>
+              {e.state === "locked" && e.lockedReason && (
+                <span className="encgate">{e.lockedReason}</span>
+              )}
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 

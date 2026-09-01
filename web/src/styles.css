@@ -1131,3 +1131,32 @@ code.k {
 .tutormsg.thinking { opacity: .6; font-style: italic; }
 .tutorbar { display: flex; gap: 8px; align-items: flex-end; margin-top: 10px; }
 .tutorbar textarea { flex: 1; resize: none; }
+
+/* ---------- the journey: scroll as distance covered ---------- */
+.chapters { position: relative; }
+.journeyline {
+  position: absolute; left: 16px; top: 8px; bottom: 8px; width: 3px;
+  background: var(--border); border-radius: 2px; overflow: hidden;
+}
+.journeyfill {
+  display: block; width: 100%; background: var(--accent); border-radius: 2px;
+  transition: height .18s linear;
+}
+@media (max-width: 560px) { .journeyline { display: none; } }
+
+.chapter { opacity: 0; transform: translateY(18px); }
+.chapter.shown { opacity: 1; transform: none; transition: opacity .5s ease, transform .5s cubic-bezier(.2,.8,.3,1); }
+.chapter .enccard { opacity: 0; transform: translateY(10px); }
+.chapter.shown .enccard {
+  opacity: 1; transform: none;
+  transition: opacity .45s ease, transform .45s cubic-bezier(.2,.8,.3,1),
+              border-color .12s ease;
+}
+.chapternum { position: relative; z-index: 1; box-shadow: 0 0 0 4px var(--bg, var(--panel)); }
+
+/* A reader who asked for less motion gets the finished state, immediately and
+   permanently. Nothing here is load-bearing for comprehension. */
+@media (prefers-reduced-motion: reduce) {
+  .chapter, .chapter .enccard { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .journeyfill { transition: none; }
+}
