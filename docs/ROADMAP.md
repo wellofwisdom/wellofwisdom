@@ -135,8 +135,8 @@ and why. Anything marked shipped has a commit and is live.
       encounter by the prose pass. This is a job that feeds it to the image
       generator and hangs the result on the card, which is what will make the
       world look like a world rather than read like one.
-- [ ] **Loot on encounters from the UI.** Loot exists and can be attached
-      through the API, but the builder has no picker for it yet.
+- [x] **Loot on encounters from the UI** (`ac779b6`). Chips to remove, dropdown
+      to add, hidden entirely when the family has no loot yet.
 
 ## Next
 
@@ -179,9 +179,17 @@ and why. Anything marked shipped has a commit and is live.
 
 ## Then
 
-- [ ] **Socratic tutor chat**, per-learner strictness, full guide visibility of
-      every conversation. The biggest missing piece: it is what makes this a
-      teacher rather than a worksheet generator.
+- [x] **Socratic tutor chat** (`f40dddf`, `77bd719`). Per-learner strictness,
+      full guide visibility of every conversation, and the safety model that
+      matters: in hints and guided mode the answer is NEVER SENT to the model,
+      so it cannot be talked into revealing one. Only full mode passes it
+      through, and an unconfigured learner defaults to the strictest.
+- [ ] **Try the tutor with a real learner and read the transcripts.** The
+      prompt's tone is a judgement call. Whether it actually reads as patient
+      to a frustrated child is not something a test can answer.
+- [ ] **Review the self-harm pre-check regex.** It is deliberately narrow so
+      that "this is killing me" and "i give up" pass through as ordinary
+      frustration, which is asserted. That balance deserves a second opinion.
 - [ ] **Misconception detection across attempts.** Every attempt is already
       stored. A pass over them that says "she inverts the fraction whenever the
       denominators differ" is worth more to a parent than any single lesson,
