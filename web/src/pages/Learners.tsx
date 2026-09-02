@@ -3,6 +3,7 @@
 import { useNavigate } from "../router";
 import type { MeResponse } from "../types";
 import { Panel, EmptyState } from "../components/ui";
+import { startPreview } from "../components/PreviewBar";
 
 export default function Learners({ me }: { me: MeResponse }) {
   const navigate = useNavigate();
@@ -49,6 +50,14 @@ export default function Learners({ me }: { me: MeResponse }) {
                   {l.ai_notes ? " · 🧠" : ""}{l.email ? " · 📧" : ""}
                 </div>
               </div>
+              <button
+                className="btn ghost small-btn"
+                type="button"
+                onClick={(e) => { e.stopPropagation(); startPreview(l.id, l.name); }}
+                title={`See the app exactly as ${l.name} sees it. Nothing is recorded.`}
+              >
+                👀 View as
+              </button>
               <div className="chips">
                 {l.interests.slice(0, 3).map((i) => (
                   <span className="tag" key={i}>{i}</span>

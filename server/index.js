@@ -30,6 +30,13 @@ app.use(auth.attachUser);
 // once, here, so a route added later cannot forget it.
 app.use("/api", auth.denyReadOnly);
 
+// "View as learner": a guide can walk the learner app to see how it works.
+// The identity swap and the read-only guard both live here rather than in each
+// route, so a preview can never write, including through routes added later.
+const preview = require("./lib/preview");
+app.use(["/api/learn", "/api/worlds", "/api/tutor"], preview.attachPreview);
+app.use("/api", preview.denyPreviewWrites);
+
 // Health probe: always 200 if the process is up; component states inside.
 app.get("/api/health", async (req, res) => {
   res.json({

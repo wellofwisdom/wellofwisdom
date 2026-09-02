@@ -502,4 +502,60 @@ router.post("/import-url", async (req, res, next) => {
   }
 });
 
+
+/** The whole course on one page, WITH answers, explanations and hints.
+ *
+ *  The other half of reviewing a course. Preview shows how it feels; this
+ *  shows whether the content is any good, without clicking through twenty
+ *  seven exercises to find the one the model got wrong. Guides only, and
+ *  never reachable by a learner: this is the teacher's edition.
+ */
+router.get("/:id/answer-key", async (req, res, next) => {
+  try {
+    const tree = await courseTree(Number(req.params.id), req.user.familyId);
+    if (!tree) return bad(res, "not_found", 404);
+
+    let exercises = 0;
+    let missingAnswers = 0;
+    const units = tree.units.map((u) => ({
+      title: u.title,
+      lessons: u.lessons.map((l) => ({
+        title: l.title,
+        summary: l.summary,
+        items: l.items.map((i) => {
+          const c = i.content || {};
+          if (i.type !== "exercise") return { type: i.type, content: c };
+          exercises++;
+          const answerText = c.kind === "mcq"
+            ? ((c.choices || []).find((ch) => ch.id === c.answer) || {}).text || null
+            : c.answer;
+          // Worth surfacing: an exercise with no answer cannot be graded, and
+          // the generator does occasionally produce one.
+          if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
+          return {
+            type: i.type,
+            content: {
+              prompt: c.prompt,
+              kind: c.kind,
+              choices: c.choices,
+              answer: c.answer,
+              answerText,
+              explanation: c.explanation || null,
+              hint: c.hint || null,
+            },
+          };
+        }),
+      })),
+    }));
+
+    res.json({
+      course: { id: Number(tree.id), title: tree.title, topic: tree.topic, lens: tree.lens },
+      units,
+      stats: { exercises, missingAnswers },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

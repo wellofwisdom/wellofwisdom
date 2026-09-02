@@ -1160,3 +1160,20 @@ code.k {
   .chapter, .chapter .enccard { opacity: 1 !important; transform: none !important; transition: none !important; }
   .journeyfill { transition: none; }
 }
+
+/* ---------- preview banner ---------- */
+.previewbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 14px; background: var(--warn-bg, #fdf4e3);
+  border-bottom: 2px solid var(--warn, #a06a12); color: var(--ink, inherit);
+  font-size: 14px;
+}
+.previewbar .pvdot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--warn, #a06a12); flex: 0 0 auto;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .previewbar .pvdot { animation: pvpulse 2s ease-in-out infinite; }
+  @keyframes pvpulse { 50% { opacity: .35; } }
+}

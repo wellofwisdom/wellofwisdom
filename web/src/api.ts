@@ -9,13 +9,31 @@ export class ApiError extends Error {
   }
 }
 
+// "View as learner" is a whole-session mode rather than a per-call argument,
+// so it rides on every request from one place. Set once when preview starts,
+// cleared when it ends. The server does the real enforcement; this only makes
+// the client ask the right question.
+let previewLearnerId: number | null = null;
+
+export function setPreviewLearner(id: number | null) {
+  previewLearnerId = id;
+}
+
+export function getPreviewLearner(): number | null {
+  return previewLearnerId;
+}
+
 export async function api<T = unknown>(
   path: string,
   opts: { method?: string; body?: unknown } = {}
 ): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (opts.body !== undefined) headers["content-type"] = "application/json";
+  if (previewLearnerId) headers["x-preview-learner"] = String(previewLearnerId);
+
   const res = await fetch(path, {
     method: opts.method || "GET",
-    headers: opts.body !== undefined ? { "content-type": "application/json" } : undefined,
+    headers,
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
     credentials: "same-origin",
   });

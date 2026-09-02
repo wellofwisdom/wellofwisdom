@@ -27,6 +27,7 @@ import { go, routeFromLocation, ROUTE_EVENT } from "./router";
 import { PublicGallery, PublicCourse } from "./pages/PublicCourse";
 import TutorLog from "./pages/TutorLog";
 import Join from "./pages/Join";
+import PreviewBar, { restorePreview } from "./components/PreviewBar";
 
 function currentRoute(): string {
   return routeFromLocation();
@@ -50,6 +51,10 @@ export default function App() {
   }, []);
 
   const navigate = useCallback((id: string) => go(id), []);
+
+  // Preview must be restored BEFORE the session bootstrap, or /api/me answers
+  // as the guide and the app flips back to the console on every reload.
+  const [previewing] = useState<{ id: number; name: string } | null>(() => restorePreview());
 
   const refresh = useCallback(async () => {
     try {
@@ -111,7 +116,12 @@ export default function App() {
       return <PrintLesson lessonId={Number(route.split("/")[2])} role="learner" />;
     }
     const learnerRoute = route === "dashboard" ? "" : route;
-    return <LearnerApp me={user} route={learnerRoute} onNavigate={navigate} onLogout={logout} />;
+    return (
+      <>
+        {previewing && <PreviewBar name={previewing.name} />}
+        <LearnerApp me={user} route={learnerRoute} onNavigate={navigate} onLogout={logout} />
+      </>
+    );
   }
 
   if (route.startsWith("print/lesson/")) {
