@@ -121,12 +121,36 @@ export function Modal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),'
+      + 'select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key !== "Tab" || !ref.current) return;
+      // Trap: without this, Tab walks out of the dialog into the page behind
+      // it, which for a keyboard user means silently losing the modal.
+      const items = Array.from(ref.current.querySelectorAll<HTMLElement>(FOCUSABLE))
+        .filter((el) => el.offsetParent !== null || el === document.activeElement);
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     ref.current?.querySelector<HTMLElement>("input,select,textarea,button")?.focus();
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      // Send focus back where it came from, or it lands on <body> and the
+      // keyboard user has to start again from the top of the page.
+      previouslyFocused?.focus?.();
+    };
   }, [onClose]);
   return (
     <div

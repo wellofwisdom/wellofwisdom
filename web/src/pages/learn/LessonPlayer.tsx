@@ -372,7 +372,7 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
       {tutorOpen && <TutorChat itemId={item.id} onClose={() => setTutorOpen(false)} />}
 
       {textSelfCheck && !result && (
-        <div className="feedback selfcheck">
+        <div className="feedback selfcheck" role="status" aria-live="polite">
           <p><strong>Model answer:</strong> {revealed.reveal?.answer}</p>
           <p className="muted small">Be honest, nobody's watching. 😊</p>
           <div className="row">
@@ -383,8 +383,14 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
       )}
 
       {result && (
-        <div className={`feedback ${correct ? "good" : "bad"}`}>
-          <strong>{correct ? "✅ Correct!" : "❌ Not quite."}</strong>
+        // role="status" announces the verdict without stealing focus, so a
+        // screen reader user hears "Correct" instead of silence. The emoji is
+        // hidden from readers: they already hear the word.
+        <div className={`feedback ${correct ? "good" : "bad"}`} role="status" aria-live="polite">
+          <strong>
+            <span aria-hidden="true">{correct ? "✅" : "❌"}</span>{" "}
+            {correct ? "Correct!" : "Not quite."}
+          </strong>
           {revealed?.reveal?.explanation && <p>{revealed.reveal.explanation}</p>}
           {kind === "text" && revealed?.reveal?.answer && <p><strong>Model answer:</strong> {revealed.reveal.answer}</p>}
           {!correct && (

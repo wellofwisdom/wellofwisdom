@@ -21,10 +21,18 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
       const tex = tok.slice(1, -1);
       let html = "";
       try {
-        html = katex.renderToString(tex, { throwOnError: false, output: "html" });
+        // "htmlAndMathml" emits the visual HTML AND a MathML annotation. With
+        // output "html" a screen reader receives nothing at all: KaTeX marks
+        // its visual spans aria-hidden, so a blind learner met silence where
+        // the maths was. MathML is what assistive tech actually reads.
+        html = katex.renderToString(tex, { throwOnError: false, output: "htmlAndMathml" });
       } catch {
         html = tok;
       }
+      // Deliberately NO aria-label here. An aria-label on the wrapper would
+      // override the MathML and make a screen reader announce raw TeX
+      // ("backslash frac one two") instead of "one half". The MathML KaTeX
+      // emits carries proper semantics; let it speak.
       parts.push(<span key={key} dangerouslySetInnerHTML={{ __html: html }} />);
     } else {
       parts.push(<em key={key}>{tok.slice(1, -1)}</em>);
