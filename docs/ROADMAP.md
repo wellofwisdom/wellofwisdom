@@ -156,21 +156,31 @@ and why. Anything marked shipped has a commit and is live.
 - [ ] **Per-learner scoping.** A hired tutor sees one student, not the family.
       This is what makes the app something you can pay a tutor to use.
 - [ ] **Invite links with expiry**, rather than a join code that never rotates.
-- [ ] **Accessibility, measured not guessed.** Current state: 154 aria
-      attributes, 47 roles, focus-visible, reduced-motion, `lang="en"`, a skip
-      link and a `prefers-contrast` block. The gaps, worst first:
-  - [ ] Alt text on AI-generated art. There are two `alt` attributes in the
-        whole frontend. The generator already knows the prompt it used.
-  - [ ] Maths is unreadable to a screen reader. KaTeX renders visually; without
-        a plain-language `aria-label` a blind learner gets nothing.
-  - [ ] Grading feedback is not announced. It needs a live region.
-  - [ ] The modal does not trap focus or close on Escape.
+- [ ] **Accessibility, measured not guessed.** Reviewed properly on 2026-09-01
+      (`1c44e6b`). Two of the items below turned out to be overstated when
+      checked against the code, which is recorded rather than quietly dropped.
+      The gaps, worst first:
+  - [x] ~~Alt text on AI-generated art~~. CORRECTED: all 4 images already carry
+        alt text. The original count of 2 was taken before later work added
+        more, and it was never the exclusion I described.
+  - [x] **Maths is now readable to a screen reader.** KaTeX was set to output
+        "html", which emits aria-hidden visual spans and NO MathML, so a blind
+        learner met silence. Now "htmlAndMathml". Note for whoever touches
+        this: do NOT add an aria-label to the wrapper, it overrides the MathML
+        and makes readers announce raw TeX.
+  - [x] **Grading feedback is announced**, via role="status" and aria-live
+        polite, which speaks the verdict without stealing focus.
+  - [x] **The modal traps focus and restores it.** CORRECTED: it always closed
+        on Escape and focused its first control. What it lacked was the trap,
+        so Tab walked out into the page behind.
   - [ ] The drag-and-drop library board has no keyboard path.
   - [ ] Learner cards are `div role="link"` rather than real anchors.
   - [ ] Contrast is unverified across 8 accents by 12 backgrounds. Some of
         those 96 combinations certainly fail. Check them and drop the failures.
-  - [ ] A dyslexia-friendly font and a line-height control, beside the existing
-        reading-size setting.
+  - [x] **Reading font and line spacing controls**, beside reading size. System
+        faces only, so nothing downloads and choosing one sends nothing
+        anywhere. Maths and code keep their own font, because changing those
+        changes what they mean.
   - [ ] Captions, which become mandatory the moment uploads are common.
 - [ ] **Per-state compliance pack.** Roughly half of US states require
       homeschool families to file attendance, portfolios or assessments. The

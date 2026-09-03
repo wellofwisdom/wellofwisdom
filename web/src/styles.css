@@ -1177,3 +1177,32 @@ code.k {
   .previewbar .pvdot { animation: pvpulse 2s ease-in-out infinite; }
   @keyframes pvpulse { 50% { opacity: .35; } }
 }
+
+/* ---------- reading comfort ---------- */
+/* System faces only: no download, works offline, and choosing one sends
+   nothing anywhere. OpenDyslexic is used when the reader already has it. */
+:root[data-readfont="dyslexic"] {
+  --reading-font: "OpenDyslexic", "Comic Sans MS", "Trebuchet MS", Verdana, sans-serif;
+  --reading-spacing: 0.02em;
+}
+:root[data-readfont="mono"] {
+  --reading-font: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  --reading-spacing: 0;
+}
+:root[data-readfont="dyslexic"] body,
+:root[data-readfont="mono"] body {
+  font-family: var(--reading-font);
+  letter-spacing: var(--reading-spacing, 0);
+}
+/* Never restyle maths or code: changing those faces changes their meaning. */
+:root[data-readfont] .katex,
+:root[data-readfont] code,
+:root[data-readfont] pre { font-family: revert; letter-spacing: normal; }
+
+:root[data-leading="roomy"] { --leading: 1.8; }
+:root[data-leading="airy"] { --leading: 2.1; }
+:root[data-leading="roomy"] p, :root[data-leading="roomy"] li,
+:root[data-leading="airy"] p, :root[data-leading="airy"] li,
+:root[data-leading="roomy"] .litem, :root[data-leading="airy"] .litem {
+  line-height: var(--leading);
+}

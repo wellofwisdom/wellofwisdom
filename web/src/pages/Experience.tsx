@@ -2,7 +2,7 @@
 // Experience. The full theming surface: mode, background washes, accent
 // colors, custom background image, reading size. Live preview always on.
 import { useState } from "react";
-import { BACKGROUNDS, ACCENTS, getMode, setMode, getBg, setBg, getAccent, setAccent, getBgImage, setBgImage, getTextScale, setTextScale, type Mode, type TextScale } from "../theme";
+import { BACKGROUNDS, ACCENTS, getMode, setMode, getBg, setBg, getAccent, setAccent, getBgImage, setBgImage, getTextScale, setTextScale, getReadFont, setReadFont, getLeading, setLeading, type Mode, type TextScale } from "../theme";
 import { Panel } from "../components/ui";
 import { RichText } from "../lib/rich";
 
@@ -13,6 +13,8 @@ export default function Experience() {
   const [bgImage, setBgImageState] = useState(getBgImage());
   const [imgInput, setImgInput] = useState(getBgImage());
   const [scale, setScaleState] = useState<TextScale>(getTextScale());
+  const [font, setFontState] = useState(getReadFont());
+  const [leading, setLeadingState] = useState(getLeading());
 
   return (
     <>
@@ -82,6 +84,43 @@ export default function Experience() {
           ))}
         </div>
         <p className="hint" style={{ marginTop: 6 }}>Affects lesson text and reading surfaces.</p>
+
+        <h4 style={{ marginTop: 18 }}>Reading font</h4>
+        <div className="seg" role="radiogroup" aria-label="Reading font">
+          {([
+            ["default", "Standard"],
+            ["dyslexic", "Easier letters"],
+            ["mono", "Even spacing"],
+          ] as const).map(([id, label]) => (
+            <button key={id} type="button" role="radio" aria-checked={font === id}
+              className={font === id ? "on" : ""}
+              onClick={() => { setReadFont(id); setFontState(id); }}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="hint" style={{ marginTop: 6 }}>
+          Some readers find heavier, wider letters steadier. Try it and see. Maths and code keep
+          their own font either way, because changing those changes what they mean.
+        </p>
+
+        <h4 style={{ marginTop: 18 }}>Line spacing</h4>
+        <div className="seg" role="radiogroup" aria-label="Line spacing">
+          {([
+            ["normal", "Normal"],
+            ["roomy", "Roomy"],
+            ["airy", "Airy"],
+          ] as const).map(([id, label]) => (
+            <button key={id} type="button" role="radio" aria-checked={leading === id}
+              className={leading === id ? "on" : ""}
+              onClick={() => { setLeading(id); setLeadingState(id); }}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="hint" style={{ marginTop: 6 }}>
+          More space between lines helps if your eye loses its place.
+        </p>
       </Panel>
 
       <Panel title="Preview">

@@ -53,6 +53,8 @@ const BG_KEY = "wow-theme-bg";
 const ACCENT_KEY = "wow-accent";
 const BGIMG_KEY = "wow-bgimg";
 const SCALE_KEY = "wow-textscale";
+const FONT_KEY = "wow-readfont";
+const LEADING_KEY = "wow-leading";
 
 export function getMode(): Mode {
   const m = localStorage.getItem(MODE_KEY);
@@ -78,6 +80,23 @@ export function getTextScale(): TextScale {
   return s === "compact" || s === "large" ? s : "normal";
 }
 
+/** Reading font. "dyslexic" swaps to a face with heavier bottoms and wider
+ *  letter spacing, which some readers find steadier. It is a preference, not a
+ *  diagnosis, so it is offered to everyone without explanation of who it is
+ *  "for". Uses fonts already on the machine: no download, works offline, and
+ *  nothing is sent anywhere to enable it. */
+export function getReadFont(): "default" | "dyslexic" | "mono" {
+  const f = localStorage.getItem(FONT_KEY);
+  return f === "dyslexic" || f === "mono" ? f : "default";
+}
+
+/** Line spacing. Extra leading is one of the few changes with real evidence
+ *  behind it for readers who lose their place. */
+export function getLeading(): "normal" | "roomy" | "airy" {
+  const l = localStorage.getItem(LEADING_KEY);
+  return l === "roomy" || l === "airy" ? l : "normal";
+}
+
 function apply() {
   const root = document.documentElement;
   const mode = getMode();
@@ -100,8 +119,18 @@ function apply() {
   else root.removeAttribute("data-bgimg");
 
   root.dataset.textscale = getTextScale();
+  root.dataset.readfont = getReadFont();
+  root.dataset.leading = getLeading();
 }
 
+export function setReadFont(f: "default" | "dyslexic" | "mono") {
+  localStorage.setItem(FONT_KEY, f);
+  apply();
+}
+export function setLeading(l: "normal" | "roomy" | "airy") {
+  localStorage.setItem(LEADING_KEY, l);
+  apply();
+}
 export function setMode(mode: Mode) { localStorage.setItem(MODE_KEY, mode); apply(); }
 export function setBg(id: string) { localStorage.setItem(BG_KEY, id); apply(); }
 export function setAccent(id: string) { localStorage.setItem(ACCENT_KEY, id); apply(); }
