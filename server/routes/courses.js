@@ -327,6 +327,46 @@ router.delete("/items/:itemId", async (req, res, next) => {
 
 // Edit a lesson's title/summary.
 
+// Reading-level rewrite: the same article, aimed at a different reader, so
+// siblings can share a course. The guide asks for it and reviews the draft
+// before it saves (the normal item PATCH is the save), so nothing is applied
+// automatically. It preserves the teaching, the markdown and the math, and
+// changes only how the words land.
+const REWRITE_LEVELS = {
+  simpler: "noticeably simpler than it is now: shorter sentences and plainer words",
+  "grade-3": "a 3rd grade reader, around age 8",
+  "grade-5": "a 5th grade reader, around age 10",
+  "grade-8": "an 8th grade reader, around age 13",
+  advanced: "a confident older student: richer vocabulary, more nuance, longer arguments",
+};
+
+router.post("/rewrite", async (req, res, next) => {
+  try {
+    const text = String((req.body && req.body.text) || "").slice(0, 20000);
+    const level = String((req.body && req.body.level) || "");
+    if (!text.trim()) return bad(res, "text_required");
+    if (!REWRITE_LEVELS[level]) return bad(res, "level_invalid");
+    if (!ai.configured()) return bad(res, "ai_not_configured", 503);
+    const out = await ai.chat("lesson-content", [
+      {
+        role: "system",
+        content:
+          "You rewrite a lesson article at a target reading level WITHOUT changing what it teaches. " +
+          "Keep every fact, example and step. Keep the light markdown exactly as written: **bold**, " +
+          "- bullets, # headings, and $math$ (never reword, move or drop the math). Change only sentence " +
+          "length, vocabulary and how much you spell things out, to fit the reader. " +
+          "Return ONLY the rewritten body: no preamble, no code fences, no commentary.",
+      },
+      { role: "user", content: `Rewrite for ${REWRITE_LEVELS[level]}.\n\n---\n${text}` },
+    ], { maxTokens: 2000, temperature: 0.4, usage: { familyId: req.user.familyId, note: "rewrite-level" } });
+    const body = String(out.content || "").replace(/^```[a-z]*\s*/i, "").replace(/```\s*$/, "").trim().slice(0, 20000);
+    if (!body) return bad(res, "rewrite_failed", 502);
+    res.json({ text: body });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Add an item to a lesson. The guide is adding it by hand (a video they
 // uploaded, a note), so it goes through the same normalizer as AI output
 // there is one trust boundary, not two.

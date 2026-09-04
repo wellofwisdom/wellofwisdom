@@ -517,6 +517,26 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   // article
   const [aTitle, setATitle] = useState(c.title ?? "");
   const [aBody, setABody] = useState(c.body ?? "");
+  const [rwLevel, setRwLevel] = useState("grade-5");
+  const [rwBusy, setRwBusy] = useState(false);
+  const [rwMsg, setRwMsg] = useState("");
+
+  // Draft the article at a different reading level. It replaces the body in the
+  // editor; the guide reviews it and Saves (or Cancels to keep the original).
+  async function rewrite() {
+    if (!aBody.trim()) return;
+    setRwMsg("");
+    setRwBusy(true);
+    try {
+      const d = await api<{ text: string }>("/api/courses/rewrite", { method: "POST", body: { text: aBody, level: rwLevel } });
+      setABody(d.text);
+      setRwMsg("Rewritten. Review it, then Save, or Cancel to keep the original.");
+    } catch (e) {
+      setRwMsg(niceError(e));
+    } finally {
+      setRwBusy(false);
+    }
+  }
   // exercise
   const [prompt, setPrompt] = useState(c.prompt ?? "");
   const [kind, setKind] = useState(c.kind ?? "mcq");
@@ -585,6 +605,20 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
           <Field label="Body" hint="Blank line = new paragraph. **bold**, - bullets, $math$ supported.">
             <textarea className="input" rows={12} value={aBody} onChange={(e) => setABody(e.target.value)} />
           </Field>
+          <div className="row wrap" style={{ gap: 8, alignItems: "center" }}>
+            <span className="small muted">Reading level:</span>
+            <select className="input small-input" style={{ maxWidth: 180 }} value={rwLevel} onChange={(e) => setRwLevel(e.target.value)}>
+              <option value="simpler">Simpler</option>
+              <option value="grade-3">Grade 3</option>
+              <option value="grade-5">Grade 5</option>
+              <option value="grade-8">Grade 8</option>
+              <option value="advanced">More advanced</option>
+            </select>
+            <button className="btn ghost small-btn" type="button" disabled={rwBusy || !aBody.trim()} onClick={rewrite}>
+              {rwBusy ? "Rewriting…" : "✎ Draft a rewrite"}
+            </button>
+          </div>
+          {rwMsg && <p className="small muted" style={{ margin: "4px 0 0" }}>{rwMsg}</p>}
         </>
       )}
       {item.type === "exercise" && (
