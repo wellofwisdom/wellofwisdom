@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { Panel, EmptyState } from "../components/ui";
 import { IconSparkle } from "../components/Icons";
+import { linkProps } from "../router";
 
 interface PlanRow {
   id: number;
@@ -58,12 +59,11 @@ export default function Plans({ onNavigate }: { onNavigate: (hash: string) => vo
           const hours = Math.round((weeks * p.sessions_per_week * p.minutes_per_session) / 60);
           return (
             <div key={p.id} className="learnerrow coursecard" style={{ cursor: "pointer" }}
-              onClick={() => onNavigate(`plan/${p.id}`)}
-              onKeyDown={(e) => e.key === "Enter" && onNavigate(`plan/${p.id}`)}
-              tabIndex={0} role="link" aria-label={`Open plan ${p.title}`}>
+              // Mouse convenience; the real, accessible link is the title.
+              onClick={(e) => { if ((e.target as HTMLElement).closest("a, button")) return; onNavigate(`plan/${p.id}`); }}>
               <span className="avatar" aria-hidden="true">🗺️</span>
               <div className="meta">
-                <div className="n">{p.title}</div>
+                <div className="n"><a {...linkProps(`plan/${p.id}`)} className="cardlink">{p.title}</a></div>
                 <div className="u">
                   {p.start_date} → {p.end_date} · ~{hours}h total · {p.sessions_per_week}× {p.minutes_per_session}min/week
                   · {p.milestone_count} milestones · {p.courses_made} courses made

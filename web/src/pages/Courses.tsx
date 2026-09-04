@@ -6,6 +6,7 @@ import { api, niceError } from "../api";
 import type { CourseSummary, Job } from "../types";
 import { Panel, EmptyState, StatBar, Modal, Field } from "../components/ui";
 import { IconSparkle } from "../components/Icons";
+import { linkProps } from "../router";
 
 export default function Courses({ onNavigate }: { onNavigate: (hash: string) => void }) {
   const [courses, setCourses] = useState<CourseSummary[] | null>(null);
@@ -70,15 +71,12 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
               key={c.id}
               className="learnerrow coursecard"
               style={{ cursor: "pointer" }}
-              onClick={() => onNavigate(`course/${c.id}`)}
-              onKeyDown={(e) => e.key === "Enter" && onNavigate(`course/${c.id}`)}
-              tabIndex={0}
-              role="link"
-              aria-label={`Open course ${c.title}`}
+              // Mouse convenience; the real, accessible link is the title.
+              onClick={(e) => { if ((e.target as HTMLElement).closest("a, button")) return; onNavigate(`course/${c.id}`); }}
             >
               <span className="avatar" aria-hidden="true">{c.lens ? "🧵" : "📘"}</span>
               <div className="meta">
-                <div className="n">{c.title}</div>
+                <div className="n"><a {...linkProps(`course/${c.id}`)} className="cardlink">{c.title}</a></div>
                 <div className="u">
                   {c.unit_count} units · {c.lesson_count} lessons · {c.exercise_count} exercises
                   {c.lens ? ` · through ${c.lens}` : ""}
