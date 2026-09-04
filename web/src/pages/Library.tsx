@@ -43,6 +43,15 @@ export default function Library() {
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
   const [month, setMonth] = useState(() => new Date());
+  // After a keyboard move the card re-renders in a new column; refocus it there
+  // so a keyboard user is not dropped back to the top of the page each move.
+  const [justMoved, setJustMoved] = useState<number | null>(null);
+  useEffect(() => {
+    if (justMoved == null) return;
+    const el = document.querySelector(`[data-card-id="${justMoved}"]`) as HTMLElement | null;
+    if (el) el.focus();
+    setJustMoved(null);
+  }, [items, justMoved]);
 
   const load = () =>
     api<{ resources: Resource[] }>("/api/resources")
@@ -67,6 +76,14 @@ export default function Library() {
   async function move(r: Resource, status: string) {
     setItems((prev) => (prev || []).map((x) => (x.id === r.id ? { ...x, status } : x)));
     await api(`/api/resources/${r.id}`, { method: "PATCH", body: { status } }).catch(() => load());
+  }
+
+  // The keyboard equivalent of dragging a card between columns.
+  function moveBy(r: Resource, colIndex: number, delta: number) {
+    const target = STATUSES[colIndex + delta];
+    if (!target) return;
+    setJustMoved(r.id);
+    move(r, target.id);
   }
 
   const subjects = useMemo(() => {
@@ -146,8 +163,10 @@ export default function Library() {
 
           {view === "board" && (
             <div className="board">
-              {STATUSES.map((s) => {
+              {STATUSES.map((s, si) => {
                 const cards = filtered.filter((r) => r.status === s.id);
+                const prev = STATUSES[si - 1];
+                const next = STATUSES[si + 1];
                 return (
                   <div key={s.id}
                     className="boardcol"
@@ -160,12 +179,26 @@ export default function Library() {
                     <div className="boardhead">{s.icon} {s.label} <span className="muted small">({cards.length})</span></div>
                     {cards.map((r) => (
                       <div key={r.id} className="boardcard" draggable
+                        data-card-id={r.id}
                         onDragStart={(e) => e.dataTransfer.setData("text/plain", String(r.id))}
                         onClick={() => setEditing(r)} role="button" tabIndex={0}
-                        onKeyDown={(e) => e.key === "Enter" && setEditing(r)}>
+                        aria-label={`${r.title}. In ${s.label}. Enter to edit; left and right arrow keys move it between columns.`}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") setEditing(r);
+                          else if (e.key === "ArrowLeft") { e.preventDefault(); moveBy(r, si, -1); }
+                          else if (e.key === "ArrowRight") { e.preventDefault(); moveBy(r, si, 1); }
+                        }}>
                         <div className="bc-title">{TYPE_ICON[r.type]} {r.title}</div>
                         {r.subject && <div className="bc-sub">{r.subject}</div>}
                         {r.date_for && <div className="bc-sub">🗓️ {r.date_for}</div>}
+                        <div className="bc-move">
+                          <button className="btn ghost small-btn" type="button" disabled={!prev}
+                            aria-label={prev ? `Move ${r.title} to ${prev.label}` : "Already in the first column"}
+                            onClick={(e) => { e.stopPropagation(); moveBy(r, si, -1); }}>←</button>
+                          <button className="btn ghost small-btn" type="button" disabled={!next}
+                            aria-label={next ? `Move ${r.title} to ${next.label}` : "Already in the last column"}
+                            onClick={(e) => { e.stopPropagation(); moveBy(r, si, 1); }}>→</button>
+                        </div>
                       </div>
                     ))}
                     {cards.length === 0 && <div className="boardempty">Drop here</div>}

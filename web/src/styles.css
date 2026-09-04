@@ -779,6 +779,11 @@ summary::marker { color: var(--muted); }
 .boardcard.dragging { opacity: 0.5; }
 .bc-title { font-weight: 600; font-size: 14px; }
 .bc-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+/* Keyboard (and mouse) way to move a card between columns, the accessible
+   equal of dragging. Subtle until the card is hovered or holds focus. */
+.bc-move { display: flex; gap: 4px; margin-top: 8px; opacity: 0.55; transition: opacity 0.12s; }
+.boardcard:hover .bc-move, .boardcard:focus-within .bc-move, .boardcard:focus .bc-move { opacity: 1; }
+.bc-move .small-btn { padding: 1px 8px; line-height: 1.4; }
 .boardempty { border: 1px dashed var(--border); border-radius: 10px; padding: 14px; text-align: center; color: var(--muted); font-size: 12.5px; }
 
 .calgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
