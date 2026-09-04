@@ -6,6 +6,9 @@ const express = require("express");
 const db = require("../lib/db");
 const auth = require("../lib/auth");
 const store = require("../lib/uploads");
+const jobs = require("../lib/jobs");
+const media = require("../lib/media");
+const captions = require("../lib/captions");
 
 const router = express.Router();
 
@@ -53,7 +56,8 @@ router.get("/", auth.parentOnly, async (req, res, next) => {
   try {
     const kind = req.query.kind ? String(req.query.kind) : null;
     const { rows } = await db.query(
-      `select id, kind, mime, bytes, title, original_name, duration_sec, poster_url, is_public, created_at
+      `select id, kind, mime, bytes, title, original_name, duration_sec, poster_url, is_public,
+              captions_status, captions_lang, created_at
          from uploads where family_id = $1 ${kind ? "and kind = $2" : ""}
         order by created_at desc limit 200`,
       kind ? [req.user.familyId, kind] : [req.user.familyId]
@@ -105,6 +109,102 @@ router.delete("/:id", auth.parentOnly, async (req, res, next) => {
   }
 });
 
+// ---- captions ----
+// A track belongs to the upload (see migration 022). All of these are guide
+// only and family scoped; the learner reads captions through the public
+// /media/:id/captions.vtt streamer below.
+
+/** Current caption state plus the VTT text, for the caption editor. */
+router.get("/:id/captions", auth.parentOnly, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return bad(res, "id_invalid");
+    const { rows } = await db.query(
+      `select captions_status, captions_lang, captions_source, captions_vtt, captions_error, kind, bytes
+         from uploads where id = $1 and family_id = $2`,
+      [id, req.user.familyId]
+    );
+    if (!rows[0]) return bad(res, "not_found", 404);
+    const r = rows[0];
+    res.json({
+      status: r.captions_status,
+      lang: r.captions_lang,
+      source: r.captions_source,
+      error: r.captions_error,
+      vtt: r.captions_vtt || "",
+      canAuto: (r.kind === "video" || r.kind === "audio") && !captions.tooLargeForStt(r.bytes),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/** Save an uploaded .vtt file or edited caption text. */
+router.put("/:id/captions", auth.parentOnly, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return bad(res, "id_invalid");
+    const { vtt, lang, source } = req.body || {};
+    const norm = captions.normalizeVtt(vtt);
+    if (!norm) return bad(res, "invalid_vtt");
+    const src = source === "uploaded" ? "uploaded" : "manual";
+    const { rows } = await db.query(
+      `update uploads set captions_vtt = $1, captions_status = 'ready', captions_source = $2,
+         captions_lang = $3, captions_error = null
+        where id = $4 and family_id = $5 returning id`,
+      [norm, src, String(lang || "en").slice(0, 12), id, req.user.familyId]
+    );
+    if (!rows[0]) return bad(res, "not_found", 404);
+    res.json({ ok: true, status: "ready" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/** Kick off a speech-to-text pass (a job). Only when STT is configured. */
+router.post("/:id/captions/auto", auth.parentOnly, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return bad(res, "id_invalid");
+    const st = await media.status();
+    if (!st.canCaption) return bad(res, "stt_not_configured", 503);
+    const { rows } = await db.query(
+      "select id, kind, bytes from uploads where id = $1 and family_id = $2",
+      [id, req.user.familyId]
+    );
+    const up = rows[0];
+    if (!up) return bad(res, "not_found", 404);
+    if (up.kind !== "video" && up.kind !== "audio") return bad(res, "not_media");
+    if (captions.tooLargeForStt(up.bytes)) return bad(res, "too_large_for_auto", 413);
+    await db.query(
+      "update uploads set captions_status = 'pending', captions_error = null where id = $1 and family_id = $2",
+      [id, req.user.familyId]
+    );
+    const jobId = await jobs.enqueue(req.user.familyId, "captions", { uploadId: id }, req.user.id);
+    res.status(202).json({ jobId, status: "pending" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/** Remove the caption track. */
+router.delete("/:id/captions", auth.parentOnly, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return bad(res, "id_invalid");
+    const { rows } = await db.query(
+      `update uploads set captions_vtt = null, captions_status = 'none',
+         captions_source = null, captions_error = null
+        where id = $1 and family_id = $2 returning id`,
+      [id, req.user.familyId]
+    );
+    if (!rows[0]) return bad(res, "not_found", 404);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 /** GET /media/:id. The streaming endpoint, mounted at the app root.
  *  Public files are open (a trailer on a shared course); everything else needs
  *  a session in the owning family. Learners included: they have to watch it. */
@@ -135,5 +235,36 @@ async function streamHandler(req, res, next) {
   }
 }
 
+/** GET /media/:id/captions.vtt. Mounted at the app root next to the streamer.
+ *  Same visibility rule as the file: public tracks are open (a captioned
+ *  trailer on a shared course), everything else needs a session in the owning
+ *  family. Learners included: they are the ones who read the captions. */
+async function captionsHandler(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return bad(res, "id_invalid");
+    const { rows } = await db.query(
+      "select family_id, is_public, captions_status, captions_vtt from uploads where id = $1",
+      [id]
+    );
+    const up = rows[0];
+    if (!up) return bad(res, "not_found", 404);
+
+    if (!up.is_public) {
+      const user = req.user;
+      if (!user) return bad(res, "auth_required", 401);
+      if (Number(user.familyId) !== Number(up.family_id)) return bad(res, "forbidden", 403);
+    }
+    if (up.captions_status !== "ready" || !up.captions_vtt) return bad(res, "no_captions", 404);
+
+    res.setHeader("Content-Type", "text/vtt; charset=utf-8");
+    res.setHeader("Cache-Control", "private, max-age=300");
+    res.send(up.captions_vtt);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = router;
 module.exports.streamHandler = streamHandler;
+module.exports.captionsHandler = captionsHandler;

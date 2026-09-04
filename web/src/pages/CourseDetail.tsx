@@ -107,10 +107,14 @@ function VideoPanel({ courseId, trailerUploadId, onChanged }:
   const [uploads, setUploads] = useState<UploadRow[]>([]);
   const [usage, setUsage] = useState<{ bytes: number; files: number } | null>(null);
   const [lessons, setLessons] = useState<{ id: number; label: string }[]>([]);
+  const [canCaption, setCanCaption] = useState(false);
   const [msg, setMsg] = useState("");
 
   const reload = () => loadVideos().then((d) => { setUploads(d.uploads); setUsage(d.usage); }).catch(() => {});
   useEffect(() => { reload(); }, []);
+  useEffect(() => {
+    api<{ canCaption?: boolean }>("/api/media/status").then((s) => setCanCaption(!!s.canCaption)).catch(() => {});
+  }, []);
 
   async function setTrailer(u: UploadRow | null) {
     setMsg("");
@@ -167,6 +171,8 @@ function VideoPanel({ courseId, trailerUploadId, onChanged }:
           pickLabel="Set as trailer"
           onPick={setTrailer}
           onDelete={remove}
+          canAutoCaption={canCaption}
+          onCaptionsChanged={reload}
         />
       </div>
 

@@ -18,7 +18,7 @@ function bad(res, msg, code = 400) {
 }
 
 // ---- config (Trinacle-style settings form) ----
-const SECRET_FIELDS = ["kieKey", "openaiKey"];
+const SECRET_FIELDS = ["kieKey", "openaiKey", "sttKey"];
 
 function mask(cfg) {
   if (!cfg) return null;
@@ -56,7 +56,8 @@ router.put("/config", async (req, res, next) => {
     const b = req.body || {};
     const cfg = {};
     for (const k of ["imageProvider", "imageModel", "imageQuality", "imageSize",
-      "videoProvider", "videoModel", "videoResolution", "videoDuration", "kieKey", "openaiKey"]) {
+      "videoProvider", "videoModel", "videoResolution", "videoDuration", "kieKey", "openaiKey",
+      "sttKey", "sttBaseUrl", "sttModel"]) {
       if (b[k] !== undefined && b[k] !== null && b[k] !== "") cfg[k] = b[k];
     }
     if (!db.configured()) return bad(res, "db_required", 503);

@@ -358,6 +358,7 @@ interface MediaStatus {
   configured: boolean;
   canImage: boolean;
   canVideo: boolean;
+  canCaption: boolean;
   imageProvider: string | null;
   videoProvider: string | null;
   source: string | null;
@@ -406,6 +407,10 @@ function MediaPanel() {
         <span className="dot done" style={{ borderColor: status.canVideo ? "var(--good)" : "var(--border)", background: status.canVideo ? "var(--good)" : "transparent" }} />
         <span className="t">Videos: {status.canVideo ? "via kie.ai" : "not configured (needs a kie.ai key)"}</span>
       </div>
+      <div className="checkitem">
+        <span className="dot done" style={{ borderColor: status.canCaption ? "var(--good)" : "var(--border)", background: status.canCaption ? "var(--good)" : "transparent" }} />
+        <span className="t">Auto-captions: {status.canCaption ? "ready" : "not configured (add a transcription key below). You can still upload or type captions without it."}</span>
+      </div>
       <details style={{ margin: "10px 0" }}>
         <summary className="small" style={{ cursor: "pointer", color: "var(--accent)", fontWeight: 600 }}>⚙️ Configure generators</summary>
         <div style={{ marginTop: 10 }}>
@@ -442,13 +447,23 @@ function MediaPanel() {
               </select>
             </Field></div>
           </div>
+          <div style={{ borderTop: "1px solid var(--border)", margin: "14px 0 10px", paddingTop: 10 }}>
+            <div className="small" style={{ fontWeight: 600, marginBottom: 6 }}>Auto-captions (speech to text)</div>
+            <div className="row" style={{ gap: 12 }}>
+              <div className="grow"><Field label="Transcription API key" hint="Any OpenAI-compatible /audio/transcriptions endpoint (OpenAI, Groq, a local server). Leave blank to keep uploaded and typed captions only."><input className="input" type="password" value={cfg?.sttKey || ""} onChange={(e) => set("sttKey", e.target.value)} placeholder={(cfg?.sttKey || "").startsWith("•") ? "saved. Paste new to change" : "transcription key"} /></Field></div>
+            </div>
+            <div className="row" style={{ gap: 12 }}>
+              <div className="grow"><Field label="Base URL" hint="Default: https://api.openai.com/v1"><input className="input" value={cfg?.sttBaseUrl || ""} onChange={(e) => set("sttBaseUrl", e.target.value)} placeholder="https://api.openai.com/v1" /></Field></div>
+              <div style={{ maxWidth: 200 }}><Field label="Model" hint="e.g. whisper-1"><input className="input" value={cfg?.sttModel || ""} onChange={(e) => set("sttModel", e.target.value)} placeholder="whisper-1" /></Field></div>
+            </div>
+          </div>
           <div className="row">
             <button className="btn primary" type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</button>
             {msg && <span className="small">{msg}</span>}
           </div>
         </div>
       </details>
-      <p className="hint">Images appear on course covers and adventure art. Videos play as course cutscenes. Everything respects your AI spend tracking.</p>
+      <p className="hint">Images appear on course covers and adventure art. Videos play as course cutscenes. Auto-captions transcribe an uploaded video or audio file when you click Auto-generate on it. Everything respects your AI spend tracking.</p>
     </>
   );
 }

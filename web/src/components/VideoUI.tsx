@@ -4,7 +4,7 @@
 // A course video is either a YouTube id or a file this family uploaded. A
 // NotebookLM export, a recorded explainer, a boss-fight clip. Uploads stream
 // from /media/<id> with byte ranges, so scrubbing works.
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../api";
 
 export interface VideoContent {
@@ -24,7 +24,11 @@ export interface UploadRow {
   is_public: boolean;
   url: string;
   created_at: string;
+  captions_status?: CaptionStatus;
+  captions_lang?: string;
 }
+
+export type CaptionStatus = "none" | "pending" | "ready" | "failed";
 
 export function humanBytes(n: number) {
   if (!n) return "0 B";
@@ -38,7 +42,6 @@ export function VideoPlayer({ content, poster }: { content: VideoContent; poster
   if (content.uploadId) {
     return (
       <div className="videowrap">
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <video
           src={`/media/${content.uploadId}`}
           poster={poster || undefined}
@@ -46,7 +49,11 @@ export function VideoPlayer({ content, poster }: { content: VideoContent; poster
           preload="metadata"
           playsInline
           title={content.title || "Course video"}
-        />
+        >
+          {/* Same-origin track. When the file has no captions this 404s and the
+              browser simply shows no CC button, so it is safe to always offer. */}
+          <track kind="captions" srcLang="en" label="Captions" src={`/media/${content.uploadId}/captions.vtt`} />
+        </video>
       </div>
     );
   }
@@ -146,18 +153,21 @@ export function VideoUploader({ onUploaded, label = "Upload a video" }:
 }
 
 /** The family's uploaded videos, with the actions a guide needs. */
-export function VideoLibrary({ uploads, onPick, onDelete, pickLabel = "Use" }:
+export function VideoLibrary({ uploads, onPick, onDelete, pickLabel = "Use", canAutoCaption = false, onCaptionsChanged }:
   {
     uploads: UploadRow[];
     onPick?: (u: UploadRow) => void;
     onDelete?: (u: UploadRow) => void;
     pickLabel?: string;
+    canAutoCaption?: boolean;
+    onCaptionsChanged?: () => void;
   }) {
   if (!uploads.length) return <p className="muted small">No videos uploaded yet.</p>;
   return (
     <div className="videolist">
       {uploads.map((u) => (
         <div className="videorow" key={u.id}>
+          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <video src={`/media/${u.id}`} preload="metadata" muted playsInline className="videothumb" />
           <div className="grow">
             <div className="n">{u.title || u.original_name || `Video ${u.id}`}</div>
@@ -165,6 +175,7 @@ export function VideoLibrary({ uploads, onPick, onDelete, pickLabel = "Use" }:
               {humanBytes(u.bytes)} · {u.mime.replace("video/", "")}
               {u.is_public ? " · public" : ""}
             </div>
+            <CaptionControls upload={u} canAuto={canAutoCaption} onChanged={onCaptionsChanged} />
           </div>
           <div className="row" style={{ gap: 6 }}>
             {onPick && (
@@ -176,6 +187,163 @@ export function VideoLibrary({ uploads, onPick, onDelete, pickLabel = "Use" }:
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+const STATUS_LABEL: Record<CaptionStatus, string> = {
+  none: "No captions",
+  pending: "Generating captions…",
+  ready: "Captions ✓",
+  failed: "Caption attempt failed",
+};
+
+/** Caption actions for one uploaded video: upload a .vtt, auto-generate,
+ *  edit or remove. Uploading and editing are always free; auto-generate needs
+ *  a speech-to-text key and only shows when the server reports one. */
+function CaptionControls({ upload, canAuto, onChanged }:
+  { upload: UploadRow; canAuto: boolean; onChanged?: () => void }) {
+  const [status, setStatus] = useState<CaptionStatus>(upload.captions_status || "none");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const pollRef = useRef<number | null>(null);
+
+  useEffect(() => setStatus(upload.captions_status || "none"), [upload.captions_status]);
+  useEffect(() => () => { if (pollRef.current) window.clearInterval(pollRef.current); }, []);
+
+  function stopPolling() {
+    if (pollRef.current) { window.clearInterval(pollRef.current); pollRef.current = null; }
+  }
+
+  function pollUntilDone() {
+    stopPolling();
+    pollRef.current = window.setInterval(async () => {
+      try {
+        const d = await api<{ status: CaptionStatus }>(`/api/uploads/${upload.id}/captions`);
+        if (d.status !== "pending") {
+          setStatus(d.status);
+          stopPolling();
+          onChanged && onChanged();
+        }
+      } catch { stopPolling(); }
+    }, 3000);
+  }
+
+  async function saveVtt(vtt: string, source: "uploaded" | "manual") {
+    setErr("");
+    setBusy(true);
+    try {
+      await api(`/api/uploads/${upload.id}/captions`, { method: "PUT", body: { vtt, source } });
+      setStatus("ready");
+      setEditing(false);
+      onChanged && onChanged();
+    } catch (e) {
+      setErr(e instanceof Error && e.message.includes("invalid_vtt")
+        ? "That does not look like a caption file (no timings found)."
+        : niceError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onFile(file: File) {
+    const text = await file.text();
+    await saveVtt(text, "uploaded");
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  async function autoGenerate() {
+    setErr("");
+    setBusy(true);
+    try {
+      await api(`/api/uploads/${upload.id}/captions/auto`, { method: "POST", body: {} });
+      setStatus("pending");
+      pollUntilDone();
+    } catch (e) {
+      setErr(niceError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openEditor() {
+    setErr("");
+    try {
+      const d = await api<{ vtt: string }>(`/api/uploads/${upload.id}/captions`);
+      setDraft(d.vtt || "WEBVTT\n\n");
+      setEditing(true);
+    } catch (e) { setErr(niceError(e)); }
+  }
+
+  async function removeCaptions() {
+    setBusy(true);
+    try {
+      await api(`/api/uploads/${upload.id}/captions`, { method: "DELETE" });
+      setStatus("none");
+      onChanged && onChanged();
+    } catch (e) { setErr(niceError(e)); }
+    finally { setBusy(false); }
+  }
+
+  const statusColor = status === "ready" ? "var(--good)"
+    : status === "failed" ? "var(--bad)"
+    : status === "pending" ? "var(--warn)"
+    : "var(--muted)";
+
+  return (
+    <div className="captionrow" style={{ marginTop: 6 }}>
+      <div className="row wrap" style={{ gap: 6, alignItems: "center" }}>
+        <span className="small" style={{ color: statusColor }}>{STATUS_LABEL[status]}</span>
+        <label className="btn ghost small-btn" style={{ cursor: busy ? "default" : "pointer", opacity: busy ? 0.6 : 1 }}>
+          Upload .vtt
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".vtt,text/vtt"
+            disabled={busy}
+            style={{ display: "none" }}
+            onChange={(e) => { const f = e.target.files && e.target.files[0]; if (f) onFile(f); }}
+          />
+        </label>
+        {canAuto && status !== "pending" && (
+          <button className="btn ghost small-btn" type="button" disabled={busy} onClick={autoGenerate}>
+            Auto-generate
+          </button>
+        )}
+        {(status === "ready" || status === "failed") && (
+          <button className="btn ghost small-btn" type="button" disabled={busy} onClick={openEditor}>Edit</button>
+        )}
+        {status === "none" && (
+          <button className="btn ghost small-btn" type="button" disabled={busy} onClick={openEditor}>Type captions</button>
+        )}
+        {status === "ready" && (
+          <button className="btn ghost small-btn" type="button" disabled={busy} onClick={removeCaptions}>Remove</button>
+        )}
+      </div>
+      {err && <p className="formerror small" role="alert" style={{ marginTop: 4 }}>{err}</p>}
+      {editing && (
+        <div style={{ marginTop: 6 }}>
+          <textarea
+            className="input"
+            rows={8}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            spellCheck={false}
+            style={{ fontFamily: "monospace", width: "100%" }}
+            aria-label="Caption file (WebVTT)"
+          />
+          <div className="row" style={{ gap: 6, marginTop: 4 }}>
+            <button className="btn small-btn" type="button" disabled={busy} onClick={() => saveVtt(draft, "manual")}>Save captions</button>
+            <button className="btn ghost small-btn" type="button" disabled={busy} onClick={() => setEditing(false)}>Cancel</button>
+          </div>
+          <p className="hint small" style={{ marginTop: 4 }}>
+            WebVTT format: a WEBVTT header, then cues like 00:00:01.000 {"-->"} 00:00:04.000 on their own line, with the text below.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

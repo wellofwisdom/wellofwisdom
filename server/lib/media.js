@@ -51,14 +51,30 @@ function invalidateCache() {
   cache = { at: 0, config: null };
 }
 
+// Speech-to-text config for auto-captions. Any OpenAI-compatible
+// /audio/transcriptions endpoint works (OpenAI Whisper, Groq, a local server).
+// It lives in the same media settings and falls back to env, so auto-captions
+// stay inert until a key is set: nothing here spends money by surprise.
+function sttFrom(cfg) {
+  const key = (cfg && cfg.sttKey) || process.env.STT_API_KEY || process.env.OPENAI_API_KEY || null;
+  if (!key) return null;
+  return {
+    key,
+    baseUrl: (cfg && cfg.sttBaseUrl) || process.env.STT_BASE_URL || "https://api.openai.com/v1",
+    model: (cfg && cfg.sttModel) || process.env.STT_MODEL || "whisper-1",
+  };
+}
+
 async function status() {
   const cfg = await resolveConfig();
   const canImage = Boolean(cfg && ((cfg.imageProvider === "kie" && cfg.kieKey) || (cfg.imageProvider === "openai" && cfg.openaiKey)));
   const canVideo = Boolean(cfg && cfg.videoProvider === "kie" && cfg.kieKey);
+  const canCaption = Boolean(sttFrom(cfg));
   return {
-    configured: canImage || canVideo,
+    configured: canImage || canVideo || canCaption,
     canImage,
     canVideo,
+    canCaption,
     imageProvider: cfg ? cfg.imageProvider : null,
     videoProvider: cfg ? cfg.videoProvider : null,
     source: cfg && cfg._fromDb ? "settings" : "env",
@@ -193,4 +209,29 @@ async function generateVideo({ prompt, duration, resolution, purpose, refType, r
   return { url };
 }
 
-module.exports = { generateImage, generateVideo, status, resolveConfig, invalidateCache, resultUrls, IMAGE_MODELS, VIDEO_MODELS };
+// Transcribe an audio or video buffer to WebVTT. Sends the file straight to an
+// OpenAI-compatible /audio/transcriptions endpoint with response_format=vtt, so
+// the provider does the cue timing and we store what comes back. The 25 MB-ish
+// ceiling on most providers is enforced by the caller before we get here.
+async function transcribe({ buffer, filename, mime, language }) {
+  const cfg = await resolveConfig();
+  const stt = sttFrom(cfg);
+  if (!stt) throw new Error("stt_not_configured");
+  if (!buffer || !buffer.length) throw new Error("stt_empty_file");
+
+  const form = new FormData();
+  form.append("file", new Blob([buffer], { type: mime || "application/octet-stream" }), filename || "audio");
+  form.append("model", stt.model);
+  form.append("response_format", "vtt");
+  if (language) form.append("language", String(language).slice(0, 12));
+
+  const res = await fetchT(`${String(stt.baseUrl).replace(/\/$/, "")}/audio/transcriptions`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${stt.key}` },
+    body: form,
+  }, { timeoutMs: 5 * 60 * 1000, retries: 1 });
+  if (!res.ok) throw new Error(`stt_http_${res.status}: ${String(await res.text()).slice(0, 200)}`);
+  return await res.text();
+}
+
+module.exports = { generateImage, generateVideo, transcribe, status, resolveConfig, invalidateCache, resultUrls, IMAGE_MODELS, VIDEO_MODELS };

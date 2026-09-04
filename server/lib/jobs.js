@@ -106,6 +106,21 @@ const HANDLERS = {
     const { generateOutline } = require("./plangen");
     return generateOutline(spec);
   },
+  captions: async (job) => {
+    const captions = require("./captions");
+    const uploadId = Number(job.payload.uploadId);
+    try {
+      return await captions.generate({ uploadId, familyId: job.family_id });
+    } catch (err) {
+      // The generic job row records the error too, but the upload row is what
+      // the UI polls, so mark it failed there before rethrowing.
+      await db.query(
+        "update uploads set captions_status = 'failed', captions_error = $1 where id = $2 and family_id = $3",
+        [String(err.message).slice(0, 300), uploadId, job.family_id]
+      ).catch(() => {});
+      throw err;
+    }
+  },
 };
 
 async function enqueue(familyId, type, payload, createdBy) {

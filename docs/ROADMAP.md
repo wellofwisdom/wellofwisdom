@@ -186,7 +186,15 @@ and why. Anything marked shipped has a commit and is live.
         faces only, so nothing downloads and choosing one sends nothing
         anywhere. Maths and code keep their own font, because changing those
         changes what they mean.
-  - [ ] Captions, which become mandatory the moment uploads are common.
+  - [x] **Captions on uploaded video (and audio).** A guide uploads or types a
+        WebVTT track (free, always available), or auto-generates one from any
+        OpenAI-compatible transcription endpoint. Auto is a job, gated on a
+        configured key and a size ceiling, and fails soft, so it never blocks a
+        request or spends money silently. The track lives on the upload, so it
+        follows the file to every place it plays (lesson, win cutscene,
+        trailer). Served at /media/:id/captions.vtt with the same public/family
+        visibility as the file; the player shows a CC button only when a track
+        exists.
 - [ ] **Per-state compliance pack.** Roughly half of US states require
       homeschool families to file attendance, portfolios or assessments. The
       reports, transcripts and calendar already exist. This is the sharpest
