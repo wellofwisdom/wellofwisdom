@@ -3,7 +3,7 @@
 // track (free, always available), or a speech-to-text pass generates one (a
 // job, only when an STT key is configured, so it never spends money silently).
 // Either way the result is a WebVTT string on the uploads row.
-const CAPTION_MAX_MB = Number(process.env.STT_MAX_MB || 25);
+const CAPTION_MAX_MB = Number(process.env.STT_MAX_MB || 100);
 
 // Accept a WebVTT file, or coerce something close to one into a valid file.
 // A caption track is only useful if it carries cue timings, so text with no

@@ -51,25 +51,18 @@ function invalidateCache() {
   cache = { at: 0, config: null };
 }
 
-// Speech-to-text config for auto-captions. Any OpenAI-compatible
-// /audio/transcriptions endpoint works (OpenAI Whisper, Groq, a local server).
-// It lives in the same media settings and falls back to env, so auto-captions
-// stay inert until a key is set: nothing here spends money by surprise.
-function sttFrom(cfg) {
-  const key = (cfg && cfg.sttKey) || process.env.STT_API_KEY || process.env.OPENAI_API_KEY || null;
-  if (!key) return null;
-  return {
-    key,
-    baseUrl: (cfg && cfg.sttBaseUrl) || process.env.STT_BASE_URL || "https://api.openai.com/v1",
-    model: (cfg && cfg.sttModel) || process.env.STT_MODEL || "whisper-1",
-  };
-}
+// Speech-to-text for auto-captions runs on kie.ai, same key and credits as
+// image and video generation. The model is ElevenLabs Scribe
+// (elevenlabs/speech-to-text), which reads a video file directly and returns
+// word-level timings we turn into WebVTT. Override the model with STT_MODEL if
+// kie ever adds a better one.
+const STT_MODEL = process.env.STT_MODEL || "elevenlabs/speech-to-text";
 
 async function status() {
   const cfg = await resolveConfig();
   const canImage = Boolean(cfg && ((cfg.imageProvider === "kie" && cfg.kieKey) || (cfg.imageProvider === "openai" && cfg.openaiKey)));
   const canVideo = Boolean(cfg && cfg.videoProvider === "kie" && cfg.kieKey);
-  const canCaption = Boolean(sttFrom(cfg));
+  const canCaption = Boolean(cfg && cfg.kieKey);
   return {
     configured: canImage || canVideo || canCaption,
     canImage,
@@ -121,7 +114,9 @@ function resultUrls(d) {
   return [];
 }
 
-async function kiePollTask(key, taskId, timeoutMs) {
+// Poll until a task finishes and return the raw recordInfo data object. The
+// URL-returning callers wrap this; the transcription path needs the payload.
+async function kiePollRaw(key, taskId, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 5000));
@@ -132,14 +127,17 @@ async function kiePollTask(key, taskId, timeoutMs) {
     const info = checkKie(await res.json());
     const d = (info && info.data) || {};
     const state = String(d.state || d.status || "").toLowerCase();
-    if (state.includes("succ")) {
-      return { ok: true, urls: resultUrls(d) };
-    }
+    if (state.includes("succ")) return d;
     if (state.includes("fail") || state.includes("error")) {
       throw new Error(`kie_job_failed: ${String(d.failMsg || d.error || "generation failed").slice(0, 200)}`);
     }
   }
   throw new Error("kie_timeout");
+}
+
+async function kiePollTask(key, taskId, timeoutMs) {
+  const d = await kiePollRaw(key, taskId, timeoutMs);
+  return { ok: true, urls: resultUrls(d) };
 }
 
 // ---------- public API ----------
@@ -209,29 +207,123 @@ async function generateVideo({ prompt, duration, resolution, purpose, refType, r
   return { url };
 }
 
-// Transcribe an audio or video buffer to WebVTT. Sends the file straight to an
-// OpenAI-compatible /audio/transcriptions endpoint with response_format=vtt, so
-// the provider does the cue timing and we store what comes back. The 25 MB-ish
-// ceiling on most providers is enforced by the caller before we get here.
-async function transcribe({ buffer, filename, mime, language }) {
-  const cfg = await resolveConfig();
-  const stt = sttFrom(cfg);
-  if (!stt) throw new Error("stt_not_configured");
-  if (!buffer || !buffer.length) throw new Error("stt_empty_file");
+// ---------- transcription (auto-captions) ----------
 
+// Push a local file to kie's temporary store (auto-deleted after 3 days) and
+// return a URL kie's own workers can fetch. Our uploads are private, so we
+// cannot just hand kie a /media/:id link; this keeps the file off the public
+// web while still letting the model read it.
+async function kieUploadFile(key, buffer, filename, mime) {
   const form = new FormData();
-  form.append("file", new Blob([buffer], { type: mime || "application/octet-stream" }), filename || "audio");
-  form.append("model", stt.model);
-  form.append("response_format", "vtt");
-  if (language) form.append("language", String(language).slice(0, 12));
-
-  const res = await fetchT(`${String(stt.baseUrl).replace(/\/$/, "")}/audio/transcriptions`, {
+  form.append("file", new Blob([buffer], { type: mime || "application/octet-stream" }), filename || "upload");
+  form.append("uploadPath", "wow-captions");
+  const res = await fetchT(`${KIE_BASE}/api/file-stream-upload`, {
     method: "POST",
-    headers: { authorization: `Bearer ${stt.key}` },
+    headers: { authorization: `Bearer ${key}` },
     body: form,
-  }, { timeoutMs: 5 * 60 * 1000, retries: 1 });
-  if (!res.ok) throw new Error(`stt_http_${res.status}: ${String(await res.text()).slice(0, 200)}`);
-  return await res.text();
+  }, { timeoutMs: 4 * 60 * 1000, retries: 1 });
+  if (!res.ok) throw new Error(`kie_upload_http_${res.status}: ${String(await res.text()).slice(0, 200)}`);
+  const data = checkKie(await res.json());
+  const url = data && data.data && (data.data.downloadUrl || data.data.fileUrl);
+  if (!url) throw new Error(`kie_upload_no_url: ${JSON.stringify(data).slice(0, 200)}`);
+  return url;
 }
 
-module.exports = { generateImage, generateVideo, transcribe, status, resolveConfig, invalidateCache, resultUrls, IMAGE_MODELS, VIDEO_MODELS };
+// A finished Scribe job carries the ElevenLabs response (text + words) as an
+// object, or as a resultJson string, or nested under response. Find the words.
+function transcriptFrom(d) {
+  const seen = [];
+  const r = (d && d.response) || {};
+  seen.push(r, d);
+  for (const raw of [r.resultJson, d && d.resultJson]) {
+    if (raw && typeof raw === "string") { try { seen.push(JSON.parse(raw)); } catch { /* not json */ } }
+  }
+  for (const c of seen) {
+    if (c && Array.isArray(c.words) && c.words.length) return { words: c.words, text: c.text || "" };
+  }
+  for (const c of seen) {
+    if (c && typeof c.text === "string" && c.text.trim()) return { words: null, text: c.text };
+  }
+  return null;
+}
+
+function secToTs(s) {
+  const t = Math.max(0, Number(s) || 0);
+  const h = Math.floor(t / 3600);
+  const m = Math.floor((t % 3600) / 60);
+  const sec = Math.floor(t % 60);
+  const ms = Math.round((t - Math.floor(t)) * 1000);
+  const p2 = (n) => String(n).padStart(2, "0");
+  return `${p2(h)}:${p2(m)}:${p2(sec)}.${String(ms).padStart(3, "0")}`;
+}
+
+// Turn ElevenLabs word timings into readable WebVTT cues. Words are grouped
+// into a cue until it runs long, gets wide, or a sentence ends. "spacing"
+// entries are the whitespace between words; "audio_event" entries (laughter and
+// the like) are kept as text.
+function wordsToVtt(words, maxDur = 6, maxChars = 84) {
+  const cues = [];
+  let cur = null;
+  const flush = () => { if (cur && cur.text.trim()) cues.push(cur); cur = null; };
+  for (const w of words || []) {
+    const type = w.type || "word";
+    const text = String(w.text == null ? "" : w.text);
+    if (type === "spacing") { if (cur) cur.text += text; continue; }
+    const start = Number(w.start);
+    const end = Number(w.end);
+    if (!Number.isFinite(start) || !Number.isFinite(end)) { if (cur) cur.text += text; continue; }
+    if (!cur) cur = { start, end, text };
+    else { cur.text += text; cur.end = end; }
+    const endsSentence = /[.!?]["')\]]?\s*$/.test(cur.text);
+    if (cur.end - cur.start >= maxDur || cur.text.length >= maxChars || endsSentence) flush();
+  }
+  flush();
+  if (!cues.length) return null;
+  let out = "WEBVTT\n\n";
+  cues.forEach((c, i) => {
+    out += `${i + 1}\n${secToTs(c.start)} --> ${secToTs(c.end)}\n${c.text.trim()}\n\n`;
+  });
+  return out.trimEnd();
+}
+
+// Transcribe an audio or video buffer to WebVTT via kie.ai (ElevenLabs Scribe).
+// Upload the file, create the task, poll, then build cues from the word timings.
+// The size ceiling is enforced by the caller before we get here.
+async function transcribe({ buffer, filename, mime, language }) {
+  const cfg = await resolveConfig();
+  const key = cfg && cfg.kieKey;
+  if (!key) throw new Error("stt_not_configured");
+  if (!buffer || !buffer.length) throw new Error("stt_empty_file");
+
+  const audioUrl = await kieUploadFile(key, buffer, filename, mime);
+  const input = { audio_url: audioUrl };
+  if (language) input.language_code = String(language).slice(0, 8);
+
+  const taskId = await kieCreateTask(key, STT_MODEL, input);
+  const d = await kiePollRaw(key, taskId, 8 * 60 * 1000);
+
+  const tr = transcriptFrom(d);
+  if (tr && tr.words) {
+    const vtt = wordsToVtt(tr.words);
+    if (vtt) return vtt;
+  }
+  if (tr && tr.text && tr.text.trim()) {
+    // No usable timings: fall back to one caption spanning the whole clip.
+    return `WEBVTT\n\n00:00:00.000 --> 00:59:59.000\n${tr.text.trim().slice(0, 4000)}`;
+  }
+  // Last resort: some models hand back a URL to a subtitle file.
+  const urls = resultUrls(d);
+  if (urls[0]) {
+    const res = await fetchT(urls[0], {}, { timeoutMs: 30000, retries: 1 }).catch(() => null);
+    if (res && res.ok) {
+      const text = await res.text();
+      if (text && text.includes("-->")) return text;
+    }
+  }
+  throw new Error(`stt_no_transcript: ${JSON.stringify(d).slice(0, 200)}`);
+}
+
+module.exports = {
+  generateImage, generateVideo, transcribe, status, resolveConfig, invalidateCache,
+  resultUrls, wordsToVtt, secToTs, transcriptFrom, IMAGE_MODELS, VIDEO_MODELS,
+};

@@ -409,7 +409,7 @@ function MediaPanel() {
       </div>
       <div className="checkitem">
         <span className="dot done" style={{ borderColor: status.canCaption ? "var(--good)" : "var(--border)", background: status.canCaption ? "var(--good)" : "transparent" }} />
-        <span className="t">Auto-captions: {status.canCaption ? "ready" : "not configured (add a transcription key below). You can still upload or type captions without it."}</span>
+        <span className="t">Auto-captions: {status.canCaption ? "via kie.ai (ElevenLabs Scribe)" : "needs a kie.ai key. You can still upload or type captions without it."}</span>
       </div>
       <details style={{ margin: "10px 0" }}>
         <summary className="small" style={{ cursor: "pointer", color: "var(--accent)", fontWeight: 600 }}>⚙️ Configure generators</summary>
@@ -447,16 +447,9 @@ function MediaPanel() {
               </select>
             </Field></div>
           </div>
-          <div style={{ borderTop: "1px solid var(--border)", margin: "14px 0 10px", paddingTop: 10 }}>
-            <div className="small" style={{ fontWeight: 600, marginBottom: 6 }}>Auto-captions (speech to text)</div>
-            <div className="row" style={{ gap: 12 }}>
-              <div className="grow"><Field label="Transcription API key" hint="Any OpenAI-compatible /audio/transcriptions endpoint (OpenAI, Groq, a local server). Leave blank to keep uploaded and typed captions only."><input className="input" type="password" value={cfg?.sttKey || ""} onChange={(e) => set("sttKey", e.target.value)} placeholder={(cfg?.sttKey || "").startsWith("•") ? "saved. Paste new to change" : "transcription key"} /></Field></div>
-            </div>
-            <div className="row" style={{ gap: 12 }}>
-              <div className="grow"><Field label="Base URL" hint="Default: https://api.openai.com/v1"><input className="input" value={cfg?.sttBaseUrl || ""} onChange={(e) => set("sttBaseUrl", e.target.value)} placeholder="https://api.openai.com/v1" /></Field></div>
-              <div style={{ maxWidth: 200 }}><Field label="Model" hint="e.g. whisper-1"><input className="input" value={cfg?.sttModel || ""} onChange={(e) => set("sttModel", e.target.value)} placeholder="whisper-1" /></Field></div>
-            </div>
-          </div>
+          <p className="hint" style={{ marginTop: 10 }}>
+            Auto-captions use your kie.ai key (ElevenLabs Scribe). No separate key needed: set the kie.ai key above and the Auto-generate button appears on each uploaded video.
+          </p>
           <div className="row">
             <button className="btn primary" type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</button>
             {msg && <span className="small">{msg}</span>}
