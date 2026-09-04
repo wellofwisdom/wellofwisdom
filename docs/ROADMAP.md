@@ -270,7 +270,10 @@ now makes possible. Everything else here is cheap by comparison.
       command. Everything else moves below.
 - [ ] Screenshots of the Studio, a lesson, and a shared course page. Repo social
       preview set.
-- [ ] Issue and PR templates, `SECURITY.md`, `CHANGELOG.md`, `FUNDING.yml`.
+- [~] Issue and PR templates and `SECURITY.md` shipped. `CHANGELOG.md` and
+      `FUNDING.yml` still to do: FUNDING needs Kevin's real Sponsors / Ko-fi
+      handles (nothing to fabricate), CHANGELOG is editorial and the git log
+      serves for now.
 - [ ] A dozen genuine `good first issue` tickets. Contributors need a door.
 - [ ] Tagged releases and a published Docker image, so "try it" is one command.
 - [ ] Verify the one-command install on a clean box. It is claimed; make it true.
