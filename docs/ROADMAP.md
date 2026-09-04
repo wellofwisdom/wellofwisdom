@@ -114,10 +114,15 @@ and why. Anything marked shipped has a commit and is live.
 - [ ] **Publish four or five genuinely good courses** from this instance,
       including one only this app would ever produce. Sharing is not real until
       something is shared.
-- [ ] **Plain-text course view** at `/c/<slug>.txt`. No chrome, no markup. The
-      highest-signal thing to hand a research tool, and it costs one route.
-- [ ] **Copy source links** button on a public course: page URL, text URL and
-      export URL on the clipboard, ready to paste into a notebook's sources.
+- [x] **Plain-text course view** at `/c/<slug>.txt` (`e55a947`). No chrome, no
+      markup, the highest-signal thing to hand a research tool. Built from the
+      public projection (`share.courseText`), so the answer key cannot leak into
+      the text; a test asserts even a future secret field stays out. Registered
+      before `/c/:slug` so the suffix wins.
+- [x] **Copy source links** button on a public course (`e55a947`): text URL,
+      page URL and export URL on the clipboard, plain-text first as the one to
+      feed a notebook. A visible "View as plain text" link ships alongside it,
+      which also gives a crawler a real anchor to the `.txt`.
 - [ ] **`community-courses` git repository.** Courses are plain JSON and the
       importer already validates them, so: one directory per course, CI runs
       the normalizer on every PR, contributors submit a PR, any instance
