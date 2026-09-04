@@ -136,6 +136,7 @@ export function PublicCourse({ slug }: { slug: string }) {
   const [data, setData] = useState<PublicCourseData | null>(null);
   const [stats, setStats] = useState<{ units: number; lessons: number; exercises: number; videos: number } | null>(null);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     api<{ course: PublicCourseData; stats: typeof stats }>(`/api/public/courses/${encodeURIComponent(slug)}`)
@@ -157,6 +158,18 @@ export function PublicCourse({ slug }: { slug: string }) {
   if (!data) return <div className="publicwrap"><Banner /><main id="main"><p className="muted">Loading…</p></main></div>;
 
   const exportUrl = `/api/public/courses/${encodeURIComponent(slug)}/export`;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const textUrl = `${origin}/c/${encodeURIComponent(slug)}.txt`;
+  const pageUrl = `${origin}/c/${encodeURIComponent(slug)}`;
+
+  // Plain-text URL first: it is the highest-signal one to hand a research tool.
+  const sourceLinks = [textUrl, pageUrl, `${origin}${exportUrl}`].join("\n");
+  const copyLinks = () => {
+    navigator.clipboard?.writeText(sourceLinks).then(
+      () => { setCopied(true); setTimeout(() => setCopied(false), 2000); },
+      () => {}
+    );
+  };
 
   return (
     <div className="publicwrap">
@@ -186,10 +199,17 @@ export function PublicCourse({ slug }: { slug: string }) {
         <div className="publicactions">
           <a className="btn primary" href={exportUrl} download>⬇ Download course file</a>
           <a className="btn" {...linkProps("dashboard")}>Import into my instance</a>
+          <a className="btn ghost" href={textUrl} target="_blank" rel="noopener noreferrer">View as plain text</a>
+          <button className="btn ghost" type="button" onClick={copyLinks}>
+            {copied ? "Links copied" : "Copy source links"}
+          </button>
         </div>
         <p className="hint">
           Downloading gives you a <code>.wow-course.json</code> package. In your own Well of Wisdom,
           go to Courses → Import, or paste this page's URL to pull it straight across.
+          <br />
+          <strong>Copy source links</strong> puts the plain-text, page and download URLs on your
+          clipboard, ready to paste into a research tool like NotebookLM as sources.
         </p>
 
         {data.units.map((u, ui) => (

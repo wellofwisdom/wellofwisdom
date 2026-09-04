@@ -6,6 +6,8 @@ const fs = require("node:fs");
 const db = require("./lib/db");
 const learners = require("./lib/learners");
 const seo = require("./lib/seo");
+const share = require("./lib/share");
+const { publicTree } = require("./routes/public");
 const ai = require("./lib/ai");
 const auth = require("./lib/auth");
 const { migrate } = require("./lib/migrate");
@@ -109,6 +111,24 @@ app.get("/sitemap.xml", async (req, res) => {
     res.type("application/xml").send(await seo.sitemapXml(seo.origin(req)));
   } catch {
     res.type("application/xml").send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+  }
+});
+
+// Plain-text course, the highest-signal thing to hand a research tool: no
+// chrome, no markup, answer keys stripped (built from the public projection).
+// Registered before /c/:slug so the .txt suffix wins rather than being read as
+// part of the slug.
+app.get("/c/:slug.txt", async (req, res, next) => {
+  try {
+    if (!db.configured()) return next();
+    const tree = await publicTree(String(req.params.slug));
+    if (!tree) return next();
+    res.type("text/plain; charset=utf-8");
+    res.set("Cache-Control", "public, max-age=300");
+    res.set("Access-Control-Allow-Origin", "*"); // a research tool may fetch it cross-origin
+    res.send(share.courseText(tree, { url: `${seo.origin(req)}/c/${tree.public_slug}` }));
+  } catch {
+    next();
   }
 });
 

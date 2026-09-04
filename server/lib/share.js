@@ -121,6 +121,85 @@ function coursePackage(tree) {
   };
 }
 
+const LICENSE_LABEL = {
+  "CC-BY-4.0": "CC BY 4.0",
+  "CC-BY-SA-4.0": "CC BY-SA 4.0",
+  "CC0-1.0": "CC0 1.0 (public domain)",
+  "all-rights-reserved": "All rights reserved",
+};
+
+/** Render a published course as plain text for research tools and readers with
+ *  no JavaScript. Built from publicCourse(), never the raw tree, so it can only
+ *  ever see the answer-stripped projection: a new content field cannot leak into
+ *  the text any more than it can into the page. */
+function courseText(tree, opts = {}) {
+  const pub = publicCourse(tree);
+  const stats = courseStats(tree);
+  const L = [];
+  const push = (s = "") => L.push(s);
+
+  push(pub.title);
+  push("A free course from Well of Wisdom");
+  if (opts.url) push(opts.url);
+  push();
+
+  const facts = [];
+  if (pub.author) facts.push(`By ${pub.author}`);
+  facts.push(`License: ${LICENSE_LABEL[pub.license] || pub.license}`);
+  if (pub.gradeLevel) facts.push(`Grade ${pub.gradeLevel}`);
+  if (pub.lens) facts.push(`Lens: ${pub.lens}`);
+  facts.forEach(push);
+  push();
+
+  if (pub.description) { push(pub.description); push(); }
+
+  const counts = [`${stats.units} units`, `${stats.lessons} lessons`, `${stats.exercises} exercises`];
+  if (stats.videos) counts.push(`${stats.videos} videos`);
+  push(counts.join(" | "));
+  push();
+  push("=".repeat(72));
+
+  pub.units.forEach((u, ui) => {
+    push();
+    push(`UNIT ${ui + 1}. ${u.title}`);
+    (u.lessons || []).forEach((l, li) => {
+      push();
+      push(`Lesson ${ui + 1}.${li + 1}  ${l.title}`);
+      if (l.summary) push(l.summary);
+      (l.items || []).forEach((it) => {
+        const c = it.content || {};
+        push();
+        if (it.type === "article") {
+          push(`ARTICLE: ${c.title || "Lesson"}`);
+          if (c.body) push(c.body);
+        } else if (it.type === "exercise") {
+          push(`EXERCISE (${c.kind || "mcq"}): ${c.prompt || ""}`);
+          (c.choices || []).forEach((ch) => push(`  - ${ch.text}`));
+        } else if (it.type === "video") {
+          const where = c.youtubeId
+            ? `https://www.youtube.com/watch?v=${c.youtubeId}`
+            : "Uploaded video";
+          push(`VIDEO: ${c.title || "Video"}  [${where}]`);
+          if (c.note) push(c.note);
+          (c.questions || []).forEach((q) => {
+            push(`  Question: ${q.prompt}`);
+            (q.choices || []).forEach((ch) => push(`    - ${ch.text}`));
+          });
+        } else if (it.type === "project") {
+          push(`PROJECT: ${c.title || ""}`);
+          if (c.description) push(c.description);
+          if (c.rubric) { push("Rubric:"); push(c.rubric); }
+        }
+      });
+    });
+  });
+
+  push();
+  push("=".repeat(72));
+  push("Published with Well of Wisdom, an open-source learning platform.");
+  return L.join("\n") + "\n";
+}
+
 /** Counts for the public card: "3 units · 9 lessons · 27 exercises". */
 function courseStats(tree) {
   let lessons = 0;
@@ -141,4 +220,5 @@ function courseStats(tree) {
 module.exports = {
   LICENSES, DEFAULT_LICENSE, slugify, uniqueSlug,
   publicItem, packageItem, publicCourse, coursePackage, courseMeta, courseStats,
+  courseText,
 };

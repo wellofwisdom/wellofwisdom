@@ -122,6 +122,41 @@ test("courseStats: counts what the card promises", () => {
   assert.deepEqual(share.courseStats(tree), { units: 2, lessons: 3, exercises: 2, videos: 1 });
 });
 
+test("courseText: plain-text view carries the teaching material, never answers", () => {
+  const tree = {
+    title: "Fractions through Sewing", topic: "fractions", lens: "sewing",
+    grade_level: 5, description: "Halves and quarters at the cutting table.",
+    public_slug: "frac", license: "CC-BY-4.0", author_name: "Kevin",
+    published_at: new Date(),
+    units: [{ title: "Cutting", lessons: [{ title: "Halves", summary: "s", items: [article, exercise, video] }] }],
+  };
+  const txt = share.courseText(tree, { url: "https://x.test/c/frac" });
+  // The invariant: it is built from the public projection, so no answer key.
+  assert.doesNotMatch(txt, /Common denominator/, "explanation leaked into text");
+  assert.doesNotMatch(txt, /denominators match/, "hint leaked into text");
+  // The teaching material is present.
+  assert.match(txt, /A half is/, "article body missing");
+  assert.match(txt, /What is 1\/2 \+ 1\/4\?/, "exercise prompt missing");
+  assert.match(txt, /3\/4/, "a choice is missing");
+  assert.match(txt, /CC BY 4\.0/, "license label missing");
+  assert.match(txt, /youtube\.com\/watch\?v=abc12345678/, "video link missing");
+  assert.match(txt, /1 units \| 1 lessons \| 1 exercises \| 1 videos/, "stats line missing");
+  assert.match(txt, /https:\/\/x\.test\/c\/frac/, "canonical url missing");
+});
+
+test("courseText: a future secret field cannot leak into the text either", () => {
+  const withSecret = {
+    ...exercise,
+    content: { ...exercise.content, teacherOnlyNote: "Isabella struggles here" },
+  };
+  const tree = {
+    title: "T", topic: "t", lens: null, grade_level: null, description: null,
+    public_slug: "t", license: "CC0-1.0", author_name: null, published_at: new Date(),
+    units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items: [withSecret] }] }],
+  };
+  assert.doesNotMatch(share.courseText(tree), /Isabella/);
+});
+
 test("LICENSES: the publish route's allowlist is closed", () => {
   assert.ok(share.LICENSES.includes(share.DEFAULT_LICENSE));
   assert.ok(!share.LICENSES.includes("whatever-i-typed"));
