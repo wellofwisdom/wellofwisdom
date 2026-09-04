@@ -63,6 +63,8 @@ const NICE: Record<string, string> = {
   family_name_required: "Give your family or school a name.",
   name_required: "A name is required.",
   grade_invalid: "Grade must be between 1 and 14.",
+  video_unavailable: "That link does not point at a video that can be embedded. Check it and try again.",
+  content_invalid: "That does not look like a video link. Paste a YouTube URL or id.",
 };
 
 export function niceError(err: unknown): string {

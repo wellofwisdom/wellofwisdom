@@ -109,6 +109,9 @@ function VideoPanel({ courseId, trailerUploadId, onChanged }:
   const [lessons, setLessons] = useState<{ id: number; label: string }[]>([]);
   const [canCaption, setCanCaption] = useState(false);
   const [msg, setMsg] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkLesson, setLinkLesson] = useState<number | "">("");
+  const [linkBusy, setLinkBusy] = useState(false);
 
   const reload = () => loadVideos().then((d) => { setUploads(d.uploads); setUsage(d.usage); }).catch(() => {});
   useEffect(() => { reload(); }, []);
@@ -138,6 +141,31 @@ function VideoPanel({ courseId, trailerUploadId, onChanged }:
       setMsg("✅ Added to the lesson.");
       onChanged();
     } catch (e) { setMsg(niceError(e)); }
+  }
+
+  // Paste a video link (a YouTube URL or id) straight onto a lesson. The
+  // server verifies it through oEmbed while the guide is still here to fix a
+  // typo, and fills in the real title, so a dead embed never reaches a learner.
+  async function addLinkToLesson() {
+    // The select shows the first lesson by default without touching state, so
+    // fall back to it when the guide has not explicitly picked one.
+    const lessonId = Number(linkLesson === "" ? lessons[0]?.id : linkLesson);
+    if (!linkUrl.trim() || !Number.isInteger(lessonId)) return;
+    setMsg("");
+    setLinkBusy(true);
+    try {
+      await api(`/api/courses/lessons/${lessonId}/items`, {
+        method: "POST",
+        body: { type: "video", content: { url: linkUrl.trim() } },
+      });
+      setLinkUrl("");
+      setMsg("✅ Added the video to the lesson.");
+      onChanged();
+    } catch (e) {
+      setMsg(niceError(e));
+    } finally {
+      setLinkBusy(false);
+    }
   }
 
   async function remove(u: UploadRow) {
@@ -192,6 +220,32 @@ function VideoPanel({ courseId, trailerUploadId, onChanged }:
               const u = uploads.find((x) => x.id === uid);
               if (u) addToLesson(u, lid);
             }}>Add</button>
+          </div>
+        </div>
+      )}
+
+      {lessons.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <h4 style={{ margin: "0 0 6px" }}>Paste a video link</h4>
+          <p className="small muted" style={{ margin: "0 0 6px" }}>
+            A YouTube link or id. We check it exists and can be embedded before it is saved.
+          </p>
+          <div className="row wrap" style={{ gap: 8 }}>
+            <input
+              className="input"
+              style={{ minWidth: 240, flex: 1 }}
+              placeholder="https://www.youtube.com/watch?v=..."
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") addLinkToLesson(); }}
+            />
+            <select className="input" style={{ maxWidth: 260 }}
+              value={linkLesson === "" ? (lessons[0]?.id ?? "") : linkLesson}
+              onChange={(e) => setLinkLesson(e.target.value === "" ? "" : Number(e.target.value))}>
+              {lessons.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
+            </select>
+            <button className="btn" type="button" disabled={linkBusy || !linkUrl.trim()}
+              onClick={addLinkToLesson}>{linkBusy ? "Checking…" : "Add"}</button>
           </div>
         </div>
       )}
