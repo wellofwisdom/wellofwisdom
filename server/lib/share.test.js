@@ -157,6 +157,28 @@ test("courseText: a future secret field cannot leak into the text either", () =>
   assert.doesNotMatch(share.courseText(tree), /Isabella/);
 });
 
+test("publicItem/courseText: Vimeo, PeerTube and direct-file videos survive", () => {
+  const items = [
+    { type: "video", position: 0, content: { vimeoId: "76979871", title: "Vimeo one" } },
+    { type: "video", position: 1, content: { peertubeHost: "framatube.org", peertubeId: "uuid-9", title: "PeerTube one" } },
+    { type: "video", position: 2, content: { fileUrl: "https://example.com/clip.mp4", title: "File one" } },
+  ];
+  for (const it of items) {
+    const out = share.publicItem(it).content;
+    // The source fields a player needs are carried through the projection.
+    assert.ok(out.vimeoId || out.peertubeHost || out.fileUrl, "a source field must survive");
+  }
+  const tree = {
+    title: "T", topic: "t", lens: null, grade_level: null, description: null,
+    public_slug: "t", license: "CC-BY-4.0", author_name: null, published_at: new Date(),
+    units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items }] }],
+  };
+  const txt = share.courseText(tree);
+  assert.match(txt, /vimeo\.com\/76979871/);
+  assert.match(txt, /framatube\.org\/w\/uuid-9/);
+  assert.match(txt, /https:\/\/example\.com\/clip\.mp4/);
+});
+
 test("LICENSES: the publish route's allowlist is closed", () => {
   assert.ok(share.LICENSES.includes(share.DEFAULT_LICENSE));
   assert.ok(!share.LICENSES.includes("whatever-i-typed"));

@@ -346,16 +346,38 @@ router.post("/lessons/:lessonId/items", async (req, res, next) => {
     if (!owns.rowCount) return bad(res, "not_found", 404);
 
     const { normalizeItem } = require("../lib/coursegen");
-    const clean = normalizeItem({ type, content: content || {} });
+    let inputContent = content || {};
+    let resolvedFromUrl = false;
+
+    // Paste-a-link: turn one pasted URL into a verified, structured source
+    // (YouTube, Vimeo, PeerTube, or a direct file) before it crosses the
+    // normalizer, so the guide can fix a bad link now rather than a learner
+    // meeting a dead embed later. All of it is SSRF-guarded in resolveVideoUrl.
+    if (type === "video" && inputContent.url &&
+        !inputContent.youtubeId && !inputContent.uploadId &&
+        !inputContent.vimeoId && !inputContent.fileUrl && !inputContent.peertubeId) {
+      const { resolveVideoUrl } = require("../lib/video");
+      const r = await resolveVideoUrl(inputContent.url);
+      if (r.error) return bad(res, r.error);
+      inputContent = {
+        ...r.content,
+        title: inputContent.title || r.title || undefined,
+        note: inputContent.note,
+        questions: inputContent.questions,
+      };
+      resolvedFromUrl = true;
+    }
+
+    const clean = normalizeItem({ type, content: inputContent });
     if (!clean) return bad(res, "content_invalid");
 
-    // A pasted YouTube link is verified now, while the guide is still here to
-    // fix it, rather than failing silently in front of a learner later.
-    if (clean.type === "video" && clean.content.youtubeId) {
+    // A YouTube id supplied directly (not through a pasted url we already
+    // verified above) is checked now, while the guide can still fix a typo.
+    if (clean.type === "video" && clean.content.youtubeId && !resolvedFromUrl) {
       const { checkYouTube } = require("../lib/video");
       const v = await checkYouTube(clean.content.youtubeId);
       if (!v.ok) return bad(res, "video_unavailable");
-      if (v.title && !content.title) clean.content.title = v.title;
+      if (v.title && !inputContent.title) clean.content.title = v.title;
     }
     // A video item pointing at an upload must point at one of OUR uploads.
     if (clean.type === "video" && clean.content.uploadId) {

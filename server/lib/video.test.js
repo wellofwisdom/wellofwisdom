@@ -21,6 +21,53 @@ test("checkYouTube: a well-formed id is at least attempted", async () => {
   assert.notEqual(r.reason, "malformed_id");
 });
 
+// ---- other sources: the pure parsing/validation, no network ----
+
+test("vimeoIdFrom: pulls an id from a Vimeo url, rejects a bare number", () => {
+  assert.equal(video.vimeoIdFrom("https://vimeo.com/76979871"), "76979871");
+  assert.equal(video.vimeoIdFrom("https://player.vimeo.com/video/76979871"), "76979871");
+  assert.equal(video.vimeoIdFrom("https://vimeo.com/channels/staffpicks/76979871"), "76979871");
+  assert.equal(video.vimeoIdFrom("76979871"), null, "a bare number is too ambiguous to trust");
+  assert.equal(video.vimeoIdFrom("https://youtube.com/watch?v=abc"), null);
+});
+
+test("fileVideoUrl: a public video URL passes, a private or non-video one does not", () => {
+  assert.equal(video.fileVideoUrl("https://example.com/clip.mp4"), "https://example.com/clip.mp4");
+  assert.equal(video.fileVideoUrl("https://example.com/clip.webm?token=x"), "https://example.com/clip.webm?token=x");
+  assert.equal(video.fileVideoUrl("https://example.com/page.html"), null, "not a video extension");
+  assert.equal(video.fileVideoUrl("http://localhost/clip.mp4"), null, "no private host");
+  assert.equal(video.fileVideoUrl("https://10.0.0.5/clip.mp4"), null, "no private address");
+  assert.equal(video.fileVideoUrl("not a url"), null);
+});
+
+test("peerTubeHostId: validates the stored host + id, blocking private hosts", () => {
+  assert.deepEqual(video.peerTubeHostId("framatube.org", "abcd-1234"), { host: "framatube.org", id: "abcd-1234" });
+  assert.equal(video.peerTubeHostId("localhost", "abcd"), null, "no private host");
+  assert.equal(video.peerTubeHostId("192.168.1.9", "abcd"), null, "no private address");
+  assert.equal(video.peerTubeHostId("framatube.org", "bad id!"), null, "id is constrained");
+  assert.equal(video.peerTubeHostId("", "abcd"), null);
+});
+
+test("peerTubeRefFromUrl: extracts host + id from watch/embed/short paths", () => {
+  const u = (s) => new URL(s);
+  assert.deepEqual(video.peerTubeRefFromUrl(u("https://framatube.org/videos/watch/uuid-1")), { host: "framatube.org", id: "uuid-1" });
+  assert.deepEqual(video.peerTubeRefFromUrl(u("https://framatube.org/w/short2")), { host: "framatube.org", id: "short2" });
+  assert.deepEqual(video.peerTubeRefFromUrl(u("https://framatube.org/videos/embed/uuid-3")), { host: "framatube.org", id: "uuid-3" });
+  assert.equal(video.peerTubeRefFromUrl(u("https://framatube.org/about")), null);
+});
+
+test("resolveVideoUrl: a direct file URL is resolved with no network at all", async () => {
+  const r = await video.resolveVideoUrl("https://example.com/lesson.mp4");
+  assert.deepEqual(r, { content: { fileUrl: "https://example.com/lesson.mp4" }, title: null });
+});
+
+test("resolveVideoUrl: an empty or private link is refused", async () => {
+  assert.deepEqual(await video.resolveVideoUrl("  "), { error: "content_invalid" });
+  // A private-host .mp4 is not a file (safeSourceUrl blocks it) and not a safe
+  // URL to try as PeerTube either, so it is refused rather than fetched.
+  assert.deepEqual(await video.resolveVideoUrl("http://127.0.0.1/x.mp4"), { error: "video_unavailable" });
+});
+
 /** pruneDeadVideos with the network stubbed, so the policy is testable. */
 function courseWith(items) {
   return { units: [{ lessons: [{ title: "L", items }] }] };

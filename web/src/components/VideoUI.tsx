@@ -10,6 +10,10 @@ import { api, niceError } from "../api";
 export interface VideoContent {
   youtubeId?: string;
   uploadId?: number;
+  vimeoId?: string;
+  fileUrl?: string;
+  peertubeHost?: string;
+  peertubeId?: string;
   title?: string;
   note?: string;
 }
@@ -67,6 +71,43 @@ export function VideoPlayer({ content, poster }: { content: VideoContent; poster
           allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
+      </div>
+    );
+  }
+  if (content.vimeoId) {
+    return (
+      <div className="videowrap">
+        <iframe
+          title={content.title || "Course video"}
+          loading="lazy"
+          src={`https://player.vimeo.com/video/${encodeURIComponent(content.vimeoId)}`}
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+  // PeerTube: the embed URL is rebuilt from the structured host + id the server
+  // verified, never a free-form URL, so nothing arbitrary reaches the src.
+  if (content.peertubeHost && content.peertubeId) {
+    return (
+      <div className="videowrap">
+        <iframe
+          title={content.title || "Course video"}
+          loading="lazy"
+          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"
+          src={`https://${content.peertubeHost}/videos/embed/${encodeURIComponent(content.peertubeId)}`}
+          allow="fullscreen; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+  if (content.fileUrl) {
+    return (
+      <div className="videowrap">
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        <video src={content.fileUrl} controls preload="metadata" playsInline title={content.title || "Course video"} />
       </div>
     );
   }

@@ -228,7 +228,8 @@ function VideoPanel({ courseId, trailerUploadId, onChanged }:
         <div style={{ marginTop: 12 }}>
           <h4 style={{ margin: "0 0 6px" }}>Paste a video link</h4>
           <p className="small muted" style={{ margin: "0 0 6px" }}>
-            A YouTube link or id. We check it exists and can be embedded before it is saved.
+            YouTube, Vimeo, PeerTube, or a direct MP4/WebM link. We check it exists and can be
+            embedded before it is saved.
           </p>
           <div className="row wrap" style={{ gap: 8 }}>
             <input
@@ -478,7 +479,15 @@ function ItemPreview({ item, onEdit, onDelete }: { item: ItemNode; onEdit: () =>
           {item.type === "video" && (
             <>
               <strong>{c.title}</strong>
-              <div className="small muted">youtube: {c.youtubeId}{c.questions?.length ? ` · ${c.questions.length} questions` : ""}</div>
+              <div className="small muted">
+                {c.youtubeId ? `youtube: ${c.youtubeId}`
+                  : c.vimeoId ? `vimeo: ${c.vimeoId}`
+                  : c.peertubeHost ? `peertube: ${c.peertubeHost}`
+                  : c.fileUrl ? "direct video link"
+                  : c.uploadId ? "uploaded video"
+                  : "video"}
+                {c.questions?.length ? ` · ${c.questions.length} questions` : ""}
+              </div>
             </>
           )}
           {item.type === "project" && (

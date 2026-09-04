@@ -98,11 +98,19 @@ function ItemView({ item }: { item: PublicItem }) {
       </div>
     );
   }
-  if (item.type === "video" && (c.youtubeId || c.uploadId)) {
+  if (item.type === "video" && (c.youtubeId || c.uploadId || c.vimeoId || c.fileUrl || (c.peertubeHost && c.peertubeId))) {
     return (
       <div className="publicitem">
         <h4>{c.title || "Video"}</h4>
-        <VideoPlayer content={{ youtubeId: c.youtubeId, uploadId: c.uploadId ? Number(c.uploadId) : undefined, title: c.title }} />
+        <VideoPlayer content={{
+          youtubeId: c.youtubeId,
+          uploadId: c.uploadId ? Number(c.uploadId) : undefined,
+          vimeoId: c.vimeoId,
+          fileUrl: c.fileUrl,
+          peertubeHost: c.peertubeHost,
+          peertubeId: c.peertubeId,
+          title: c.title,
+        }} />
         {c.note && <p className="muted small">{c.note}</p>}
       </div>
     );

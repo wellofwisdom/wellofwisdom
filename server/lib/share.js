@@ -50,7 +50,11 @@ function publicItem(item) {
     return { type: item.type, position: item.position, content: out };
   }
   if (item.type === "video") {
-    const out = { youtubeId: c.youtubeId, uploadId: c.uploadId, title: c.title, note: c.note };
+    const out = {
+      youtubeId: c.youtubeId, uploadId: c.uploadId, vimeoId: c.vimeoId,
+      fileUrl: c.fileUrl, peertubeHost: c.peertubeHost, peertubeId: c.peertubeId,
+      title: c.title, note: c.note,
+    };
     if (c.questions) out.questions = c.questions.map((q) => ({ prompt: q.prompt, choices: q.choices }));
     return { type: item.type, position: item.position, content: out };
   }
@@ -176,9 +180,11 @@ function courseText(tree, opts = {}) {
           push(`EXERCISE (${c.kind || "mcq"}): ${c.prompt || ""}`);
           (c.choices || []).forEach((ch) => push(`  - ${ch.text}`));
         } else if (it.type === "video") {
-          const where = c.youtubeId
-            ? `https://www.youtube.com/watch?v=${c.youtubeId}`
-            : "Uploaded video";
+          let where = "Uploaded video";
+          if (c.youtubeId) where = `https://www.youtube.com/watch?v=${c.youtubeId}`;
+          else if (c.vimeoId) where = `https://vimeo.com/${c.vimeoId}`;
+          else if (c.peertubeHost && c.peertubeId) where = `https://${c.peertubeHost}/w/${c.peertubeId}`;
+          else if (c.fileUrl) where = c.fileUrl;
           push(`VIDEO: ${c.title || "Video"}  [${where}]`);
           if (c.note) push(c.note);
           (c.questions || []).forEach((q) => {

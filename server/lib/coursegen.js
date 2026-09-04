@@ -5,6 +5,7 @@
 const db = require("./db");
 const ai = require("./ai");
 const { youtubeId } = require("./grade");
+const { fileVideoUrl, peerTubeHostId } = require("./video");
 
 const GEN_SYSTEM = `You are an expert curriculum designer building courses for a homeschool family.
 You ALWAYS respond with a single valid JSON object and nothing else. No markdown fences, no commentary.
@@ -109,16 +110,25 @@ function normalizeExercise(content) {
 }
 
 function normalizeVideo(content) {
-  // A video item is EITHER a YouTube id or an uploaded file (a NotebookLM
-  // export, a recorded explainer, a boss-fight clip). uploadId is a local
-  // reference, so it is only trusted as a positive integer.
+  // A video item is one of: a YouTube id, an uploaded file (a NotebookLM
+  // export, a recorded explainer, a boss-fight clip), a Vimeo id, a PeerTube
+  // host+id, or a direct file URL. uploadId is a local reference, so it is only
+  // trusted as a positive integer; the external sources are shape-validated
+  // here (this is the trust boundary), so an imported course cannot smuggle a
+  // private-address fetch or a free-form iframe src past it.
   const id = youtubeId(content.youtubeId || content.url || "");
   const uploadId = Number(content.uploadId);
   const hasUpload = Number.isInteger(uploadId) && uploadId > 0;
-  if (!id && !hasUpload) return null;
+  const vimeoId = /^\d{5,12}$/.test(String(content.vimeoId || "")) ? String(content.vimeoId) : null;
+  const fileUrl = fileVideoUrl(content.fileUrl || "");
+  const pt = peerTubeHostId(content.peertubeHost, content.peertubeId);
+  if (!id && !hasUpload && !vimeoId && !fileUrl && !pt) return null;
   const v = { title: clean(content.title, 300) || "Video", note: str(content.note, 1000) };
   if (id) v.youtubeId = id;
   if (hasUpload) v.uploadId = uploadId;
+  if (vimeoId) v.vimeoId = vimeoId;
+  if (fileUrl) v.fileUrl = fileUrl;
+  if (pt) { v.peertubeHost = pt.host; v.peertubeId = pt.id; }
   const questions = [];
   if (Array.isArray(content.questions)) {
     for (const q of content.questions.slice(0, 4)) {
