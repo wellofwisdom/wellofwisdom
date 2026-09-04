@@ -8,9 +8,9 @@
   --panel: #ffffff;
   --panel-2: #eef1f4;
   --text: #1c2430;
-  --muted: #5b6875;
+  --muted: #55616d;
   --border: #d5dce3;
-  --accent: #0f7d5c;
+  --accent: #0e7254;
   --accent-soft: #e0f2ec;
   --accent-contrast: #ffffff;
   --good: #1a7f37;
@@ -50,23 +50,23 @@
   transition: background 0.4s ease;
 }
 [data-bg="aurora"] body::before {
-  background: radial-gradient(60% 50% at 15% 0%, rgba(45, 212, 167, 0.16), transparent 60%),
-    radial-gradient(50% 45% at 90% 10%, rgba(88, 166, 255, 0.14), transparent 60%);
+  background: radial-gradient(60% 50% at 15% 0%, rgba(45, 212, 167, 0.104), transparent 60%),
+    radial-gradient(50% 45% at 90% 10%, rgba(88, 166, 255, 0.091), transparent 60%);
 }
 [data-bg="sunset"] body::before {
-  background: radial-gradient(55% 45% at 85% 0%, rgba(255, 166, 87, 0.18), transparent 60%),
-    radial-gradient(45% 40% at 10% 5%, rgba(255, 99, 132, 0.12), transparent 60%);
+  background: radial-gradient(55% 45% at 85% 0%, rgba(255, 166, 87, 0.117), transparent 60%),
+    radial-gradient(45% 40% at 10% 5%, rgba(255, 99, 132, 0.078), transparent 60%);
 }
 [data-bg="forest"] body::before {
-  background: radial-gradient(60% 50% at 20% 0%, rgba(63, 185, 80, 0.15), transparent 60%),
-    radial-gradient(45% 40% at 90% 15%, rgba(184, 230, 46, 0.08), transparent 60%);
+  background: radial-gradient(60% 50% at 20% 0%, rgba(63, 185, 80, 0.098), transparent 60%),
+    radial-gradient(45% 40% at 90% 15%, rgba(184, 230, 46, 0.052), transparent 60%);
 }
 [data-bg="ocean"] body::before {
-  background: radial-gradient(60% 50% at 50% 0%, rgba(88, 166, 255, 0.16), transparent 65%);
+  background: radial-gradient(60% 50% at 50% 0%, rgba(88, 166, 255, 0.104), transparent 65%);
 }
 [data-bg="lavender"] body::before {
-  background: radial-gradient(55% 45% at 80% 0%, rgba(188, 140, 255, 0.15), transparent 60%),
-    radial-gradient(40% 40% at 10% 10%, rgba(255, 255, 255, 0.06), transparent 60%);
+  background: radial-gradient(55% 45% at 80% 0%, rgba(188, 140, 255, 0.098), transparent 60%),
+    radial-gradient(40% 40% at 10% 10%, rgba(255, 255, 255, 0.039), transparent 60%);
 }
 
 /* ---------- base ---------- */
@@ -546,24 +546,24 @@ summary::marker { color: var(--muted); }
 /* ---------- more background washes ---------- */
 
 [data-bg="emerald"] body::before {
-  background: radial-gradient(60% 50% at 25% 0%, rgba(15, 155, 142, 0.16), transparent 60%);
+  background: radial-gradient(60% 50% at 25% 0%, rgba(15, 155, 142, 0.104), transparent 60%);
 }
 [data-bg="midnight"] body::before {
-  background: radial-gradient(60% 50% at 50% 0%, rgba(79, 91, 213, 0.18), transparent 65%);
+  background: radial-gradient(60% 50% at 50% 0%, rgba(79, 91, 213, 0.117), transparent 65%);
 }
 [data-bg="peach"] body::before {
-  background: radial-gradient(55% 45% at 85% 0%, rgba(255, 177, 153, 0.25), transparent 60%);
+  background: radial-gradient(55% 45% at 85% 0%, rgba(255, 177, 153, 0.163), transparent 60%);
 }
 [data-bg="meadow"] body::before {
-  background: radial-gradient(60% 50% at 15% 0%, rgba(150, 230, 161, 0.2), transparent 60%),
-    radial-gradient(45% 40% at 90% 10%, rgba(212, 252, 121, 0.12), transparent 60%);
+  background: radial-gradient(60% 50% at 15% 0%, rgba(150, 230, 161, 0.13), transparent 60%),
+    radial-gradient(45% 40% at 90% 10%, rgba(212, 252, 121, 0.078), transparent 60%);
 }
 [data-bg="slate"] body::before {
-  background: radial-gradient(60% 50% at 50% 0%, rgba(142, 158, 171, 0.22), transparent 65%);
+  background: radial-gradient(60% 50% at 50% 0%, rgba(142, 158, 171, 0.143), transparent 65%);
 }
 [data-bg="rose"] body::before {
-  background: radial-gradient(55% 45% at 80% 0%, rgba(251, 194, 235, 0.25), transparent 60%),
-    radial-gradient(40% 40% at 10% 10%, rgba(166, 193, 238, 0.14), transparent 60%);
+  background: radial-gradient(55% 45% at 80% 0%, rgba(251, 194, 235, 0.163), transparent 60%),
+    radial-gradient(40% 40% at 10% 10%, rgba(166, 193, 238, 0.091), transparent 60%);
 }
 
 /* ---------- reading size (accessibility) ---------- */

@@ -175,8 +175,13 @@ and why. Anything marked shipped has a commit and is live.
         so Tab walked out into the page behind.
   - [ ] The drag-and-drop library board has no keyboard path.
   - [ ] Learner cards are `div role="link"` rather than real anchors.
-  - [ ] Contrast is unverified across 8 accents by 12 backgrounds. Some of
-        those 96 combinations certainly fail. Check them and drop the failures.
+  - [x] **Contrast is verified and enforced.** 410 pairs measured across every
+        accent, every background wash, both themes: button labels, accent text,
+        soft surfaces, body and muted text. 77 failed. Fixed by softening the
+        decorative washes to 65% and nudging five light accents, because
+        decoration carries no meaning and an accent palette does. Now 0 failing
+        with headroom, locked by a test that fails the build on a regression.
+        Nothing was dropped: all 8 accents and all 12 backgrounds survived.
   - [x] **Reading font and line spacing controls**, beside reading size. System
         faces only, so nothing downloads and choosing one sends nothing
         anywhere. Maths and code keep their own font, because changing those

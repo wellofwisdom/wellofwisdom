@@ -38,12 +38,12 @@ export interface Accent {
 }
 
 export const ACCENTS: Accent[] = [
-  { id: "teal", name: "Hazel teal", base: "#0f7d5c", dark: "#2dd4a7", soft: "#e0f2ec", softDark: "#12362e", contrast: "#ffffff", contrastDark: "#07130f" },
-  { id: "blue", name: "Deep water", base: "#0969da", dark: "#58a6ff", soft: "#dbeafe", softDark: "#12253d", contrast: "#ffffff", contrastDark: "#0a1220" },
-  { id: "violet", name: "Twilight", base: "#7c3aed", dark: "#a78bfa", soft: "#ede9fe", softDark: "#241b3d", contrast: "#ffffff", contrastDark: "#120c22" },
+  { id: "teal", name: "Hazel teal", base: "#0e7254", dark: "#2dd4a7", soft: "#e0f2ec", softDark: "#12362e", contrast: "#ffffff", contrastDark: "#07130f" },
+  { id: "blue", name: "Deep water", base: "#0861c9", dark: "#58a6ff", soft: "#dbeafe", softDark: "#12253d", contrast: "#ffffff", contrastDark: "#0a1220" },
+  { id: "violet", name: "Twilight", base: "#7a39e8", dark: "#a78bfa", soft: "#ede9fe", softDark: "#241b3d", contrast: "#ffffff", contrastDark: "#120c22" },
   { id: "rose", name: "Rowan rose", base: "#be185d", dark: "#f472b6", soft: "#fce7f3", softDark: "#3b0f26", contrast: "#ffffff", contrastDark: "#1f0813" },
-  { id: "amber", name: "Ochre", base: "#b45309", dark: "#fbbf24", soft: "#fef3c7", softDark: "#38240a", contrast: "#ffffff", contrastDark: "#1e1204" },
-  { id: "green", name: "Moss", base: "#15803d", dark: "#4ade80", soft: "#dcfce7", softDark: "#0d2b18", contrast: "#ffffff", contrastDark: "#06170c" },
+  { id: "amber", name: "Ochre", base: "#a24b08", dark: "#fbbf24", soft: "#fef3c7", softDark: "#38240a", contrast: "#ffffff", contrastDark: "#1e1204" },
+  { id: "green", name: "Moss", base: "#137337", dark: "#4ade80", soft: "#dcfce7", softDark: "#0d2b18", contrast: "#ffffff", contrastDark: "#06170c" },
   { id: "sky", name: "Sky", base: "#0369a1", dark: "#38bdf8", soft: "#e0f2fe", softDark: "#0c2537", contrast: "#ffffff", contrastDark: "#061824" },
   { id: "plum", name: "Plum", base: "#9d174d", dark: "#e879f9", soft: "#fae8ff", softDark: "#33102a", contrast: "#ffffff", contrastDark: "#1b0815" },
 ];
