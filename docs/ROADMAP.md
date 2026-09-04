@@ -149,10 +149,19 @@ and why. Anything marked shipped has a commit and is live.
       are saved. The generator is told to only use ids it is certain of, which
       is not a guarantee: a model will produce a plausible eleven-character
       string that points at nothing. One request, no API key.
-- [ ] **Paste-a-link video** for guides, alongside the AI's own choices.
-- [ ] **Vimeo and PeerTube** through the same oEmbed path. PeerTube matters to
-      the self-hosting audience.
-- [ ] **Direct file URL** video (MP4/WebM on someone's own server).
+- [x] **Paste-a-link video** for guides, alongside the AI's own choices
+      (`2ae10ef`). The add-item endpoint already verified a pasted URL via
+      oEmbed; this is the UI in the course Videos panel.
+- [x] **Vimeo and PeerTube** through the same oEmbed path (`ad9931f`). PeerTube
+      matters to the self-hosting audience: their own instance, embedded.
+      `resolveVideoUrl` is the one place a pasted URL becomes a verified,
+      structured source; every fetch and every stored host is SSRF-guarded
+      through `safeSourceUrl`, and `normalizeVideo` re-validates on import so a
+      private-host source cannot cross the trust boundary. The player rebuilds
+      each embed from structured pieces, never a free-form URL.
+- [x] **Direct file URL** video (MP4/WebM on someone's own server) (`ad9931f`).
+      Validated by extension and `safeSourceUrl` with no server-side fetch (the
+      browser fetches it at play time); rendered in a plain `<video>`.
 - [ ] **Multiple guides per family.** Two parents. The most common complaint
       this will get, and nearly free.
 - [ ] **Roles:** owner (billing, delete), guide (full teaching), assistant
@@ -178,8 +187,16 @@ and why. Anything marked shipped has a commit and is live.
   - [x] **The modal traps focus and restores it.** CORRECTED: it always closed
         on Escape and focused its first control. What it lacked was the trap,
         so Tab walked out into the page behind.
-  - [ ] The drag-and-drop library board has no keyboard path.
-  - [ ] Learner cards are `div role="link"` rather than real anchors.
+  - [x] **The library board has a keyboard path** (`2ecd247`). Each card
+        carries left/right move controls (and answers ArrowLeft/ArrowRight while
+        focused) that shift it to the adjacent status column, labelled with the
+        destination; focus follows the card so a run of moves is not punished.
+        Drag still works for a mouse.
+  - [x] **Learner, course and plan cards are real anchors now** (`aa89ad0`,
+        `7e47335`). The title is a genuine `<a href>` (announced as a link,
+        Tab-focusable, middle-clickable); the card click stays a mouse
+        convenience. That closes the `role="link"` card pattern across the
+        guide console.
   - [x] **Contrast is verified and enforced.** 410 pairs measured across every
         accent, every background wash, both themes: button labels, accent text,
         soft surfaces, body and muted text. 77 failed. Fixed by softening the
