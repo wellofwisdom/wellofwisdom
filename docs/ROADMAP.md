@@ -236,10 +236,17 @@ and why. Anything marked shipped has a commit and is live.
 - [ ] **Review the self-harm pre-check regex.** It is deliberately narrow so
       that "this is killing me" and "i give up" pass through as ordinary
       frustration, which is asserted. That balance deserves a second opinion.
-- [ ] **Misconception detection across attempts.** Every attempt is already
-      stored. A pass over them that says "she inverts the fraction whenever the
-      denominators differ" is worth more to a parent than any single lesson,
-      and nothing else on the market does it for a family of two.
+- [x] **Misconception detection across attempts** (`64478fc`). A guide-triggered
+      pass over a learner's WRONG answers that names the habit behind them
+      ("adds numerators and denominators straight across"), not just the count.
+      The model sees only the missed questions as "asked X, chose Y, answer was
+      Z" (ids resolved to text), is told to ground every pattern in them and to
+      report no pattern when the misses are just slips, and its output crosses a
+      normalizer. Below three usable misses it returns a note with no AI call.
+      Family-scoped and honours `canSeeLearner`. NOT yet smoke-tested against a
+      live model: the offline paths (normalizer, not-enough) are tested, the
+      real analysis runs when a guide clicks "Spot patterns" on the Progress
+      page. Read one before trusting the tone, the way the tutor prompt wants.
 - [ ] **Timestamped video comprehension.** Fetch the transcript, anchor the
       questions to timestamps, and have a wrong answer scrub the player back to
       the ten seconds that explain it. Khan has fixed videos with fixed
