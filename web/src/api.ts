@@ -65,6 +65,7 @@ const NICE: Record<string, string> = {
   grade_invalid: "Grade must be between 1 and 14.",
   video_unavailable: "That link does not point at a video that can be embedded. Check it and try again.",
   content_invalid: "That does not look like a video link. Paste a YouTube URL or id.",
+  ai_not_configured: "This needs an AI provider, which is not set up on this instance. Add one in Settings.",
 };
 
 export function niceError(err: unknown): string {

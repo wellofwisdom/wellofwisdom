@@ -98,6 +98,7 @@ export default function Progress() {
                 );
               })
             )}
+            <MisconceptionCard learner={l} />
           </Panel>
         );
       })}
@@ -130,6 +131,80 @@ export default function Progress() {
   function onNavigateReport(id: number) {
     go(`report/${id}`);
   }
+}
+
+interface Analysis {
+  patterns: { skill: string; misconception: string; evidence: string; suggestion: string }[];
+  overall: string;
+  note?: string;
+  missed?: number;
+}
+
+/** On-demand AI pass over one learner's wrong answers, naming the pattern
+ *  behind them. The guide asks for it (so the AI cost is only paid when wanted),
+ *  and every string here came back through the server-side normalizer. */
+function MisconceptionCard({ learner }: { learner: ProgressLearner }) {
+  const [result, setResult] = useState<Analysis | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function run() {
+    setErr("");
+    setBusy(true);
+    setResult(null);
+    try {
+      setResult(await api<Analysis>(`/api/progress/misconceptions/${learner.id}`, { method: "POST", body: {} }));
+    } catch (e) {
+      setErr(niceError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 10 }}>
+      <div className="row" style={{ alignItems: "center" }}>
+        <strong className="small">Misconceptions</strong>
+        <span className="grow" />
+        <button className="btn ghost small-btn" type="button" disabled={busy} onClick={run}>
+          {busy ? "Reading the wrong answers…" : "🔎 Spot patterns"}
+        </button>
+      </div>
+      <p className="muted small" style={{ margin: "4px 0 0" }}>
+        An AI pass over {learner.name}&rsquo;s wrong answers, looking for the habit behind them, not just
+        the count. You decide what it means.
+      </p>
+      {err && <p className="formerror small" role="alert" style={{ marginTop: 6 }}>{err}</p>}
+      {result && result.note === "not_enough" && (
+        <p className="muted small" style={{ marginTop: 6 }}>
+          Not enough wrong answers yet to spot a pattern ({result.missed} so far). This gets useful once
+          there is more work to look at.
+        </p>
+      )}
+      {result && result.note !== "not_enough" && result.patterns.length === 0 && (
+        <p className="muted small" style={{ marginTop: 6 }}>
+          No clear pattern in the misses: they read as one-off slips rather than a shared misunderstanding.
+        </p>
+      )}
+      {result && result.patterns.length > 0 && (
+        <div style={{ marginTop: 6 }} role="status">
+          {result.overall && <p className="small" style={{ marginTop: 0 }}>{result.overall}</p>}
+          <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+            {result.patterns.map((p, i) => (
+              <li key={i} style={{ marginBottom: 8 }}>
+                <div className="small">{p.skill && <strong>{p.skill}: </strong>}{p.misconception}</div>
+                {p.evidence && <div className="muted small">Seen in: {p.evidence}</div>}
+                {p.suggestion && <div className="small">→ {p.suggestion}</div>}
+              </li>
+            ))}
+          </ul>
+          <p className="hint small" style={{ marginTop: 4 }}>
+            AI-suggested from real answers. Your judgement decides what to do about it.
+          </p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function ReportBuilder({ learner, onClose, onGenerated }: {
