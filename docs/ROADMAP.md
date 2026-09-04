@@ -253,8 +253,15 @@ and why. Anything marked shipped has a commit and is live.
       questions; this watches any video with the learner.
 - [ ] **Essay and project grading** against a rubric, drafted by AI, approved or
       rewritten by the guide. Never auto-applied.
-- [ ] **Reading-level rewriting**: the same article at three levels, so
-      siblings can share a course.
+- [x] **Reading-level rewriting** (`9aa612e`). In the article editor a guide
+      picks a level (simpler, grade 3/5/8, advanced) and drafts a rewrite
+      (`POST /api/courses/rewrite`): the same lesson for a different reader, with
+      every fact, step, the markdown and the `$math$` kept and only the sentences
+      and vocabulary changed. It is a draft that fills the editor; the guide
+      reviews and Saves, or Cancels to keep the original. Nothing auto-applied.
+      This is the on-demand-tool version; keeping three levels live at once per
+      learner would need storage and is a follow-up. Not smoke-tested with a
+      live model yet.
 - [ ] **Boss fight mechanics**: a timed streak of correct answers with no hints,
       with the win cutscene playing on success.
 - [ ] **AI art per character and chapter.** The image path works; this is
