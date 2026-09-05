@@ -262,8 +262,8 @@ and why. Anything marked shipped has a commit and is live.
       This is the on-demand-tool version; keeping three levels live at once per
       learner would need storage and is a follow-up. Not smoke-tested with a
       live model yet.
-- [x] **Boss fight mechanics.** A boss or miniboss encounter is no longer
-      cleared by a click: the learner answers a streak of the course's own
+- [x] **Boss fight mechanics** (`a53ff00`). A boss or miniboss encounter is no
+      longer cleared by a click: the learner answers a streak of the course's own
       questions correctly in a row (5 for a boss, 3 for a miniboss, tunable per
       encounter), each against a per-question clock, with no hints. A miss (wrong,
       or out of time) resets the streak but never ends the run, so it stays
