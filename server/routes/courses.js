@@ -2,6 +2,7 @@
 // Parent course routes: generate (job), list, detail tree, edit, publish, delete.
 const express = require("express");
 const auth = require("../lib/auth");
+const perm = require("../lib/perm");
 const db = require("../lib/db");
 const share = require("../lib/share");
 const jobs = require("../lib/jobs");
@@ -248,6 +249,9 @@ router.patch("/:id", async (req, res, next) => {
       }
     }
     if (status !== undefined) {
+      // Changing whether a course is live to learners is a publish action, not
+      // an edit: an assistant may edit a course but not publish or archive it.
+      if (!perm.can(req.user, "publish_course")) return bad(res, "not_allowed", 403);
       if (!["draft", "published", "archived"].includes(status)) return bad(res, "status_invalid");
       add("status", status);
     }
@@ -274,7 +278,7 @@ router.patch("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", auth.requirePerm("delete_course"), async (req, res, next) => {
   try {
     const { rowCount } = await db.query(
       "delete from courses where id = $2 and family_id = $1",
@@ -476,7 +480,7 @@ router.patch("/lessons/:lessonId", async (req, res, next) => {
 
 // Publish to this instance's public page. Nothing leaves the server until a
 // guide asks: sharing is opt-in, per course.
-router.post("/:id/publish", async (req, res, next) => {
+router.post("/:id/publish", auth.requirePerm("share_course"), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) return bad(res, "id_invalid");
@@ -509,7 +513,7 @@ router.post("/:id/publish", async (req, res, next) => {
   }
 });
 
-router.post("/:id/unpublish", async (req, res, next) => {
+router.post("/:id/unpublish", auth.requirePerm("share_course"), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) return bad(res, "id_invalid");

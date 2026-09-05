@@ -162,14 +162,27 @@ and why. Anything marked shipped has a commit and is live.
 - [x] **Direct file URL** video (MP4/WebM on someone's own server) (`ad9931f`).
       Validated by extension and `safeSourceUrl` with no server-side fetch (the
       browser fetches it at play time); rendered in a plain `<video>`.
-- [ ] **Multiple guides per family.** Two parents. The most common complaint
-      this will get, and nearly free.
-- [ ] **Roles:** owner (billing, delete), guide (full teaching), assistant
-      (assigned learners only), observer (read-only, for a grandparent or an
-      evaluator).
-- [ ] **Per-learner scoping.** A hired tutor sees one student, not the family.
-      This is what makes the app something you can pay a tutor to use.
-- [ ] **Invite links with expiry**, rather than a join code that never rotates.
+- [x] **Multiple guides per family** (migration 021). More than one guide, each
+      with a role, joined by a single-use invite.
+- [x] **Roles:** owner (billing, delete), guide (full teaching), assistant
+      (assigned learners only), observer (read-only). Defined and tested in
+      `perm.js` (021), and now actually ENFORCED at the routes (scoping in
+      `438b2d3`, the requirePerm pass alongside this note): perm.js was the
+      single source of truth for who may do what, but
+      most write routes only checked `parentOnly`, so an assistant had a guide's
+      powers. Every owner/guide-only action now carries `requirePerm` (course
+      delete/publish/share, learner create/edit/delete, reward granting, paid
+      media generation and provider config), and observer writes were already
+      blocked globally by `denyReadOnly`.
+- [x] **Per-learner scoping** (`438b2d3`). A hired tutor sees one student, not
+      the family. The progress overview, the reports (list, preview, generate,
+      read, edit, delete) and the learner roster all filter to the caller's
+      visible learners via `perm.visibleLearnerIds` / `canSeeLearner`, which
+      existed and were tested but no read route asked them. An assistant with no
+      assignments sees nobody, never everybody.
+- [x] **Invite links with expiry** (migration 021). Single-use, expiring invites
+      carry the role and the assigned learners; a join code no longer has to be
+      the whole story.
 - [ ] **Accessibility, measured not guessed.** Reviewed properly on 2026-09-01
       (`1c44e6b`). Two of the items below turned out to be overstated when
       checked against the code, which is recorded rather than quietly dropped.

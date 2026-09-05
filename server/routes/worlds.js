@@ -781,8 +781,10 @@ router.post("/rewards", auth.parentOnly, async (req, res, next) => {
   }
 });
 
-/** The guide confirms they have actually handed it over. */
-router.post("/rewards/:id/grant", auth.parentOnly, async (req, res, next) => {
+/** The guide confirms they have actually handed it over. Only an owner or guide
+ *  grants a real reward: an assistant sets up a world but does not sign off that
+ *  something changed hands. */
+router.post("/rewards/:id/grant", auth.requirePerm("grant_reward"), async (req, res, next) => {
   try {
     const { rows } = await db.query(
       `update real_rewards set status = 'granted', granted_at = now(), granted_by = $3

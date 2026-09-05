@@ -51,7 +51,7 @@ router.get("/config", async (_req, res, next) => {
   }
 });
 
-router.put("/config", async (req, res, next) => {
+router.put("/config", auth.requirePerm("spend_media"), async (req, res, next) => {
   try {
     const b = req.body || {};
     const cfg = {};
@@ -79,7 +79,7 @@ router.put("/config", async (req, res, next) => {
 });
 
 // ---- generation (jobs) ----
-router.post("/image", async (req, res, next) => {
+router.post("/image", auth.requirePerm("spend_media"), async (req, res, next) => {
   try {
     const { prompt, size, purpose, refType, refId } = req.body || {};
     if (!String(prompt || "").trim()) return bad(res, "prompt_required");
@@ -98,7 +98,7 @@ router.post("/image", async (req, res, next) => {
   }
 });
 
-router.post("/video", async (req, res, next) => {
+router.post("/video", auth.requirePerm("spend_media"), async (req, res, next) => {
   try {
     const { prompt, duration, resolution, purpose, refType, refId } = req.body || {};
     if (!String(prompt || "").trim()) return bad(res, "prompt_required");
@@ -140,7 +140,7 @@ router.get("/adventures/themes", (_req, res) => {
 });
 
 // Turn a course into an Adventure (AI builds the world; cover art follows).
-router.post("/adventures", async (req, res, next) => {
+router.post("/adventures", auth.requirePerm("build_world"), async (req, res, next) => {
   try {
     const { courseId, learnerId, themeId } = req.body || {};
     const c = await db.query(
@@ -223,7 +223,7 @@ router.get("/adventures/for-course/:courseId", async (req, res, next) => {
   }
 });
 
-router.delete("/adventures/:id", async (req, res, next) => {
+router.delete("/adventures/:id", auth.requirePerm("build_world"), async (req, res, next) => {
   try {
     const { rowCount } = await db.query(
       "delete from adventures where id = $2 and family_id = $1",
@@ -237,7 +237,7 @@ router.delete("/adventures/:id", async (req, res, next) => {
 });
 
 // Generate a course cover (guide button on Course Detail).
-router.post("/course-cover/:courseId", async (req, res, next) => {
+router.post("/course-cover/:courseId", auth.requirePerm("spend_media"), async (req, res, next) => {
   try {
     const st = await media.status();
     if (!st.canImage) return bad(res, "media_not_configured", 503);
