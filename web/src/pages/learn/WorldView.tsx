@@ -5,11 +5,14 @@
 // locked, open, or won. A locked card says what to go and do, in words a child
 // can act on, because "requires lessonsDone >= 4" helps nobody. Loot, crew and
 // real rewards sit alongside, so the reason to keep going is always on screen.
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { VideoPlayer } from "../../components/VideoUI";
-import { RichText } from "../../lib/rich";
+import { RichText, MathText } from "../../lib/rich";
 import { useReveal, useScrollProgress } from "../../lib/scrollReveal";
+
+const BOSS_KINDS = ["boss", "miniboss"];
+const isBoss = (kind: string) => BOSS_KINDS.includes(kind);
 
 interface Encounter {
   id: number;
@@ -66,6 +69,7 @@ export default function WorldView({ adventureId, onNavigate }:
   const [loot, setLoot] = useState<LootRow[]>([]);
   const [rewards, setRewards] = useState<RewardRow[]>([]);
   const [open, setOpen] = useState<Encounter | null>(null);
+  const [bossOf, setBossOf] = useState<Encounter | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [celebrate, setCelebrate] = useState<{ xp: number; rewards: string[] } | null>(null);
@@ -86,6 +90,9 @@ export default function WorldView({ adventureId, onNavigate }:
   }, [adventureId]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Stable so the boss fight's start effect does not re-fire on every re-render.
+  const winBoss = useCallback(async () => { setBossOf(null); await load(); }, [load]);
 
   async function takeOn(enc: Encounter, choice?: string) {
     setBusy(true);
@@ -211,6 +218,16 @@ export default function WorldView({ adventureId, onNavigate }:
           busy={busy}
           onClose={() => setOpen(null)}
           onTakeOn={takeOn}
+          onFaceBoss={(e) => { setOpen(null); setBossOf(e); }}
+        />
+      )}
+
+      {bossOf && (
+        <BossFight
+          key={bossOf.id}
+          encounter={bossOf}
+          onClose={() => setBossOf(null)}
+          onWin={winBoss}
         />
       )}
 
@@ -292,13 +309,15 @@ function Chapter({ chapter, onOpen }: {
   );
 }
 
-function EncounterDialog({ encounter, busy, onClose, onTakeOn }: {
+function EncounterDialog({ encounter, busy, onClose, onTakeOn, onFaceBoss }: {
   encounter: Encounter;
   busy: boolean;
   onClose: () => void;
   onTakeOn: (e: Encounter, choice?: string) => void;
+  onFaceBoss: (e: Encounter) => void;
 }) {
   const won = encounter.state === "won";
+  const boss = isBoss(encounter.kind);
   const choices = Array.isArray(encounter.choices) ? encounter.choices : [];
   return (
     <div className="encmodal" role="dialog" aria-modal="true" aria-label={encounter.title}>
@@ -317,6 +336,18 @@ function EncounterDialog({ encounter, busy, onClose, onTakeOn }: {
 
         {won ? (
           <p className="muted">You have already cleared this one.</p>
+        ) : boss ? (
+          <>
+            <p className="muted">
+              This one is a fight. Answer a run of questions correctly in a row,
+              against the clock, with no hints. Miss one and the streak starts over,
+              but you never lose your place.
+            </p>
+            <button className="btn primary big" type="button"
+              onClick={() => onFaceBoss(encounter)}>
+              {encounter.kind === "boss" ? "Face the boss" : "Take on the guardian"}
+            </button>
+          </>
         ) : choices.length > 0 ? (
           <div className="encchoices">
             {choices.map((c) => (
@@ -329,6 +360,174 @@ function EncounterDialog({ encounter, busy, onClose, onTakeOn }: {
             onClick={() => onTakeOn(encounter)}>
             {busy ? "…" : "Take it on"}
           </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface BossQuestion {
+  id: number;
+  prompt: string;
+  kind: string;
+  choices?: { id: string; text: string }[];
+}
+interface BossStart { state: string; alreadyWon?: boolean; need: number; streak: number; timeLimitSec: number; question: BossQuestion | null }
+interface BossAnswer {
+  state: string; correct: boolean; streak: number; need: number;
+  brokeBy?: string | null; timeLimitSec?: number; question?: BossQuestion | null;
+  xpGained?: number; earnedRewards?: { title: string }[]; videoUploadId?: number | null;
+}
+
+/** The boss fight. A run of questions answered correctly in a row, each against
+ *  a clock, with no hints. The server owns the run: which question, whether it
+ *  was right, whether it was in time. This is only the arena. A miss resets the
+ *  streak but never ends the fight, so it stays practice rather than a wall. */
+function BossFight({ encounter, onWin, onClose }: {
+  encounter: Encounter;
+  onWin: () => void;
+  onClose: () => void;
+}) {
+  const [q, setQ] = useState<BossQuestion | null>(null);
+  const [need, setNeed] = useState(5);
+  const [streak, setStreak] = useState(0);
+  const [limit, setLimit] = useState(30);
+  const [left, setLeft] = useState(30);
+  const [typed, setTyped] = useState("");
+  const [verdict, setVerdict] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [victory, setVictory] = useState<{ xp: number; rewards: string[]; videoUploadId: number | null } | null>(null);
+  const submitting = useRef(false);
+
+  const submit = useCallback(async (answer: string | null) => {
+    if (submitting.current) return;
+    submitting.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const r = await api<BossAnswer>(
+        `/api/worlds/encounters/${encounter.id}/boss/answer`,
+        { method: "POST", body: { answer } }
+      );
+      if (r.state === "won") {
+        setVictory({
+          xp: r.xpGained || 0,
+          rewards: (r.earnedRewards || []).map((x) => x.title),
+          videoUploadId: r.videoUploadId ?? null,
+        });
+        return;
+      }
+      setStreak(r.streak);
+      setNeed(r.need);
+      setVerdict(r.correct ? "Correct!" : r.brokeBy === "timeout" ? "Out of time. Streak reset." : "Not quite. Streak reset.");
+      setQ(r.question || null);
+      setTyped("");
+      if (r.timeLimitSec) { setLimit(r.timeLimitSec); setLeft(r.timeLimitSec); }
+      else setLeft(limit);
+    } catch (e) {
+      setError(niceError(e));
+    } finally {
+      setBusy(false);
+      submitting.current = false;
+    }
+  }, [encounter.id, limit]);
+
+  // Start the fight once, on open.
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const r = await api<BossStart>(
+          `/api/worlds/encounters/${encounter.id}/boss/start`,
+          { method: "POST", body: {} }
+        );
+        if (!live) return;
+        if (r.alreadyWon) { onWin(); return; }
+        setNeed(r.need);
+        setStreak(0);
+        setLimit(r.timeLimitSec);
+        setLeft(r.timeLimitSec);
+        setQ(r.question);
+      } catch (e) {
+        if (live) setError(niceError(e));
+      }
+    })();
+    return () => { live = false; };
+  }, [encounter.id, onWin]);
+
+  // The clock. When it runs out, an empty answer is sent: the server confirms
+  // the timeout from its own clock, so this cannot be gamed by stalling.
+  useEffect(() => {
+    if (!q || victory || busy) return;
+    if (left <= 0) { submit(null); return; }
+    const t = setTimeout(() => setLeft((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [q, left, victory, busy, submit]);
+
+  if (victory) {
+    return (
+      <div className="encmodal" role="dialog" aria-modal="true" aria-label="Boss defeated">
+        <div className="encmodalin">
+          <div className="celeicon" aria-hidden="true">👑</div>
+          <h2>{encounter.kind === "boss" ? "Boss defeated!" : "Guardian beaten!"}</h2>
+          <p role="status">+{victory.xp} XP</p>
+          {victory.rewards.map((t) => (
+            <p key={t} className="celereward">🏆 You earned: <b>{t}</b></p>
+          ))}
+          {victory.videoUploadId && (
+            <VideoPlayer content={{ uploadId: victory.videoUploadId, title: `${encounter.title} victory` }} />
+          )}
+          <button className="btn primary big" type="button" onClick={onWin}>Onward</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="encmodal" role="dialog" aria-modal="true" aria-label={`Boss fight: ${encounter.title}`}>
+      <div className="encmodalin">
+        <div className="encmodalhead">
+          <span aria-hidden="true">👑</span>
+          <h2>{encounter.title}</h2>
+          <button className="btn ghost small-btn" type="button" onClick={onClose}>Give up</button>
+        </div>
+
+        <p className="muted small">Answer {need} in a row, no hints. A miss just resets the streak.</p>
+
+        <div className="bossbar" role="img" aria-label={`${streak} of ${need} in a row`}>
+          {Array.from({ length: need }).map((_, i) => (
+            <span key={i} className={`bosspip${i < streak ? " lit" : ""}`} />
+          ))}
+          <span className={`bosstimer${left <= 5 ? " low" : ""}`} aria-hidden="true">{Math.max(0, left)}s</span>
+        </div>
+
+        {error && <div className="formerror" role="alert">{error}</div>}
+        {verdict && <p className="bossverdict" role="status">{verdict}</p>}
+
+        {q ? (
+          <div className="bossq">
+            <div className="bossprompt"><MathText text={q.prompt} /></div>
+            {q.kind === "mcq" && q.choices ? (
+              <div className="bosschoices">
+                {q.choices.map((ch) => (
+                  <button key={ch.id} className="btn" type="button" disabled={busy}
+                    onClick={() => submit(ch.id)}>
+                    <MathText text={ch.text} />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <form className="bossnumform" onSubmit={(e) => { e.preventDefault(); if (typed.trim()) submit(typed); }}>
+                <input className="input" value={typed} inputMode="decimal" disabled={busy}
+                  onChange={(e) => setTyped(e.target.value)} placeholder="Your answer"
+                  aria-label="Your answer" autoFocus />
+                <button className="btn primary" type="submit" disabled={busy || !typed.trim()}>Answer</button>
+              </form>
+            )}
+          </div>
+        ) : (
+          <p className="muted">Summoning the boss…</p>
         )}
       </div>
     </div>

@@ -262,8 +262,22 @@ and why. Anything marked shipped has a commit and is live.
       This is the on-demand-tool version; keeping three levels live at once per
       learner would need storage and is a follow-up. Not smoke-tested with a
       live model yet.
-- [ ] **Boss fight mechanics**: a timed streak of correct answers with no hints,
-      with the win cutscene playing on success.
+- [x] **Boss fight mechanics.** A boss or miniboss encounter is no longer
+      cleared by a click: the learner answers a streak of the course's own
+      questions correctly in a row (5 for a boss, 3 for a miniboss, tunable per
+      encounter), each against a per-question clock, with no hints. A miss (wrong,
+      or out of time) resets the streak but never ends the run, so it stays
+      practice, not a wall. On the win the cutscene plays and the existing payout
+      (XP, loot, real rewards) fires. The run is server-authoritative end to end:
+      which questions and their order, the grading, and the clock all live on the
+      server (`encounter_progress.boss_run`, migration 023), so a client cannot
+      grade itself, pick easy questions, or post its way past the fight (the plain
+      resolve route now refuses `won` on a boss). Decision logic is pure and
+      tested (`quest.bossRules/bossStep/bossQuestionId`); the fight arena is
+      `BossFight` in WorldView. The pool cycles when a course has fewer questions
+      than the streak needs, and boss answers count as real practice (they feed
+      attempts, spaced review, badges and XP). Not smoke-tested against a live DB
+      yet: the pure paths are tested, the wiring runs after deploy.
 - [ ] **AI art per character and chapter.** The image path works; this is
       mostly wiring.
 - [ ] **Photo to worksheet** (OCR into the existing import pipeline).

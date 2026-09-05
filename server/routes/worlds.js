@@ -12,9 +12,15 @@ const express = require("express");
 const db = require("../lib/db");
 const auth = require("../lib/auth");
 const quest = require("../lib/quest");
+const { gradeExercise } = require("../lib/grade");
 
 const router = express.Router();
 router.use(auth.authRequired);
+
+// A boss answer that arrives a little late still counts: the clock is measured
+// on the server (the client cannot be trusted with it), so this covers the one
+// network round trip between serving a question and hearing the answer.
+const TIME_GRACE_SEC = 3;
 
 function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
@@ -23,6 +29,15 @@ function bad(res, msg, code = 400) {
 function num(v) {
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 /** The adventure, if it belongs to the caller's family. */
@@ -77,6 +92,104 @@ async function progressSnapshot(learnerId, familyId, adventureId) {
     inventory: new Set(inv.rows.map((r) => Number(r.loot_id))),
     badges: new Set(badges.rows.map((r) => r.badge)),
     coursesCompleted: new Set(courses.rows.map((r) => Number(r.id))),
+  };
+}
+
+/** A boss or miniboss encounter, with the pieces a fight needs: its win
+ *  conditions, its course (where the questions come from) and its cutscene. */
+async function bossEncounter(id, familyId) {
+  const { rows } = await db.query(
+    `select e.id, e.kind, e.requires, e.rewards, e.video_upload_id,
+            a.id as adventure_id, a.course_id, a.family_id, a.xp as adventure_xp
+       from adventure_encounters e join adventures a on a.id = e.adventure_id
+      where e.id = $1 and a.family_id = $2`,
+    [id, familyId]
+  );
+  return rows[0] || null;
+}
+
+/** The gradable exercises a boss can draw on: multiple choice and numeric, from
+ *  the adventure's own course. Text answers are self-checked, so they cannot
+ *  gate a fight. */
+async function bossQuestionPool(courseId, familyId) {
+  const { rows } = await db.query(
+    `select i.id, i.type, i.content
+       from lesson_items i
+       join lessons l on l.id = i.lesson_id
+       join units u on u.id = l.unit_id
+       join courses c on c.id = u.course_id
+      where u.course_id = $1 and c.family_id = $2
+        and i.type = 'exercise'
+        and (i.content->>'kind') in ('mcq', 'numeric')`,
+    [courseId, familyId]
+  );
+  return rows;
+}
+
+async function bossQuestionRow(itemId, courseId) {
+  const { rows } = await db.query(
+    `select i.id, i.type, i.content
+       from lesson_items i
+       join lessons l on l.id = i.lesson_id
+       join units u on u.id = l.unit_id
+      where i.id = $1 and u.course_id = $2`,
+    [itemId, courseId]
+  );
+  return rows[0] || null;
+}
+
+/** A boss question with every answer, explanation and hint stripped out, the
+ *  same trust boundary the lesson player uses. Grading happens server-side. */
+function bossQuestion(item) {
+  if (!item) return null;
+  const c = item.content || {};
+  const out = { id: Number(item.id), prompt: c.prompt, kind: c.kind };
+  if (c.choices) out.choices = c.choices;
+  return out;
+}
+
+/** Pay out a won encounter: its loot, its XP (loot bonuses included) and any
+ *  real reward it just brought within reach. Fail-open throughout, because a
+ *  bookkeeping hiccup must never cost a learner a win they earned. Shared by the
+ *  plain resolve and the boss fight so the reward is identical either way. */
+async function grantEncounterWin(enc, learnerId, familyId) {
+  const lootIds = Array.isArray(enc.rewards && enc.rewards.loot) ? enc.rewards.loot.map(num).filter(Boolean) : [];
+  const effects = [];
+  for (const lootId of lootIds) {
+    const l = await db.query(
+      "select id, effect from loot_items where id = $1 and family_id = $2",
+      [lootId, familyId]
+    ).catch(() => ({ rows: [] }));
+    if (!l.rows[0]) continue;
+    effects.push(l.rows[0].effect || {});
+    await db.query(
+      `insert into learner_inventory (learner_id, loot_id, qty) values ($1,$2,1)
+       on conflict (learner_id, loot_id) do update set qty = learner_inventory.qty + 1`,
+      [learnerId, lootId]
+    ).catch(() => {});
+  }
+
+  const gained = quest.totalXp(enc.kind, effects);
+  await db.query("update adventures set xp = xp + $2 where id = $1", [enc.adventure_id, gained]).catch(() => {});
+
+  const after = await progressSnapshot(learnerId, familyId, enc.adventure_id);
+  const rewards = await db.query(
+    `select * from real_rewards
+      where family_id = $1 and status = 'available' and (learner_id is null or learner_id = $2)`,
+    [familyId, learnerId]
+  ).catch(() => ({ rows: [] }));
+  const earned = quest.newlyEarnedRewards(rewards.rows, after);
+  for (const r of earned) {
+    await db.query(
+      "update real_rewards set status = 'earned', earned_at = now() where id = $1 and status = 'available'",
+      [r.id]
+    ).catch(() => {});
+  }
+
+  return {
+    xpGained: gained,
+    loot: lootIds,
+    earnedRewards: earned.map((r) => ({ id: Number(r.id), title: r.title, kind: r.kind })),
   };
 }
 
@@ -311,6 +424,12 @@ router.post("/encounters/:id/resolve", async (req, res, next) => {
     const outcome = String((req.body && req.body.outcome) || "won");
     const choice = req.body && req.body.choice ? String(req.body.choice).slice(0, 80) : null;
 
+    // A boss is not won by declaring it. It has to be fought (the boss routes
+    // below), so a client cannot post its way past the challenge.
+    if (outcome === "won" && (enc.kind === "boss" || enc.kind === "miniboss")) {
+      return bad(res, "boss_must_be_fought", 409);
+    }
+
     await db.query(
       `insert into encounter_progress (learner_id, encounter_id, state, attempts, choice_taken, won_at, updated_at)
        values ($1,$2,$3,1,$4, case when $3 = 'won' then now() else null end, now())
@@ -325,48 +444,154 @@ router.post("/encounters/:id/resolve", async (req, res, next) => {
 
     if (outcome !== "won") return res.json({ ok: true, state: "in_progress" });
 
-    // Loot the encounter names, plus its XP. Fail-open: a loot problem must
-    // never cost the learner their win.
-    const lootIds = Array.isArray(enc.rewards && enc.rewards.loot) ? enc.rewards.loot.map(num).filter(Boolean) : [];
-    const effects = [];
-    for (const lootId of lootIds) {
-      const l = await db.query(
-        "select id, effect from loot_items where id = $1 and family_id = $2",
-        [lootId, req.user.familyId]
-      ).catch(() => ({ rows: [] }));
-      if (!l.rows[0]) continue;
-      effects.push(l.rows[0].effect || {});
-      await db.query(
-        `insert into learner_inventory (learner_id, loot_id, qty) values ($1,$2,1)
-         on conflict (learner_id, loot_id) do update set qty = learner_inventory.qty + 1`,
-        [learnerId, lootId]
+    const summary = await grantEncounterWin(enc, learnerId, req.user.familyId);
+    res.json({ ok: true, state: "won", ...summary });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ------------------------------------------------------------- boss fights
+
+/** Begin a boss fight. The learner must answer a streak of questions correctly
+ *  in a row, each inside a time limit, with no hints. Everything the challenge
+ *  turns on (which questions, in what order, the clock, the streak) is decided
+ *  and held here, never in the client. */
+router.post("/encounters/:id/boss/start", async (req, res, next) => {
+  try {
+    const id = num(req.params.id);
+    if (id === null) return bad(res, "id_invalid");
+    const learnerId = req.user.role === "learner" ? req.user.id : num(req.body && req.body.learnerId);
+    if (!learnerId) return bad(res, "learner_required");
+
+    const enc = await bossEncounter(id, req.user.familyId);
+    if (!enc) return bad(res, "not_found", 404);
+    if (enc.kind !== "boss" && enc.kind !== "miniboss") return bad(res, "not_a_boss");
+
+    const done = await db.query(
+      "select state from encounter_progress where learner_id = $1 and encounter_id = $2",
+      [learnerId, id]
+    );
+    if (done.rows[0] && done.rows[0].state === "won") return res.json({ state: "won", alreadyWon: true });
+
+    const snapshot = await progressSnapshot(learnerId, req.user.familyId, enc.adventure_id);
+    const gate = quest.isUnlocked(enc, snapshot);
+    if (!gate.unlocked) return res.status(409).json({ error: "locked", reason: gate.reason });
+
+    const pool = await bossQuestionPool(enc.course_id, req.user.familyId);
+    if (!pool.length) return bad(res, "no_questions", 409);
+
+    const rules = quest.bossRules(enc.kind, enc.rewards || {});
+    const questions = shuffle(pool.map((p) => Number(p.id))).slice(0, Math.max(rules.need * 2, 8));
+    const run = {
+      need: rules.need, timeLimitSec: rules.timeLimitSec,
+      questions, index: 0, streak: 0, servedAt: Date.now(),
+    };
+
+    await db.query(
+      `insert into encounter_progress (learner_id, encounter_id, state, attempts, boss_run, updated_at)
+       values ($1,$2,'in_progress',0,$3,now())
+       on conflict (learner_id, encounter_id) do update
+         set state = 'in_progress', boss_run = excluded.boss_run, updated_at = now()`,
+      [learnerId, id, JSON.stringify(run)]
+    );
+
+    const first = pool.find((p) => Number(p.id) === quest.bossQuestionId(run));
+    res.status(201).json({
+      state: "fighting",
+      need: run.need,
+      streak: 0,
+      timeLimitSec: run.timeLimitSec,
+      question: bossQuestion(first),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/** One answer in the fight. The server grades the question the run is on (the
+ *  client cannot choose it), reads its own clock for the time limit, and moves
+ *  the streak. A clean answer advances it; a wrong answer, a hint or a timeout
+ *  resets it to zero, but the run continues: a miss is practice, not a wall.
+ *  Reaching the streak wins the encounter and pays it out, cutscene and all. */
+router.post("/encounters/:id/boss/answer", async (req, res, next) => {
+  try {
+    const id = num(req.params.id);
+    if (id === null) return bad(res, "id_invalid");
+    const learnerId = req.user.role === "learner" ? req.user.id : num(req.body && req.body.learnerId);
+    if (!learnerId) return bad(res, "learner_required");
+
+    const enc = await bossEncounter(id, req.user.familyId);
+    if (!enc) return bad(res, "not_found", 404);
+
+    const prog = await db.query(
+      "select state, boss_run from encounter_progress where learner_id = $1 and encounter_id = $2",
+      [learnerId, id]
+    );
+    const run = prog.rows[0] && prog.rows[0].boss_run;
+    if (!run || !Array.isArray(run.questions)) return bad(res, "no_active_run", 409);
+
+    const qId = quest.bossQuestionId(run);
+    const item = await bossQuestionRow(qId, enc.course_id);
+    if (!item) return bad(res, "question_gone", 409);
+    const c = item.content || {};
+
+    const answer = req.body && req.body.answer;
+    const correct = gradeExercise(c, answer) === true;
+    const elapsedSec = (Date.now() - Number(run.servedAt || Date.now())) / 1000;
+    const timedOut = elapsedSec > Number(run.timeLimitSec || 30) + TIME_GRACE_SEC;
+
+    // A boss question is real practice: record it like any graded attempt, so it
+    // feeds spaced review, badges and the learner's streak. All fail-open.
+    db.query(
+      "insert into attempts (family_id, learner_id, item_id, question_index, correct, answer) values ($1,$2,$3,0,$4,$5)",
+      [req.user.familyId, learnerId, qId, correct, JSON.stringify(answer ?? null)]
+    ).catch(() => {});
+    require("../lib/review").recordAttempt({ familyId: req.user.familyId, learnerId, itemId: qId, correct });
+    require("../lib/badges").checkAndAward(learnerId, req.user.familyId).catch(() => {});
+    if (correct) {
+      db.query(
+        "update adventures set xp = xp + 10 where id = $1 and family_id = $2",
+        [enc.adventure_id, req.user.familyId]
       ).catch(() => {});
     }
 
-    const gained = quest.totalXp(enc.kind, effects);
-    await db.query("update adventures set xp = xp + $2 where id = $1", [enc.adventure_id, gained]).catch(() => {});
+    const step = quest.bossStep(run, { correct, usedHint: false, timedOut });
 
-    // Has anything real just come within reach?
-    const after = await progressSnapshot(learnerId, req.user.familyId, enc.adventure_id);
-    const rewards = await db.query(
-      `select * from real_rewards
-        where family_id = $1 and status = 'available' and (learner_id is null or learner_id = $2)`,
-      [req.user.familyId, learnerId]
-    ).catch(() => ({ rows: [] }));
-    const earned = quest.newlyEarnedRewards(rewards.rows, after);
-    for (const r of earned) {
+    if (step.won) {
       await db.query(
-        "update real_rewards set status = 'earned', earned_at = now() where id = $1 and status = 'available'",
-        [r.id]
-      ).catch(() => {});
+        `update encounter_progress
+            set state = 'won', boss_run = null, won_at = coalesce(won_at, now()),
+                attempts = attempts + 1, updated_at = now()
+          where learner_id = $1 and encounter_id = $2`,
+        [learnerId, id]
+      );
+      const summary = await grantEncounterWin(enc, learnerId, req.user.familyId);
+      return res.json({
+        state: "won",
+        correct,
+        streak: step.streak,
+        need: step.need,
+        videoUploadId: enc.video_upload_id ? Number(enc.video_upload_id) : null,
+        ...summary,
+      });
     }
 
+    const nextRun = { ...run, index: step.index, streak: step.streak, servedAt: Date.now() };
+    await db.query(
+      "update encounter_progress set boss_run = $3, attempts = attempts + 1, updated_at = now() where learner_id = $1 and encounter_id = $2",
+      [learnerId, id, JSON.stringify(nextRun)]
+    );
+
+    const nextItem = await bossQuestionRow(quest.bossQuestionId(nextRun), enc.course_id);
     res.json({
-      ok: true,
-      state: "won",
-      xpGained: gained,
-      loot: lootIds,
-      earnedRewards: earned.map((r) => ({ id: Number(r.id), title: r.title, kind: r.kind })),
+      state: "fighting",
+      correct,
+      streak: step.streak,
+      need: step.need,
+      brokeBy: step.brokeBy,
+      timeLimitSec: nextRun.timeLimitSec,
+      question: bossQuestion(nextItem),
     });
   } catch (err) {
     next(err);

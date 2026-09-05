@@ -92,6 +92,57 @@ test("bossAttempt: a hint counts as not-clean, so it does not advance the streak
   assert.equal(s.streak, 0);
 });
 
+test("bossRules: sensible defaults per kind, overridable but always clamped", () => {
+  assert.deepEqual(quest.bossRules("boss"), { need: 5, timeLimitSec: 30 });
+  assert.deepEqual(quest.bossRules("miniboss"), { need: 3, timeLimitSec: 40 });
+  // An unknown kind is treated as a full boss, never left without a rule.
+  assert.deepEqual(quest.bossRules("mystery"), { need: 5, timeLimitSec: 30 });
+  // An encounter can tune its own fight.
+  assert.deepEqual(quest.bossRules("boss", { bossNeed: 3, bossTimeSec: 60 }), { need: 3, timeLimitSec: 60 });
+  // A hostile or silly override cannot make a fight impossible or endless.
+  assert.equal(quest.bossRules("boss", { bossNeed: 999 }).need, 8);
+  assert.equal(quest.bossRules("boss", { bossNeed: 0 }).need, 2);
+  assert.equal(quest.bossRules("boss", { bossTimeSec: 1 }).timeLimitSec, 10);
+  assert.equal(quest.bossRules("boss", { bossTimeSec: 99999 }).timeLimitSec, 120);
+});
+
+test("bossStep: a clean streak wins; the pointer always advances", () => {
+  let run = { need: 3, streak: 0, index: 0 };
+  let s = quest.bossStep(run, { correct: true });
+  assert.deepEqual([s.streak, s.index, s.won, s.brokeBy], [1, 1, false, null]);
+  s = quest.bossStep({ ...run, ...s }, { correct: true });
+  s = quest.bossStep({ ...run, ...s }, { correct: true });
+  assert.equal(s.won, true);
+  assert.equal(s.index, 3, "the question pointer moves on every answer, win or not");
+});
+
+test("bossStep: a wrong answer, a hint or a timeout each break the streak", () => {
+  const run = { need: 5, streak: 4, index: 4 };
+  assert.deepEqual(
+    (({ streak, won, broke, brokeBy }) => ({ streak, won, broke, brokeBy }))(quest.bossStep(run, { correct: false })),
+    { streak: 0, won: false, broke: true, brokeBy: "wrong" }
+  );
+  assert.equal(quest.bossStep(run, { correct: true, usedHint: true }).brokeBy, "hint");
+  assert.equal(quest.bossStep(run, { correct: true, timedOut: true }).brokeBy, "timeout");
+  // A timeout on a right answer still does not count: the clock is the tension.
+  assert.equal(quest.bossStep(run, { correct: true, timedOut: true }).streak, 0);
+});
+
+test("bossStep: breaking from a zero streak is not reported as a break", () => {
+  // Nothing to lose, so the UI should not flash 'streak broken'.
+  assert.equal(quest.bossStep({ need: 3, streak: 0, index: 0 }, { correct: false }).broke, false);
+});
+
+test("bossQuestionId: cycles the pool so a short course still hosts a boss", () => {
+  const run = { questions: [11, 22, 33], index: 0 };
+  assert.equal(quest.bossQuestionId({ ...run, index: 0 }), 11);
+  assert.equal(quest.bossQuestionId({ ...run, index: 2 }), 33);
+  assert.equal(quest.bossQuestionId({ ...run, index: 3 }), 11, "wraps around");
+  assert.equal(quest.bossQuestionId({ ...run, index: 4 }), 22);
+  assert.equal(quest.bossQuestionId({ questions: [], index: 0 }), null);
+  assert.equal(quest.bossQuestionId(null), null);
+});
+
 test("newlyEarnedRewards: XP cost must be met", () => {
   const rewards = [{ id: 1, status: "available", cost_xp: 500, requires: {} }];
   assert.equal(quest.newlyEarnedRewards(rewards, { xp: 100 }).length, 0);

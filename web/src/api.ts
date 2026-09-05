@@ -66,6 +66,8 @@ const NICE: Record<string, string> = {
   video_unavailable: "That link does not point at a video that can be embedded. Check it and try again.",
   content_invalid: "That does not look like a video link. Paste a YouTube URL or id.",
   ai_not_configured: "This needs an AI provider, which is not set up on this instance. Add one in Settings.",
+  no_questions: "This boss has no questions to fight with yet. Ask your guide to add some exercises to the course.",
+  no_active_run: "This fight has timed out. Start it again to have another go.",
 };
 
 export function niceError(err: unknown): string {

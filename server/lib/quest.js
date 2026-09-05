@@ -104,6 +104,52 @@ function bossAttempt(state, { correct, usedHint }) {
   };
 }
 
+/** How a boss is fought: how many clean answers in a row, and how long each one
+ *  may take. A boss is the tall wall, a miniboss a shorter one. An encounter can
+ *  override either through its rewards blob. Clamped so a bad value cannot make a
+ *  fight impossible or endless. */
+const BOSS_RULES = { boss: { need: 5, timeLimitSec: 30 }, miniboss: { need: 3, timeLimitSec: 40 } };
+
+function bossRules(kind, rewards = {}) {
+  const base = BOSS_RULES[kind] || BOSS_RULES.boss;
+  const clamp = (v, lo, hi, dflt) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n))) : dflt;
+  };
+  return {
+    need: clamp(rewards.bossNeed, 2, 8, base.need),
+    timeLimitSec: clamp(rewards.bossTimeSec, 10, 120, base.timeLimitSec),
+  };
+}
+
+/** One answer in a boss fight. A clean answer (correct, no hint, in time)
+ *  extends the streak; anything else resets it to zero but never ends the run,
+ *  because the point is practice, not punishment. Pure: the route grades the
+ *  answer and reads the clock, this decides the new state and moves the pointer
+ *  to the next question. */
+function bossStep(run, { correct, usedHint = false, timedOut = false }) {
+  const prev = Number((run && run.streak) || 0);
+  const clean = Boolean(correct) && !usedHint && !timedOut;
+  const streak = clean ? prev + 1 : 0;
+  const need = Number((run && run.need) || 5);
+  return {
+    need,
+    streak,
+    index: Number((run && run.index) || 0) + 1,
+    won: streak >= need,
+    broke: !clean && prev > 0,
+    brokeBy: clean ? null : timedOut ? "timeout" : usedHint ? "hint" : "wrong",
+  };
+}
+
+/** The question id for a run's current position. The pool cycles when it is
+ *  shorter than the streak needed, so a small course can still host a boss. */
+function bossQuestionId(run) {
+  const q = (run && Array.isArray(run.questions) && run.questions) || [];
+  if (!q.length) return null;
+  return q[Number((run && run.index) || 0) % q.length];
+}
+
 /** Total XP for a win, including any loot that boosts it. */
 function totalXp(kind, lootEffects = []) {
   const base = encounterXp(kind);
@@ -163,5 +209,6 @@ function planEncounters({ gameTypeId, chapters }) {
 module.exports = {
   GAME_TYPES, RARITIES, RARITY_XP, gameType,
   rollRarity, encounterXp, totalXp, isUnlocked, bossAttempt,
+  bossRules, bossStep, bossQuestionId,
   newlyEarnedRewards, planEncounters,
 };

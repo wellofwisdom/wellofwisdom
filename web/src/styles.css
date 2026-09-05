@@ -1116,6 +1116,27 @@ code.k {
   @keyframes pop { from { transform: scale(.86); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 }
 
+/* Boss fight: the streak of pips, the clock, and the arena for one question. */
+.bossbar { display: flex; align-items: center; gap: 7px; margin: 12px 0; flex-wrap: wrap; }
+.bosspip {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--border); background: var(--panel-2);
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.bosspip.lit { background: var(--accent); border-color: var(--accent); transform: scale(1.08); }
+.bosstimer {
+  margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 800;
+  font-size: 17px; color: var(--muted); min-width: 44px; text-align: right;
+}
+.bosstimer.low { color: var(--bad); }
+.bossverdict { font-weight: 700; margin: 6px 0; }
+.bossq { margin-top: 6px; }
+.bossprompt { font-size: 18px; margin-bottom: 12px; }
+.bosschoices { display: flex; flex-direction: column; gap: 8px; }
+.bosschoices .btn { text-align: left; }
+.bossnumform { display: flex; gap: 8px; }
+.bossnumform .input { flex: 1; }
+
 /* ---------- tutor ---------- */
 .tutorwrap {
   position: fixed; inset: 0; z-index: 65; display: grid; place-items: end center;
