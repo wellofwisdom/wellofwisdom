@@ -17,11 +17,20 @@ function shape(row) {
   return { ...row, id: Number(row.id) };
 }
 
-/** Every learner in a family, in the order they were added. */
-async function listForFamily(db, familyId) {
+/** Every learner in a family, in the order they were added. Pass `visibleIds`
+ *  (an array) to narrow to a scoped assistant's assigned learners; omit it (or
+ *  pass null) for the whole family. An empty array narrows to nobody, which is
+ *  the correct answer for an assistant with no assignments yet. */
+async function listForFamily(db, familyId, visibleIds) {
+  const params = [familyId];
+  let scope = "";
+  if (Array.isArray(visibleIds)) {
+    params.push(visibleIds);
+    scope = ` and id = any($${params.length}::bigint[])`;
+  }
   const { rows } = await db.query(
-    `select ${FIELDS} from users where family_id = $1 and role = 'learner' order by created_at`,
-    [familyId]
+    `select ${FIELDS} from users where family_id = $1 and role = 'learner'${scope} order by created_at`,
+    params
   );
   return rows.map(shape);
 }

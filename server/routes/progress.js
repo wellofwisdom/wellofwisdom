@@ -13,6 +13,17 @@ router.use(auth.parentOnly);
 
 router.get("/", async (req, res, next) => {
   try {
+    // An assistant sees only the learners they are assigned; owner, guide and
+    // observer see everyone. visibleLearnerIds returns null for "everyone".
+    const assigned = await assignedLearners(req.user.id);
+    const visible = perm.visibleLearnerIds(req.user, assigned);
+    const params = [req.user.familyId];
+    let scope = "";
+    if (visible !== null) {
+      params.push(visible);
+      scope = ` and u.id = any($${params.length}::bigint[])`;
+    }
+
     const learners = await db.query(
       `select u.id, u.name, u.grade_level,
               (select count(*) from attempts a where a.learner_id = u.id)::int as attempts_total,
@@ -21,8 +32,8 @@ router.get("/", async (req, res, next) => {
               (select count(*) from lesson_completions lc where lc.learner_id = u.id)::int as lessons_done,
               (select count(*) from review_schedule rs where rs.learner_id = u.id and rs.due_at <= now())::int as reviews_due,
               (select count(*) from badges b where b.learner_id = u.id)::int as badge_count
-         from users u where u.family_id = $1 and u.role = 'learner' order by u.created_at`,
-      [req.user.familyId]
+         from users u where u.family_id = $1 and u.role = 'learner'${scope} order by u.created_at`,
+      params
     );
 
     const out = [];

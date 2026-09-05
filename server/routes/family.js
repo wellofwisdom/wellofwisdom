@@ -4,7 +4,9 @@
 const express = require("express");
 const db = require("../lib/db");
 const auth = require("../lib/auth");
+const perm = require("../lib/perm");
 const learners = require("../lib/learners");
+const { assignedLearners } = require("../lib/preview");
 
 const router = express.Router();
 router.use(auth.parentOnly);
@@ -17,13 +19,17 @@ const LEARNER_FIELDS = learners.FIELDS;
 
 router.get("/learners", async (req, res, next) => {
   try {
-    res.json({ learners: await learners.listForFamily(db, req.user.familyId) });
+    // A scoped assistant sees only their assigned learners in the roster too,
+    // not the whole family. Owner, guide and observer see everyone.
+    const assigned = await assignedLearners(req.user.id);
+    const visible = perm.visibleLearnerIds(req.user, assigned); // null = everyone
+    res.json({ learners: await learners.listForFamily(db, req.user.familyId, visible === null ? undefined : visible) });
   } catch (err) {
     next(err);
   }
 });
 
-router.post("/learners", async (req, res, next) => {
+router.post("/learners", auth.requirePerm("create_learner"), async (req, res, next) => {
   try {
     const { name, username, pin, gradeLevel, interests, readingLevel, aiNotes, email } = req.body || {};
     if (!String(name || "").trim()) return bad(res, "name_required");
@@ -60,7 +66,7 @@ router.post("/learners", async (req, res, next) => {
   }
 });
 
-router.patch("/learners/:id", async (req, res, next) => {
+router.patch("/learners/:id", auth.requirePerm("edit_learner"), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) return bad(res, "id_invalid");
@@ -112,7 +118,7 @@ router.patch("/learners/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/learners/:id", async (req, res, next) => {
+router.delete("/learners/:id", auth.requirePerm("delete_learner"), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) return bad(res, "id_invalid");

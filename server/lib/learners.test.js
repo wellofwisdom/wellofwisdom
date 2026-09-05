@@ -51,3 +51,22 @@ test("listForFamily: scopes to the family and shapes every row", async () => {
   assert.match(calls[0].sql, /role = 'learner'/);
   assert.deepEqual(calls[0].params, [4]);
 });
+
+test("listForFamily: a visible-id list narrows to a scoped assistant's learners", async () => {
+  const calls = [];
+  const fakeDb = { query: async (sql, params) => { calls.push({ sql, params }); return { rows: [{ id: "14", name: "Wren" }] }; } };
+
+  // A concrete assignment list adds an id filter, in the family query.
+  await learners.listForFamily(fakeDb, 4, [14]);
+  assert.match(calls[0].sql, /id = any\(\$2::bigint\[\]\)/);
+  assert.deepEqual(calls[0].params, [4, [14]]);
+
+  // An assistant with no assignments narrows to nobody, never to everybody.
+  await learners.listForFamily(fakeDb, 4, []);
+  assert.deepEqual(calls[1].params, [4, []]);
+
+  // Omitting the argument (owner/guide/observer) keeps the whole-family query.
+  await learners.listForFamily(fakeDb, 4);
+  assert.equal(calls[2].sql.includes("any("), false);
+  assert.deepEqual(calls[2].params, [4]);
+});

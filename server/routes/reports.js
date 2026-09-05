@@ -5,12 +5,23 @@ const express = require("express");
 const auth = require("../lib/auth");
 const db = require("../lib/db");
 const ai = require("../lib/ai");
+const perm = require("../lib/perm");
+const { assignedLearners } = require("../lib/preview");
 
 const router = express.Router();
 router.use(auth.parentOnly);
 
 function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
+}
+
+// A scoped assistant (a tutor) may only touch their assigned learners; owner,
+// guide and observer see the whole family. Call after the family-ownership
+// check, so a stranger's learner still reads as "not found" rather than "not
+// allowed" (never confirm a learner exists in another family).
+async function canSeeLearner(req, learnerId) {
+  const assigned = await assignedLearners(req.user.id);
+  return perm.canSeeLearner(req.user, learnerId, assigned);
 }
 
 function validDate(s) {
@@ -92,6 +103,7 @@ router.get("/preview", async (req, res, next) => {
       [Number(learnerId), req.user.familyId]
     );
     if (!owns.rows[0]) return bad(res, "learner_not_found", 404);
+    if (!(await canSeeLearner(req, Number(learnerId)))) return bad(res, "not_allowed", 403);
     res.json({ learner: owns.rows[0].name, stats: await computeStats(req.user.familyId, Number(learnerId), from, to) });
   } catch (err) {
     next(err);
@@ -108,6 +120,7 @@ router.post("/generate", async (req, res, next) => {
       [Number(learnerId), req.user.familyId]
     );
     if (!owns.rows[0]) return bad(res, "learner_not_found", 404);
+    if (!(await canSeeLearner(req, Number(learnerId)))) return bad(res, "not_allowed", 403);
     const learnerName = owns.rows[0].name;
     const stats = await computeStats(req.user.familyId, Number(learnerId), from, to);
     if (stats.lessonsCompleted === 0 && stats.attemptsTotal === 0) return bad(res, "no_activity_in_period");
@@ -140,11 +153,21 @@ router.post("/generate", async (req, res, next) => {
 
 router.get("/", async (req, res, next) => {
   try {
+    // Same scoping as the progress list: an assistant sees only their learners'
+    // reports, everyone else sees the family's.
+    const assigned = await assignedLearners(req.user.id);
+    const visible = perm.visibleLearnerIds(req.user, assigned);
+    const params = [req.user.familyId];
+    let scope = "";
+    if (visible !== null) {
+      params.push(visible);
+      scope = ` and r.learner_id = any($${params.length}::bigint[])`;
+    }
     const { rows } = await db.query(
       `select r.id, r.title, r.period_start, r.period_end, r.created_at, u.name as learner_name
          from reports r join users u on u.id = r.learner_id
-        where r.family_id = $1 order by r.created_at desc`,
-      [req.user.familyId]
+        where r.family_id = $1${scope} order by r.created_at desc`,
+      params
     );
     res.json({ reports: rows });
   } catch (err) {
@@ -161,14 +184,29 @@ router.get("/:id", async (req, res, next) => {
       [Number(req.params.id), req.user.familyId]
     );
     if (!rows[0]) return bad(res, "not_found", 404);
+    if (!(await canSeeLearner(req, rows[0].learner_id))) return bad(res, "not_allowed", 403);
     res.json({ report: rows[0] });
   } catch (err) {
     next(err);
   }
 });
 
+/** The report's learner, if it belongs to the caller's family. A scoped
+ *  assistant must not edit or delete a report for a learner they cannot see. */
+async function reportLearner(req) {
+  const { rows } = await db.query(
+    "select learner_id from reports where id = $1 and family_id = $2",
+    [Number(req.params.id), req.user.familyId]
+  );
+  return rows[0] ? Number(rows[0].learner_id) : null;
+}
+
 router.patch("/:id", async (req, res, next) => {
   try {
+    const learnerId = await reportLearner(req);
+    if (learnerId === null) return bad(res, "not_found", 404);
+    if (!(await canSeeLearner(req, learnerId))) return bad(res, "not_allowed", 403);
+
     const { title, narrative } = req.body || {};
     const sets = [];
     const params = [req.user.familyId, Number(req.params.id)];
@@ -187,6 +225,10 @@ router.patch("/:id", async (req, res, next) => {
 
 router.delete("/:id", async (req, res, next) => {
   try {
+    const learnerId = await reportLearner(req);
+    if (learnerId === null) return bad(res, "not_found", 404);
+    if (!(await canSeeLearner(req, learnerId))) return bad(res, "not_allowed", 403);
+
     const { rowCount } = await db.query("delete from reports where id = $2 and family_id = $1",
       [req.user.familyId, Number(req.params.id)]);
     if (!rowCount) return bad(res, "not_found", 404);
