@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useCallback, useEffect, useState } from "react";
-import { api } from "./api";
+import { api, getPreviewLearner } from "./api";
 import type { MeResponse } from "./types";
 import Shell from "./components/Shell";
 import Landing from "./pages/Landing";
@@ -27,7 +27,7 @@ import { go, routeFromLocation, ROUTE_EVENT } from "./router";
 import { PublicGallery, PublicCourse } from "./pages/PublicCourse";
 import TutorLog from "./pages/TutorLog";
 import Join from "./pages/Join";
-import PreviewBar, { restorePreview } from "./components/PreviewBar";
+import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
 
 function currentRoute(): string {
   return routeFromLocation();
@@ -54,13 +54,27 @@ export default function App() {
 
   // Preview must be restored BEFORE the session bootstrap, or /api/me answers
   // as the guide and the app flips back to the console on every reload.
-  const [previewing] = useState<{ id: number; name: string } | null>(() => restorePreview());
+  const [previewing, setPreviewing] = useState<{ id: number; name: string } | null>(() => restorePreview());
 
   const refresh = useCallback(async () => {
     try {
       const data = await api<MeResponse>("/api/me");
       setMe(data);
     } catch {
+      // A preview that the server will not honour (the learner was deleted, or
+      // is no longer ours to see) must never read as "logged out", and must
+      // never strand us in a session that cannot write. Drop it and ask again
+      // as ourselves.
+      if (getPreviewLearner()) {
+        clearPreview();
+        setPreviewing(null);
+        try {
+          setMe(await api<MeResponse>("/api/me"));
+          return;
+        } catch {
+          /* genuinely logged out, fall through */
+        }
+      }
       setMe({ user: null });
     } finally {
       setLoading(false);
@@ -135,6 +149,11 @@ export default function App() {
   const learnerNew = route === "learners/new";
 
   return (
+    <>
+    {/* Belt and braces: if a preview is somehow live while the console is on
+        screen, the way out has to be visible here too. That combination is what
+        made world-builder saves fail with preview_read_only and no explanation. */}
+    {previewing && <PreviewBar name={previewing.name} />}
     <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : learnerEditMatch || learnerNew ? "learners" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
       {route === "learners" && <Learners me={me!} />}
       {(learnerNew || learnerEditMatch) && (
@@ -162,5 +181,6 @@ export default function App() {
       {route === "settings" && <Settings me={me!} />}
       {route === "dashboard" && <Dashboard me={me!} onNavigate={navigate} />}
     </Shell>
+    </>
   );
 }

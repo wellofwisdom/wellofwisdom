@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 const test = require("node:test");
 const assert = require("node:assert");
+const fs = require("node:fs");
+const path = require("node:path");
 const { denyPreviewWrites } = require("./preview");
 
 function run(user, method) {
@@ -19,6 +21,25 @@ function run(user, method) {
 const previewing = { id: 11, role: "learner", preview: true };
 const realLearner = { id: 11, role: "learner" };
 const guide = { id: 1, role: "parent", guideRole: "owner" };
+
+test("attachPreview covers the session bootstrap, not just the learner routes", () => {
+  // Read from index.js rather than restating the list, so this fails when the
+  // mount changes rather than when someone remembers to update a copy.
+  const src = fs.readFileSync(path.join(__dirname, "..", "index.js"), "utf8");
+  const mount = src.match(/app\.use\(\[([^\]]*)\],\s*preview\.attachPreview\)/);
+  assert.ok(mount, "attachPreview must be mounted on an explicit list of paths");
+  const paths = (mount[1].match(/"[^"]+"/g) || []).map((s) => s.replace(/"/g, ""));
+
+  // /api/me is the one that bites. Without it the identity swap never reaches
+  // the SPA's bootstrap: the app answers "you are the guide", renders the guide
+  // console, and STILL sends the preview header on every request, so ordinary
+  // guide writes to the routes below come back preview_read_only with no
+  // banner on screen to explain why. That is a lockout, not a preview.
+  assert.ok(paths.includes("/api/me"), `/api/me missing from [${paths.join(", ")}]`);
+  for (const p of ["/api/learn", "/api/worlds", "/api/tutor"]) {
+    assert.ok(paths.includes(p), `${p} missing from the preview mount`);
+  }
+});
 
 test("preview may read", () => {
   for (const m of ["GET", "HEAD", "OPTIONS"]) {

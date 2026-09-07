@@ -17,13 +17,20 @@ export function startPreview(learnerId: number, learnerName: string) {
   window.location.assign("/");
 }
 
-export function endPreview() {
+/** Drop preview state without navigating, for when a stale preview has to be
+ *  abandoned mid-bootstrap. Being stuck in a preview nobody can see is worse
+ *  than losing the preview. */
+export function clearPreview() {
   setPreviewLearner(null);
   try {
     sessionStorage.removeItem("wow-preview");
   } catch {
     /* nothing to clean up */
   }
+}
+
+export function endPreview() {
+  clearPreview();
   window.location.assign("/");
 }
 

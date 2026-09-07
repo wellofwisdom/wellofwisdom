@@ -35,8 +35,13 @@ app.use("/api", auth.denyReadOnly);
 // "View as learner": a guide can walk the learner app to see how it works.
 // The identity swap and the read-only guard both live here rather than in each
 // route, so a preview can never write, including through routes added later.
+// /api/me is in this list on purpose: it is the SPA's session bootstrap, so
+// without it preview never actually swaps the view. The app would answer "you
+// are the guide", render the guide console, and still attach the preview header
+// to every request, which then made ordinary guide writes to the routes below
+// fail with preview_read_only and no banner to explain it.
 const preview = require("./lib/preview");
-app.use(["/api/learn", "/api/worlds", "/api/tutor"], preview.attachPreview);
+app.use(["/api/me", "/api/learn", "/api/worlds", "/api/tutor"], preview.attachPreview);
 app.use("/api", preview.denyPreviewWrites);
 
 // Health probe: always 200 if the process is up; component states inside.

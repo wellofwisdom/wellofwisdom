@@ -68,6 +68,9 @@ const NICE: Record<string, string> = {
   ai_not_configured: "This needs an AI provider, which is not set up on this instance. Add one in Settings.",
   no_questions: "This boss has no questions to fight with yet. Ask your guide to add some exercises to the course.",
   no_active_run: "This fight has timed out. Start it again to have another go.",
+  preview_read_only: "You are viewing as a learner, so nothing can be saved. Use \"Back to my view\" in the banner at the top, then try again.",
+  not_your_learner: "That learner is not one of yours to view.",
+  boss_must_be_fought: "A boss has to be fought, not marked done.",
 };
 
 export function niceError(err: unknown): string {
