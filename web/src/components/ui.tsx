@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Shared UI primitives: Panel, StatBar, PillTabs, EmptyState, Modal, fields.
-import { useEffect, useRef, type ReactNode } from "react";
+import { Children, cloneElement, isValidElement, useEffect, useId, useRef, type ReactElement, type ReactNode } from "react";
 import { IconX } from "./Icons";
 
 export function Panel({
@@ -181,11 +181,23 @@ export function Field({
   hint?: string;
   children: ReactNode;
 }) {
+  // The label has to be tied to its control, or a screen reader announces a
+  // bare "edit text" (or the placeholder, which reads as an example, not a
+  // name) and clicking the label does nothing. Only a single native control is
+  // wired: a custom component may not forward an id, and a wrapper div is not
+  // something a label can name.
+  const auto = useId();
+  const only = Children.count(children) === 1 && isValidElement(children)
+    && ["input", "select", "textarea"].includes(children.type as string)
+    ? (children as ReactElement<{ id?: string; "aria-describedby"?: string }>)
+    : null;
+  const id = only ? only.props.id || auto : undefined;
+  const hintId = hint && only ? `${id}-hint` : undefined;
   return (
     <div className="field">
-      <label>{label}</label>
-      {children}
-      {hint && <div className="hint">{hint}</div>}
+      <label htmlFor={id}>{label}</label>
+      {only ? cloneElement(only, { id, "aria-describedby": only.props["aria-describedby"] || hintId }) : children}
+      {hint && <div className="hint" id={hintId}>{hint}</div>}
     </div>
   );
 }
