@@ -100,10 +100,22 @@ const NICE: Record<string, string> = {
   question_incomplete: "Each video question needs a prompt and at least two choices.",
   description_required: "The project needs a description.",
   upload_not_found: "That video file is not in this group's uploads.",
+  url_invalid: "That link cannot be fetched from here. Use a public http or https address.",
+  fetch_failed: "Could not reach that link. Check it, or try again in a minute.",
+  not_a_course: "That link does not lead to a Well of Wisdom course file.",
+  course_unparseable: "That course file is damaged or empty, so there is nothing to import.",
+  too_large: "That is larger than this server accepts.",
+  source_url_invalid: "One of the source links cannot be fetched from here. Use a public http or https address.",
+  source_fetch_failed: "One of the source links could not be read. Check it opens in a browser, or paste its text instead.",
   learner_not_found: "That learner is not in this group.",
 };
 
 export function niceError(err: unknown): string {
-  if (err instanceof ApiError) return NICE[err.code] || `Something went wrong (${err.code}).`;
+  if (err instanceof ApiError) {
+    if (NICE[err.code]) return NICE[err.code];
+    const far = /^fetch_failed_(\d+)$/.exec(err.code);
+    if (far) return `That link answered with an error (${far[1]}). Check it opens in a browser.`;
+    return `Something went wrong (${err.code}).`;
+  }
   return "Could not reach the server. Check your connection.";
 }

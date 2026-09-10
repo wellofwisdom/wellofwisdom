@@ -206,7 +206,7 @@ function ImportDialog({ onClose, onDone }: { onClose: () => void; onDone: (cours
     <Modal title="Import a course" onClose={onClose}>
       {err && <div className="formerror" role="alert">{err}</div>}
       <Field label="Paste a shared course link"
-        hint="A /c/… page from any Well of Wisdom instance. The course is fetched and copied into your own library.">
+        hint="A /c/… page from any Well of Wisdom instance, or a .wow-course.json file (a GitHub file link works too). The course is fetched and copied into your own library.">
         <div className="row">
           <input className="input grow" value={url} onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.org/c/fractions-through-sewing" />

@@ -7,7 +7,7 @@ const db = require("../lib/db");
 const share = require("../lib/share");
 const jobs = require("../lib/jobs");
 const ai = require("../lib/ai");
-const { fetchT } = require("../lib/http");
+const { safeFetch } = require("../lib/safefetch");
 const { safeSourceUrl, htmlToText } = require("../lib/grade");
 
 const router = express.Router();
@@ -45,7 +45,9 @@ router.post("/generate", async (req, res, next) => {
         const url = safeSourceUrl(s.url);
         if (!url) return bad(res, "source_url_invalid");
         try {
-          const r = await fetchT(url.toString(), { headers: { "user-agent": "WellOfWisdom/0.1 (+https://wellofwisdom.app)" } }, { timeoutMs: 15000, retries: 1 });
+          // Through safeFetch: this page becomes course text, so an address
+          // the name check missed (or a redirect) must not reach inside.
+          const r = await safeFetch(url.toString(), { timeoutMs: 15000, maxBytes: 2 * 1024 * 1024 });
           if (!r.ok) throw new Error(`http_${r.status}`);
           const body = (await r.text()).slice(0, 400000);
           const text = htmlToText(body);
@@ -635,14 +637,19 @@ router.post("/import-url", async (req, res, next) => {
     const raw = String((req.body && req.body.url) || "").trim();
     const safe = safeSourceUrl(raw); // returns a URL object, or null if unsafe
     if (!safe) return bad(res, "url_invalid");
-    // Accept either the page URL or the export URL; normalize to the export.
-    let target = safe.href.replace(/\/+$/, "");
-    if (!/\/export$/.test(target)) {
-      const m = target.match(/\/c\/([A-Za-z0-9-]+)$/);
-      if (m) target = `${target.slice(0, m.index)}/api/public/courses/${m[1]}/export`;
-      else if (/\/api\/public\/courses\/[A-Za-z0-9-]+$/.test(target)) target = `${target}/export`;
+    // A page link, an API link, a GitHub file page or a raw file: all become
+    // the URL of the JSON itself (share.importTarget).
+    const target = share.importTarget(safe.href);
+    // A pasted URL is fetched through safeFetch, which re-checks the address at
+    // connect time and on every redirect, and caps the body. A course package
+    // is small; five megabytes is generous.
+    let r;
+    try {
+      r = await safeFetch(target, { headers: { accept: "application/json" }, timeoutMs: 20000, maxBytes: 5 * 1024 * 1024 });
+    } catch (err) {
+      if (err.code === "EBLOCKED") return bad(res, err.message === "too_large" ? "too_large" : "url_invalid");
+      return bad(res, "fetch_failed", 502);
     }
-    const r = await fetchT(target, { headers: { accept: "application/json" } }, { timeoutMs: 20000, retries: 1 });
     if (!r.ok) return bad(res, `fetch_failed_${r.status}`);
     const payload = await r.json().catch(() => null);
     if (!payload || payload.format !== "wellofwisdom-course") return bad(res, "not_a_course");

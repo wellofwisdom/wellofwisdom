@@ -11,6 +11,7 @@
 // video exists AND the owner allows embedding. 401 and 404 mean it does not.
 const { fetchT } = require("./http");
 const { safeSourceUrl, youtubeId } = require("./grade");
+const { safeFetch } = require("./safefetch");
 
 const OEMBED = "https://www.youtube.com/oembed";
 const VIMEO_OEMBED = "https://vimeo.com/api/oembed.json";
@@ -152,7 +153,9 @@ async function checkPeerTube(raw, { timeoutMs = 8000 } = {}) {
   const ref = peerTubeRefFromUrl(u);
   const oembedUrl = `${u.protocol}//${u.host}/services/oembed?format=json&url=${encodeURIComponent(u.href)}`;
   try {
-    const res = await fetchT(oembedUrl, { headers: { accept: "application/json" } }, { timeoutMs, retries: 1 });
+    // The host is whatever the guide pasted, so this goes through safeFetch:
+    // checked at connect time and on every redirect, not only by name.
+    const res = await safeFetch(oembedUrl, { headers: { accept: "application/json" }, timeoutMs, maxBytes: 256 * 1024 });
     if ([400, 401, 403, 404].includes(res.status)) return { ok: false, reason: `not_embeddable_${res.status}` };
     if (!res.ok) {
       return ref ? { ok: true, host: ref.host, id: ref.id, reason: `unverified_${res.status}` }
@@ -169,6 +172,9 @@ async function checkPeerTube(raw, { timeoutMs = 8000 } = {}) {
     if (!host || !id) return { ok: false, reason: "no_video_id" };
     return { ok: true, host, id, title: (data && data.title) || null };
   } catch (err) {
+    // A blip fails open (a real video is not refused because an instance was
+    // briefly down). A host that turned out to be private fails closed.
+    if (err && err.code === "EBLOCKED") return { ok: false, reason: "blocked_or_bad_url" };
     return ref ? { ok: true, host: ref.host, id: ref.id, reason: `unverified_${err.message.slice(0, 30)}` }
       : { ok: false, reason: "unreachable" };
   }

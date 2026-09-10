@@ -230,3 +230,23 @@ test("seo: robots keeps the app private and the shared courses crawlable", () =>
   assert.match(txt, /Disallow: \/records/);
   assert.match(txt, /Sitemap: https:\/\/wellofwisdom\.app\/sitemap\.xml/);
 });
+
+test("importTarget: every link a guide might paste becomes the JSON behind it", () => {
+  const t = share.importTarget;
+  assert.equal(t("https://a.org/c/fractions-1"), "https://a.org/api/public/courses/fractions-1/export");
+  assert.equal(t("https://a.org/c/fractions-1/"), "https://a.org/api/public/courses/fractions-1/export");
+  assert.equal(t("https://a.org/api/public/courses/fractions-1"), "https://a.org/api/public/courses/fractions-1/export");
+  assert.equal(t("https://a.org/api/public/courses/fractions-1/export"), "https://a.org/api/public/courses/fractions-1/export");
+  // A GitHub file page is HTML; the course is the raw file behind it.
+  assert.equal(
+    t("https://github.com/wellofwisdom/community-courses/blob/main/courses/latin-1/course.wow-course.json"),
+    "https://raw.githubusercontent.com/wellofwisdom/community-courses/main/courses/latin-1/course.wow-course.json"
+  );
+  assert.equal(
+    t("https://github.com/o/r/blob/main/x.json?plain=1#L3"),
+    "https://raw.githubusercontent.com/o/r/main/x.json"
+  );
+  // A raw file anywhere is fetched as it is.
+  assert.equal(t("https://raw.githubusercontent.com/o/r/main/x.json"), "https://raw.githubusercontent.com/o/r/main/x.json");
+  assert.equal(t("https://files.example.org/latin.wow-course.json"), "https://files.example.org/latin.wow-course.json");
+});

@@ -223,8 +223,29 @@ function courseStats(tree) {
   return { units: (tree.units || []).length, lessons, exercises, videos };
 }
 
+/**
+ * Where to fetch a course from, given whatever link a guide pasted. Pure.
+ *   another instance's page  /c/<slug>                -> its export
+ *   the API path             /api/public/courses/<s>  -> its export
+ *   a GitHub file page       github.com/o/r/blob/b/p  -> raw.githubusercontent.com/o/r/b/p
+ *   anything else            unchanged (a raw .wow-course.json anywhere)
+ * The GitHub case is what lets a community-courses repository work: a PR adds
+ * a file, and the link a person copies from the browser is the blob page, which
+ * is HTML, not the JSON behind it.
+ */
+function importTarget(href) {
+  let target = String(href || "").replace(/\/+$/, "");
+  const gh = target.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/(.+)$/i);
+  if (gh) return `https://raw.githubusercontent.com/${gh[1]}/${gh[2]}/${gh[3].replace(/[?#].*$/, "")}`;
+  if (/\/export$/.test(target)) return target;
+  const m = target.match(/\/c\/([A-Za-z0-9-]+)$/);
+  if (m) return `${target.slice(0, m.index)}/api/public/courses/${m[1]}/export`;
+  if (/\/api\/public\/courses\/[A-Za-z0-9-]+$/.test(target)) return `${target}/export`;
+  return target;
+}
+
 module.exports = {
   LICENSES, DEFAULT_LICENSE, slugify, uniqueSlug,
   publicItem, packageItem, publicCourse, coursePackage, courseMeta, courseStats,
-  courseText,
+  courseText, importTarget,
 };
