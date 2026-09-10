@@ -233,10 +233,29 @@ and why. Anything marked shipped has a commit and is live.
         the file to every place it plays (lesson, win cutscene, trailer). Served
         at /media/:id/captions.vtt with the same public/family visibility as the
         file; the player shows a CC button only when a track exists.
-- [ ] **Per-state compliance pack.** Roughly half of US states require
-      homeschool families to file attendance, portfolios or assessments. The
-      reports, transcripts and calendar already exist. This is the sharpest
-      wedge available, because it is a chore nobody enjoys and nobody serves.
+- [~] **Per-state compliance pack.** Two of the three things states ask for now
+      exist (`ceca483`, `18f453b`); the third, assessments, does not.
+  - [x] **Days of instruction.** Derived from the work, because a day a learner
+        answered something, finished a lesson or handed work in is a day of
+        school. Migration 025 stores only the guide's decisions on top: a day
+        they claim that the app never saw (a museum, a co-op class) and a day
+        they strike that it counted. Storing only the overrides means the log
+        cannot drift away from the record. Every claimed day carries what backs
+        it, and the CSV export leaves excluded days out entirely: it is the
+        claim, not the working.
+  - [x] **Portfolio.** A read-only, unsaved assembly of a period: days, the
+        coursework, the work samples with the guide's returned feedback, and the
+        badges earned. Printable. It saves nothing, so it cannot go stale.
+  - [ ] **Assessments.** Standardised-test results are a record a family gets
+        from somewhere else; storing and printing one alongside the rest is the
+        remaining piece.
+  - **The line this feature must not cross:** the app does not know what any
+        state requires. The requirement is a number the guide types in and a
+        label they write, because homeschool law varies by state, changes, and
+        turns on facts about a family that no app knows. A test fails the build
+        if a state name or a default day count ever appears in the logic, so
+        adding one has to be an argument somebody wins rather than a line
+        somebody slips in.
 
 ## Then
 
