@@ -262,10 +262,24 @@ and why. Anything marked shipped has a commit and is live.
       live model: the offline paths (normalizer, not-enough) are tested, the
       real analysis runs when a guide clicks "Spot patterns" on the Progress
       page. Read one before trusting the tone, the way the tutor prompt wants.
-- [ ] **Timestamped video comprehension.** Fetch the transcript, anchor the
-      questions to timestamps, and have a wrong answer scrub the player back to
-      the ten seconds that explain it. Khan has fixed videos with fixed
-      questions; this watches any video with the learner.
+- [x] **Timestamped video comprehension** (`e2ff3ea`). A video question can now
+      carry `atSec`, the moment its answer is given. Miss it and the player
+      moves the play head back to ten seconds before that, with a "Watch from
+      2:05" button beside the verdict. The transcript comes from the caption
+      track already on the upload, so no new provider and no scraping: only an
+      uploaded video can be drafted from or scrubbed, because an embedded
+      YouTube or Vimeo player is another origin. `lib/videoqa.js` parses the
+      VTT, groups and caps the transcript, and normalizes the model's output
+      into the SAME question shape the course generator makes, so a drafted
+      question is an ordinary one everywhere downstream; the answer comes from
+      answerIndex rather than any field the model set, and an anchor past the
+      end is clamped rather than scrubbing a learner into blackness. Guide
+      triggered (`POST /api/courses/items/:id/video-questions`, gated on
+      `edit_course`), and it fills the editor rather than the item: the guide
+      keeps, edits or deletes each question and saves. Not smoke-tested with a
+      live model yet. The video edit dialog grew a real question editor along
+      the way, which closes an older gap: video questions existed in the data
+      and the player but could not be edited anywhere.
 - [x] **Essay and project grading** against a rubric (`e71bc26`). A project item
       was a brief a learner read and nothing more. Now they write their work in
       the lesson player, keep it as a draft as long as they like, and hand it
