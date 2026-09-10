@@ -21,14 +21,21 @@ function parseNumeric(v) {
 
 // mcq: answer = choice id. numeric: answer = number (0.5% tolerance).
 // text: self-check: model answer is shown, learner judges themselves (null).
+// A question with no answer key is null too, never false: marking a learner
+// wrong against a key nobody wrote is worse than not marking them. A course
+// with such a question cannot be published (coursegen.missingAnswers), so this
+// is the last line, for a key that went missing some other way.
 function gradeExercise(item, learnerAnswer) {
+  const keyless = item.answer == null || String(item.answer).trim() === "";
   switch (item.kind) {
     case "mcq": {
+      if (keyless || !(item.choices || []).some((c) => c.id === item.answer)) return null;
       const id = String(learnerAnswer ?? "");
       const valid = (item.choices || []).some((c) => c.id === id);
-      return valid && String(item.answer ?? "") === id;
+      return valid && String(item.answer) === id;
     }
     case "numeric": {
+      if (keyless) return null;
       const expected = Number(item.answer);
       const given = parseNumeric(learnerAnswer);
       if (!Number.isFinite(expected) || !Number.isFinite(given)) return false;

@@ -305,7 +305,9 @@ router.post("/attempt", async (req, res, next) => {
     );
 
     // Spaced review: every graded exercise feeds the scheduler (fail-open).
-    if (row.type === "exercise" && c.kind && c.kind !== "text") {
+    // An ungraded answer (no key) is not evidence either way, so it does not
+    // move the review schedule.
+    if (row.type === "exercise" && c.kind && c.kind !== "text" && correct !== null) {
       review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
     }
 

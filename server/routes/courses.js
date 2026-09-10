@@ -138,6 +138,25 @@ async function courseTree(courseId, familyId) {
   return { ...c.rows[0], units: byUnit };
 }
 
+/** Questions in this course with no answer key. Asked by BOTH routes that make
+ *  a course live to learners (a status change and publishing to /c/), because
+ *  an unanswerable question marks every learner wrong, or leaves them ungraded
+ *  with no idea why. The guide gets a count and the course page lists them. */
+async function unansweredIn(courseId, familyId) {
+  const { rows } = await db.query(
+    `select i.type, i.content from lesson_items i
+       join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id
+       join courses c on c.id = un.course_id
+      where un.course_id = $1 and c.family_id = $2`,
+    [courseId, familyId]
+  );
+  return require("../lib/coursegen").missingAnswers(rows);
+}
+
+function allItems(tree) {
+  return (tree.units || []).flatMap((u) => (u.lessons || []).flatMap((l) => l.items || []));
+}
+
 // Paste-a-worksheet -> AI parses into exercises (job; poll /jobs/:id).
 router.post("/worksheet-import", async (req, res, next) => {
   try {
@@ -206,7 +225,10 @@ router.post("/import", async (req, res, next) => {
       req.user.id,
       req.user.familyId
     );
-    res.status(201).json({ courseId: r.courseId });
+    // A package published without answers arrives with its questions but no
+    // keys. Say so now, rather than when the guide tries to publish it.
+    const { missingAnswers } = require("../lib/coursegen");
+    res.status(201).json({ courseId: r.courseId, missingAnswers: missingAnswers(allItems(course)) });
   } catch (err) {
     next(err);
   }
@@ -216,7 +238,8 @@ router.get("/:id", async (req, res, next) => {
   try {
     const tree = await courseTree(Number(req.params.id), req.user.familyId);
     if (!tree) return bad(res, "not_found", 404);
-    res.json({ course: tree });
+    const { missingAnswers } = require("../lib/coursegen");
+    res.json({ course: tree, missingAnswers: missingAnswers(allItems(tree)) });
   } catch (err) {
     next(err);
   }
@@ -255,6 +278,10 @@ router.patch("/:id", async (req, res, next) => {
       // an edit: an assistant may edit a course but not publish or archive it.
       if (!perm.can(req.user, "publish_course")) return bad(res, "not_allowed", 403);
       if (!["draft", "published", "archived"].includes(status)) return bad(res, "status_invalid");
+      if (status === "published") {
+        const missing = await unansweredIn(id, req.user.familyId);
+        if (missing) return res.status(409).json({ error: "answers_missing", count: missing });
+      }
       add("status", status);
     }
     if (learnerId !== undefined) {
@@ -593,6 +620,9 @@ router.post("/:id/publish", auth.requirePerm("share_course"), async (req, res, n
       [id, req.user.familyId]
     );
     if (!cur.rows[0]) return bad(res, "not_found", 404);
+    // Publishing also makes the course live to this family's learners.
+    const missing = await unansweredIn(id, req.user.familyId);
+    if (missing) return res.status(409).json({ error: "answers_missing", count: missing });
     const slug = cur.rows[0].public_slug || (await share.uniqueSlug(cur.rows[0].title, id));
 
     const { rows } = await db.query(
@@ -668,7 +698,10 @@ router.post("/import-url", async (req, res, next) => {
       req.user.id,
       req.user.familyId
     );
-    res.status(201).json({ courseId: out.courseId, title: course.title, from: target });
+    const { missingAnswers } = require("../lib/coursegen");
+    res.status(201).json({
+      courseId: out.courseId, title: course.title, from: target, missingAnswers: missingAnswers(allItems(course)),
+    });
   } catch (err) {
     next(err);
   }

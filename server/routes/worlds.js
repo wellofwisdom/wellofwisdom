@@ -110,7 +110,8 @@ async function bossEncounter(id, familyId) {
 
 /** The gradable exercises a boss can draw on: multiple choice and numeric, from
  *  the adventure's own course. Text answers are self-checked, so they cannot
- *  gate a fight. */
+ *  gate a fight, and neither can a question with no answer key: it would be
+ *  lost every time, and a wall nobody can pass is not a boss. */
 async function bossQuestionPool(courseId, familyId) {
   const { rows } = await db.query(
     `select i.id, i.type, i.content
@@ -123,7 +124,8 @@ async function bossQuestionPool(courseId, familyId) {
         and (i.content->>'kind') in ('mcq', 'numeric')`,
     [courseId, familyId]
   );
-  return rows;
+  const { missingAnswers } = require("../lib/coursegen");
+  return rows.filter((r) => missingAnswers([r]) === 0);
 }
 
 async function bossQuestionRow(itemId, courseId) {

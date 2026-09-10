@@ -59,19 +59,58 @@ test("itemProblem: blanking out a required field is refused by name", () => {
 test("itemProblem: a sixth choice is refused rather than dropped", () => {
   const six = [1, 2, 3, 4, 5, 6].map((n) => ({ id: `c${n}`, text: `Choice ${n}` }));
   assert.equal(cg.itemProblem(mcq({ choices: six, answer: "c6" })), "too_many_choices");
-  // What the normalizer alone would have done: kept five and quietly moved the
-  // answer key to choice one. That is the loss this check exists to stop.
-  assert.equal(cg.normalizeItem(mcq({ choices: six, answer: "c6" })).content.answer, "c1");
+  // What the normalizer alone does: keep five, and with the answer on the one
+  // it dropped, keep no key rather than invent one (it used to pick choice one).
+  assert.equal(cg.normalizeItem(mcq({ choices: six, answer: "c6" })).content.answer, undefined);
 });
 
-test("itemProblem: an answer that would silently move is refused", () => {
-  // A blank line above the answer: after renumbering, "c3" would be the wrong choice.
+test("the answer follows its choice when choices are renumbered", () => {
+  // A blank line above the answer: "c3" is the third ORIGINAL choice, which is
+  // the second one kept. The old code compared against the new ids and missed.
   const withBlank = [{ id: "c1", text: "A" }, { id: "c2", text: "" }, { id: "c3", text: "C" }];
-  assert.equal(cg.itemProblem(mcq({ choices: withBlank, answer: "c3" })), "answer_invalid");
-  assert.equal(cg.itemProblem(mcq({ answer: "c9" })), "answer_invalid");
-  // Ids that were never c1..cN are renumbered too, so the key would move.
+  const a = cg.normalizeItem(mcq({ choices: withBlank, answer: "c3" })).content;
+  assert.equal(a.choices.find((c) => c.id === a.answer).text, "C");
+  assert.equal(cg.itemProblem(mcq({ choices: withBlank, answer: "c3" })), null);
+  // Ids that were never c1..cN: "b" still means the choice called b.
   const lettered = [{ id: "a", text: "A" }, { id: "b", text: "B" }];
-  assert.equal(cg.itemProblem(mcq({ choices: lettered, answer: "b" })), "answer_invalid");
+  const b = cg.normalizeItem(mcq({ choices: lettered, answer: "b" })).content;
+  assert.equal(b.choices.find((c) => c.id === b.answer).text, "B");
+  // An answer naming no choice at all is refused on edit.
+  assert.equal(cg.itemProblem(mcq({ answer: "c9" })), "answer_invalid");
+  assert.equal(cg.itemProblem(mcq({ answer: "" })), "answer_required");
+});
+
+test("a package shared without answers never gets keys invented for it", () => {
+  // What publicItem strips: the answer. The old normalizer filled the gap with
+  // choice one, a numeric 0, and dropped written questions entirely.
+  const m = cg.normalizeItem(mcq({ answer: undefined })).content;
+  assert.equal(m.answer, undefined);
+  assert.equal(m.choices.length, 3, "the question itself is kept");
+  const n = cg.normalizeItem({ type: "exercise", content: { kind: "numeric", prompt: "2+2" } }).content;
+  assert.equal(n.answer, undefined, "not 0");
+  const t = cg.normalizeItem({ type: "exercise", content: { kind: "text", prompt: "Why?" } });
+  assert.ok(t, "a written question is kept, not dropped");
+  assert.equal(t.content.answer, undefined);
+  const v = cg.normalizeItem({ type: "video", content: {
+    youtubeId: "dQw4w9WgXcQ",
+    questions: [{ prompt: "What?", choices: [{ id: "c1", text: "a" }, { id: "c2", text: "b" }] }],
+  } }).content;
+  assert.equal(v.questions[0].answer, undefined);
+  assert.equal(cg.missingAnswers([{ type: "exercise", content: m }, { type: "exercise", content: n },
+    { type: "exercise", content: t.content }, { type: "video", content: v }]), 4);
+});
+
+test("missingAnswers: a fully keyed course counts zero, and every gap counts once", () => {
+  const keyed = [
+    mcq(),
+    { type: "exercise", content: { kind: "numeric", prompt: "p", answer: 0 } },
+    { type: "exercise", content: { kind: "text", prompt: "p", answer: "a" } },
+    { type: "article", content: { title: "t", body: "b" } },
+    { type: "video", content: { youtubeId: "x", questions: [{ prompt: "q", choices: [{ id: "c1", text: "a" }], answer: "c1" }] } },
+  ].map((i) => ({ type: i.type, content: i.content }));
+  assert.equal(cg.missingAnswers(keyed), 0, "a numeric answer of 0 is a real answer");
+  assert.equal(cg.missingAnswers([mcq({ answer: "c9" })]), 1, "an answer naming no choice is no answer");
+  assert.equal(cg.missingAnswers([]), 0);
 });
 
 test("itemProblem: answers the normalizer maps correctly are accepted", () => {
@@ -114,4 +153,28 @@ test("the item edit route checks, normalizes and stores only the clean content",
   assert.match(body, /JSON\.stringify\(clean\.content\)/, "only the normalized content is written");
   assert.ok(!/JSON\.stringify\(content\)/.test(body), "the raw request body must never be stored");
   assert.match(body, /from uploads where id = \$1 and family_id = \$2/, "an upload reference is family-checked");
+});
+
+test("grading: a question with no answer key is ungraded, never marked wrong", () => {
+  const { gradeExercise } = require("./grade");
+  const choices = [{ id: "c1", text: "a" }, { id: "c2", text: "b" }];
+  assert.equal(gradeExercise({ kind: "mcq", choices }, "c1"), null);
+  assert.equal(gradeExercise({ kind: "mcq", choices, answer: "c9" }, "c1"), null, "a key naming no choice");
+  assert.equal(gradeExercise({ kind: "numeric" }, "4"), null);
+  assert.equal(gradeExercise({ kind: "numeric", answer: "" }, "4"), null);
+  // A real key still grades both ways, and 0 is a real key.
+  assert.equal(gradeExercise({ kind: "mcq", choices, answer: "c2" }, "c2"), true);
+  assert.equal(gradeExercise({ kind: "mcq", choices, answer: "c2" }, "c1"), false);
+  assert.equal(gradeExercise({ kind: "numeric", answer: 0 }, "0"), true);
+  assert.equal(gradeExercise({ kind: "numeric", answer: 0 }, "1"), false);
+});
+
+test("both routes that make a course live refuse one with unanswered questions", () => {
+  const routeSrc = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "routes", "courses.js"), "utf8");
+  const patchAt = routeSrc.indexOf('router.patch("/:id"');
+  const patchBody = routeSrc.slice(patchAt, routeSrc.indexOf("\n});", patchAt));
+  assert.match(patchBody, /status === "published"[\s\S]*unansweredIn\(/, "the status change checks");
+  const pubAt = routeSrc.indexOf('router.post("/:id/publish"');
+  const pubBody = routeSrc.slice(pubAt, routeSrc.indexOf("\n});", pubAt));
+  assert.match(pubBody, /unansweredIn\([\s\S]*answers_missing[\s\S]*status = 'published'/, "publishing to /c/ checks before it goes live");
 });

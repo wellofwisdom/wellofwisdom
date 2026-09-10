@@ -100,6 +100,7 @@ const NICE: Record<string, string> = {
   question_incomplete: "Each video question needs a prompt and at least two choices.",
   description_required: "The project needs a description.",
   upload_not_found: "That video file is not in this group's uploads.",
+  answers_missing: "Some questions have no correct answer yet, so this cannot go to learners. They are tagged on the course page: pick each answer, then publish.",
   url_invalid: "That link cannot be fetched from here. Use a public http or https address.",
   fetch_failed: "Could not reach that link. Check it, or try again in a minute.",
   not_a_course: "That link does not lead to a Well of Wisdom course file.",

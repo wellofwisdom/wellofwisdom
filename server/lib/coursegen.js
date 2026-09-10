@@ -79,11 +79,34 @@ const clean = (s, max) => stripTags(str(s, max));
 const MAX_CHOICES = 5;
 const MAX_VIDEO_QUESTIONS = 4;
 
-function normalizeChoice(c, i) {
-  if (!c || typeof c !== "object") return null;
-  const text = clean(c.text, 500);
-  if (!text) return null;
-  return { id: `c${i + 1}`, text };
+const hasValue = (v) => v != null && String(v).trim() !== "";
+
+/**
+ * Choices renumbered c1..cN, and the answer carried across to its NEW id.
+ *
+ * The answer names a choice by its ORIGINAL id (or by its text). Blank choices
+ * are dropped and the rest renumbered, so the old code, which compared the
+ * answer against the new ids, could land it on the wrong choice. And when the
+ * answer was missing or matched nothing it fell back to choice one: a package
+ * published without answers came in with choice one "correct" on every
+ * question. This never invents a key. No match means no answer, and a course
+ * with unanswered questions cannot be published to learners (missingAnswers).
+ */
+function mapChoices(rawChoices, rawAnswer) {
+  const kept = (Array.isArray(rawChoices) ? rawChoices : [])
+    .filter((c) => c && typeof c === "object" && clean(c.text, 500))
+    .slice(0, MAX_CHOICES);
+  const choices = kept.map((c, i) => ({ id: `c${i + 1}`, text: clean(c.text, 500) }));
+  if (!hasValue(rawAnswer)) return { choices, answer: null };
+  const raw = String(rawAnswer).trim();
+  let at = kept.findIndex((c) => c.id != null && String(c.id) === raw);
+  // Choices that came with no ids at all are numbered by position.
+  if (at < 0 && kept.every((c) => c.id == null)) {
+    const m = /^c(\d+)$/.exec(raw);
+    if (m && Number(m[1]) >= 1 && Number(m[1]) <= kept.length) at = Number(m[1]) - 1;
+  }
+  if (at < 0) at = choices.findIndex((c) => c.text === clean(raw, 500));
+  return { choices, answer: at >= 0 ? choices[at].id : null };
 }
 
 function normalizeExercise(content) {
@@ -91,24 +114,23 @@ function normalizeExercise(content) {
   const prompt = clean(content.prompt, 2000);
   if (!prompt) return null;
   const ex = { prompt, kind };
+  // An absent answer stays absent, whatever the kind. Inventing one (choice
+  // one, or a numeric 0) turns a question into a wrong answer key; a missing
+  // key is visible and blocks publishing until a person supplies it.
   if (kind === "mcq") {
-    const choices = (Array.isArray(content.choices) ? content.choices : [])
-      .map(normalizeChoice)
-      .filter(Boolean)
-      .slice(0, MAX_CHOICES);
+    const { choices, answer } = mapChoices(content.choices, content.answer);
     if (choices.length < 2) return null;
-    const raw = String(content.answer ?? "");
-    const match = choices.some((c, i) => c.id === raw || clean(content.answer, 500) === choices[i].text);
     ex.choices = choices;
-    ex.answer = match ? (choices.some((c) => c.id === raw) ? raw : choices.find((c) => c.text === clean(content.answer, 500)).id) : choices[0].id;
+    if (answer) ex.answer = answer;
   } else if (kind === "numeric") {
-    const n = Number(String(content.answer ?? "").replace(/[^0-9.\-]/g, ""));
-    if (!Number.isFinite(n)) return null;
-    ex.answer = n;
+    if (hasValue(content.answer)) {
+      const n = Number(String(content.answer).replace(/[^0-9.\-]/g, ""));
+      if (!Number.isFinite(n)) return null;
+      ex.answer = n;
+    }
   } else {
     const a = str(content.answer, 2000);
-    if (!a) return null;
-    ex.answer = a;
+    if (a) ex.answer = a;
   }
   const explanation = str(content.explanation, 3000);
   const hint = str(content.hint, 500);
@@ -140,11 +162,12 @@ function normalizeVideo(content) {
   const questions = [];
   if (Array.isArray(content.questions)) {
     for (const q of content.questions.slice(0, MAX_VIDEO_QUESTIONS)) {
+      if (!q || typeof q !== "object") continue;
       const prompt = clean(q.prompt, 1000);
-      const choices = (Array.isArray(q.choices) ? q.choices : []).map(normalizeChoice).filter(Boolean).slice(0, MAX_CHOICES);
+      const { choices, answer } = mapChoices(q.choices, q.answer);
       if (!prompt || choices.length < 2) continue;
-      const raw = String(q.answer ?? "");
-      const out = { prompt, choices, answer: choices.some((c) => c.id === raw) ? raw : choices[0].id };
+      const out = { prompt, choices };
+      if (answer) out.answer = answer;
       // The moment in the video where the answer is given. Kept through
       // generation, import and export so a question drafted from a transcript
       // stays anchored wherever the course travels. Clamped to a day, which is
@@ -215,18 +238,10 @@ function itemProblem(item) {
       const texts = choiceTexts(c.choices);
       if (texts.length < 2) return "choices_required";
       if (texts.length > MAX_CHOICES) return "too_many_choices";
-      // The normalizer renumbers the kept choices c1..cN. An answer given by id
-      // must land on the same choice after that, or the key silently moves (a
-      // blank line above it, or ids that were never c1..cN to begin with).
-      const raw = String(c.answer ?? "");
-      const kept = c.choices.filter((x) => x && typeof x === "object" && clean(x.text, 500));
-      const at = kept.findIndex((x) => x.id != null && String(x.id) === raw);
-      if (at >= 0) return `c${at + 1}` === raw ? null : "answer_invalid";
-      // Choices sent with no ids at all are numbered by position, so a "c2"
-      // answer means the second one, which is what the normalizer will do.
-      const pos = /^c(\d+)$/.exec(raw);
-      if (pos && kept.every((x) => x.id == null) && Number(pos[1]) >= 1 && Number(pos[1]) <= kept.length) return null;
-      return texts.includes(clean(c.answer, 500)) ? null : "answer_invalid";
+      if (!hasValue(c.answer)) return "answer_required";
+      // mapChoices carries the answer to its new id; if it cannot, the
+      // answer names no choice at all.
+      return mapChoices(c.choices, c.answer).answer ? null : "answer_invalid";
     }
     if (kind === "numeric") {
       const n = Number(String(c.answer ?? "").replace(/[^0-9.\-]/g, ""));
@@ -244,6 +259,8 @@ function itemProblem(item) {
       const texts = choiceTexts(q.choices);
       if (texts.length < 2) return "question_incomplete";
       if (texts.length > MAX_CHOICES) return "too_many_choices";
+      if (!hasValue(q.answer)) return "answer_required";
+      if (!mapChoices(q.choices, q.answer).answer) return "answer_invalid";
     }
     return null;
   }
@@ -254,6 +271,28 @@ function itemProblem(item) {
   }
 
   return "type_invalid";
+}
+
+/**
+ * How many questions in these stored items have no usable answer key: an
+ * exercise without one, or a video question without one. Pure, over the
+ * normalized shape. A course is not given to learners while this is above
+ * zero, because an unanswerable question marks every learner wrong.
+ */
+function missingAnswers(items) {
+  const keyed = (choices, answer) => Array.isArray(choices) && choices.some((c) => c && c.id === answer);
+  let n = 0;
+  for (const i of items || []) {
+    const c = (i && i.content) || {};
+    if (i.type === "exercise") {
+      if (c.kind === "numeric") n += hasValue(c.answer) && Number.isFinite(Number(c.answer)) ? 0 : 1;
+      else if (c.kind === "text") n += hasValue(c.answer) ? 0 : 1;
+      else n += keyed(c.choices, c.answer) ? 0 : 1;
+    } else if (i.type === "video" && Array.isArray(c.questions)) {
+      for (const q of c.questions) n += q && keyed(q.choices, q.answer) ? 0 : 1;
+    }
+  }
+  return n;
 }
 
 function normalizeCourse(raw) {
@@ -380,6 +419,6 @@ async function generateCourse(spec, userId, familyId) {
 }
 
 module.exports = {
-  generateCourse, normalizeCourse, normalizeItem, normalizeExercise, itemProblem, buildUserPrompt, persistCourse,
-  MAX_CHOICES, MAX_VIDEO_QUESTIONS,
+  generateCourse, normalizeCourse, normalizeItem, normalizeExercise, itemProblem, missingAnswers, mapChoices,
+  buildUserPrompt, persistCourse, MAX_CHOICES, MAX_VIDEO_QUESTIONS,
 };

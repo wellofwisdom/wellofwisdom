@@ -276,14 +276,15 @@ function LessonOptions({ courseId, onLessons }:
 
 export default function CourseDetail({ me, courseId, onNavigate }: { me: MeResponse; courseId: number; onNavigate: (hash: string) => void }) {
   const [course, setCourse] = useState<CourseTree | null>(null);
+  const [missing, setMissing] = useState(0);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState<ItemNode | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [advOpen, setAdvOpen] = useState(false);
 
   const load = () =>
-    api<{ course: CourseTree }>(`/api/courses/${courseId}`)
-      .then((d) => setCourse(d.course))
+    api<{ course: CourseTree; missingAnswers?: number }>(`/api/courses/${courseId}`)
+      .then((d) => { setCourse(d.course); setMissing(d.missingAnswers || 0); setError(""); })
       .catch((e) => setError(niceError(e)));
 
   useEffect(() => {
@@ -363,6 +364,16 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
           <IconTrash />
         </button>
       </div>
+
+      {error && <div className="formerror" role="alert">{error}</div>}
+      {missing > 0 && (
+        <div className="noanswer-banner" role="status">
+          <b>{missing} question{missing === 1 ? " has" : "s have"} no correct answer yet.</b>{" "}
+          Learners cannot be given this course until each one does, or every answer would be marked against a
+          key nobody wrote. They are tagged <span className="tag noanswer">No answer yet</span> below: open each
+          one and pick its answer. A course imported from a package shared without answers arrives like this.
+        </div>
+      )}
 
       <Panel title={course.title} side="review everything before publishing">
         {course.description && <p className="muted" style={{ marginBottom: 6 }}>{course.description}</p>}
@@ -454,11 +465,13 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
 
 function ItemPreview({ item, onEdit, onDelete }: { item: ItemNode; onEdit: () => void; onDelete: () => void }) {
   const c = item.content || {};
+  const unanswered = lacksAnswer(item);
   return (
     <div className="lessonitem">
       <div className="row" style={{ alignItems: "flex-start" }}>
         <span aria-hidden="true">{TYPE_ICON[item.type]}</span>
         <div className="grow" style={{ minWidth: 0 }}>
+          {unanswered && <span className="tag noanswer">No answer yet</span>}
           {item.type === "article" && (
             <>
               <strong>{c.title}</strong>
@@ -472,7 +485,9 @@ function ItemPreview({ item, onEdit, onDelete }: { item: ItemNode; onEdit: () =>
             <>
               <MathText text={c.prompt} />
               <div className="small muted" style={{ marginTop: 2 }}>
-                {c.kind === "mcq" ? `multiple choice · answer: ${answerText(c)}` : c.kind === "numeric" ? `number · answer: ${c.answer}` : "written · self-check"}
+                {c.kind === "mcq" ? `multiple choice · answer: ${answerText(c)}`
+                  : c.kind === "numeric" ? `number · answer: ${unanswered ? "?" : c.answer}`
+                  : "written · self-check"}
               </div>
             </>
           )}
@@ -509,6 +524,24 @@ function answerText(c: Record<string, any>): string {
   return ch ? ch.text : "?";
 }
 
+/** Does this item hold a question with no answer key? The same rule as the
+ *  server's coursegen.missingAnswers, which is what refuses to publish; this
+ *  copy only decides which items to mark, so the guide can find them. */
+function lacksAnswer(item: ItemNode): boolean {
+  const c = item.content || {};
+  const has = (v: unknown) => v != null && String(v).trim() !== "";
+  const keyed = (choices: any[], answer: unknown) => Array.isArray(choices) && choices.some((x) => x && x.id === answer);
+  if (item.type === "exercise") {
+    if (c.kind === "numeric") return !(has(c.answer) && Number.isFinite(Number(c.answer)));
+    if (c.kind === "text") return !has(c.answer);
+    return !keyed(c.choices, c.answer);
+  }
+  if (item.type === "video" && Array.isArray(c.questions)) {
+    return c.questions.some((q: any) => !q || !keyed(q.choices, q.answer));
+  }
+  return false;
+}
+
 // Comprehension questions on a video, and the pass that drafts them from the
 // caption track. Each question can carry the moment its answer is given, which
 // is what lets a wrong answer rewind the learner to that moment rather than to
@@ -543,7 +576,9 @@ function clockToSec(text: string): number | null {
 
 function toDraft(q: any): QDraft {
   const choices = (q.choices || []) as { id: string; text: string }[];
-  const idx = Math.max(0, choices.findIndex((c) => c.id === q.answer));
+  // -1 is "no answer picked": a question without a key must not open with
+  // the first choice selected and get saved that way.
+  const idx = choices.findIndex((c) => c.id === q.answer);
   return {
     prompt: q.prompt || "",
     choices: choices.map((c) => c.text).join("\n"),
@@ -557,17 +592,30 @@ export function draftsToQuestions(drafts: QDraft[]) {
   for (const d of drafts) {
     const lines = d.choices.split("\n").map((s) => s.trim()).filter(Boolean);
     if (!d.prompt.trim() || lines.length < 2) continue;
-    const idx = Math.min(Math.max(0, d.answerIdx), lines.length - 1);
     const q: Record<string, unknown> = {
       prompt: d.prompt.trim(),
       choices: lines.map((text, i) => ({ id: `c${i + 1}`, text })),
-      answer: `c${idx + 1}`,
     };
+    // Only a pick that still points at a choice becomes the key. The save
+    // checks for a missing one first (unpickedQuestion), so this never guesses.
+    if (d.answerIdx >= 0 && d.answerIdx < lines.length) q.answer = `c${d.answerIdx + 1}`;
     const at = clockToSec(d.at);
     if (at !== null) q.atSec = at;
     out.push(q);
   }
   return out;
+}
+
+/** The number (1-based) of the first complete question with no valid answer
+ *  picked, or 0 when every one has one. */
+function unpickedQuestion(drafts: QDraft[]): number {
+  for (let i = 0; i < drafts.length; i++) {
+    const d = drafts[i];
+    const lines = d.choices.split("\n").map((s) => s.trim()).filter(Boolean);
+    if (!d.prompt.trim() || lines.length < 2) continue;
+    if (!(d.answerIdx >= 0 && d.answerIdx < lines.length)) return i + 1;
+  }
+  return 0;
 }
 
 function VideoQuestions({ itemId, canDraft, questions, onChange }: {
@@ -616,7 +664,7 @@ function VideoQuestions({ itemId, canDraft, questions, onChange }: {
           className="btn ghost small-btn"
           type="button"
           disabled={room <= 0}
-          onClick={() => onChange([...questions, { prompt: "", choices: "", answerIdx: 0, at: "" }])}
+          onClick={() => onChange([...questions, { prompt: "", choices: "", answerIdx: -1, at: "" }])}
         >
           + Add
         </button>
@@ -648,10 +696,12 @@ function VideoQuestions({ itemId, canDraft, questions, onChange }: {
               <Field label="Correct answer">
                 <select
                   className="input"
-                  value={String(Math.min(q.answerIdx, Math.max(0, lines.length - 1)))}
+                  value={q.answerIdx >= 0 && q.answerIdx < lines.length ? String(q.answerIdx) : ""}
                   onChange={(e) => patch(i, { answerIdx: Number(e.target.value) })}
                 >
-                  {lines.length === 0 && <option value="0">Add choices first</option>}
+                  {!(q.answerIdx >= 0 && q.answerIdx < lines.length) && (
+                    <option value="" disabled>{lines.length ? "Choose the correct answer" : "Add choices first"}</option>
+                  )}
                   {lines.map((s, x) => <option key={x} value={String(x)}>#{x + 1}: {s.slice(0, 50)}</option>)}
                 </select>
               </Field>
@@ -711,7 +761,14 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [prompt, setPrompt] = useState(c.prompt ?? "");
   const [kind, setKind] = useState(c.kind ?? "mcq");
   const [choices, setChoices] = useState<string>((c.choices ?? []).map((x: any) => x.text).join("\n"));
-  const [answerIdx, setAnswerIdx] = useState<string>("0");
+  // "" means no answer chosen. A question with no key (imported without
+  // answers) must not open with choice one quietly selected, or saving any
+  // other change would write a key the guide never picked.
+  const [answerIdx, setAnswerIdx] = useState<string>(() => {
+    if (c.kind !== "mcq" || !Array.isArray(c.choices)) return "";
+    const i = c.choices.findIndex((x: any) => x.id === c.answer);
+    return i >= 0 ? String(i) : "";
+  });
   const [numericAnswer, setNumericAnswer] = useState(c.answer != null && c.kind === "numeric" ? String(c.answer) : "");
   const [textAnswer, setTextAnswer] = useState(c.kind === "text" ? String(c.answer ?? "") : "");
   const [explanation, setExplanation] = useState(c.explanation ?? "");
@@ -725,14 +782,6 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [pDesc, setPDesc] = useState(c.description ?? "");
   const [rubric, setRubric] = useState(c.rubric ?? "");
 
-  const origAnswerId: string = c.answer ?? "c1";
-  useEffect(() => {
-    if (c.kind === "mcq" && Array.isArray(c.choices)) {
-      const i = c.choices.findIndex((x: any) => x.id === origAnswerId);
-      setAnswerIdx(String(Math.max(0, i)));
-    }
-  }, []);
-
   async function save() {
     setBusy(true);
     setError("");
@@ -744,7 +793,10 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
         const lines = choices.split("\n").map((s) => s.trim()).filter(Boolean);
         if (lines.length < 2) { setError("Need at least 2 choices."); setBusy(false); return; }
         if (lines.length > MAX_CHOICES) { setError(`At most ${MAX_CHOICES} choices. Remove one.`); setBusy(false); return; }
-        const idx = Math.min(Number(answerIdx) || 0, lines.length - 1);
+        // No silent fallback: an unpicked answer, or one whose choice was just
+        // deleted, is asked for again rather than moved onto another choice.
+        const idx = answerIdx === "" ? -1 : Number(answerIdx);
+        if (!(idx >= 0 && idx < lines.length)) { setError("Pick the correct answer."); setBusy(false); return; }
         content.choices = lines.map((text, i) => ({ id: `c${i + 1}`, text }));
         content.answer = `c${idx + 1}`;
       } else if (kind === "numeric") {
@@ -760,6 +812,8 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       // Keep every source field the item already had. Only youtubeId is edited
       // here, and an empty box means "no YouTube id", not an empty one: an
       // uploaded video would otherwise pick up a blank id it never had.
+      const unpicked = unpickedQuestion(vQuestions);
+      if (unpicked) { setError(`Pick the correct answer for question ${unpicked}.`); setBusy(false); return; }
       content = { ...c, title: vTitle };
       if (vId.trim()) content.youtubeId = vId.trim();
       else delete content.youtubeId;
@@ -820,6 +874,7 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
               </Field>
               <Field label="Correct answer">
                 <select className="input" value={answerIdx} onChange={(e) => setAnswerIdx(e.target.value)}>
+                  {answerIdx === "" && <option value="" disabled>Choose the correct answer</option>}
                   {choices.split("\n").map((s) => s.trim()).filter(Boolean).map((s, i) => (
                     <option key={i} value={String(i)}>#{i + 1}: {s.slice(0, 60)}</option>
                   ))}
