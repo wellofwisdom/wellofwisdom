@@ -106,6 +106,21 @@ and why. Anything marked shipped has a commit and is live.
 - [x] **World foundation** (`3eae588`, `a043898`). Game types, encounters,
       characters including learner-made ones, loot, inventory, real rewards,
       per-learner encounter progress, plus the API over all of it.
+- [x] **Sharing that keeps its answers straight** (`2d7090c`). A package
+      published without answers used to come in with keys invented for it:
+      choice one "correct" on every multiple choice question, 0 on every
+      numeric one, written questions dropped. The normalizer now never invents
+      a key, carries a real one to its renumbered choice, and a course with any
+      unanswered question cannot go live to learners until each has one.
+- [x] **Maths survives the normalizer** (`0ee7650`). The tag stripper ate
+      everything between a "<" and the next ">", so every inequality lost its
+      maths ("3 < 5 or 7 > 4" became "3  4"). Item edits now cross the same
+      normalizer as everything else, checked first so a person's edit is
+      refused with a reason rather than quietly changed.
+- [x] **Pasted links stay outside** (`3adea7b`). Source pages, import by URL
+      and PeerTube lookups fetch through `lib/safefetch.js`: every resolved
+      address checked at connect time, every redirect re-validated, bodies
+      capped. `FETCH_BLOCK_CIDRS` names the server's own public address.
 - [x] **House style enforced** (`900363c`, `d6bfb7a`). No em dashes anywhere in
       our own source; `npm run check` fails on any dash character.
 
@@ -123,11 +138,25 @@ and why. Anything marked shipped has a commit and is live.
       page URL and export URL on the clipboard, plain-text first as the one to
       feed a notebook. A visible "View as plain text" link ships alongside it,
       which also gives a crawler a real anchor to the `.txt`.
-- [ ] **`community-courses` git repository.** Courses are plain JSON and the
+- [~] **`community-courses` git repository.** Courses are plain JSON and the
       importer already validates them, so: one directory per course, CI runs
       the normalizer on every PR, contributors submit a PR, any instance
       imports from a raw URL. This is what makes the project grow with the
       content rather than with the code, and a fork inherits all of it.
+  - [x] **Everything the repository needs from this one.**
+        `scripts/validate-course.js` (`lib/coursecheck.js`) reads a package
+        exactly as an import will and names every place something would be
+        dropped, cut to size, changed, or left without an answer key, with an
+        open-licence rule for a library; a test holds its idea of what
+        survives to what `normalizeCourse` actually keeps. Import by URL takes
+        a GitHub file page and fetches the raw file behind it. The guide's own
+        Export now carries the course's licence and author.
+        `docs/COMMUNITY-COURSES.md` is the layout, the rules and the CI
+        workflow; `docs/examples/comparing-fractions.wow-course.json` is a
+        course to copy, validated in this repository's CI.
+  - [ ] **The repository itself.** Creating a public repo under the project's
+        GitHub organisation is Kevin's call, then seeding it with the first
+        reviewed courses (which is also the "publish four or five" item above).
 - [x] **World UI** (`48c9ced`, `69c7156`). The learner's world view: chapters as
       a journey, encounter cards that are locked, open or won, loot, crew and
       real rewards. The guide's builder on the course page: pick a game type,

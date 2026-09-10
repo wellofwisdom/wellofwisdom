@@ -78,6 +78,14 @@ const clean = (s, max) => stripTags(str(s, max));
 // player) agree with it. The web editor repeats these numbers: change both.
 const MAX_CHOICES = 5;
 const MAX_VIDEO_QUESTIONS = 4;
+// The size of a course. normalizeCourse considers the first MAX_UNITS units
+// and the first LESSONS_SCANNED lessons of each, keeps at most MAX_LESSONS of
+// those that survive, and at most MAX_ITEMS items per lesson. lib/coursecheck
+// reports anything past these instead of letting an import drop it silently.
+const MAX_UNITS = 6;
+const LESSONS_SCANNED = 6;
+const MAX_LESSONS = 5;
+const MAX_ITEMS = 8;
 
 const hasValue = (v) => v != null && String(v).trim() !== "";
 
@@ -299,21 +307,23 @@ function normalizeCourse(raw) {
   const title = clean(raw.title, 200);
   const unitsIn = Array.isArray(raw.units) ? raw.units : [];
   const units = [];
-  for (const u of unitsIn.slice(0, 6)) {
+  for (const u of unitsIn.slice(0, MAX_UNITS)) {
+    if (!u || typeof u !== "object") continue;
     const unitTitle = clean(u.title, 200);
     const lessonsIn = Array.isArray(u.lessons) ? u.lessons : [];
     const lessons = [];
-    for (const l of lessonsIn.slice(0, 6)) {
+    for (const l of lessonsIn.slice(0, LESSONS_SCANNED)) {
+      if (!l || typeof l !== "object") continue;
       const lessonTitle = clean(l.title, 200);
       if (!lessonTitle) continue;
-      const items = (Array.isArray(l.items) ? l.items : []).map(normalizeItem).filter(Boolean).slice(0, 8);
+      const items = (Array.isArray(l.items) ? l.items : []).map(normalizeItem).filter(Boolean).slice(0, MAX_ITEMS);
       if (!items.length) continue;
       const lesson = { title: lessonTitle, items };
       const summary = str(l.summary, 500);
       if (summary) lesson.summary = summary;
       lessons.push(lesson);
     }
-    if (unitTitle && lessons.length) units.push({ title: unitTitle, lessons: lessons.slice(0, 5) });
+    if (unitTitle && lessons.length) units.push({ title: unitTitle, lessons: lessons.slice(0, MAX_LESSONS) });
   }
   if (!title || !units.length) return null;
   const out = { title, units };
@@ -421,4 +431,5 @@ async function generateCourse(spec, userId, familyId) {
 module.exports = {
   generateCourse, normalizeCourse, normalizeItem, normalizeExercise, itemProblem, missingAnswers, mapChoices,
   buildUserPrompt, persistCourse, MAX_CHOICES, MAX_VIDEO_QUESTIONS,
+  MAX_UNITS, LESSONS_SCANNED, MAX_LESSONS, MAX_ITEMS,
 };

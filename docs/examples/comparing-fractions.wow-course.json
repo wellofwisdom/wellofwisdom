@@ -1,0 +1,111 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Comparing Fractions",
+  "topic": "Comparing fractions with the same and different denominators",
+  "lens": null,
+  "gradeLevel": 4,
+  "description": "A short example course, and a template for contributors. Two lessons: comparing fractions that share a denominator, then fractions that do not, finished with a number line you build by hand.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Which is bigger?",
+      "lessons": [
+        {
+          "title": "Same denominator",
+          "summary": "When the bottom numbers match, compare the top numbers.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Same size pieces",
+                "body": "The bottom number of a fraction, the **denominator**, says how many equal pieces the whole is cut into. The top number, the **numerator**, says how many of those pieces you have.\n\nWhen two fractions have the same denominator, the pieces are the same size. So the fraction with more pieces is bigger: $\\frac{5}{8} > \\frac{3}{8}$, because five eighths is more than three eighths.\n\n- Same denominator: compare the numerators.\n- The bigger numerator is the bigger fraction."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which is bigger: $\\frac{3}{8}$ or $\\frac{5}{8}$?",
+                "choices": [
+                  { "id": "c1", "text": "$\\frac{3}{8}$" },
+                  { "id": "c2", "text": "$\\frac{5}{8}$" },
+                  { "id": "c3", "text": "They are equal" }
+                ],
+                "answer": "c2",
+                "explanation": "The pieces are the same size (eighths), and 5 pieces is more than 3 pieces.",
+                "hint": "Both are cut into eighths. Who has more pieces?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "How many eighths make one whole?",
+                "answer": 8,
+                "explanation": "A whole cut into eighths has 8 pieces, so $\\frac{8}{8} = 1$.",
+                "hint": "Count the pieces in a pizza cut into eighths."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Different denominators",
+          "summary": "Rename the fractions so the pieces are the same size, then compare.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Making the pieces match",
+                "body": "Thirds and fifths are different sized pieces, so you cannot compare $\\frac{2}{3}$ and $\\frac{3}{5}$ just by looking at the tops.\n\nFind a denominator both can become. Fifteen works, because $3 \\times 5 = 15$.\n\n- $\\frac{2}{3} = \\frac{10}{15}$ (multiply top and bottom by 5)\n- $\\frac{3}{5} = \\frac{9}{15}$ (multiply top and bottom by 3)\n\nNow the pieces match, and 10 fifteenths is more than 9 fifteenths, so $\\frac{2}{3} > \\frac{3}{5}$."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Is $\\frac{2}{3} > \\frac{3}{5}$?",
+                "choices": [
+                  { "id": "c1", "text": "Yes" },
+                  { "id": "c2", "text": "No" }
+                ],
+                "answer": "c1",
+                "explanation": "$\\frac{2}{3} = \\frac{10}{15}$ and $\\frac{3}{5} = \\frac{9}{15}$, and 10 is more than 9.",
+                "hint": "Rename both as fifteenths."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "Write $\\frac{3}{4}$ with a denominator of 12. What is the new numerator?",
+                "answer": 9,
+                "explanation": "Multiply the top and bottom by 3: $\\frac{3}{4} = \\frac{9}{12}$.",
+                "hint": "What do you multiply 4 by to get 12?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Explain how you know that $\\frac{1}{2} < \\frac{3}{4}$.",
+                "answer": "Rename one half as two quarters. Two quarters is less than three quarters, so one half is less than three quarters.",
+                "explanation": "Any explanation that makes the pieces the same size first is a good one."
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "A fraction number line",
+                "description": "Draw a line from 0 to 1 on a long strip of paper. Mark halves, quarters and eighths on it, each in its own colour. Then place $\\frac{3}{8}$, $\\frac{1}{2}$ and $\\frac{3}{4}$ on the line and write one sentence about what the line shows you.",
+                "rubric": "- Halves, quarters and eighths are each evenly spaced\n- The three fractions sit in the right places\n- The sentence uses the line to compare at least two fractions"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

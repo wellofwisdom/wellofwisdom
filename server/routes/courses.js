@@ -191,6 +191,11 @@ router.get("/:id/export", async (req, res, next) => {
       lens: tree.lens,
       gradeLevel: tree.grade_level,
       description: tree.description,
+      // Carried so a file bound for a shared library already says how it may
+      // be used, instead of a contributor adding it by hand.
+      license: tree.license || null,
+      author: tree.author_name || null,
+      includesAnswers: true,
       units: tree.units.map((u) => ({
         title: u.title,
         lessons: u.lessons.map((l) => ({
