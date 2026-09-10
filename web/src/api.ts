@@ -88,6 +88,18 @@ const NICE: Record<string, string> = {
   kind_invalid: "Pick one of the kinds in the list.",
   percentile_invalid: "A percentile runs from 1 to 99. Check that row against the report.",
   nothing_recorded: "Add at least one score, or the evaluation's words, before saving.",
+  content_required: "There is nothing to save yet.",
+  body_required: "The article is empty. Write something, or delete the item instead.",
+  prompt_required: "The question needs a prompt.",
+  choices_required: "A multiple choice question needs at least two choices.",
+  too_many_choices: "Five choices is the most a question can hold. Remove one.",
+  answer_invalid: "The correct answer does not match one of the choices. Pick it again from the list.",
+  answer_required: "The question needs its answer filled in.",
+  video_source_required: "The video has no source. Add a YouTube link, or delete the item instead.",
+  too_many_questions: "A video holds at most four questions. Remove one before saving.",
+  question_incomplete: "Each video question needs a prompt and at least two choices.",
+  description_required: "The project needs a description.",
+  upload_not_found: "That video file is not in this group's uploads.",
   learner_not_found: "That learner is not in this group.",
 };
 

@@ -3,6 +3,7 @@
 // milestone plan. Dates are spread deterministically in JS (not by the AI)
 // the AI designs the sequence, the server owns the calendar.
 const ai = require("./ai");
+const { stripTags } = require("./text");
 
 const SYSTEM = `You are a master curriculum designer creating a long-term learning path (a semester or school year).
 Respond with a single valid JSON object, nothing else.
@@ -51,25 +52,25 @@ async function generateOutline({ subject, goal, startDate, endDate, lens, learne
 }
 
 function normalizeOutline(raw, weeks) {
-  const title = String(raw && raw.title ? raw.title : "").replace(/<[^>]*>/g, "").trim().slice(0, 160);
+  const title = stripTags(raw && raw.title ? raw.title : "").trim().slice(0, 160);
   const list = Array.isArray(raw && raw.milestones) ? raw.milestones : [];
   const expected = Math.min(36, Math.max(4, Math.round(weeks / 2)));
   const milestones = list
     .map((m) => {
-      const t = String(m && m.title ? m.title : "").replace(/<[^>]*>/g, "").trim().slice(0, 160);
+      const t = stripTags(m && m.title ? m.title : "").trim().slice(0, 160);
       if (!t) return null;
       return {
         title: t,
-        description: String(m.description || "").replace(/<[^>]*>/g, "").trim().slice(0, 600) || null,
+        description: stripTags(m.description || "").trim().slice(0, 600) || null,
         project_ideas: [
           {
             title: "Project",
-            description: String(m.projectIdea || "").replace(/<[^>]*>/g, "").trim().slice(0, 500),
+            description: stripTags(m.projectIdea || "").trim().slice(0, 500),
           },
         ].filter((p) => p.description),
         resources: [
           {
-            title: String(m.resourceHint || "").replace(/<[^>]*>/g, "").trim().slice(0, 200),
+            title: stripTags(m.resourceHint || "").trim().slice(0, 200),
             url: null,
           },
         ].filter((r) => r.title),

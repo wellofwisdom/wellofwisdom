@@ -519,6 +519,11 @@ function answerText(c: Record<string, any>): string {
 // pass here.
 interface QDraft { prompt: string; choices: string; answerIdx: number; at: string }
 
+// The server's limits (coursegen.MAX_VIDEO_QUESTIONS / MAX_CHOICES). The
+// editor stops at them rather than letting a save be refused: change both.
+const MAX_VIDEO_QUESTIONS = 4;
+const MAX_CHOICES = 5;
+
 function secToClock(sec: number): string {
   const s = Math.max(0, Math.floor(sec));
   const m = Math.floor(s / 60);
@@ -578,20 +583,24 @@ function VideoQuestions({ itemId, canDraft, questions, onChange }: {
     onChange(questions.map((q, x) => (x === i ? { ...q, ...next } : q)));
   }
 
+  const room = MAX_VIDEO_QUESTIONS - questions.length;
+
   async function draft() {
+    if (room <= 0) return;
     setBusy(true);
     setMsg("");
     try {
       const d = await api<{ questions: any[]; note?: string }>(`/api/courses/items/${itemId}/video-questions`, {
         method: "POST",
-        body: {},
+        body: { count: room },
       });
       if (d.note === "no_transcript") {
         setMsg("The caption track has no usable text yet. Generate or upload captions first.");
         return;
       }
-      onChange([...questions, ...d.questions.map(toDraft)]);
-      setMsg(`Drafted ${d.questions.length}. Read them, fix what is wrong, then Save.`);
+      const fresh = d.questions.slice(0, room).map(toDraft);
+      onChange([...questions, ...fresh]);
+      setMsg(`Drafted ${fresh.length}. Read them, fix what is wrong, then Save.`);
     } catch (e) {
       setMsg(niceError(e));
     } finally {
@@ -606,12 +615,13 @@ function VideoQuestions({ itemId, canDraft, questions, onChange }: {
         <button
           className="btn ghost small-btn"
           type="button"
+          disabled={room <= 0}
           onClick={() => onChange([...questions, { prompt: "", choices: "", answerIdx: 0, at: "" }])}
         >
           + Add
         </button>
         {canDraft && (
-          <button className="btn ghost small-btn" type="button" disabled={busy} onClick={draft}>
+          <button className="btn ghost small-btn" type="button" disabled={busy || room <= 0} onClick={draft}>
             {busy ? "Reading the video…" : "✎ Draft from captions"}
           </button>
         )}
@@ -620,6 +630,7 @@ function VideoQuestions({ itemId, canDraft, questions, onChange }: {
         {canDraft
           ? "Drafting reads this video's caption track and writes questions anchored to the moment each answer is given. A draft, for you to check."
           : "Only an uploaded video with captions can be drafted from. A YouTube or Vimeo embed hands us no transcript."}
+        {room <= 0 ? ` A video holds up to ${MAX_VIDEO_QUESTIONS} questions; remove one to add another.` : ""}
       </p>
       {msg && <p className="small muted" style={{ margin: "2px 0 6px" }}>{msg}</p>}
 
@@ -732,6 +743,7 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       if (kind === "mcq") {
         const lines = choices.split("\n").map((s) => s.trim()).filter(Boolean);
         if (lines.length < 2) { setError("Need at least 2 choices."); setBusy(false); return; }
+        if (lines.length > MAX_CHOICES) { setError(`At most ${MAX_CHOICES} choices. Remove one.`); setBusy(false); return; }
         const idx = Math.min(Number(answerIdx) || 0, lines.length - 1);
         content.choices = lines.map((text, i) => ({ id: `c${i + 1}`, text }));
         content.answer = `c${idx + 1}`;

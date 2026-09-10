@@ -6,6 +6,7 @@ const db = require("./db");
 const ai = require("./ai");
 const { youtubeId } = require("./grade");
 const { fileVideoUrl, peerTubeHostId } = require("./video");
+const { stripTags } = require("./text");
 
 const GEN_SYSTEM = `You are an expert curriculum designer building courses for a homeschool family.
 You ALWAYS respond with a single valid JSON object and nothing else. No markdown fences, no commentary.
@@ -69,7 +70,14 @@ function buildUserPrompt(spec, sourcesText) {
 // ---------- normalizer ----------
 
 const str = (v, max = 4000) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-const clean = (s) => str(s).replace(/<[^>]*>/g, "");
+// Real tags only (see lib/text.js): "3 < 5" is maths, not markup. The max was
+// ignored until 2026-09-10, so the limits written below now actually apply.
+const clean = (s, max) => stripTags(str(s, max));
+
+// Limits the normalizer enforces, named so the item editor's checks (and the
+// player) agree with it. The web editor repeats these numbers: change both.
+const MAX_CHOICES = 5;
+const MAX_VIDEO_QUESTIONS = 4;
 
 function normalizeChoice(c, i) {
   if (!c || typeof c !== "object") return null;
@@ -87,7 +95,7 @@ function normalizeExercise(content) {
     const choices = (Array.isArray(content.choices) ? content.choices : [])
       .map(normalizeChoice)
       .filter(Boolean)
-      .slice(0, 5);
+      .slice(0, MAX_CHOICES);
     if (choices.length < 2) return null;
     const raw = String(content.answer ?? "");
     const match = choices.some((c, i) => c.id === raw || clean(content.answer, 500) === choices[i].text);
@@ -131,9 +139,9 @@ function normalizeVideo(content) {
   if (pt) { v.peertubeHost = pt.host; v.peertubeId = pt.id; }
   const questions = [];
   if (Array.isArray(content.questions)) {
-    for (const q of content.questions.slice(0, 4)) {
+    for (const q of content.questions.slice(0, MAX_VIDEO_QUESTIONS)) {
       const prompt = clean(q.prompt, 1000);
-      const choices = (Array.isArray(q.choices) ? q.choices : []).map(normalizeChoice).filter(Boolean).slice(0, 5);
+      const choices = (Array.isArray(q.choices) ? q.choices : []).map(normalizeChoice).filter(Boolean).slice(0, MAX_CHOICES);
       if (!prompt || choices.length < 2) continue;
       const raw = String(q.answer ?? "");
       const out = { prompt, choices, answer: choices.some((c) => c.id === raw) ? raw : choices[0].id };
@@ -177,6 +185,75 @@ function normalizeItem(item) {
     return { type, content: p };
   }
   return null;
+}
+
+/**
+ * Why a guide's edit would be refused, or quietly changed, by normalizeItem.
+ * Null when it is fine.
+ *
+ * The normalizer is right to be forgiving with a model's output: drop the sixth
+ * choice, fall back to the first answer, keep four questions. Applied to a
+ * person's edit, the same forgiveness is silent data loss, and one case of it
+ * changes the answer key without saying so (an answer on a dropped choice
+ * becomes choice one). So an edit is checked here first and refused with the
+ * reason, and only then normalized.
+ */
+function itemProblem(item) {
+  if (!item || typeof item !== "object") return "content_required";
+  const c = item.content && typeof item.content === "object" ? item.content : null;
+  if (!c) return "content_required";
+  const choiceTexts = (list) => (Array.isArray(list) ? list : [])
+    .map((x) => (x && typeof x === "object" ? clean(x.text, 500) : ""))
+    .filter(Boolean);
+
+  if (item.type === "article") return str(c.body, 20000) ? null : "body_required";
+
+  if (item.type === "exercise") {
+    if (!clean(c.prompt, 2000)) return "prompt_required";
+    const kind = ["mcq", "numeric", "text"].includes(c.kind) ? c.kind : "mcq";
+    if (kind === "mcq") {
+      const texts = choiceTexts(c.choices);
+      if (texts.length < 2) return "choices_required";
+      if (texts.length > MAX_CHOICES) return "too_many_choices";
+      // The normalizer renumbers the kept choices c1..cN. An answer given by id
+      // must land on the same choice after that, or the key silently moves (a
+      // blank line above it, or ids that were never c1..cN to begin with).
+      const raw = String(c.answer ?? "");
+      const kept = c.choices.filter((x) => x && typeof x === "object" && clean(x.text, 500));
+      const at = kept.findIndex((x) => x.id != null && String(x.id) === raw);
+      if (at >= 0) return `c${at + 1}` === raw ? null : "answer_invalid";
+      // Choices sent with no ids at all are numbered by position, so a "c2"
+      // answer means the second one, which is what the normalizer will do.
+      const pos = /^c(\d+)$/.exec(raw);
+      if (pos && kept.every((x) => x.id == null) && Number(pos[1]) >= 1 && Number(pos[1]) <= kept.length) return null;
+      return texts.includes(clean(c.answer, 500)) ? null : "answer_invalid";
+    }
+    if (kind === "numeric") {
+      const n = Number(String(c.answer ?? "").replace(/[^0-9.\-]/g, ""));
+      return String(c.answer ?? "").trim() && Number.isFinite(n) ? null : "answer_required";
+    }
+    return str(c.answer, 2000) ? null : "answer_required";
+  }
+
+  if (item.type === "video") {
+    if (!normalizeVideo({ ...c, questions: [] })) return "video_source_required";
+    const qs = Array.isArray(c.questions) ? c.questions : [];
+    if (qs.length > MAX_VIDEO_QUESTIONS) return "too_many_questions";
+    for (const q of qs) {
+      if (!q || typeof q !== "object" || !clean(q.prompt, 1000)) return "question_incomplete";
+      const texts = choiceTexts(q.choices);
+      if (texts.length < 2) return "question_incomplete";
+      if (texts.length > MAX_CHOICES) return "too_many_choices";
+    }
+    return null;
+  }
+
+  if (item.type === "project") {
+    if (!clean(c.title, 300)) return "title_required";
+    return str(c.description, 5000) ? null : "description_required";
+  }
+
+  return "type_invalid";
 }
 
 function normalizeCourse(raw) {
@@ -302,4 +379,7 @@ async function generateCourse(spec, userId, familyId) {
   return { courseId, title: course.title, counts };
 }
 
-module.exports = { generateCourse, normalizeCourse, normalizeItem, normalizeExercise, buildUserPrompt, persistCourse };
+module.exports = {
+  generateCourse, normalizeCourse, normalizeItem, normalizeExercise, itemProblem, buildUserPrompt, persistCourse,
+  MAX_CHOICES, MAX_VIDEO_QUESTIONS,
+};

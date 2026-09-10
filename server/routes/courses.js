@@ -292,21 +292,67 @@ router.delete("/:id", auth.requirePerm("delete_course"), async (req, res, next) 
 });
 
 // Edit a lesson item's content (parent fixes AI output before publishing).
-router.patch("/items/:itemId", async (req, res, next) => {
+//
+// Through the same normalizer as a generated or added item: one trust
+// boundary, not two, so the server decides the shape and not the editor. But a
+// person's edit is checked by itemProblem first, because the normalizer's
+// forgiveness (drop the extra choice, fall back to the first answer) is right
+// for a model and silent data loss for a guide. The item's type is the stored
+// one; an edit changes what an item says, never what kind of thing it is.
+router.patch("/items/:itemId", auth.requirePerm("edit_course"), async (req, res, next) => {
   try {
     const itemId = Number(req.params.itemId);
+    if (!Number.isInteger(itemId)) return bad(res, "id_invalid");
     const { content } = req.body || {};
     if (!content || typeof content !== "object") return bad(res, "content_required");
+
+    const found = await db.query(
+      `select i.type, i.content from lesson_items i
+         join lessons l on l.id = i.lesson_id
+         join units un on un.id = l.unit_id
+         join courses c on c.id = un.course_id
+        where i.id = $1 and c.family_id = $2`,
+      [itemId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const type = found.rows[0].type;
+    const before = found.rows[0].content || {};
+
+    const { itemProblem, normalizeItem } = require("../lib/coursegen");
+    const problem = itemProblem({ type, content });
+    if (problem) return bad(res, problem);
+    const clean = normalizeItem({ type, content });
+    if (!clean) return bad(res, "content_invalid");
+
+    if (type === "video") {
+      // An upload reference must be one of OUR uploads, the same rule as adding
+      // a video. Without it an edit could point an item at another family's file.
+      if (clean.content.uploadId) {
+        const own = await db.query(
+          "select 1 from uploads where id = $1 and family_id = $2 and kind = 'video'",
+          [clean.content.uploadId, req.user.familyId]
+        );
+        if (!own.rowCount) return bad(res, "upload_not_found", 404);
+      }
+      // A new or changed YouTube id is checked while the guide can still fix a
+      // typo. An unchanged one is not re-fetched on every save.
+      if (clean.content.youtubeId && clean.content.youtubeId !== before.youtubeId) {
+        const { checkYouTube } = require("../lib/video");
+        const v = await checkYouTube(clean.content.youtubeId);
+        if (!v.ok) return bad(res, "video_unavailable");
+      }
+    }
+
     const { rows } = await db.query(
       `update lesson_items i set content = $3
          from lessons l, units un, courses c
         where i.lesson_id = l.id and l.unit_id = un.id and un.course_id = c.id
           and i.id = $1 and c.family_id = $2
         returning i.id`,
-      [itemId, req.user.familyId, JSON.stringify(content)]
+      [itemId, req.user.familyId, JSON.stringify(clean.content)]
     );
     if (!rows[0]) return bad(res, "not_found", 404);
-    res.json({ ok: true });
+    res.json({ ok: true, item: { id: itemId, type, content: clean.content } });
   } catch (err) {
     next(err);
   }

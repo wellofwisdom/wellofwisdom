@@ -27,7 +27,10 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
         // the maths was. MathML is what assistive tech actually reads.
         html = katex.renderToString(tex, { throwOnError: false, output: "htmlAndMathml" });
       } catch {
-        html = tok;
+        // This string goes into innerHTML, so the raw token must be escaped:
+        // the text is a guide's or a model's, and "$<img onerror=...>$" is a
+        // perfectly good token to the regex above.
+        html = tok.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       }
       // Deliberately NO aria-label here. An aria-label on the wrapper would
       // override the MathML and make a screen reader announce raw TeX
