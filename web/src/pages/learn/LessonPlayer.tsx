@@ -236,6 +236,14 @@ function ProjectItem({ item, submission, onSubmission }: {
     if (submission) setText(submission.body);
   }, [submission?.item_id, submission?.status]);
 
+  // The response is on screen now, so it is no longer news on the home page.
+  // Fire and forget: in "view as learner" preview this POST is refused (preview
+  // only reads), which is exactly right, since the child has not seen it yet.
+  const fresh = Boolean(submission && submission.feedback && submission.unseen);
+  useEffect(() => {
+    if (fresh) api(`/api/learn/submissions/${item.id}/seen`, { method: "POST" }).catch(() => {});
+  }, [fresh, item.id]);
+
   async function save(submit: boolean) {
     setBusy(true);
     setMsg("");
@@ -266,6 +274,7 @@ function ProjectItem({ item, submission, onSubmission }: {
 
       {submission && submission.feedback && (
         <div className="feedback selfcheck" role="status" style={{ marginTop: 14 }}>
+          {fresh && <span className="tag" style={{ marginBottom: 6 }}>New</span>}{" "}
           <strong>From your guide{submission.outcome ? `: ${OUTCOME_LABEL[submission.outcome] || submission.outcome}` : ""}</strong>
           <RichText text={submission.feedback} />
         </div>

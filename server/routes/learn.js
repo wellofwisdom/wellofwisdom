@@ -48,7 +48,15 @@ function learnerSubmission(row) {
     feedback: returned ? row.feedback || null : null,
     outcome: returned ? row.outcome || null : null,
     returned_at: returned ? row.returned_at : null,
+    // Feedback the learner has not been shown since it last came back.
+    unseen: isUnseen(row),
   };
+}
+
+/** Returned, not handed in again since, and not shown since it came back. */
+function isUnseen(row) {
+  if (!row.returned_at || row.status === "submitted") return false;
+  return !row.seen_at || new Date(row.seen_at) < new Date(row.returned_at);
 }
 
 router.get("/courses", async (req, res, next) => {
@@ -247,7 +255,7 @@ router.get("/lessons/:id", async (req, res, next) => {
       if (a.correct === true) state[key] = true;
     }
     const subs = await db.query(
-      `select item_id, body, status, submitted_at, feedback, outcome, returned_at
+      `select item_id, body, status, submitted_at, feedback, outcome, returned_at, seen_at
          from submissions where learner_id = $1 and item_id = any($2::bigint[])`,
       [req.user.id, items.rows.length ? items.rows.map((i) => i.id) : [0]]
     );
@@ -376,7 +384,7 @@ router.put("/submissions/:itemId", async (req, res, next) => {
               status = excluded.status,
               submitted_at = case when excluded.status = 'submitted' then now() else submissions.submitted_at end,
               updated_at = now()
-       returning item_id, body, status, submitted_at, feedback, outcome, returned_at`,
+       returning item_id, body, status, submitted_at, feedback, outcome, returned_at, seen_at`,
       [req.user.familyId, req.user.id, itemId, text, status]
     );
 
@@ -385,6 +393,57 @@ router.put("/submissions/:itemId", async (req, res, next) => {
     if (handIn) require("../lib/badges").checkAndAward(req.user.id, req.user.familyId).catch(() => {});
 
     res.json({ submission: learnerSubmission(rows[0]) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// The player has shown the learner their returned feedback. A POST, so a guide
+// previewing as the learner (read-only, refused by denyPreviewWrites) never
+// marks it seen on the child's behalf. Scoped to the caller's own row.
+router.post("/submissions/:itemId/seen", async (req, res, next) => {
+  try {
+    const itemId = Number(req.params.itemId);
+    if (!Number.isInteger(itemId)) return bad(res, "item_invalid");
+    await db.query(
+      `update submissions set seen_at = now()
+        where learner_id = $1 and family_id = $2 and item_id = $3 and returned_at is not null`,
+      [req.user.id, req.user.familyId, itemId]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Work that came back with a response the learner has not been shown yet, for
+// the home screen. Same reachability as everything else here: a published
+// course, meant for them.
+router.get("/returned", async (req, res, next) => {
+  try {
+    const { rows } = await db.query(
+      `select s.item_id, s.status, s.outcome, s.returned_at, s.seen_at,
+              i.content->>'title' as title, l.id as lesson_id, c.title as course_title
+         from submissions s
+         join lesson_items i on i.id = s.item_id
+         join lessons l on l.id = i.lesson_id
+         join units un on un.id = l.unit_id
+         join courses c on c.id = un.course_id
+        where s.learner_id = $1 and s.family_id = $2 and s.returned_at is not null
+          and c.status = 'published' and (c.learner_id is null or c.learner_id = $1)
+        order by s.returned_at desc limit 20`,
+      [req.user.id, req.user.familyId]
+    );
+    res.json({
+      returned: rows.filter(isUnseen).map((r) => ({
+        item_id: Number(r.item_id),
+        lesson_id: Number(r.lesson_id),
+        title: r.title || "Your project",
+        course_title: r.course_title,
+        outcome: r.outcome || null,
+        returned_at: r.returned_at,
+      })),
+    });
   } catch (err) {
     next(err);
   }
@@ -601,3 +660,4 @@ router.post("/explain", async (req, res, next) => {
 });
 
 module.exports = router;
+module.exports.isUnseen = isUnseen;

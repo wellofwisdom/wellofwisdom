@@ -53,3 +53,22 @@ test("nothing reaches a learner without a guide writing it", () => {
 test("the work routes are mounted", () => {
   assert.match(indexSrc, /app\.use\("\/api\/work", require\("\.\/routes\/work"\)\)/);
 });
+
+test("feedback is news until it is shown, and again after a second return", () => {
+  const { isUnseen } = require("./learn");
+  const t0 = "2026-09-01T10:00:00Z";
+  const t1 = "2026-09-02T10:00:00Z";
+  assert.equal(isUnseen({ status: "returned", returned_at: t0, seen_at: null }), true);
+  assert.equal(isUnseen({ status: "returned", returned_at: t0, seen_at: t1 }), false);
+  assert.equal(isUnseen({ status: "returned", returned_at: t1, seen_at: t0 }), true, "returned again after it was seen");
+  assert.equal(isUnseen({ status: "submitted", returned_at: t0, seen_at: null }), false, "handed in again: waiting, not news");
+  assert.equal(isUnseen({ status: "draft", returned_at: null, seen_at: null }), false);
+});
+
+test("marking feedback seen is a POST, so a guide previewing as the learner cannot do it", () => {
+  // denyPreviewWrites refuses every non-GET in preview. A GET that wrote
+  // seen_at would let a guide's look-around hide news from the child.
+  assert.match(learnCode, /router\.post\("\/submissions\/:itemId\/seen"/);
+  const reads = learnCode.match(/router\.get\([\s\S]*?\n\}\);/g) || [];
+  for (const r of reads) assert.ok(!/seen_at\s*=/.test(r), "no GET route may write seen_at");
+});

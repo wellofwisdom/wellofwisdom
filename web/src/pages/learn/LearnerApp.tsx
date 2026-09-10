@@ -19,8 +19,24 @@ interface PathPlan {
   next: { id: number; title: string; target_date: string | null; course_id: number | null } | null;
 }
 
+interface ReturnedWork {
+  item_id: number;
+  lesson_id: number;
+  title: string;
+  course_title: string;
+  outcome: string | null;
+}
+
+const OUTCOME_WORDS: Record<string, string> = {
+  not_yet: "not yet",
+  nearly: "nearly there",
+  met: "met",
+  exceptional: "exceptional",
+};
+
 export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me; route: string; onNavigate: (hash: string) => void; onLogout: () => void }) {
   const [courses, setCourses] = useState<(LearnCourse & { lessons_done?: number })[] | null>(null);
+  const [returned, setReturned] = useState<ReturnedWork[]>([]);
   const [reviewsDue, setReviewsDue] = useState<number | null>(null);
   const [paths, setPaths] = useState<PathPlan[] | null>(null);
   const [upcoming, setUpcoming] = useState<{ label: string; date: string }[] | null>(null);
@@ -30,6 +46,11 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
       api<{ courses: (LearnCourse & { lessons_done?: number })[] }>("/api/learn/courses")
         .then((d: { courses: (LearnCourse & { lessons_done?: number })[] }) => setCourses(d.courses))
         .catch(() => setCourses([]));
+      // Work the guide has answered that the learner has not opened yet. The
+      // only way they found out before was to go back to that lesson.
+      api<{ returned: ReturnedWork[] }>("/api/learn/returned")
+        .then((d) => setReturned(d.returned || []))
+        .catch(() => setReturned([]));
       api<{ due: number }>("/api/learn/review")
         .then((d: { due: number }) => setReviewsDue(d.due || 0))
         .catch(() => setReviewsDue(0));
@@ -95,6 +116,21 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
                 : "All milestones have courses. Keep going below"}
             </span>
             <span className="progressbar mini"><span style={{ width: `${p.milestones_total ? Math.round((p.milestones_done / p.milestones_total) * 100) : 0}%`, display: "block", height: "100%", background: "var(--accent)" }} /></span>
+          </span>
+          <span className="kc-go" aria-hidden="true">→</span>
+        </button>
+      ))}
+
+      {returned.map((w) => (
+        <button key={w.item_id} type="button" className="kidcourse returnedcard" onClick={() => onNavigate(`lesson/${w.lesson_id}`)}>
+          <span className="kc-icon" aria-hidden="true">💬</span>
+          <span className="kc-body">
+            <span className="kc-title">Your guide read "{w.title}"</span>
+            <span className="kc-sub">
+              {w.course_title}
+              {w.outcome ? ` · ${OUTCOME_WORDS[w.outcome] || w.outcome}` : ""}
+              {" · open it to read what they said"}
+            </span>
           </span>
           <span className="kc-go" aria-hidden="true">→</span>
         </button>

@@ -79,3 +79,16 @@ test("learnerNoteHtml: escapes names and titles", () => {
   assert.doesNotMatch(html, /<script>/);
   assert.match(html, /Trip &amp; &lt;b&gt;tour&lt;\/b&gt;/);
 });
+
+test("shouldSendLearnerNote: work coming back with feedback is reason enough", () => {
+  assert.equal(digest.shouldSendLearnerNote({ ...QUIET, returned: 1 }), true);
+});
+
+test("learnerNoteHtml: says when a guide wrote back, in the right number", () => {
+  const one = digest.learnerNoteHtml({ id: 1, name: "Wren" }, { ...QUIET, returned: 1 }, "https://wellofwisdom.app");
+  assert.match(one, /Your guide wrote back about a piece of your work/);
+  const two = digest.learnerNoteHtml({ id: 1, name: "Wren" }, { ...QUIET, returned: 2 }, "https://wellofwisdom.app");
+  assert.match(two, /about 2 pieces of your work/);
+  const none = digest.learnerNoteHtml({ id: 1, name: "Wren" }, { ...QUIET, lessons: 1 }, "https://wellofwisdom.app");
+  assert.doesNotMatch(none, /wrote back/);
+});

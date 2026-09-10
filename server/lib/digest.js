@@ -145,7 +145,8 @@ async function learnerWeek(learnerId, familyId) {
       (select count(*) from lesson_completions where learner_id = $1 and completed_at > now() - interval '7 days')::int as lessons,
       (select count(*) from attempts where learner_id = $1 and created_at > now() - interval '7 days')::int as answers,
       (select count(*) from attempts where learner_id = $1 and created_at > now() - interval '7 days' and correct)::int as correct,
-      (select count(*) from review_schedule where learner_id = $1 and due_at <= now())::int as reviews_due`,
+      (select count(*) from review_schedule where learner_id = $1 and due_at <= now())::int as reviews_due,
+      (select count(*) from submissions where learner_id = $1 and returned_at > now() - interval '7 days')::int as returned`,
     [learnerId]
   );
   const fresh = await db.query(
@@ -178,7 +179,7 @@ async function learnerWeek(learnerId, familyId) {
  *  coming up is worth a note even after a quiet week. */
 function shouldSendLearnerNote(w) {
   if (!w) return false;
-  return Boolean(w.lessons || w.answers || w.reviews_due ||
+  return Boolean(w.lessons || w.answers || w.reviews_due || w.returned ||
     (w.newBadges && w.newBadges.length) || (w.upcoming && w.upcoming.length));
 }
 
@@ -202,6 +203,14 @@ function learnerNoteHtml(learner, w, appUrl) {
          <b>${w.reviews_due} review${w.reviews_due === 1 ? "" : "s"} ready.</b> A few minutes of practice keeps them from slipping away.</p>`
     : "";
 
+  // A person read their work and wrote back: worth its own line, and it is the
+  // one thing here they cannot find out any other way without going looking.
+  const returnedHtml = w.returned
+    ? `<p style="background:#fdf3d7;border-left:3px solid #9a6700;padding:10px 12px;border-radius:4px">
+         <b>💬 Your guide wrote back about ${w.returned === 1 ? "a piece of your work" : `${w.returned} pieces of your work`}.</b>
+         Open the lesson to read what they said.</p>`
+    : "";
+
   const upcomingHtml = w.upcoming.length
     ? `<h3 style="color:#0f7d5c;margin-bottom:4px">Coming up</h3><ul style="margin-top:0">${w.upcoming
         .map((u) => `<li><b>${esc(u.title)}</b>: ${u.on_date}</li>`).join("")}</ul>`
@@ -216,6 +225,7 @@ function learnerNoteHtml(learner, w, appUrl) {
     <h2 style="margin:6px 0 2px">Hi ${esc(firstName(learner.name))}</h2>
     <p style="color:#5b6875;margin:0 0 16px">Here is your week at the well.</p>
     ${weekHtml}
+    ${returnedHtml}
     ${badgeHtml}
     ${reviewHtml}
     ${upcomingHtml}

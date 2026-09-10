@@ -135,6 +135,8 @@ export interface Submission {
   feedback: string | null;
   outcome: string | null;
   returned_at: string | null;
+  /** Came back with a response the learner has not been shown yet. */
+  unseen?: boolean;
 }
 
 export interface Outcome {
