@@ -578,6 +578,28 @@ summary::marker { color: var(--muted); }
 }
 .pf-feedback b { display: block; margin-bottom: 4px; color: #0b5a43; }
 .pf-feedback p { margin: 0 0 6px; line-height: 1.55; }
+.pf-work .rp-table { margin: 8px 0; }
+
+/* Tests and evaluations on the attendance page. A screen, so it follows the
+   theme, unlike the printed record above. */
+.as-item { padding: 12px 2px; border-bottom: 1px solid var(--border); }
+.as-item:last-child { border-bottom: none; }
+.as-scores { border-collapse: collapse; font-size: 13.5px; margin: 8px 0 2px; min-width: 260px; }
+.as-scores th {
+  text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--muted); font-weight: 600; padding: 4px 14px 4px 0; border-bottom: 1px solid var(--border);
+}
+.as-scores td { padding: 5px 14px 5px 0; border-bottom: 1px solid var(--border); }
+.as-scores tr:last-child td { border-bottom: none; }
+.as-summary { white-space: pre-wrap; font-size: 14px; line-height: 1.55; margin: 8px 0 0; }
+.as-pair { gap: 10px; align-items: flex-start; }
+.as-pair > .field { flex: 1 1 150px; min-width: 0; }
+.as-pair.narrow-last > .field:last-child { flex: 0 1 150px; }
+.as-rows { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 0 0 12px; }
+.as-rows legend { padding: 0 4px; color: var(--muted); }
+.as-row { gap: 6px; margin-bottom: 6px; }
+.as-row .input { min-width: 0; }
+.as-pct { width: 72px; flex: 0 0 72px; }
 
 @media print {
   .noprint { display: none !important; }

@@ -144,6 +144,17 @@ router.get("/portfolio/:learnerId", async (req, res, next) => {
     );
     const { badgeById } = require("../lib/badges");
 
+    // Test results and evaluations the guide recorded, as the report gave them.
+    // Printed beside the work, never judged: see lib/assessments.js.
+    const assessmentLib = require("../lib/assessments");
+    const tested = await db.query(
+      `select id, learner_id, taken_on, kind, title, given_by, grade_level, scores, summary, created_at, updated_at
+         from assessments
+        where learner_id = $1 and family_id = $2 and taken_on between $3 and $4
+        order by taken_on`,
+      [learnerId, req.user.familyId, from, to]
+    );
+
     const attendance = require("../lib/attendance");
     const prefs = await db.query("select prefs from families where id = $1", [req.user.familyId]);
     const requirement = attendance.requirementFrom((prefs.rows[0] && prefs.rows[0].prefs) || {});
@@ -194,6 +205,7 @@ router.get("/portfolio/:learnerId", async (req, res, next) => {
           feedback: returned ? r.feedback || null : null,
         };
       }),
+      assessments: tested.rows.map(assessmentLib.fromRow),
       badges: badges.rows.map((b) => {
         const def = badgeById(b.badge);
         return {

@@ -60,6 +60,10 @@ const ACTIONS = {
   // person answerable for it.
   record_attendance: ["owner", "guide", "assistant"],
   set_compliance: ["owner", "guide"],
+  // A test result or an evaluation is a record of something that happened, like
+  // a day of instruction, and a tutor is often the person who gave it. So a
+  // tutor may record one for their own student, and nobody else's.
+  record_assessment: ["owner", "guide", "assistant"],
   build_world: ["owner", "guide", "assistant"],
   grant_reward: ["owner", "guide"],
   set_tutor_mode: ["owner", "guide"],

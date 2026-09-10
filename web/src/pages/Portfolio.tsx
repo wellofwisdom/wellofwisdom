@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { Panel } from "../components/ui";
 import { RichText } from "../lib/rich";
+import { type Assessment, ScoreTable, metaLine } from "../components/AssessmentsPanel";
 
 interface Work {
   id: number;
@@ -39,7 +40,8 @@ interface PortfolioData {
   attendance: { days: number; hours: number; requiredDays: number | null; requiredHours: number | null };
   requirement: { label: string | null };
   work: Work[];
-  badges: { id: string; label: string; description: string | null; icon: string; earnedAt: string }[];
+  assessments: Assessment[];
+  badges:{ id: string; label: string; description: string | null; icon: string; earnedAt: string }[];
 }
 
 const OUTCOME: Record<string, string> = {
@@ -172,6 +174,20 @@ export default function Portfolio({ learnerId, onNavigate }: {
           </div>
         )}
 
+        {data.assessments.length > 0 && (
+          <div className="rp-section">
+            <h2>Assessments</h2>
+            {data.assessments.map((t) => (
+              <article key={t.id} className="pf-work">
+                <h3>{t.title}</h3>
+                <p className="muted small">{metaLine(t)}</p>
+                <ScoreTable scores={t.scores} className="rp-table" />
+                {t.summary && <div className="pf-body">{t.summary}</div>}
+              </article>
+            ))}
+          </div>
+        )}
+
         {data.badges.length > 0 && (
           <div className="rp-section">
             <h2>Earned in this period</h2>
@@ -186,7 +202,7 @@ export default function Portfolio({ learnerId, onNavigate }: {
           </div>
         )}
 
-        {data.work.length === 0 && s.courses.length === 0 && (
+        {data.work.length === 0 && s.courses.length === 0 && data.assessments.length === 0 && (
           <div className="rp-section">
             <p className="rp-narrative">
               No completed coursework or handed-in work falls in this period. Widen the dates, or check

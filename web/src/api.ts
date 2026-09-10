@@ -82,6 +82,12 @@ const NICE: Record<string, string> = {
   no_captions: "This video has no captions yet. Generate or upload a caption track first, in the Videos panel.",
   nothing_drafted: "Nothing usable came back. Try again, or write the questions yourself.",
   day_invalid: "That is not a date this can record.",
+  title_required: "Give it a title first.",
+  date_invalid: "That is not a date this can record.",
+  date_in_future: "That date has not happened yet. Check the date on the report.",
+  kind_invalid: "Pick one of the kinds in the list.",
+  percentile_invalid: "A percentile runs from 1 to 99. Check that row against the report.",
+  nothing_recorded: "Add at least one score, or the evaluation's words, before saving.",
   learner_not_found: "That learner is not in this group.",
 };
 

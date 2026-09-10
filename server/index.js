@@ -84,6 +84,7 @@ app.use("/api/tutor", require("./routes/tutor"));
 app.use("/api/guides", require("./routes/guides"));
 app.use("/api/work", require("./routes/work"));
 app.use("/api/attendance", require("./routes/attendance"));
+app.use("/api/assessments", require("./routes/assessments"));
 
 // Media streaming sits at the app root, not under /api, so a <video src> is a
 // plain URL. auth.attachUser has already run, so the handler can tell whether

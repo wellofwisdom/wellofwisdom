@@ -147,10 +147,12 @@ and why. Anything marked shipped has a commit and is live.
 
 ## Next
 
-- [ ] **YouTube ids must be validated** against the oEmbed endpoint before they
-      are saved. The generator is told to only use ids it is certain of, which
-      is not a guarantee: a model will produce a plausible eleven-character
-      string that points at nothing. One request, no API key.
+- [x] **YouTube ids must be validated** against the oEmbed endpoint before they
+      are saved (`9f05789`). The generator is told to only use ids it is
+      certain of, which is not a guarantee: a model will produce a plausible
+      eleven-character string that points at nothing. `pruneDeadVideos` checks
+      every generated id once and drops the dead ones; a pasted id goes through
+      `checkYouTube`. Shipped earlier and the box was never ticked.
 - [x] **Paste-a-link video** for guides, alongside the AI's own choices
       (`2ae10ef`). The add-item endpoint already verified a pasted URL via
       oEmbed; this is the UI in the course Videos panel.
@@ -233,8 +235,16 @@ and why. Anything marked shipped has a commit and is live.
         the file to every place it plays (lesson, win cutscene, trailer). Served
         at /media/:id/captions.vtt with the same public/family visibility as the
         file; the player shows a CC button only when a track exists.
-- [~] **Per-state compliance pack.** Two of the three things states ask for now
-      exist (`ceca483`, `18f453b`); the third, assessments, does not.
+  - [x] **Form labels are tied to their controls.** Found while testing the
+        assessments dialog, after this list was called clear: the shared
+        `Field` rendered a `<label>` with no `htmlFor`, so every form in the
+        app named its inputs only by their placeholder, which a screen reader
+        reads as an example rather than a name, and clicking a label did
+        nothing. `Field` now gives a single native control an id, points the
+        label at it, and links the hint as its description. One component, so
+        every form in the app picked it up at once.
+- [x] **Per-state compliance pack.** All three things states ask for now exist:
+      days of instruction (`ceca483`), a portfolio (`18f453b`) and assessments.
   - [x] **Days of instruction.** Derived from the work, because a day a learner
         answered something, finished a lesson or handed work in is a day of
         school. Migration 025 stores only the guide's decisions on top: a day
@@ -246,9 +256,23 @@ and why. Anything marked shipped has a commit and is live.
   - [x] **Portfolio.** A read-only, unsaved assembly of a period: days, the
         coursework, the work samples with the guide's returned feedback, and the
         badges earned. Printable. It saves nothing, so it cannot go stale.
-  - [ ] **Assessments.** Standardised-test results are a record a family gets
-        from somewhere else; storing and printing one alongside the rest is the
-        remaining piece.
+  - [x] **Assessments.** A standardised-test result or a teacher's written
+        evaluation is a record a family gets from somewhere else, so the guide
+        copies in what the report said: the date, who gave it, the grade at the
+        time, a score per area as the report wrote it (a number, a stanine or
+        "Above grade level" are all real answers, so it is text) with an
+        optional percentile, and the evaluator's words. Migration 026; the
+        panel sits under the day log and each result prints in the portfolio
+        for the period it falls in. A percentile outside 1 to 99 and a date in
+        the future are refused out loud rather than clamped, because a typo in
+        a filed record should be caught, not smoothed over. Gated on a new
+        `record_assessment` permission (a tutor may record their own student's
+        result) and the same `loadLearner` gate as attendance.
+  - **The same line, held again:** the app records a result and never judges
+        one. There is no pass column and no threshold, because whether a score
+        is enough is set by the law of one place and the facts of one family.
+        A test asserts the normalizer's output carries only the report's fields
+        and that no verdict word or state name appears in the logic.
   - **The line this feature must not cross:** the app does not know what any
         state requires. The requirement is a number the guide types in and a
         label they write, because homeschool law varies by state, changes, and

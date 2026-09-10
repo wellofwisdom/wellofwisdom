@@ -12,6 +12,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { Panel, StatBar, EmptyState, Field, Modal } from "../components/ui";
+import AssessmentsPanel from "../components/AssessmentsPanel";
 
 interface Requirement {
   label: string | null;
@@ -255,6 +256,10 @@ export default function Attendance() {
           </div>
         ))}
       </Panel>
+
+      {who !== null && (
+        <AssessmentsPanel learnerId={who} learnerName={learners.find((l) => l.id === who)?.name || "this learner"} />
+      )}
 
       {adding && (
         <AddDay

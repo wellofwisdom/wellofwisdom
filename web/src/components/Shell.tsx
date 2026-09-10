@@ -23,7 +23,7 @@ const TITLES: Record<string, string> = {
   learners: "Learners",
   records: "Progress",
   work: "Submitted Work",
-  attendance: "Days of Instruction",
+  attendance: "Attendance and Assessments",
   experience: "Experience",
   settings: "Settings",
 };
