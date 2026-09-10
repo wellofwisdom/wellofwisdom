@@ -136,10 +136,12 @@ and why. Anything marked shipped has a commit and is live.
 - [x] **Encounter prose** (`2884e8a`). AI writes a beat for every encounter,
       set in the world, gesturing at the real skill without naming the subject.
       Runs as a job, fails soft per chapter.
-- [ ] **Encounter art.** The illustrator line is already stored on each
-      encounter by the prose pass. This is a job that feeds it to the image
-      generator and hangs the result on the card, which is what will make the
-      world look like a world rather than read like one.
+- [x] **Encounter art.** Already shipped and the box was never ticked:
+      `questgen.illustrateWorld` is the "world-art" job, the guide triggers it
+      from the World builder ("Illustrate", disabled when nothing is waiting),
+      and `WorldView` renders `art_url` on the card. One house style per world,
+      never re-illustrates something that has art, capped per run, and a single
+      failure is skipped rather than aborting the batch.
 - [x] **Loot on encounters from the UI** (`ac779b6`). Chips to remove, dropdown
       to add, hidden entirely when the family has no loot yet.
 
@@ -264,8 +266,24 @@ and why. Anything marked shipped has a commit and is live.
       questions to timestamps, and have a wrong answer scrub the player back to
       the ten seconds that explain it. Khan has fixed videos with fixed
       questions; this watches any video with the learner.
-- [ ] **Essay and project grading** against a rubric, drafted by AI, approved or
-      rewritten by the guide. Never auto-applied.
+- [x] **Essay and project grading** against a rubric (`e71bc26`). A project item
+      was a brief a learner read and nothing more. Now they write their work in
+      the lesson player, keep it as a draft as long as they like, and hand it
+      in, which freezes it; the guide reads it in a Submitted Work console,
+      asks for a drafted response if they want one, and sends back their own
+      words. The AI drafts, a person decides: the draft lands in `ai_feedback`,
+      which no learner route selects, only guide-written `feedback` crosses
+      back, there is no auto-grade path, and the outcome is a word (not yet,
+      nearly, met, exceptional) that a person picks rather than a score a model
+      computed. The criteria are pinned to the rubric the guide actually wrote,
+      so the model cannot grade against one it invented. Gated on
+      `requirePerm("grade")` and `canSeeLearner`. Migration 024, pure logic in
+      `lib/rubric.js`, invariants asserted from source in `routes/work.test.js`.
+      A handed-in project now counts toward lesson completion too: before this,
+      a lesson ending in a project could never be finished. Not smoke-tested
+      with a live model yet: the SQL ran against a scratch database, the
+      offline paths are tested, and the drafting pass runs when a guide clicks
+      "Draft feedback". Read one before trusting the tone.
 - [x] **Reading-level rewriting** (`9aa612e`). In the article editor a guide
       picks a level (simpler, grade 3/5/8, advanced) and drafts a rewrite
       (`POST /api/courses/rewrite`): the same lesson for a different reader, with
