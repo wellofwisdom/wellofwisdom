@@ -191,6 +191,13 @@ export default function Attendance() {
           >
             ⬇ Export CSV
           </a>
+          <button
+            className="btn ghost"
+            type="button"
+            onClick={() => window.open(`/portfolio/${who}?from=${from}&to=${to}`, "_blank")}
+          >
+            📁 Portfolio
+          </button>
         </div>
 
         {s && (

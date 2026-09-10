@@ -93,6 +93,123 @@ async function aiNarrative(learnerName, stats, familyId) {
   return out.content;
 }
 
+// A portfolio: the work itself, not a count of it.
+//
+// The states that do not ask for days of instruction usually ask for a
+// portfolio review, and what a reviewer wants to see is the actual work with
+// the guide's response beside it. All of that already exists here (submissions,
+// completions, badges, the attendance log), so this assembles it rather than
+// asking anyone to keep a second record by hand.
+//
+// Read-only and unsaved on purpose: there is no "portfolio" row to go stale.
+// Ask for a period and it is built from what is true right now.
+router.get("/portfolio/:learnerId", async (req, res, next) => {
+  try {
+    const learnerId = Number(req.params.learnerId);
+    const { from, to } = req.query;
+    if (!validDate(from) || !validDate(to)) return bad(res, "dates_invalid");
+    if (!Number.isInteger(learnerId)) return bad(res, "id_invalid");
+
+    const own = await db.query(
+      `select u.id, u.name, u.grade_level, f.name as family_name
+         from users u join families f on f.id = u.family_id
+        where u.id = $1 and u.family_id = $2 and u.role = 'learner'`,
+      [learnerId, req.user.familyId]
+    );
+    if (!own.rows[0]) return bad(res, "learner_not_found", 404);
+    if (!(await canSeeLearner(req, learnerId))) return bad(res, "not_allowed", 403);
+
+    const start = `${from} 00:00:00`;
+    const end = `${to} 23:59:59`;
+
+    // The work handed in, with what the guide said back. Feedback only appears
+    // once it was actually returned: an unfinished note is not part of a record.
+    const work = await db.query(
+      `select s.id, s.body, s.status, s.submitted_at, s.returned_at, s.outcome, s.feedback,
+              i.content as item_content, l.title as lesson_title, c.title as course_title
+         from submissions s
+         join lesson_items i on i.id = s.item_id
+         join lessons l on l.id = i.lesson_id
+         join units un on un.id = l.unit_id
+         join courses c on c.id = un.course_id
+        where s.learner_id = $1 and s.family_id = $2 and s.status <> 'draft'
+          and s.submitted_at between $3 and $4
+        order by s.submitted_at`,
+      [learnerId, req.user.familyId, start, end]
+    );
+
+    const badges = await db.query(
+      "select badge, earned_at from badges where learner_id = $1 and earned_at between $2 and $3 order by earned_at",
+      [learnerId, start, end]
+    );
+    const { badgeById } = require("../lib/badges");
+
+    const attendance = require("../lib/attendance");
+    const prefs = await db.query("select prefs from families where id = $1", [req.user.familyId]);
+    const requirement = attendance.requirementFrom((prefs.rows[0] && prefs.rows[0].prefs) || {});
+    const [workDayRows, overrideRows] = await Promise.all([
+      db.query(
+        `select day, sum(a)::int as attempts, sum(b)::int as lessons, sum(c)::int as submissions from (
+           select date(created_at) as day, count(*) as a, 0 as b, 0 as c
+             from attempts where learner_id = $1 and created_at between $2 and $3 group by 1
+           union all
+           select date(completed_at), 0, count(*), 0
+             from lesson_completions where learner_id = $1 and completed_at between $2 and $3 group by 1
+           union all
+           select date(submitted_at), 0, 0, count(*)
+             from submissions where learner_id = $1 and submitted_at between $2 and $3 group by 1
+         ) w group by day`,
+        [learnerId, start, end]
+      ),
+      db.query(
+        "select day, counted, minutes, note from attendance_days where learner_id = $1 and day between $2 and $3",
+        [learnerId, from, to]
+      ),
+    ]);
+    const asDay = (d) => (d instanceof Date ? d.toISOString().slice(0, 10) : String(d).slice(0, 10));
+    const days = attendance.mergeDays(
+      workDayRows.rows.map((r) => ({ ...r, day: asDay(r.day) })),
+      overrideRows.rows.map((r) => ({ ...r, day: asDay(r.day) }))
+    );
+
+    res.json({
+      learner: { id: learnerId, name: own.rows[0].name, gradeLevel: own.rows[0].grade_level },
+      familyName: own.rows[0].family_name,
+      period: { from, to },
+      stats: await computeStats(req.user.familyId, learnerId, from, to),
+      attendance: attendance.summarize(days, requirement),
+      requirement,
+      work: work.rows.map((r) => {
+        const c = r.item_content || {};
+        const returned = r.status === "returned" || Boolean(r.returned_at);
+        return {
+          id: Number(r.id),
+          title: c.title || r.lesson_title,
+          courseTitle: r.course_title,
+          lessonTitle: r.lesson_title,
+          brief: c.description || null,
+          body: r.body || "",
+          submittedAt: r.submitted_at,
+          outcome: returned ? r.outcome || null : null,
+          feedback: returned ? r.feedback || null : null,
+        };
+      }),
+      badges: badges.rows.map((b) => {
+        const def = badgeById(b.badge);
+        return {
+          id: b.badge,
+          label: (def && def.label) || b.badge,
+          description: (def && def.description) || null,
+          icon: (def && def.icon) || "⭐",
+          earnedAt: b.earned_at,
+        };
+      }),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Live stats preview for a learner + period (no AI, no save).
 router.get("/preview", async (req, res, next) => {
   try {

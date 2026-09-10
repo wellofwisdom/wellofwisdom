@@ -28,6 +28,7 @@ import { PublicGallery, PublicCourse } from "./pages/PublicCourse";
 import TutorLog from "./pages/TutorLog";
 import Work from "./pages/Work";
 import Attendance from "./pages/Attendance";
+import Portfolio from "./pages/Portfolio";
 import Join from "./pages/Join";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
 
@@ -144,6 +145,7 @@ export default function App() {
     return <PrintLesson lessonId={Number(route.split("/")[2])} role="parent" />;
   }
 
+  const portfolioMatch = route.match(/^portfolio\/(\d+)$/);
   const detailMatch = route.match(/^course\/(\d+)$/);
   const planMatch = route.match(/^plan\/(\d+)$/);
   const reportMatch = route.match(/^report\/(\d+)$/);
@@ -156,7 +158,7 @@ export default function App() {
         screen, the way out has to be visible here too. That combination is what
         made world-builder saves fail with preview_read_only and no explanation. */}
     {previewing && <PreviewBar name={previewing.name} />}
-    <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : learnerEditMatch || learnerNew ? "learners" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
+    <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : portfolioMatch ? "attendance" : learnerEditMatch || learnerNew ? "learners" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
       {route === "learners" && <Learners me={me!} />}
       {(learnerNew || learnerEditMatch) && (
         // key forces a remount between learners, so switching from an edit
@@ -175,6 +177,7 @@ export default function App() {
       {route === "tutor" && <TutorLog me={me!} />}
       {route === "work" && <Work />}
       {route === "attendance" && <Attendance />}
+      {portfolioMatch && <Portfolio learnerId={Number(portfolioMatch[1])} onNavigate={navigate} />}
       {route === "plans" && <Plans onNavigate={navigate} />}
       {route === "notes" && <Notes />}
       {route === "library" && <Library />}

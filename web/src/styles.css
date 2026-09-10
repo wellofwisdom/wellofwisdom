@@ -512,10 +512,80 @@ summary::marker { color: var(--muted); }
 .printchoices { margin: 6px 0 4px 22px; }
 .printchoices li { margin: 4px 0; font-size: 14px; }
 .printlines div { border-bottom: 1px solid #999; height: 30px; }
+/* ---------- the printed record: progress report and portfolio ----------
+   These pages are documents, not screens. They print, they get signed, and
+   somebody who is not a user reads them, so they hold a fixed light palette
+   rather than following the theme: a dark-mode report wastes a cartridge and
+   reads as a screenshot rather than as a record. */
+.reportpage {
+  max-width: 780px; margin: 0 auto; padding: 32px 30px;
+  background: #fff; color: #16202c; border: 1px solid #dfe5ea; border-radius: 12px;
+}
+.rp-head { text-align: center; border-bottom: 2px solid #16202c; padding-bottom: 14px; margin-bottom: 20px; }
+.rp-nut { font-size: 30px; line-height: 1; }
+.rp-head h1 { font-size: 25px; margin: 6px 0 2px; color: #16202c; letter-spacing: -0.01em; }
+.rp-sub { color: #4a5765; font-size: 13.5px; margin: 0; }
+
+/* A grid rather than a wrapping flex row: with flex, a stat that wrapped onto
+   its own line stretched to the full width and read as a heading. */
+.rp-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+  gap: 10px; margin-bottom: 22px;
+}
+.rp-stat {
+  text-align: center; padding: 12px 8px;
+  border: 1px solid #dfe5ea; border-radius: 10px; background: #f7f9fa;
+}
+.rp-stat b { display: block; font-size: 20px; color: #0b5a43; line-height: 1.2; }
+.rp-stat span { font-size: 11.5px; color: #4a5765; }
+
+.rp-section { margin: 22px 0; }
+.rp-section h2 {
+  font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: #4a5765; border-bottom: 1px solid #dfe5ea; padding-bottom: 5px; margin-bottom: 10px;
+}
+.rp-section ul { margin: 0; padding-left: 20px; }
+.rp-section li { margin-bottom: 5px; font-size: 14px; line-height: 1.5; }
+
+.rp-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.rp-table th {
+  text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: #4a5765; border-bottom: 1px solid #c9d2da; padding: 5px 6px;
+}
+.rp-table td { padding: 7px 6px; border-bottom: 1px solid #eef1f4; vertical-align: top; }
+
+.rp-narrative p { font-size: 14.5px; line-height: 1.65; margin: 0 0 10px; }
+.rp-narrative em { color: #4a5765; }
+
+.rp-sign { display: flex; flex-wrap: wrap; gap: 10px 26px; align-items: flex-end; margin-top: 34px; }
+.rp-line { flex: 1 1 180px; border-bottom: 1px solid #6b7683; height: 26px; }
+.rp-sign span { font-size: 11.5px; color: #4a5765; padding-bottom: 2px; }
+.rp-foot { text-align: center; font-size: 11px; color: #6b7683; margin-top: 22px; }
+
+/* A work sample is a quotation of the learner, so it is set apart from the
+   guide's response rather than run together with it. */
+.pf-work { margin-bottom: 20px; page-break-inside: avoid; }
+.pf-work h3 { font-size: 15.5px; margin: 0 0 2px; color: #16202c; }
+.pf-work .muted { color: #4a5765; }
+.pf-brief { font-size: 13.5px; color: #4a5765; margin: 6px 0; }
+.pf-body {
+  white-space: pre-wrap; font-size: 14px; line-height: 1.6;
+  border-left: 3px solid #c9d2da; padding: 4px 0 4px 12px; margin: 8px 0;
+}
+.pf-feedback {
+  background: #f2f7f5; border: 1px solid #cfe3db; border-radius: 8px;
+  padding: 10px 12px; font-size: 13.5px;
+}
+.pf-feedback b { display: block; margin-bottom: 4px; color: #0b5a43; }
+.pf-feedback p { margin: 0 0 6px; line-height: 1.55; }
+
 @media print {
   .noprint { display: none !important; }
   body { background: #fff !important; }
   .printpage { padding: 0; }
+  .reportpage { border: 0; border-radius: 0; padding: 0; max-width: none; }
+  .rp-section, .rp-stats { page-break-inside: avoid; }
+  .rp-sign { page-break-inside: avoid; }
 }
 
 /* iOS: 16px+ inputs stop Safari from zooming on focus */
