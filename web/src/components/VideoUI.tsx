@@ -41,12 +41,20 @@ export function humanBytes(n: number) {
   return `${(n / 1024 ** i).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
 }
 
-/** Plays either source. Uploaded files get real controls and a download-off hint. */
-export function VideoPlayer({ content, poster }: { content: VideoContent; poster?: string | null }) {
+/** Plays either source. Uploaded files get real controls and a download-off hint.
+ *  `videoRef` is how a caller reaches the element to move the play head: only
+ *  the sources we serve ourselves can be scrubbed, because an embedded YouTube
+ *  or Vimeo player is behind an origin we do not control. */
+export function VideoPlayer({ content, poster, videoRef }: {
+  content: VideoContent;
+  poster?: string | null;
+  videoRef?: React.MutableRefObject<HTMLVideoElement | null>;
+}) {
   if (content.uploadId) {
     return (
       <div className="videowrap">
         <video
+          ref={videoRef}
           src={`/media/${content.uploadId}`}
           poster={poster || undefined}
           controls
@@ -107,7 +115,7 @@ export function VideoPlayer({ content, poster }: { content: VideoContent; poster
     return (
       <div className="videowrap">
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-        <video src={content.fileUrl} controls preload="metadata" playsInline title={content.title || "Course video"} />
+        <video ref={videoRef} src={content.fileUrl} controls preload="metadata" playsInline title={content.title || "Course video"} />
       </div>
     );
   }

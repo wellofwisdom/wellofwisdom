@@ -77,6 +77,10 @@ const NICE: Record<string, string> = {
   nothing_to_return: "Write the feedback first, then send it back.",
   no_rubric: "This project has no rubric, so there is nothing to read it against. Add one on the course page.",
   outcome_invalid: "That is not one of the outcomes.",
+  not_a_video: "That item is not a video.",
+  not_an_upload: "Questions can only be drafted from a video uploaded here. An embedded video hands us no transcript.",
+  no_captions: "This video has no captions yet. Generate or upload a caption track first, in the Videos panel.",
+  nothing_drafted: "Nothing usable came back. Try again, or write the questions yourself.",
 };
 
 export function niceError(err: unknown): string {

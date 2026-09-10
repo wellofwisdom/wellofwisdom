@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The lesson player: articles, videos, exercises with grading feedback,
 // hints, explain-my-mistake, and completion. Focus mode. No nav chrome.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import type { ItemNode, LearnLesson, Submission } from "../../types";
 import { RichText, MathText } from "../../lib/rich";
@@ -314,16 +314,46 @@ const OUTCOME_LABEL: Record<string, string> = {
   exceptional: "exceptional",
 };
 
+// How far before the moment the answer is given to drop the learner back in.
+// Matches REWIND_SEC in server/lib/videoqa.js: long enough to carry the
+// sentence that sets the answer up, short enough not to feel like a re-watch.
+const REWIND_SEC = 10;
+
+export function clockOf(sec: number): string {
+  const s = Math.max(0, Math.floor(sec));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = s % 60;
+  return `${h ? `${h}:${String(m).padStart(2, "0")}` : m}:${String(r).padStart(2, "0")}`;
+}
+
 function VideoItem({ item, solved, onSolved }: {
   item: ItemNode; solved: Record<string, boolean>; onSolved: (key: string, correct: boolean | null) => void;
 }) {
   const c = item.content || {};
   const questions: any[] = c.questions || [];
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  // A question can carry the moment its answer is given. Missing it should send
+  // the learner back to that moment, not to the top of a twenty minute video.
+  // Only our own sources can be scrubbed: an embedded player is another origin.
+  const rewind = useCallback((atSec: number, play: boolean) => {
+    const el = videoRef.current;
+    if (!el) return false;
+    el.currentTime = Math.max(0, Math.round(atSec) - REWIND_SEC);
+    if (play) el.play().catch(() => {});
+    else el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    return true;
+  }, []);
+
   return (
     <section className="litem">
       <h2>▶️ {c.title}</h2>
       {c.note && <p className="muted">{c.note}</p>}
-      <VideoPlayer content={{ youtubeId: c.youtubeId, uploadId: c.uploadId, title: c.title }} />
+      <VideoPlayer
+        content={{ youtubeId: c.youtubeId, uploadId: c.uploadId, title: c.title }}
+        videoRef={videoRef}
+      />
       {questions.map((q, i) => (
         <ExerciseItem
           key={i}
@@ -333,19 +363,21 @@ function VideoItem({ item, solved, onSolved }: {
           qKey={`${item.id}:${i}`}
           qIdx={i}
           question={q}
+          rewind={rewind}
         />
       ))}
     </section>
   );
 }
 
-function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
+function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question, rewind }: {
   item: ItemNode;
   solved: Record<string, boolean>;
   onSolved: (key: string, correct: boolean | null) => void;
   qKey: string;
   qIdx: number;
-  question: { prompt: string; choices: { id: string; text: string }[] } | null;
+  question: { prompt: string; choices: { id: string; text: string }[]; atSec?: number } | null;
+  rewind?: (atSec: number, play: boolean) => boolean;
 }) {
   // exercise content directly, or a video sub-question
   const c: Record<string, any> = item.content || {};
@@ -365,6 +397,9 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
   const [err, setErr] = useState("");
 
   const isSolved = solved[qKey] === true;
+  // The moment in the video where this question's answer is given, when the
+  // question carries one. Null for an ordinary exercise.
+  const anchor = question && Number.isFinite(Number(question.atSec)) ? Number(question.atSec) : null;
 
   async function submit(mcqId?: string) {
     setBusy(true);
@@ -376,6 +411,10 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
       setResult(d);
       setRevealed(d);
       onSolved(qKey, d.correct);
+      // Wrong, and we know where the answer lives: move the play head there so
+      // the next thing they do is watch it, not guess again. Quietly, without
+      // starting playback: they are reading the verdict.
+      if (d.correct === false && rewind && anchor !== null) rewind(anchor, false);
     } catch (e) {
       setErr(niceError(e));
     } finally {
@@ -511,6 +550,11 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question }: {
               <button className="btn ghost" type="button" disabled={explainBusy} onClick={explainMistake}>
                 {explainBusy ? "Thinking…" : "🧠 Why was I wrong?"}
               </button>
+              {anchor !== null && rewind && (
+                <button className="btn ghost" type="button" onClick={() => rewind(anchor, true)}>
+                  ▶ Watch from {clockOf(Math.max(0, anchor - REWIND_SEC))}
+                </button>
+              )}
               {kind !== "text" && (
                 <button className="btn ghost" type="button" onClick={() => { setResult(null); setRevealed(null); setPicked(null); }}>
                   Try again

@@ -26,7 +26,9 @@ function learnerItem(item) {
   }
   if (item.type === "video") {
     const out = { youtubeId: c.youtubeId, uploadId: c.uploadId, title: c.title, note: c.note };
-    if (c.questions) out.questions = c.questions.map((q) => ({ prompt: q.prompt, choices: q.choices }));
+    // atSec is not an answer, it is where to rewind to when they miss, so it
+    // crosses to the learner along with the prompt and the choices.
+    if (c.questions) out.questions = c.questions.map((q) => ({ prompt: q.prompt, choices: q.choices, atSec: q.atSec }));
     return { id: item.id, type: item.type, position: item.position, content: out };
   }
   return { id: item.id, type: item.type, position: item.position, content: c };

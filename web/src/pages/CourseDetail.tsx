@@ -509,6 +509,165 @@ function answerText(c: Record<string, any>): string {
   return ch ? ch.text : "?";
 }
 
+// Comprehension questions on a video, and the pass that drafts them from the
+// caption track. Each question can carry the moment its answer is given, which
+// is what lets a wrong answer rewind the learner to that moment rather than to
+// the start of a twenty minute video.
+//
+// The drafted questions land in this editor, not on the item: the guide keeps,
+// edits or deletes each one and presses Save. Same posture as every other AI
+// pass here.
+interface QDraft { prompt: string; choices: string; answerIdx: number; at: string }
+
+function secToClock(sec: number): string {
+  const s = Math.max(0, Math.floor(sec));
+  const m = Math.floor(s / 60);
+  return `${m}:${String(s % 60).padStart(2, "0")}`;
+}
+
+/** "1:23", "83" or "" to seconds. Null means no anchor, which is allowed: a
+ *  question about the video as a whole does not point anywhere in particular. */
+function clockToSec(text: string): number | null {
+  const t = String(text || "").trim();
+  if (!t) return null;
+  const parts = t.split(":").map((p) => Number(p.trim()));
+  if (parts.some((n) => !Number.isFinite(n) || n < 0)) return null;
+  const sec = parts.length === 1 ? parts[0] : parts.length === 2 ? parts[0] * 60 + parts[1] : parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return Number.isFinite(sec) ? Math.round(sec) : null;
+}
+
+function toDraft(q: any): QDraft {
+  const choices = (q.choices || []) as { id: string; text: string }[];
+  const idx = Math.max(0, choices.findIndex((c) => c.id === q.answer));
+  return {
+    prompt: q.prompt || "",
+    choices: choices.map((c) => c.text).join("\n"),
+    answerIdx: idx,
+    at: q.atSec == null ? "" : secToClock(Number(q.atSec)),
+  };
+}
+
+export function draftsToQuestions(drafts: QDraft[]) {
+  const out: Record<string, unknown>[] = [];
+  for (const d of drafts) {
+    const lines = d.choices.split("\n").map((s) => s.trim()).filter(Boolean);
+    if (!d.prompt.trim() || lines.length < 2) continue;
+    const idx = Math.min(Math.max(0, d.answerIdx), lines.length - 1);
+    const q: Record<string, unknown> = {
+      prompt: d.prompt.trim(),
+      choices: lines.map((text, i) => ({ id: `c${i + 1}`, text })),
+      answer: `c${idx + 1}`,
+    };
+    const at = clockToSec(d.at);
+    if (at !== null) q.atSec = at;
+    out.push(q);
+  }
+  return out;
+}
+
+function VideoQuestions({ itemId, canDraft, questions, onChange }: {
+  itemId: number;
+  canDraft: boolean;
+  questions: QDraft[];
+  onChange: (q: QDraft[]) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  function patch(i: number, next: Partial<QDraft>) {
+    onChange(questions.map((q, x) => (x === i ? { ...q, ...next } : q)));
+  }
+
+  async function draft() {
+    setBusy(true);
+    setMsg("");
+    try {
+      const d = await api<{ questions: any[]; note?: string }>(`/api/courses/items/${itemId}/video-questions`, {
+        method: "POST",
+        body: {},
+      });
+      if (d.note === "no_transcript") {
+        setMsg("The caption track has no usable text yet. Generate or upload captions first.");
+        return;
+      }
+      onChange([...questions, ...d.questions.map(toDraft)]);
+      setMsg(`Drafted ${d.questions.length}. Read them, fix what is wrong, then Save.`);
+    } catch (e) {
+      setMsg(niceError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div style={{ marginTop: 12 }}>
+      <div className="row wrap" style={{ alignItems: "center", gap: 8 }}>
+        <strong className="grow">Comprehension questions</strong>
+        <button
+          className="btn ghost small-btn"
+          type="button"
+          onClick={() => onChange([...questions, { prompt: "", choices: "", answerIdx: 0, at: "" }])}
+        >
+          + Add
+        </button>
+        {canDraft && (
+          <button className="btn ghost small-btn" type="button" disabled={busy} onClick={draft}>
+            {busy ? "Reading the video…" : "✎ Draft from captions"}
+          </button>
+        )}
+      </div>
+      <p className="hint" style={{ marginTop: 4 }}>
+        {canDraft
+          ? "Drafting reads this video's caption track and writes questions anchored to the moment each answer is given. A draft, for you to check."
+          : "Only an uploaded video with captions can be drafted from. A YouTube or Vimeo embed hands us no transcript."}
+      </p>
+      {msg && <p className="small muted" style={{ margin: "2px 0 6px" }}>{msg}</p>}
+
+      {questions.map((q, i) => {
+        const lines = q.choices.split("\n").map((s) => s.trim()).filter(Boolean);
+        return (
+          <div key={i} className="lessonitem" style={{ paddingTop: 8 }}>
+            <Field label={`Question ${i + 1}`}>
+              <textarea className="input" rows={2} value={q.prompt} onChange={(e) => patch(i, { prompt: e.target.value })} />
+            </Field>
+            <Field label="Choices (one per line)">
+              <textarea className="input" rows={3} value={q.choices} onChange={(e) => patch(i, { choices: e.target.value })} />
+            </Field>
+            <div className="row wrap" style={{ gap: 8, alignItems: "flex-end" }}>
+              <Field label="Correct answer">
+                <select
+                  className="input"
+                  value={String(Math.min(q.answerIdx, Math.max(0, lines.length - 1)))}
+                  onChange={(e) => patch(i, { answerIdx: Number(e.target.value) })}
+                >
+                  {lines.length === 0 && <option value="0">Add choices first</option>}
+                  {lines.map((s, x) => <option key={x} value={String(x)}>#{x + 1}: {s.slice(0, 50)}</option>)}
+                </select>
+              </Field>
+              <Field label="Answered at" hint="mm:ss. A miss rewinds here.">
+                <input
+                  className="input small-input"
+                  style={{ maxWidth: 110 }}
+                  value={q.at}
+                  placeholder="2:15"
+                  onChange={(e) => patch(i, { at: e.target.value })}
+                />
+              </Field>
+              <button
+                className="btn ghost small-btn"
+                type="button"
+                onClick={() => onChange(questions.filter((_, x) => x !== i))}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: () => void; onSaved: () => void }) {
   const c = item.content || {};
   const [busy, setBusy] = useState(false);
@@ -549,6 +708,7 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   // video
   const [vTitle, setVTitle] = useState(c.title ?? "");
   const [vId, setVId] = useState(c.youtubeId ?? "");
+  const [vQuestions, setVQuestions] = useState<QDraft[]>(() => ((c.questions ?? []) as any[]).map(toDraft));
   // project
   const [pTitle, setPTitle] = useState(c.title ?? "");
   const [pDesc, setPDesc] = useState(c.description ?? "");
@@ -584,7 +744,17 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       }
       if (explanation) content.explanation = explanation;
       if (hint) content.hint = hint;
-    } else if (item.type === "video") content = { ...c, title: vTitle, youtubeId: vId };
+    } else if (item.type === "video") {
+      // Keep every source field the item already had. Only youtubeId is edited
+      // here, and an empty box means "no YouTube id", not an empty one: an
+      // uploaded video would otherwise pick up a blank id it never had.
+      content = { ...c, title: vTitle };
+      if (vId.trim()) content.youtubeId = vId.trim();
+      else delete content.youtubeId;
+      const qs = draftsToQuestions(vQuestions);
+      if (qs.length) content.questions = qs;
+      else delete content.questions;
+    }
     else content = { title: pTitle, description: pDesc, ...(rubric ? { rubric } : {}) };
 
     try {
@@ -655,6 +825,12 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
         <>
           <Field label="Title"><input className="input" value={vTitle} onChange={(e) => setVTitle(e.target.value)} /></Field>
           <Field label="YouTube id or URL"><input className="input" value={vId} onChange={(e) => setVId(e.target.value)} /></Field>
+          <VideoQuestions
+            itemId={item.id}
+            canDraft={Boolean(c.uploadId)}
+            questions={vQuestions}
+            onChange={setVQuestions}
+          />
         </>
       )}
       {item.type === "project" && (

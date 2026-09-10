@@ -136,7 +136,14 @@ function normalizeVideo(content) {
       const choices = (Array.isArray(q.choices) ? q.choices : []).map(normalizeChoice).filter(Boolean).slice(0, 5);
       if (!prompt || choices.length < 2) continue;
       const raw = String(q.answer ?? "");
-      questions.push({ prompt, choices, answer: choices.some((c) => c.id === raw) ? raw : choices[0].id });
+      const out = { prompt, choices, answer: choices.some((c) => c.id === raw) ? raw : choices[0].id };
+      // The moment in the video where the answer is given. Kept through
+      // generation, import and export so a question drafted from a transcript
+      // stays anchored wherever the course travels. Clamped to a day, which is
+      // longer than any lesson video and stops a silly number reaching a player.
+      const at = Number(q.atSec);
+      if (Number.isFinite(at) && at >= 0) out.atSec = Math.min(86400, Math.round(at));
+      questions.push(out);
     }
   }
   if (questions.length) v.questions = questions;

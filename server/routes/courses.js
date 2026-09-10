@@ -371,6 +371,59 @@ router.post("/rewrite", async (req, res, next) => {
   }
 });
 
+// Comprehension questions drafted from an uploaded video's caption track.
+// Khan has fixed videos with fixed questions; a family's video is whatever they
+// found or recorded, so the questions have to be written for it. The transcript
+// is already on the upload, with timings, so each question can carry the moment
+// its answer is given: miss it, and the player rewinds you to that moment
+// instead of to the top of a twenty minute video.
+//
+// A draft, like every other AI pass here. It fills the editor; the guide keeps,
+// edits or deletes each question and presses Save. Only an uploaded video can
+// do this: YouTube, Vimeo and PeerTube do not hand us a transcript, and
+// scraping one is not something this project is going to do.
+router.post("/items/:itemId/video-questions", auth.requirePerm("edit_course"), async (req, res, next) => {
+  try {
+    const itemId = Number(req.params.itemId);
+    if (!Number.isInteger(itemId)) return bad(res, "id_invalid");
+    if (!ai.configured()) return bad(res, "ai_not_configured", 503);
+
+    const { rows } = await db.query(
+      `select i.id, i.type, i.content
+         from lesson_items i join lessons l on l.id = i.lesson_id
+         join units un on un.id = l.unit_id join courses c on c.id = un.course_id
+        where i.id = $1 and c.family_id = $2`,
+      [itemId, req.user.familyId]
+    );
+    if (!rows[0]) return bad(res, "not_found", 404);
+    if (rows[0].type !== "video") return bad(res, "not_a_video");
+    const content = rows[0].content || {};
+    const uploadId = Number(content.uploadId);
+    if (!Number.isInteger(uploadId) || uploadId <= 0) return bad(res, "not_an_upload");
+
+    const up = await db.query(
+      "select captions_vtt from uploads where id = $1 and family_id = $2",
+      [uploadId, req.user.familyId]
+    );
+    const vtt = up.rows[0] && up.rows[0].captions_vtt;
+    if (!vtt) return bad(res, "no_captions");
+
+    const videoqa = require("../lib/videoqa");
+    const out = await videoqa.draftQuestions({
+      vtt,
+      title: content.title,
+      gradeLevel: Number(req.body && req.body.gradeLevel) || null,
+      count: req.body && req.body.count,
+      familyId: req.user.familyId,
+    });
+    if (out.note) return res.json(out);
+    if (!out.questions.length) return bad(res, "nothing_drafted", 502);
+    res.json(out);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Add an item to a lesson. The guide is adding it by hand (a video they
 // uploaded, a note), so it goes through the same normalizer as AI output
 // there is one trust boundary, not two.
