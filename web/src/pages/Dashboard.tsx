@@ -25,11 +25,17 @@ export default function Dashboard({
   const learners = me.learners || [];
   const hasBg = localStorage.getItem("wow-theme-bg") !== null;
   const [courses, setCourses] = useState<CourseSummary[] | null>(null);
+  // Work waiting to be read is the one thing on this page that is somebody
+  // else's turn, so it earns a stat rather than a nav item nobody clicks.
+  const [waiting, setWaiting] = useState<number | null>(null);
 
   useEffect(() => {
     api<{ courses: CourseSummary[] }>("/api/courses")
       .then((d) => setCourses(d.courses))
       .catch(() => setCourses([]));
+    api<{ submissions: { status: string }[] }>("/api/work")
+      .then((d) => setWaiting(d.submissions.filter((s) => s.status === "submitted").length))
+      .catch(() => setWaiting(0));
   }, []);
 
   const published = courses?.filter((c) => c.status === "published").length ?? 0;
@@ -65,6 +71,12 @@ export default function Dashboard({
           { label: "Courses", value: courses?.length ?? "…", onClick: () => onNavigate("courses") },
           { label: "Published", value: courses ? published : "…", active: published > 0, onClick: () => onNavigate("courses") },
           { label: "Exercises", value: courses ? courses.reduce((n, c) => n + c.exercise_count, 0) : "…" },
+          {
+            label: "To read",
+            value: waiting === null ? "…" : waiting,
+            active: (waiting || 0) > 0,
+            onClick: () => onNavigate("work"),
+          },
         ]}
       />
 

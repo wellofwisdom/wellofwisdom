@@ -22,6 +22,7 @@ const TITLES: Record<string, string> = {
   courses: "Courses",
   learners: "Learners",
   records: "Progress",
+  work: "Submitted Work",
   experience: "Experience",
   settings: "Settings",
 };
@@ -33,6 +34,7 @@ const CHIPS: Record<string, string> = {
   courses: "c-indigo",
   learners: "c-sky",
   records: "c-amber",
+  work: "c-violet",
   plans: "c-lime",
   notes: "c-teal",
   tutor: "c-amber",
@@ -132,6 +134,7 @@ export default function Shell({
           <Item id="notes" label="Workspace" icon={<span style={{ fontSize: 15 }}>🗒️</span>} />
           <Item id="library" label="Library" icon={<span style={{ fontSize: 15 }}>📚</span>} />
           <Item id="records" label="Progress" icon={<IconClipboard />} />
+          <Item id="work" label="Submitted Work" icon={<span style={{ fontSize: 15 }}>🛠️</span>} />
           <Item id="tutor" label="Tutor" icon={<span style={{ fontSize: 15 }}>🌰</span>} />
         </nav>
 

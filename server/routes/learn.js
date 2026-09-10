@@ -32,6 +32,23 @@ function learnerItem(item) {
   return { id: item.id, type: item.type, position: item.position, content: c };
 }
 
+/** What a learner may see of their own submission. Feedback appears only after
+ *  the guide has returned it: a half-written note is not something to read over
+ *  a shoulder. Once returned it stays visible through a revision and a second
+ *  hand-in, so the learner can work from it, until the guide replaces it. */
+function learnerSubmission(row) {
+  const returned = row.status === "returned" || Boolean(row.returned_at);
+  return {
+    item_id: Number(row.item_id),
+    body: row.body || "",
+    status: row.status,
+    submitted_at: row.submitted_at,
+    feedback: returned ? row.feedback || null : null,
+    outcome: returned ? row.outcome || null : null,
+    returned_at: returned ? row.returned_at : null,
+  };
+}
+
 router.get("/courses", async (req, res, next) => {
   try {
     const courses = await db.query(
@@ -65,6 +82,17 @@ router.get("/courses", async (req, res, next) => {
         where un.course_id = any($1::bigint[]) and a.learner_id = $2`,
       [ids, req.user.id]
     );
+    // A project is done when it has been handed in. Before submissions existed
+    // a project could never be finished, so a lesson that ended in one sat at
+    // incomplete forever.
+    const handed = await db.query(
+      `select s.item_id from submissions s
+         join lesson_items i on i.id = s.item_id
+         join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id
+        where un.course_id = any($1::bigint[]) and s.learner_id = $2 and s.status <> 'draft'`,
+      [ids, req.user.id]
+    );
+    const handedIn = new Set(handed.rows.map((r) => String(r.item_id)));
     const state = new Map();
     for (const a of attempts.rows) {
       if (!state.has(a.item_id)) state.set(a.item_id, { correct: new Set(), attempted: new Set() });
@@ -81,14 +109,16 @@ router.get("/courses", async (req, res, next) => {
           (i.type === "video" && Array.isArray(i.content.questions) && i.content.questions.length)
       );
       const selfCheck = lItems.filter((i) => i.type === "exercise" && i.content.kind === "text");
+      const projects = lItems.filter((i) => i.type === "project");
       const done =
-        gradable.length + selfCheck.length > 0 &&
+        gradable.length + selfCheck.length + projects.length > 0 &&
         gradable.every((i) => {
           const s = state.get(i.id);
           const qCount = i.type === "video" ? i.content.questions.length : 1;
           return s && Array.from({ length: qCount }, (_, x) => x).every((x) => s.correct.has(x));
         }) &&
-        selfCheck.every((i) => state.has(i.id));
+        selfCheck.every((i) => state.has(i.id)) &&
+        projects.every((i) => handedIn.has(String(i.id)));
       if (done) lessonDone.add(l.id);
     }
     res.json({
@@ -131,6 +161,14 @@ async function loadCourseForLearner(courseId, user) {
       where un.course_id = $1 and a.learner_id = $2`,
     [courseId, user.id]
   );
+  const handed = await db.query(
+    `select s.item_id from submissions s
+       join lesson_items i on i.id = s.item_id
+       join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id
+      where un.course_id = $1 and s.learner_id = $2 and s.status <> 'draft'`,
+    [courseId, user.id]
+  );
+  const handedIn = new Set(handed.rows.map((r) => String(r.item_id)));
   const state = new Map(); // itemId -> { gradedTotal, correctSet:Set("qIdx") , attempted:Set }
   for (const a of attempts.rows) {
     if (!state.has(a.item_id)) state.set(a.item_id, { correct: new Set(), attempted: new Set() });
@@ -152,14 +190,16 @@ async function loadCourseForLearner(courseId, user) {
             (i.type === "video" && Array.isArray(i.content.questions) && i.content.questions.length)
         );
         const selfCheck = lItems.filter((i) => i.type === "exercise" && i.content.kind === "text");
+        const projects = lItems.filter((i) => i.type === "project");
         const allDone =
-          gradable.length + selfCheck.length > 0 &&
+          gradable.length + selfCheck.length + projects.length > 0 &&
           gradable.every((i) => {
             const s = state.get(i.id);
             const qCount = i.type === "video" ? i.content.questions.length : 1;
             return s && Array.from({ length: qCount }, (_, x) => x).every((x) => s.correct.has(x));
           }) &&
-          selfCheck.every((i) => state.has(i.id));
+          selfCheck.every((i) => state.has(i.id)) &&
+          projects.every((i) => handedIn.has(String(i.id)));
         if (allDone) lessonDone.add(l.id);
         return { id: l.id, title: l.title, summary: l.summary, done: allDone, items: lItems };
       }),
@@ -204,9 +244,19 @@ router.get("/lessons/:id", async (req, res, next) => {
       state[key] = state[key] || a.correct === true;
       if (a.correct === true) state[key] = true;
     }
+    const subs = await db.query(
+      `select item_id, body, status, submitted_at, feedback, outcome, returned_at
+         from submissions where learner_id = $1 and item_id = any($2::bigint[])`,
+      [req.user.id, items.rows.length ? items.rows.map((i) => i.id) : [0]]
+    );
+    // ai_feedback is deliberately NOT selected: the model's draft belongs to
+    // the guide, and only what the guide wrote or approved crosses back here.
+    const submissions = {};
+    for (const r of subs.rows) submissions[String(r.item_id)] = learnerSubmission(r);
     res.json({
       lesson: { id: lessonId, ...owned.rows[0], items: items.rows.map(learnerItem) },
       solved: state,
+      submissions,
     });
   } catch (err) {
     next(err);
@@ -272,6 +322,65 @@ router.post("/attempt", async (req, res, next) => {
       ).catch(() => {});
     }
     res.json({ correct, reveal });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Hand in (or keep drafting) a project. One row per learner per item, revised
+// in place: a project is a thing you keep working on, not a stream of attempts.
+//
+// A submitted piece is frozen until the guide answers it. That is the point of
+// handing something in: it stops being a draft. Once it comes back the learner
+// may revise and hand it in again, and the previous feedback stays on screen
+// until the guide replaces it.
+router.put("/submissions/:itemId", async (req, res, next) => {
+  try {
+    const itemId = Number(req.params.itemId);
+    if (!Number.isInteger(itemId)) return bad(res, "item_invalid");
+    const { body, submit } = req.body || {};
+    const text = String(body == null ? "" : body).slice(0, 20000);
+    const handIn = Boolean(submit);
+
+    // Same reachability rule as an attempt: published, and theirs.
+    const item = await db.query(
+      `select i.id, i.type
+         from lesson_items i join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id
+         join courses c on c.id = un.course_id
+        where i.id = $1 and c.family_id = $2 and c.status = 'published'
+          and (c.learner_id is null or c.learner_id = $3)`,
+      [itemId, req.user.familyId, req.user.id]
+    );
+    if (!item.rows[0]) return bad(res, "not_found", 404);
+    if (item.rows[0].type !== "project") return bad(res, "not_a_project");
+
+    const existing = await db.query(
+      "select id, status from submissions where learner_id = $1 and item_id = $2",
+      [req.user.id, itemId]
+    );
+    if (existing.rows[0] && existing.rows[0].status === "submitted") {
+      return bad(res, "already_submitted", 409);
+    }
+    if (handIn && !text.trim()) return bad(res, "nothing_to_hand_in");
+
+    const status = handIn ? "submitted" : existing.rows[0] ? existing.rows[0].status : "draft";
+    const { rows } = await db.query(
+      `insert into submissions (family_id, learner_id, item_id, body, status, submitted_at)
+       values ($1, $2, $3, $4, $5, case when $5 = 'submitted' then now() else null end)
+       on conflict (learner_id, item_id) do update
+          set body = excluded.body,
+              status = excluded.status,
+              submitted_at = case when excluded.status = 'submitted' then now() else submissions.submitted_at end,
+              updated_at = now()
+       returning item_id, body, status, submitted_at, feedback, outcome, returned_at`,
+      [req.user.familyId, req.user.id, itemId, text, status]
+    );
+
+    // Handing work in is real work, so it earns its badge check like anything
+    // else. Fail-open: a badge must never cost a learner their submission.
+    if (handIn) require("../lib/badges").checkAndAward(req.user.id, req.user.familyId).catch(() => {});
+
+    res.json({ submission: learnerSubmission(rows[0]) });
   } catch (err) {
     next(err);
   }

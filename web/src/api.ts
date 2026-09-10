@@ -71,6 +71,12 @@ const NICE: Record<string, string> = {
   preview_read_only: "You are viewing as a learner, so nothing can be saved. Use \"Back to my view\" in the banner at the top, then try again.",
   not_your_learner: "That learner is not one of yours to view.",
   boss_must_be_fought: "A boss has to be fought, not marked done.",
+  already_submitted: "This is already handed in, so it cannot be changed. Your guide will send it back with their feedback.",
+  not_a_project: "Only a project can be handed in.",
+  nothing_to_hand_in: "There is nothing written yet. Add your work first.",
+  nothing_to_return: "Write the feedback first, then send it back.",
+  no_rubric: "This project has no rubric, so there is nothing to read it against. Add one on the course page.",
+  outcome_invalid: "That is not one of the outcomes.",
 };
 
 export function niceError(err: unknown): string {

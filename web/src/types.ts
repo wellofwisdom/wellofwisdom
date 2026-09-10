@@ -124,3 +124,57 @@ export interface LearnLesson {
   summary: string | null;
   items: ItemNode[];
 }
+
+// A learner's own view of work they handed in. Feedback is null until a guide
+// has written it and sent it back: the AI's draft never appears here.
+export interface Submission {
+  item_id: number;
+  body: string;
+  status: "draft" | "submitted" | "returned";
+  submitted_at: string | null;
+  feedback: string | null;
+  outcome: string | null;
+  returned_at: string | null;
+}
+
+export interface Outcome {
+  id: string;
+  label: string;
+  blurb: string;
+}
+
+// The guide's view: everything above plus the brief it was written against and
+// the AI's draft, which only ever reaches this side.
+export interface WorkItem {
+  id: number;
+  learner_id: number;
+  learner_name: string;
+  grade_level: number | null;
+  item_id: number;
+  lesson_id: number;
+  lesson_title: string;
+  course_id: number;
+  course_title: string;
+  project: { title: string | null; description: string | null; rubric: string | null };
+  body: string;
+  words: number;
+  status: "submitted" | "returned";
+  submitted_at: string | null;
+  feedback: string | null;
+  outcome: string | null;
+  returned_at: string | null;
+  ai_feedback: RubricDraft | null;
+  ai_at: string | null;
+  updated_at: string;
+}
+
+export interface RubricDraft {
+  criteria: { criterion: string; verdict: string | null; note: string }[];
+  strengths: string[];
+  improve: string[];
+  toLearner: string;
+  forGuide: string;
+  suggestedOutcome: string | null;
+  note?: string;
+  words?: number;
+}

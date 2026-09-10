@@ -3,7 +3,7 @@
 // hints, explain-my-mistake, and completion. Focus mode. No nav chrome.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, niceError } from "../../api";
-import type { ItemNode, LearnLesson } from "../../types";
+import type { ItemNode, LearnLesson, Submission } from "../../types";
 import { RichText, MathText } from "../../lib/rich";
 import { linkProps } from "../../router";
 import { VideoPlayer } from "../../components/VideoUI";
@@ -19,16 +19,18 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
 }) {
   const [lesson, setLesson] = useState<LearnLesson | null>(null);
   const [solved, setSolved] = useState<Record<string, boolean>>({});
+  const [submissions, setSubmissions] = useState<Record<string, Submission>>({});
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [nextLesson, setNextLesson] = useState<{ id: number; title: string } | null>(null);
   const completionLogged = useRef(false);
 
   const load = () =>
-    api<{ lesson: LearnLesson; solved: Record<string, boolean> }>(`/api/learn/lessons/${lessonId}`)
+    api<{ lesson: LearnLesson; solved: Record<string, boolean>; submissions: Record<string, Submission> }>(`/api/learn/lessons/${lessonId}`)
       .then((d) => {
         setLesson(d.lesson);
         setSolved(d.solved || {});
+        setSubmissions(d.submissions || {});
         // find the next lesson in course order for the completion flow
         api<{ course: { units: { lessons: { id: number; title: string }[] }[] } }>(
           `/api/learn/courses/${d.lesson.course_id}`
@@ -65,9 +67,18 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
     return keys;
   }, [lesson]);
 
+  // A project is finished when it has been handed in, which is the same rule
+  // the server applies to the course tree.
+  const projectIds = useMemo(
+    () => (lesson ? lesson.items.filter((i) => i.type === "project").map((i) => String(i.id)) : []),
+    [lesson]
+  );
+
   useEffect(() => {
-    if (gradableKeys.length && gradableKeys.every((k) => solved[k])) setDone(true);
-  }, [solved, gradableKeys]);
+    const gradedDone = gradableKeys.every((k) => solved[k]);
+    const handedIn = projectIds.every((id) => submissions[id] && submissions[id].status !== "draft");
+    if (gradableKeys.length + projectIds.length > 0 && gradedDone && handedIn) setDone(true);
+  }, [solved, gradableKeys, projectIds, submissions]);
 
   // log completion once: feeds the guide's Progress page
   useEffect(() => {
@@ -95,7 +106,14 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
         {lesson.summary && <p className="muted" style={{ marginBottom: 14 }}>{lesson.summary}</p>}
 
         {lesson.items.map((item) => (
-          <LessonItem key={item.id} item={item} solved={solved} onSolved={onSolved} />
+          <LessonItem
+            key={item.id}
+            item={item}
+            solved={solved}
+            onSolved={onSolved}
+            submission={submissions[String(item.id)] || null}
+            onSubmission={(sub) => setSubmissions((prev) => ({ ...prev, [String(sub.item_id)]: sub }))}
+          />
         ))}
 
         {done && (
@@ -169,10 +187,12 @@ function ReadAloud({ text }: { text: string }) {
   );
 }
 
-function LessonItem({ item, solved, onSolved }: {
+function LessonItem({ item, solved, onSolved, submission, onSubmission }: {
   item: ItemNode;
   solved: Record<string, boolean>;
   onSolved: (key: string, correct: boolean | null) => void;
+  submission: Submission | null;
+  onSubmission: (sub: Submission) => void;
 }) {
   const c = item.content || {};
   if (item.type === "article") {
@@ -187,19 +207,112 @@ function LessonItem({ item, solved, onSolved }: {
     );
   }
   if (item.type === "project") {
-    return (
-      <section className="litem project">
-        <h2>🛠️ Project: {c.title}</h2>
-        <RichText text={c.description || ""} />
-        {c.rubric && <details style={{ marginTop: 8 }}><summary className="muted small">What makes it good</summary><RichText text={c.rubric} /></details>}
-      </section>
-    );
+    return <ProjectItem item={item} submission={submission} onSubmission={onSubmission} />;
   }
   if (item.type === "video") {
     return <VideoItem item={item} solved={solved} onSolved={onSolved} />;
   }
   return <ExerciseItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} question={null} />;
 }
+
+// A project is the one item a learner hands in rather than answers. It stays
+// editable while it is a draft, freezes the moment it is handed in, and shows
+// the guide's response when it comes back. The AI's draft of that response is
+// never sent here: only what the guide wrote or approved.
+function ProjectItem({ item, submission, onSubmission }: {
+  item: ItemNode;
+  submission: Submission | null;
+  onSubmission: (sub: Submission) => void;
+}) {
+  const c = item.content || {};
+  const [text, setText] = useState(submission ? submission.body : "");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const status = submission ? submission.status : "draft";
+  const frozen = status === "submitted";
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+  useEffect(() => {
+    if (submission) setText(submission.body);
+  }, [submission?.item_id, submission?.status]);
+
+  async function save(submit: boolean) {
+    setBusy(true);
+    setMsg("");
+    try {
+      const d = await api<{ submission: Submission }>(`/api/learn/submissions/${item.id}`, {
+        method: "PUT",
+        body: { body: text, submit },
+      });
+      onSubmission(d.submission);
+      setMsg(submit ? "Handed in." : "Saved. Come back to it whenever you like.");
+    } catch (e) {
+      setMsg(niceError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="litem project">
+      <h2>🛠️ Project: {c.title}</h2>
+      <RichText text={c.description || ""} />
+      {c.rubric && (
+        <details style={{ marginTop: 8 }} open={!frozen && status === "draft"}>
+          <summary className="muted small">What makes it good</summary>
+          <RichText text={c.rubric} />
+        </details>
+      )}
+
+      {submission && submission.feedback && (
+        <div className="feedback selfcheck" role="status" style={{ marginTop: 14 }}>
+          <strong>From your guide{submission.outcome ? `: ${OUTCOME_LABEL[submission.outcome] || submission.outcome}` : ""}</strong>
+          <RichText text={submission.feedback} />
+        </div>
+      )}
+
+      <div style={{ marginTop: 14 }}>
+        <label className="muted small" htmlFor={`sub-${item.id}`}>
+          {frozen ? "What you handed in" : "Your write up"}
+        </label>
+        <textarea
+          id={`sub-${item.id}`}
+          className="input"
+          rows={8}
+          value={text}
+          readOnly={frozen}
+          placeholder="Describe what you made, how you made it, and what you would do differently."
+          onChange={(e) => setText(e.target.value)}
+          style={{ marginTop: 4 }}
+        />
+        <div className="row" style={{ marginTop: 8, alignItems: "center", gap: 10 }}>
+          {frozen ? (
+            <span className="tag">Handed in. Waiting for your guide.</span>
+          ) : (
+            <>
+              <button className="btn" type="button" disabled={busy} onClick={() => save(false)}>
+                Save draft
+              </button>
+              <button className="btn primary" type="button" disabled={busy || !text.trim()} onClick={() => save(true)}>
+                {status === "returned" ? "Hand in again" : "Hand it in"}
+              </button>
+            </>
+          )}
+          <span className="grow" />
+          <span className="muted small">{words} {words === 1 ? "word" : "words"}</span>
+        </div>
+        {msg && <p className="small" role="status" style={{ marginTop: 6 }}>{msg}</p>}
+      </div>
+    </section>
+  );
+}
+
+const OUTCOME_LABEL: Record<string, string> = {
+  not_yet: "not yet",
+  nearly: "nearly there",
+  met: "met",
+  exceptional: "exceptional",
+};
 
 function VideoItem({ item, solved, onSolved }: {
   item: ItemNode; solved: Record<string, boolean>; onSolved: (key: string, correct: boolean | null) => void;

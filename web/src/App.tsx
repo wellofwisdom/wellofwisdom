@@ -26,6 +26,7 @@ import type { CourseSummary } from "./types";
 import { go, routeFromLocation, ROUTE_EVENT } from "./router";
 import { PublicGallery, PublicCourse } from "./pages/PublicCourse";
 import TutorLog from "./pages/TutorLog";
+import Work from "./pages/Work";
 import Join from "./pages/Join";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
 
@@ -171,6 +172,7 @@ export default function App() {
       {detailMatch && <CourseDetail me={me!} courseId={Number(detailMatch[1])} onNavigate={navigate} />}
       {route === "records" && <Progress />}
       {route === "tutor" && <TutorLog me={me!} />}
+      {route === "work" && <Work />}
       {route === "plans" && <Plans onNavigate={navigate} />}
       {route === "notes" && <Notes />}
       {route === "library" && <Library />}

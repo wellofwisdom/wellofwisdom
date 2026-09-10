@@ -15,6 +15,10 @@ const DEFAULT_ROUTES = {
   tutor: "flash",
   hint: "flash",
   grading: "flash",
+  // Reading a whole piece of work against a rubric is a quality job, not a
+  // quick one, so it sits on the pro tier. Override with AI_ROUTES if your
+  // instance runs one model.
+  rubric: "pro",
   translate: "flash",
 };
 
