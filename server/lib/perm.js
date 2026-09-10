@@ -55,6 +55,11 @@ const ACTIONS = {
   create_learner: ["owner", "guide"],
   delete_learner: ["owner"],
   grade: ["owner", "guide", "assistant"],
+  // Marking a day of instruction is a teaching record, so a tutor may do it for
+  // their own student. Deciding what the family has to FILE is not: that is the
+  // person answerable for it.
+  record_attendance: ["owner", "guide", "assistant"],
+  set_compliance: ["owner", "guide"],
   build_world: ["owner", "guide", "assistant"],
   grant_reward: ["owner", "guide"],
   set_tutor_mode: ["owner", "guide"],

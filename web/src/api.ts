@@ -81,6 +81,8 @@ const NICE: Record<string, string> = {
   not_an_upload: "Questions can only be drafted from a video uploaded here. An embedded video hands us no transcript.",
   no_captions: "This video has no captions yet. Generate or upload a caption track first, in the Videos panel.",
   nothing_drafted: "Nothing usable came back. Try again, or write the questions yourself.",
+  day_invalid: "That is not a date this can record.",
+  learner_not_found: "That learner is not in this group.",
 };
 
 export function niceError(err: unknown): string {
