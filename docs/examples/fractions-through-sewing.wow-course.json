@@ -1,0 +1,97 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Fractions Through Sewing",
+  "topic": "Fractions: halves, quarters, eighths and joining them",
+  "lens": "sewing",
+  "gradeLevel": 5,
+  "description": "Lens course only this app would make. Every fraction is a piece of fabric. Cut, measure, and join: halves, quarters, and eighths on the cutting mat, with seam allowance you can measure.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "The cutting mat",
+      "lessons": [
+        {
+          "title": "Halves and quarters on the mat",
+          "summary": "A yard is the whole. Cut it into equal pieces and name what you have.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "A yard is the whole",
+                "body": "On a cutting mat a yard of fabric is the whole, that is $1$. Cut it with one straight cut down the middle and each piece is one half, written $\\frac{1}{2}$. Cut each half again and you have quarters, $\\frac{1}{4}$. Quarters are smaller than halves because the same yard is cut into more pieces.\n\n- $1$ yard cut into $2$ is halves: $\\frac{1}{2}$, $\\frac{1}{2}$\n- $1$ yard cut into $4$ is quarters: $\\frac{1}{4}$ four times\n- $\\frac{2}{4}$ is the same length as $\\frac{1}{2}$"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which piece is longer, one half yard or one quarter yard?",
+                "choices": [
+                  { "id": "c1", "text": "One half yard" },
+                  { "id": "c2", "text": "One quarter yard" },
+                  { "id": "c3", "text": "They are the same" }
+                ],
+                "answer": "c1",
+                "explanation": "A half is one of two pieces, a quarter is one of four. Two pieces make bigger pieces than four, so one half yard is longer.",
+                "hint": "Cut the same yard two ways. Which makes bigger pieces?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "How many quarter-yard pieces make a whole yard?",
+                "answer": 4,
+                "explanation": "Four quarters make a whole: $4 \\times \\frac{1}{4} = 1$.",
+                "hint": "Stack quarters until you reach a yard."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Seam allowance",
+          "summary": "Measure what the seam takes and what is left to show.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "What the seam allowance eats",
+                "body": "A pattern says: cut $\\frac{3}{8}$ yard, seam allowance $\\frac{1}{8}$ yard, finished piece $\\frac{1}{4}$ yard. That checks out because $\\frac{3}{8} - \\frac{1}{8} = \\frac{2}{8}$ and $\\frac{2}{8} = \\frac{1}{4}$. The seam takes one eighth, a quarter stays visible.\n\n- Finished length = cut length minus seam allowance\n- $\\frac{2}{8}$ renamed as eighths is still $\\frac{2}{8}$, which is $\\frac{1}{4}$"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "You cut $\\frac{5}{8}$ yard and the seam allowance is $\\frac{1}{8}$ yard. How much is left to show, as eighths? Give the numerator.",
+                "answer": 4,
+                "explanation": "$\\frac{5}{8} - \\frac{1}{8} = \\frac{4}{8}$.",
+                "hint": "Same denominator, subtract the tops."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Explain why $\\frac{2}{4}$ of a yard and $\\frac{4}{8}$ of a yard are the same length, using the mat.",
+                "answer": "Cut a yard into 4 and take 2 pieces, or cut a yard into 8 and take 4. Both cover half a yard, because 2 out of 4 and 4 out of 8 are each one half.",
+                "explanation": "Any answer that names both as one half is right."
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Measure the mat",
+                "description": "Take a paper strip for a yard. Mark halves, then quarters, then eighths, each in a different colour. Lay a ruler beside it and cut paper pieces $\\frac{1}{2}$, $\\frac{1}{4}$, $\\frac{3}{8}$ and $\\frac{5}{8}$ yard. Tape them to a page and label each with its fraction and one sentence about what you kept seeing.",
+                "rubric": "- Halves, quarters and eighths are evenly spaced and coloured\n- Four pieces cut to length and labelled\n- One sentence compares two pieces correctly"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

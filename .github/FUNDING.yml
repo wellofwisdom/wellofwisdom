@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# GitHub Sponsors button for the repo. Single owner entry keeps the button live
+# from day one. Parents who prefer Ko-fi can find it in the README and site.
+# Replace with your real handles before launch, or the button points nowhere.
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+
+github: wellofwisdom
+# ko_fi: wellofwisdom  # uncomment when Ko-fi is live
+# custom: https://wellofwisdom.app/#pricing  # hosted waitlist / sponsorship page
+

@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import type { CourseSummary, Me } from "../types";
 import { isDark, setMode } from "../theme";
 import Palette from "./Palette";
+import DemoBanner from "./DemoBanner";
 import {
   IconHome, IconUsers, IconBook, IconClipboard, IconSettings,
   IconSun, IconMoon, IconMenu, IconX, IconLogout, IconSparkle,
@@ -204,7 +205,10 @@ export default function Shell({
             </button>
           </div>
         </header>
-        <main className="page">{children}</main>
+        <main className="page">
+          <DemoBanner />
+          {children}
+        </main>
       </div>
 
       <Palette courses={courses} onNavigate={onNavigate} onToggleTheme={toggleTheme} />

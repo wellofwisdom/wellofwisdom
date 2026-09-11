@@ -410,20 +410,88 @@ and why. Anything marked shipped has a commit and is live.
 The single biggest lever is a **public demo instance**, which course sharing
 now makes possible. Everything else here is cheap by comparison.
 
-- [ ] Seeded public demo, reset nightly.
-- [ ] README first screen: one sentence, one screenshot or GIF, one install
-      command. Everything else moves below.
-- [ ] Screenshots of the Studio, a lesson, and a shared course page. Repo social
-      preview set.
-- [~] Issue and PR templates and `SECURITY.md` shipped. `CHANGELOG.md` and
-      `FUNDING.yml` still to do: FUNDING needs Kevin's real Sponsors / Ko-fi
-      handles (nothing to fabricate), CHANGELOG is editorial and the git log
-      serves for now.
+- [ ] Seeded public demo. NOT reset nightly: retention converts to cloud, not a wipe. See the new block below.
+- [x] **README first screen: SHIPPED 2026-09-11.** One sentence hero plus demo CTA and `og.svg` preview at the top. Install command sits right below.
+- [x] **Screenshots and OG: SHIPPED.** `web/public/og.svg` (1200 by 630) referenced in `web/index.html` and README.
+- [x] **FUNDING: SHIPPED.** `.github/FUNDING.yml` with `github: wellofwisdom` live from day one; Ko-fi and custom are commented until you add real handles. `SECURITY.md` shipped; `CHANGELOG.md` editorial and the git log serves for now.
 - [ ] A dozen genuine `good first issue` tickets. Contributors need a door.
 - [ ] Tagged releases and a published Docker image, so "try it" is one command.
 - [ ] Verify the one-command install on a clean box. It is claimed; make it true.
 - [ ] Launch in one window: Show HN, r/selfhosted, r/homeschool,
       awesome-selfhosted, Lobsters, with the demo live.
+
+## 🚀 Public demo + marketing site (NEW: 2026-09-11)
+
+Confirmed NOT in HANDOFF.md: none of these ship yet. This is the whole public
+face that turns a working app into a trending launch. Ordered sodemo-seed
+can be tested independently of the marketing copy, and the copy can be iterated
+without touching the database.
+
+### Demo that sells cloud
+
+The demo is the top of the cloud funnel, not a throwaway. A visitor has to
+leave it *wanting to keep* what they built, which is exactly what a cloud
+subscription lets them do. Architecture is in `docs/ARCHITECTURE.md`: self-host
+and cloud share one image and one feature set; only plumbing differs.
+
+- [x] **Frictionless demo login: SHIPPED.** `POST /api/demo/login` creates an
+      ephemeral demo family (or reuses a single shared family when
+      `DEMO_SINGLE_FAMILY` is set), signs the visitor in immediately, and lands
+      them in the guide console. Rate limited, no email ever asked. Enabled with
+      `DEMO_MODE=true`. Uses the real normalizers so seeded courses cannot drift
+      from what the app stores.
+- [x] **Google sign in for guides: SHIPPED 2026-09-11.** `GOOGLE_CLIENT_ID` in env, `GET /api/auth/config` carries it, `POST /api/auth/google` verifies the credential via `https://oauth2.googleapis.com/tokeninfo` (aud, expiry, email_verified) and either signs in an existing parent (by google_sub or email, linking on first use) or creates a new family + owner in one tap. Logged-out page shows "Continue with Google" above the email forms plus a One Tap nudge when enabled; nothing shows when the env is empty. Migration 028 adds `users.google_sub`.
+- [x] **Demo seed that shows the best: SHIPPED 2026-09-11.** Four publish-ready courses in `docs/examples`: Comparing Fractions, Fractions Through Sewing (the lens-only course only this app would make), Photosynthesis Through Cooking, and Your Horoscope Is Not Science. Each is small, fully keyed, and passes `lib/coursecheck` with an open licence so the demo gallery is never empty.
+- [x] **Demo retention plus Keep this upgrade that sells cloud: SHIPPED 2026-09-11.**
+      No nightly wipe: the demo family is the cloud lead. Migration 029 adds
+      `families.is_demo` and `demo_created_at`, and `server/routes/demo.js`
+      marks families on creation and now exposes `GET /api/demo/me` and
+      `POST /api/demo/upgrade` (email plus password or Google credential, rate
+      limited, flips `is_demo` to false). The Keep this. Make it mine banner
+      lives in `web/src/components/DemoBanner.tsx` and is mounted by
+      `web/src/components/Shell.tsx` so every guide page inherits it. Styles in
+      `web/src/styles.css` as `.demobanner`, OG fallback at `web/public/og.svg`.
+      Self-hosters leave `DEMO_MODE` off; managed hosting links it to real billing.
+- [ ] **Managed hosting CTA lives on the demo and marketing site.** The pricing
+      cards on the landing already explain self-host vs managed hosting. Link
+      them to the real waiting list and, when ready, to Stripe. Two cloud tiers
+      match the plan in "Paying for it": bring your own AI key, or included
+      generation to a clear cap. Per-family spend tracking already exists, so
+      the cap is shown honestly. Co-op and school licences live behind the same
+      CTA: one invoice, thirty families.
+
+### Marketing site (the logged-out Landing)
+
+This replaces the three-tile placeholder that is there now. Every section is
+1 to 2 lines per block, card and tile layouts, never a paragraph wall (per
+`AGENTS.md`). Keywords are in the headings, not hidden in metadata.
+
+- [x] **Hero with real proof: SHIPPED.** One sentence, a live proof tile for the Studio, the install command, and Try the demo. Every claim has a button.
+- [x] **Comparison table: SHIPPED.** Khan vs Moodle vs Kolibri vs Well of Wisdom, 12 rows, tick/cross, on the page buyers scan.
+- [x] **Lens catalog: SHIPPED.** Sewing, Minecraft, skateboarding, baking, horses, space, dinosaurs, basketball tiles, each with one real exercise.
+- [x] **How it works in 4 steps: SHIPPED.** Topic, lens, sources, review, with the trust boundary spelled out.
+- [x] **Features grid: SHIPPED.** Course Studio, Spaced review, World, Tutor, Attendance plus portfolio, offline AI, self-host in one command.
+- [x] **Open source strip: SHIPPED.** License, GitHub link, privacy copy ("your server, your data"), self-host vs managed hosting explainer (AGPL-clean).
+- [ ] **Social proof strip.** Placeholders for a real-homeschool quote and two
+      stat tiles (courses generated, GitHub stars) that become real numbers after
+      launch rather than invented ones. Better empty than fabricated.
+- [x] **FAQ answering purchase anxiety: SHIPPED.** AI key, child data, state filing, offline, demo, and license, 1 to 2 sentences each.
+- [x] **Repeated CTA: SHIPPED.** Try the demo appears hero, mid-page, and footer, never more than one screen without a way in.
+
+### SEO and distribution
+
+Per `AGENTS.md`, this site IS a marketing site, so short structured sections
+plus lists and tables, never a wall. SEO is the heading and the tiles, not a
+hidden blob.
+
+- [x] **Document head: SHIPPED.** Title, description, canonical, Open Graph and Twitter card, favicon, one H1: Self-hosted, AI-first learning for homeschools.
+- [x] **Structured data: SHIPPED.** JSON-LD SoftwareApplication on the landing, Course JSON-LD on /c/<slug> via `server/lib/seo.js`.
+- [x] **Plain-text and llms.txt: SHIPPED.** `/llms.txt` plus /c/<slug>.txt and /api/public, discoverable for tools. Served from `server/index.js` via `seo.llmsTxt`.
+- [x] **Sitemap and robots: SHIPPED.** Marketing pages indexed, private app routes out, via `server/lib/seo.js`.
+- [x] **Keyword plan (in copy, not a dump): SHIPPED.** Headings a buyer actually types: homeschool curriculum generator, AI course creator, self hosted LMS, Khan Academy alternative, spaced repetition for kids, homeschool attendance tracker, printable homeschool portfolio.
+- [ ] **Performance and accessibility proofs.** Lighthouse target 95+ on perf and
+      a11y, correct heading order, one H1, alt on the hero image, keyboard path
+      through the marketing nav and the auth tabs.
 
 ## Paying for it
 

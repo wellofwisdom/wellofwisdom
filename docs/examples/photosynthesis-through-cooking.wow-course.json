@@ -1,0 +1,92 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Photosynthesis Through Cooking",
+  "topic": "Photosynthesis: what plants make and why we taste it",
+  "lens": "cooking",
+  "gradeLevel": 5,
+  "description": "See photosynthesis in the kitchen: starch you can boil, sugars you can brown, and leaves that are chemical factories. A short course that starts at the leaf and ends on the plate.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "The kitchen leaf",
+      "lessons": [
+        {
+          "title": "What a leaf builds",
+          "summary": "Sunlight, water, carbon dioxide in, sugar and oxygen out.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "A leaf as a tiny kitchen",
+                "body": "A leaf takes three things every day: light, water, and carbon dioxide from the air. With light’s help it builds sugar. The leftover is oxygen, which drifts away. That chemical turn is called photosynthesis. The sugar later becomes starch, the long string of sugar a potato or a grain of rice stores for you to cook.\n\n- Inputs: $\\text{CO}_2$ plus $\\text{H}_2\\text{O}$ plus light\n- Output: sugar plus $\\text{O}_2$\n- Starch = many sugars linked together"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What waste gas does a leaf let go while it makes sugar?",
+                "choices": [
+                  { "id": "c1", "text": "Oxygen" },
+                  { "id": "c2", "text": "Carbon dioxide" },
+                  { "id": "c3", "text": "Hydrogen" }
+                ],
+                "answer": "c1",
+                "explanation": "The leaf uses carbon dioxide and water to make sugar. Oxygen is the by product it does not keep.",
+                "hint": "Which gas drifts away at the end of photosynthesis?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Use the kitchen picture: why does a potato taste milder than sugar but still sweeten a little when you chew it a long time?",
+                "answer": "Potato stores starch, many sugars joined. Chewing with amylase in the mouth slowly breaks the chain, freeing single sugars that taste sweet.",
+                "explanation": "Any answer that says starch is many sugars joined and chewing frees some is right."
+              }
+            }
+          ]
+        },
+        {
+          "title": "From sugar to plate",
+          "summary": "Follow sugar from leaf to starch to your tongue.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Brown the sugar",
+                "body": "Heat sugar past about $160 ^\\circ\\text{C}$ and it browns. That brown is new molecules made when sugar breaks and rejoins, the caramel crust on creme brulee or the edge of bread. Starch does it too: toast browns because the flour’s starch first splits to sugars, then those sugars brown. No browning happens at a boil because water never gets hot enough.\n\n- Below $100 ^\\circ\\text{C}$: boil, no browning\n- Near $160 ^\\circ\\text{C}$: caramelize\n- A leaf’s sugar is where the kitchen chain starts"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why does boiled sugar syrup stay clear while toast turns brown?",
+                "choices": [
+                  { "id": "c1", "text": "Boiled syrup never reaches browning temperature" },
+                  { "id": "c2", "text": "Syrup has no sugar" },
+                  { "id": "c3", "text": "Toast is not starch" }
+                ],
+                "answer": "c1",
+                "explanation": "Water boils at 100 degrees C, well below the 160 degrees C where sugars brown, so syrup stays clear.",
+                "hint": "How hot does boiling water get?"
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Taste the starch chain",
+                "description": "Chew a plain cracker for 20 seconds without swallowing. Note the sweet shift. Then toast a new cracker to light brown and taste again. Write three lines: what the leaf built, what heat did, what your mouth did.",
+                "rubric": "- Names photosynthesis as sugar built from water, CO2 and light\n- Distinguishes boiling vs browning by temperature\n- Describes starch breaking to sugars in the mouth"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

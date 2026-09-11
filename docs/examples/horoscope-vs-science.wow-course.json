@@ -1,0 +1,92 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Your Horoscope Is Not Science",
+  "topic": "How to tell science from not-science: testability and evidence",
+  "lens": null,
+  "gradeLevel": 7,
+  "description": "A short, kind course that uses horoscopes to teach what makes a claim testable. No ridicule, just the rules for evidence a learner can use anywhere.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "What counts as science?",
+      "lessons": [
+        {
+          "title": "A claim you can check",
+          "summary": "Science starts with a claim a test could prove wrong.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Testable beats interesting",
+                "body": "A horoscope says Thursday will bring good luck to Cancers. That is hard to pin down: today’s luck looks like many things, and who counts all the misses? A testable claim is sharper: Cancers born under the same stars will make the same choice more often than chance. Now you can count: give two groups the same puzzle, tally who picks which door, compare to 50 percent. If the numbers do not beat a coin, the claim fails.\n\n- Testable tells you how to lose: the count that would prove it wrong\n- Untestable never risks losing: it can mean almost anything\n- More testable, more scientific"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which claim is testable in a counting experiment?",
+                "choices": [
+                  { "id": "c1", "text": "Cancers pick the left door more often than chance" },
+                  { "id": "c2", "text": "Cancers have a mysterious energy" },
+                  { "id": "c3", "text": "Cancers are special" }
+                ],
+                "answer": "c1",
+                "explanation": "A test can count door picks versus chance. Mysterious energy and special have no counting rule, so they dodge a test.",
+                "hint": "Which one tells you what to count?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In two lines, say how you would count horoscopes right: who is in each group, what is tallied, and what number would count as proof.",
+                "answer": "Pick Cancers and non-Cancers at random, give the same puzzle, tally one binary outcome. If Cancers beat 50 percent by more than chance over enough trials, count it as evidence.",
+                "explanation": "Any answer that names a comparison group, a binary tally, and a chance baseline is right."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Stories versus counts",
+          "summary": "A striking story is not a count. Evidence is a count that was gathered on purpose.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The file of hits",
+                "body": "People remember hits and discard misses. Horoscopes exploit that: a reader finds one fitting sentence in a vague paragraph and calls it a hit, forgetting the three sentences that did not fit. Science keeps the whole file: every trial, hit and miss, written before the result is known. A claim without that file is a story; with that file it is evidence. The same rule protects you from a bad study as much as from a horoscope.\n\n- Availability bias: hits feel heavier than misses\n- Counter: decide the tally rule before you look\n- A good experiment writes the whole file"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which mistake makes a horoscope feel right?",
+                "choices": [
+                  { "id": "c1", "text": "Remembering hits and forgetting misses" },
+                  { "id": "c2", "text": "Writing the claim down clearly" },
+                  { "id": "c3", "text": "Counting every trial" }
+                ],
+                "answer": "c1",
+                "explanation": "Hits stick in memory; misses vanish. A full count fixes that by keeping both.",
+                "hint": "Which one keeps only half the data?"
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Count your own horoscope",
+                "description": "Copy today’s horoscope for one sign. Write three sentences you will check tomorrow that would count as hits, plus two misses you will also count. Tomorrow, tally honestly and write whether the sign beat chance. End with one sentence about whether this felt like science or a story.",
+                "rubric": "- Three checkable hit sentences plus two misses named ahead of time\n- Honest tally written, with whether it beat chance\n- A final sentence judges by the count, not by a feeling"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

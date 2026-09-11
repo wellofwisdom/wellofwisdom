@@ -370,14 +370,115 @@ a:hover { text-decoration: underline; }
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
-/* ---------- landing (logged out) ---------- */
+/* ---------- landing (logged out) marketing site ---------- */
 
+.marketing { min-height: 100vh; display: flex; flex-direction: column; }
+.mnav {
+  display: flex; align-items: center; gap: 14px; padding: 12px 18px;
+  border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--panel) 88%, transparent);
+  backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 30;
+}
+.mbrand { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: inherit; text-decoration: none; }
+.mnut { font-size: 22px; }
+.mnavlinks { display: flex; gap: 14px; margin-left: 18px; flex-wrap: wrap; }
+.mnavlinks a { color: var(--muted); font-size: 13.5px; font-weight: 600; }
+.mnavlinks a:hover { color: var(--text); text-decoration: none; }
+.mnavcta { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+.mhero { padding: 28px 18px 14px; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--panel) 60%, transparent); }
+.mheroInner { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 0.85fr; gap: 20px; align-items: center; }
+.meyebrow { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin: 0 0 8px; }
+.mhero h1 { font-size: 36px; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 10px; }
+.mlead { color: var(--muted); font-size: 16px; line-height: 1.6; margin: 0 0 16px; max-width: 620px; }
+.mctaRow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.mtrust { color: var(--muted); font-size: 12.5px; margin: 12px 0 10px; }
+.mkwds { display: flex; gap: 8px; flex-wrap: wrap; }
+.kwd { font-size: 11.5px; color: var(--muted); border: 1px solid var(--border); background: var(--panel-2); border-radius: 999px; padding: 3px 10px; }
+.mheroCard { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+.mheroMockHead { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--panel-2); }
+.mdot { width: 9px; height: 9px; border-radius: 50%; background: var(--border); display: inline-block; }
+.mmockTitle { margin-left: 8px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.mmockBody { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.mmockSteps { display: flex; flex-direction: column; gap: 6px; }
+.mmockStep { font-size: 12.5px; color: var(--muted); background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 6px 10px; }
+.mmockStep.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.mmockCourse { border: 1px dashed var(--border); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.mmockLens { background: var(--accent-soft); color: var(--accent); border-radius: 12px; padding: 10px 12px; font-size: 13px; font-style: italic; border: 1px solid var(--border); }
+
+.msection { max-width: 1120px; margin: 0 auto; padding: 28px 18px; width: 100%; }
+.msection.alt { background: color-mix(in srgb, var(--panel) 55%, transparent); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); max-width: none; }
+.msection.alt .mhead, .msection.alt .mgrid, .msection.alt .compareWrap, .msection.alt .steps, .msection.alt .lensGrid, .msection.alt .faq { max-width: 1120px; margin-left: auto; margin-right: auto; }
+.mhead { text-align: center; margin-bottom: 16px; }
+.mhead h2 { font-size: 24px; margin: 0 0 6px; }
+.mgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.mgrid.two { grid-template-columns: repeat(2, 1fr); max-width: 820px; margin: 0 auto; }
+.mgrid.three { grid-template-columns: repeat(3, 1fr); }
+.mcard { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+.mcard.small { padding: 14px; }
+.mico { font-size: 22px; margin-bottom: 6px; }
+.mcard h3 { font-size: 15px; margin: 0 0 6px; }
+.mcard p { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin: 0 0 6px; }
+.mnote { font-size: 11.5px; color: var(--muted); font-style: italic; }
+.mprice { font-weight: 800; font-size: 16px; color: var(--accent); }
+.mcard.price ul { margin: 8px 0 14px 16px; font-size: 13.5px; color: var(--muted); }
+.mcard.price li { margin-bottom: 4px; }
+.mcard.price.hi { border-color: var(--accent); }
+
+.lensGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lensTile { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+.lensTile strong { font-size: 14px; }
+.lensTile span { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.steps li { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 14px; display: flex; gap: 10px; align-items: flex-start; }
+.snum { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-contrast); display: grid; place-items: center; font-weight: 800; flex: none; }
+.steps strong { display: block; font-size: 14px; }
+.steps span { font-size: 12.5px; color: var(--muted); }
+
+.compareWrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); }
+.compare { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
+.compare th, .compare td { padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.compare thead th { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.compare tbody th { font-weight: 600; color: var(--muted); background: var(--panel-2); }
+.compare .hi { background: var(--accent-soft); font-weight: 700; }
+.compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: none; }
+
+.faq { max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.faq details { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.faq summary { font-weight: 700; cursor: pointer; font-size: 14px; }
+.faq p { margin: 8px 0 0; font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+
+.mctaBand { margin: 10px 18px 0; background: var(--accent-soft); border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; max-width: 1120px; align-self: center; width: calc(100% - 36px); }
+.mctaBand h2 { font-size: 18px; margin: 0 0 4px; }
+
+.authAnchor { padding: 28px 18px 10px; border-top: 1px solid var(--border); }
+.authShell { max-width: 820px; margin: 0 auto; display: grid; grid-template-columns: 1fr 420px; gap: 18px; align-items: start; }
+.authIntro h2 { font-size: 20px; margin: 0 0 6px; }
+.authcard { width: 100%; max-width: 420px; }
+
+.mfoot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 16px 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12.5px; }
+.mfoot a { color: var(--muted); text-decoration: underline; }
+
+/* Legacy centered landing when auth is the whole page (still used if JS hides hero) */
 .landing { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 16px; gap: 0; }
 .landing .nutbig { font-size: 56px; margin-bottom: 8px; }
 .landing h1 { font-size: 34px; margin-bottom: 8px; text-align: center; }
 .landing .tag { color: var(--muted); font-size: 16px; text-align: center; max-width: 460px; margin-bottom: 28px; }
-.authcard { width: 100%; max-width: 400px; }
 .landing .foot { margin-top: 26px; font-size: 12.5px; color: var(--muted); text-align: center; }
+
+@media (max-width: 980px) {
+  .mheroInner { grid-template-columns: 1fr; }
+  .mgrid { grid-template-columns: repeat(2, 1fr); }
+  .mgrid.three { grid-template-columns: 1fr; }
+  .lensGrid { grid-template-columns: repeat(2, 1fr); }
+  .steps { grid-template-columns: 1fr 1fr; }
+  .authShell { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .mnavlinks { display: none; }
+  .mgrid, .mgrid.two, .lensGrid, .steps { grid-template-columns: 1fr; }
+  .mhero h1 { font-size: 28px; }
+}
 
 /* ---------- learner space (kids) ---------- */
 
@@ -1345,3 +1446,14 @@ code.k {
 :root[data-leading="roomy"] .litem, :root[data-leading="airy"] .litem {
   line-height: var(--leading);
 }
+
+/* ---------- demo banner: Keep this sells cloud ---------- */
+.demobanner {
+  display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  background: linear-gradient(135deg, var(--accent-soft), var(--panel));
+  border: 1px solid var(--border); border-bottom-color: var(--accent);
+  border-radius: 14px; padding: 12px 16px; margin: 0 0 16px;
+  box-shadow: var(--shadow);
+}
+.demobannerLeft { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.demobannerActions { margin-left: auto; display: flex; align-items: center; }

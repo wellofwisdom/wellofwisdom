@@ -101,8 +101,10 @@ function injectHead(html, headBlock) {
 function robotsTxt(base) {
   return [
     "User-agent: *",
+    "Allow: /",
     "Allow: /c/",
     "Allow: /api/public/",
+    "Allow: /llms.txt",
     "Disallow: /api/",
     "Disallow: /join",
     "Disallow: /learners",
@@ -123,6 +125,7 @@ async function sitemapXml(base) {
       where published_at is not null order by published_at desc limit 5000`
   ).catch(() => ({ rows: [] }));
   const urls = [
+    `<url><loc>${esc(base)}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
     `<url><loc>${esc(base)}/c</loc><changefreq>daily</changefreq></url>`,
     ...rows.map((r) =>
       `<url><loc>${esc(base)}/c/${esc(r.public_slug)}</loc>` +
@@ -132,4 +135,26 @@ async function sitemapXml(base) {
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`;
 }
 
-module.exports = { esc, origin, publishedMeta, courseHead, injectHead, robotsTxt, sitemapXml };
+function llmsTxt(base) {
+  return [
+    "# Well of Wisdom",
+    "",
+    "> Self-hosted, AI-first learning for homeschools, classrooms, co-ops, and self-learners.",
+    "> Generate courses through what learners love, with spaced repetition, gamified worlds, and state-ready portfolios.",
+    "",
+    `- Homepage: ${base}/`,
+    `- Shared courses gallery: ${base}/c`,
+    `- Plain-text courses (for research tools): ${base}/c/<slug>.txt`,
+    `- Course packages (portable JSON): ${base}/api/public/courses/<slug>/export`,
+    `- Public course list (JSON): ${base}/api/public/courses`,
+    `- Source: https://github.com/wellofwisdom/wellofwisdom`,
+    `- License: AGPL-3.0`,
+    "",
+    "## How to use the courses",
+    "",
+    "Each published course at /c/<slug> has a blank .txt sibling at /c/<slug>.txt with answer keys stripped, and a .wow-course.json download at /api/public/courses/<slug>/export. Import the JSON in any running Well of Wisdom at Courses then Import, or paste the /c/ URL.",
+    "",
+  ].join("\n");
+}
+
+module.exports = { esc, origin, publishedMeta, courseHead, injectHead, robotsTxt, sitemapXml, llmsTxt };

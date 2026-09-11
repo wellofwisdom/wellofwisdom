@@ -12,7 +12,12 @@ function bad(res, msg, code = 400) {
 
 // Public auth config for the signup form (does the server require an invite?).
 router.get("/config", (_req, res) => {
-  res.json({ inviteRequired: Boolean(process.env.SIGNUP_INVITE_CODE && process.env.SIGNUP_INVITE_CODE.trim()) });
+  const google = require("../lib/google");
+  res.json({
+    inviteRequired: Boolean(process.env.SIGNUP_INVITE_CODE && process.env.SIGNUP_INVITE_CODE.trim()),
+    googleEnabled: google.enabled(),
+    googleClientId: google.clientId(),
+  });
 });
 
 router.post("/signup", async (req, res, next) => {
@@ -166,6 +171,117 @@ router.post("/learner-login", async (req, res, next) => {
     const { token } = await auth.createSession(user.id);
     res.setHeader("set-cookie", auth.sessionCookie(token));
     res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Google credential login / signup.
+ * One endpoint, two outcomes:
+ *   - known google_sub or known email -> sign in, set google_sub on the row.
+ *   - unknown email -> create a new family + owner, set google_sub, sign in.
+ * Body: { credential: string, familyName?: string, inviteCode?: string }
+ * familyName is used only when creating a new family; inviteCode still applies
+ * when the server is invite-gated.
+ */
+router.post("/google", async (req, res, next) => {
+  try {
+    const { credential, familyName, inviteCode } = req.body || {};
+    const google = require("../lib/google");
+
+    const limit = auth.loginLimit(`${req.ip || "unknown"}:google`, { max: 20, windowMs: 10 * 60 * 1000 });
+    if (!limit.ok) return res.status(429).json({ error: "too_many_attempts", retryAfterSec: limit.retryAfterSec });
+
+    let info;
+    try {
+      info = await google.verifyCredential(credential);
+    } catch (err) {
+      const code = err && err.code ? err.code : "google_invalid_credential";
+      // Surface a friendly name when Google is not configured, so the button can hide itself.
+      if (code === "google_not_configured") return res.status(503).json({ error: code });
+      return res.status(401).json({ error: code });
+    }
+
+    const required = process.env.SIGNUP_INVITE_CODE && String(process.env.SIGNUP_INVITE_CODE).trim();
+    const needsNewFamily = async () => {
+      const bySub = await db.query("select id from users where google_sub = $1", [info.google_sub]);
+      if (bySub.rowCount) return false;
+      const byEmail = await db.query("select id from users where email = $1", [info.email]);
+      if (byEmail.rowCount) return false;
+      return true;
+    };
+
+    // Invite gate applies to *new* families only. Signing in as an existing user is never invitation-gated.
+    if (required && (await needsNewFamily())) {
+      const inviteOk = String(inviteCode || "").trim().toUpperCase() === required.toUpperCase();
+      if (!inviteOk) return res.status(403).json({ error: "invite_invalid" });
+    }
+
+    // 1. By google_sub: straight sign in and refresh the link.
+    {
+      const { rows } = await db.query("select id from users where google_sub = $1", [info.google_sub]);
+      if (rows[0]) {
+        const uid = rows[0].id;
+        // Keep email/name fresh from the credential when the row still allows it.
+        await db.query("update users set email = coalesce(email,$2), name = case when length(trim(name))=0 then $3 else name end where id = $1", [uid, info.email, info.name.slice(0, 80)]).catch(() => {});
+        const { token } = await auth.createSession(uid);
+        res.setHeader("set-cookie", auth.sessionCookie(token));
+        return res.json({ ok: true, mode: "login" });
+      }
+    }
+
+    // 2. By email: link google_sub on first Google sign in, then sign in.
+    //    Password rows keep their password; google-only rows had none.
+    {
+      const { rows } = await db.query("select id, google_sub from users where email = $1 and role = 'parent'", [info.email]);
+      if (rows[0]) {
+        const uid = rows[0].id;
+        if (!rows[0].google_sub) {
+          await db.query("update users set google_sub = $1 where id = $2", [info.google_sub, uid])
+            .catch(async () => { /* race: another request linked first */ });
+        }
+        const { token } = await auth.createSession(uid);
+        res.setHeader("set-cookie", auth.sessionCookie(token));
+        return res.json({ ok: true, mode: "login" });
+      }
+    }
+
+    // 3. New family + owner. The family name can be "Foo Family" or "Foo's learners"; never blank.
+    const famName = String(familyName || "").trim().slice(0, 80) || `${info.name.split(" ")[0]} Family`;
+    let family;
+    for (let i = 0; i < 5; i++) {
+      try {
+        const inserted = await db.query(
+          "insert into families (name, join_code) values ($1,$2) returning id",
+          [famName, auth.newJoinCode()]
+        );
+        family = inserted.rows[0];
+        break;
+      } catch (err) {
+        if (i === 4 || !/join_code/.test(String(err.message || ""))) throw err;
+      }
+    }
+
+    // Dummy password hash so the row is not accidentally password-empty. Letter case matters: scrypt expects hex.
+    const dummyHash = `scrypt$${require("node:crypto").randomBytes(16).toString("hex")}$${require("node:crypto").randomBytes(32).toString("hex")}`;
+    const created = await db.query(
+      "insert into users (family_id, role, name, email, google_sub, password_hash) values ($1,'parent',$2,$3,$4,$5) returning id",
+      [family.id, info.name.slice(0, 80), info.email, info.google_sub, dummyHash]
+    );
+    // Older DBs may have no google_sub column yet: the migration adds it, but do not fail the signup if it is missing.
+    if (!created.rows[0]) {
+      const fallback = await db.query(
+        "insert into users (family_id, role, name, email, password_hash) values ($1,'parent',$2,$3,$4) returning id",
+        [family.id, info.name.slice(0, 80), info.email, dummyHash]
+      );
+      const { token } = await auth.createSession(fallback.rows[0].id);
+      res.setHeader("set-cookie", auth.sessionCookie(token));
+      return res.json({ ok: true, mode: "signup" });
+    }
+    const { token } = await auth.createSession(created.rows[0].id);
+    res.setHeader("set-cookie", auth.sessionCookie(token));
+    res.json({ ok: true, mode: "signup" });
   } catch (err) {
     next(err);
   }

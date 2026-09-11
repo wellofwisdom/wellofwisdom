@@ -2,14 +2,18 @@
 
 # 🌰 Well of Wisdom
 
-**Self-hosted, AI-first learning: a free, open-source platform for homeschools, classrooms, co-ops, and self-learners.**
+**Self-hosted, AI-first learning for homeschools, classrooms, and co-ops.**
 
-Plan a whole year. Generate courses through what you love. Remember everything.
+Catch any subject through what your child loves. Your server, your data.
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![CI](https://github.com/wellofwisdom/wellofwisdom/actions/workflows/ci.yml/badge.svg)](https://github.com/wellofwisdom/wellofwisdom/actions/workflows/ci.yml)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-green)](package.json)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+**Try the demo: [wellofwisdom.app](https://wellofwisdom.app) (no email, no invite). Or [self-host in one command](#quick-start).**
+
+![Well of Wisdom marketing and Course Studio preview](web/public/og.svg)
 
 </div>
 

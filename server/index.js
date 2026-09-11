@@ -65,6 +65,7 @@ app.get("/api/me", async (req, res) => {
   res.json({ user: me, learners: rows });
 });
 
+app.use("/api/demo", require("./routes/demo"));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/family", require("./routes/family"));
 app.use("/api/courses", require("./routes/courses"));
@@ -108,8 +109,8 @@ const distDir = path.join(__dirname, "..", "web", "dist");
 const staticDir = fs.existsSync(distDir) ? distDir : path.join(__dirname, "..", "public");
 app.use(express.static(staticDir));
 
-// Discovery surface for published courses. These are the only routes that
-// answer without a session besides /api/public and the static shell.
+// Discovery surface for published courses and for machines. These are the only
+// routes that answer without a session besides /api/public and the static shell.
 app.get("/robots.txt", (req, res) => {
   res.type("text/plain").send(seo.robotsTxt(seo.origin(req)));
 });
@@ -120,6 +121,12 @@ app.get("/sitemap.xml", async (req, res) => {
   } catch {
     res.type("application/xml").send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
   }
+});
+
+app.get("/llms.txt", (req, res) => {
+  res.type("text/plain; charset=utf-8");
+  res.set("Cache-Control", "public, max-age=3600");
+  res.send(seo.llmsTxt(seo.origin(req)));
 });
 
 // Plain-text course, the highest-signal thing to hand a research tool: no
