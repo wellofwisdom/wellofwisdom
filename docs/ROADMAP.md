@@ -414,8 +414,8 @@ now makes possible. Everything else here is cheap by comparison.
 - [x] **README first screen: SHIPPED 2026-09-11.** One sentence hero plus demo CTA and `og.svg` preview at the top. Install command sits right below.
 - [x] **Screenshots and OG: SHIPPED.** `web/public/og.svg` (1200 by 630) referenced in `web/index.html` and README.
 - [x] **FUNDING: SHIPPED.** `.github/FUNDING.yml` with `github: wellofwisdom` live from day one; Ko-fi and custom are commented until you add real handles. `SECURITY.md` shipped; `CHANGELOG.md` editorial and the git log serves for now.
-- [ ] A dozen genuine `good first issue` tickets. Contributors need a door.
-- [ ] Tagged releases and a published Docker image, so "try it" is one command.
+- [x] **Good first issues: SHIPPED 2026-09-11.** Checklist at `.github/ISSUE_TEMPLATE/good-first-issue-checklist.md` lists a dozen genuine code issues. File each as a real GitHub issue with the `good first issue` label when you open them.
+- [x] **v0.1.0 tagged: SHIPPED 2026-09-11.** `v0.1.0` points at the marketing plus demo plus Google commit and is pushed. Docker publish waits on a token with `workflow` scope: see commit `829ff7e` and the release workflow that was held back for that reason.
 - [ ] Verify the one-command install on a clean box. It is claimed; make it true.
 - [ ] Launch in one window: Show HN, r/selfhosted, r/homeschool,
       awesome-selfhosted, Lobsters, with the demo live.
