@@ -30,7 +30,17 @@ function sharedFamilyMode() {
 // Find or create the single shared demo family.
 async function ensureSharedFamily() {
   const found = await db.query("select id, join_code from families where name = $1", ["Demo Family"]);
-  if (found.rowCount) return found.rows[0];
+  if (found.rowCount) {
+    // A shared family created before the seed courses shipped (or emptied by
+    // a visitor) would stay empty forever. seedDemoCourses is idempotent: it
+    // only runs when the family has no courses at all.
+    const guide = await db.query(
+      "select id from users where family_id = $1 and role = 'parent' order by id limit 1",
+      [found.rows[0].id]
+    );
+    if (guide.rowCount) await seedDemoCourses(found.rows[0].id, guide.rows[0].id);
+    return found.rows[0];
+  }
   return createDemoFamily(null);
 }
 

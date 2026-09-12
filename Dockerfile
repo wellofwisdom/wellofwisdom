@@ -21,6 +21,9 @@ RUN npm ci --omit=dev
 COPY --from=build /app/web/dist web/dist
 COPY server server
 COPY public public
+# The demo seed imports these course packages at first login, so the gallery is
+# never empty. .dockerignore keeps the rest of docs out of the image.
+COPY --from=build /app/docs/examples docs/examples
 
 ENV NODE_ENV=production PORT=3000 UPLOAD_DIR=/app/data/uploads
 EXPOSE 3000
