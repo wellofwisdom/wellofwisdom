@@ -461,6 +461,26 @@ function MediaPanel() {
   );
 }
 
+function WaitlistPanel() {
+  const [rows, setRows] = useState<{ email: string; interest: string; note: string | null; source: string | null; created_at: string }[] | null>(null);
+  useEffect(() => {
+    api<{ entries: typeof rows }>("/api/waitlist").then((d) => setRows(d.entries as never)).catch(() => setRows([]));
+  }, []);
+  if (rows === null) return <p className="muted small">Loading…</p>;
+  if (!rows.length) return <p className="muted small">No signups yet. The form lives on the public site at #pricing.</p>;
+  return (
+    <>
+      <p className="hint" style={{ marginBottom: 8 }}>{rows.length} signed up</p>
+      {rows.slice(0, 50).map((r) => (
+        <div key={r.email} className="checkitem"><span className="t">{r.email} <span className="muted small">· {r.interest}</span></span><span className="muted small">{new Date(r.created_at).toLocaleDateString()}</span></div>
+      ))}
+      <div className="row" style={{ marginTop: 10 }}>
+        <a className="btn" href="/api/waitlist?format=csv">Download CSV</a>
+      </div>
+    </>
+  );
+}
+
 export default function Settings({ me }: { me: MeResponse }) {
   const user = me.user!;
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -519,6 +539,10 @@ export default function Settings({ me }: { me: MeResponse }) {
 
       <Panel title="AI usage" side="this family, this month">
         <AiUsage />
+      </Panel>
+
+      <Panel title="Waitlist" side="hosted signups">
+        <WaitlistPanel />
       </Panel>
 
       <Panel title="System" side="this server">

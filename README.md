@@ -83,9 +83,9 @@ instance: sharing between families needs no platform at all.
 
 ### 🔒 Yours
 Self-hosted in one Docker command. Works with any OpenAI-compatible AI,
-**Claude (Anthropic)**, or **fully local Ollama**, so nothing ever leaves your
-server if you don't want it to. AGPL-3.0. No accounts on our servers, no
-tracking, no ads.
+**Claude (Anthropic)**, **Gemini (Google)**, or **fully local Ollama**, so nothing
+ever leaves your server if you don't want it to. AGPL-3.0. No accounts on our
+servers, no tracking, no ads.
 
 ## Quick start
 
@@ -113,8 +113,9 @@ docker compose exec ollama ollama pull llama3.1
 ```
 
 Or point `AI_BASE_URL` at any OpenAI-compatible provider (DeepSeek, OpenAI, LM
-Studio, …) or use Claude: set `AI_PROVIDER=anthropic` + `AI_API_KEY=sk-ant-…`
-and pick `claude-sonnet-4-5` style models. See [`.env.example`](.env.example).
+Studio, …), use Claude (`AI_PROVIDER=anthropic` + `sk-ant-…` +
+`claude-sonnet-4-5`), or use Gemini (`AI_PROVIDER=gemini` + Google AI
+key + `gemini-2.0-flash`). See [`.env.example`](.env.example).
 No AI key? Templates, lessons, review, progress, reports, calendar, and email
 all still work.
 

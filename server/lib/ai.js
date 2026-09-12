@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Task-routed AI layer. Point AI_BASE_URL at ANY provider:
-// OpenAI-compatible (DeepSeek, OpenAI, Ollama, ...) OR Claude (Anthropic).
+// OpenAI-compatible (DeepSeek, OpenAI, Ollama, ...) OR Claude (Anthropic) OR Gemini (Google).
 // All features degrade gracefully when no endpoint is configured.
 const { fetchT } = require("./http");
 
@@ -38,29 +38,35 @@ function resolveRoute(task) {
 }
 
 // ---- provider detection ----
-// AI_PROVIDER=anthropic is explicit. Otherwise auto-detect: any base URL
-// containing api.anthropic.com is Anthropic. Everything else is OpenAI-compatible.
+// AI_PROVIDER=anthropic|gemini|openai is explicit. Otherwise auto-detect from base URL.
 function provider() {
   const explicit = String(process.env.AI_PROVIDER || "").trim().toLowerCase();
   if (explicit === "anthropic" || explicit === "claude") return "anthropic";
+  if (explicit === "gemini" || explicit === "google") return "gemini";
   if (explicit === "openai" || explicit === "openai-compatible" || explicit === "openai_compatible") return "openai";
   const base = String(process.env.AI_BASE_URL || "").toLowerCase();
   if (base.includes("api.anthropic.com")) return "anthropic";
+  if (base.includes("generativelanguage.googleapis.com") || base.includes("googleapis.com/generativelanguage")) return "gemini";
   return "openai";
 }
 
 function configured() {
-  if (provider() === "anthropic") {
+  const p = provider();
+  if (p === "anthropic" || p === "gemini") {
     return Boolean(process.env.AI_API_KEY && String(process.env.AI_API_KEY).trim());
   }
   return Boolean(process.env.AI_BASE_URL && String(process.env.AI_BASE_URL).trim());
 }
 
 function health() {
+  const p = provider();
+  let baseUrl = process.env.AI_BASE_URL || null;
+  if (p === "anthropic") baseUrl = "https://api.anthropic.com";
+  if (p === "gemini") baseUrl = "https://generativelanguage.googleapis.com";
   return {
     configured: configured(),
-    provider: provider(),
-    baseUrl: provider() === "anthropic" ? "https://api.anthropic.com" : (process.env.AI_BASE_URL || null),
+    provider: p,
+    baseUrl,
     routeSample: resolveRoute("course-gen"),
   };
 }
@@ -90,7 +96,7 @@ function logUsageTokens({ familyId, task, model, tokensIn, tokensOut, note }) {
  */
 async function chat(task, messages, opts = {}) {
   if (!configured()) {
-    const err = new Error("ai_not_configured: set AI_BASE_URL (OpenAI-compatible) or AI_PROVIDER=anthropic + AI_API_KEY (Claude). See .env.example");
+    const err = new Error("ai_not_configured: set AI_BASE_URL (OpenAI-compatible) or AI_PROVIDER=anthropic/gemini + AI_API_KEY. See .env.example");
     err.code = "ai_not_configured";
     throw err;
   }
@@ -100,17 +106,48 @@ async function chat(task, messages, opts = {}) {
     err.code = "ai_no_model";
     throw err;
   }
-  if (provider() === "anthropic") {
-    return chatViaAnthropic(task, messages, opts, model);
-  }
+  const p = provider();
+  if (p === "anthropic") return chatViaAnthropic(task, messages, opts, model);
+  if (p === "gemini") return chatViaGemini(task, messages, opts, model);
   return chatViaOpenAI(task, messages, opts, model);
+}
+
+async function chatViaGemini(task, messages, opts, model) {
+  const { chatGoogle } = require("./providers/google");
+  const baseUrl = String(process.env.AI_BASE_URL || "").trim() || "https://generativelanguage.googleapis.com";
+  const key = process.env.AI_API_KEY || "";
+  let effMessages = messages;
+  if (opts.json) {
+    effMessages = [...messages];
+    const last = effMessages[effMessages.length - 1];
+    if (last && last.role === "user" && typeof last.content === "string") {
+      effMessages[effMessages.length - 1] = { ...last, content: last.content + "\n\nReturn ONLY valid JSON, no fences, no commentary." };
+    }
+  }
+  let out = await chatGoogle({ baseUrl, apiKey: key, model, messages: effMessages, opts });
+  let ladder = 0;
+  while (out.finish === "length" && ladder < 1 && opts.maxTokens) {
+    ladder++;
+    const bigger = Math.min((opts.maxTokens || 4096) * 2, 8192);
+    out = await chatGoogle({ baseUrl, apiKey: key, model, messages: effMessages, opts: { ...opts, maxTokens: bigger } });
+  }
+  if (out.usage) {
+    logUsageTokens({
+      familyId: opts.usage && opts.usage.familyId,
+      task,
+      model: out.model || model,
+      tokensIn: out.usage.prompt_tokens,
+      tokensOut: out.usage.completion_tokens,
+      note: opts.usage && opts.usage.note,
+    });
+  }
+  return out;
 }
 
 async function chatViaAnthropic(task, messages, opts, model) {
   const { chatAnthropic } = require("./providers/anthropic");
   const baseUrl = String(process.env.AI_BASE_URL || "").trim() || "https://api.anthropic.com";
   const key = process.env.AI_API_KEY || "";
-  // For json tasks, nudge extractable JSON via prompt (Anthropic has no json_object mode).
   let effMessages = messages;
   if (opts.json) {
     effMessages = [...messages];
@@ -148,8 +185,6 @@ async function chatViaOpenAI(task, messages, opts, model) {
   };
   if (opts.json) body.response_format = { type: "json_object" };
 
-  // DeepSeek-style models can truncate (finish_reason=length) when reasoning
-  // eats the budget: ladder the token cap until the reply actually finishes.
   let res = await postOpenAI(body);
   let data = await readJson(res);
   let ladder = 0;
@@ -222,7 +257,6 @@ function tryParse(text) {
   } catch {
     /* fall through to object extraction */
   }
-  // Model wrapped the JSON in prose: grab the outermost object.
   const first = s.indexOf("{");
   const last = s.lastIndexOf("}");
   if (first >= 0 && last > first) {

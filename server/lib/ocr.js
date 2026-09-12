@@ -39,7 +39,7 @@ Rules:
 - Return ONLY the JSON, no fences, no commentary.`;
 
 // Extract raw worksheet text from an image buffer via the vision model.
-// Routes through ai.provider(): OpenAI-compatible vs Anthropic Claude.
+// Routes through ai.provider(): OpenAI-compatible vs Anthropic Claude vs Gemini.
 async function extractTextFromImage({ buffer, mime, familyId }) {
   if (!hasVision()) {
     const err = new Error("ocr_not_configured: set AI_VISION_MODEL to a vision-capable model on your provider (e.g. gpt-4o-mini, claude-sonnet, llava)");
@@ -65,11 +65,9 @@ async function extractTextFromImage({ buffer, mime, familyId }) {
     throw err;
   }
 
-  // Claude/Anthropic path: use the Anthropic vision shape (content blocks
-  // with base64 image source). Still goes via the AI key + provider logic.
-  if (ai.provider() === "anthropic") {
-    return extractViaAnthropic({ buffer, mime, model, familyId });
-  }
+  const p = ai.provider();
+  if (p === "anthropic") return extractViaAnthropic({ buffer, mime, model, familyId });
+  if (p === "gemini") return extractViaGemini({ buffer, mime, model, familyId });
   return extractViaOpenAI({ buffer, mime, model, familyId });
 }
 
@@ -145,6 +143,39 @@ async function extractViaAnthropic({ buffer, mime, model, familyId }) {
       log({ familyId, task: "worksheet-ocr", model, tokensIn: data.usage.input_tokens, tokensOut: data.usage.output_tokens, note: "ocr" });
     }
   } catch { /* accounting never breaks OCR */ }
+  return parsed.text.trim().slice(0, 12000);
+}
+
+async function extractViaGemini({ buffer, mime, model, familyId }) {
+  const { fetchT } = require("./http");
+  const base = String(process.env.AI_BASE_URL || "").trim() || "https://generativelanguage.googleapis.com";
+  const key = process.env.AI_API_KEY || "";
+  const url = `${base.replace(/\/$/, "")}/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+  const b64 = buffer.toString("base64");
+  const body = {
+    contents: [{
+      role: "user",
+      parts: [
+        { inlineData: { mimeType: mime || "image/jpeg", data: b64 } },
+        { text: OCR_SYSTEM + '\n\nTranscribe the worksheet. Return ONLY the JSON {"text":"..."}' },
+      ],
+    }],
+    generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
+  };
+  const res = await fetchT(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }, { timeoutMs: 90000, retries: 1 });
+  if (!res.ok) { const t = String(await res.text()).slice(0, 400); const e = new Error(`ocr_http_${res.status}: ${t}`); e.code = "ocr_failed"; throw e; }
+  const data = await res.json().catch(() => null);
+  const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts
+    ? data.candidates[0].content.parts.filter((p) => typeof p.text === "string").map((p) => p.text).join("") : "";
+  if (!text) { const e = new Error("ocr_empty_response"); e.code = "ocr_failed"; throw e; }
+  const parsed = tolerantParse(text);
+  if (!parsed || typeof parsed.text !== "string") { const e = new Error("ocr_bad_json"); e.code = "ocr_failed"; throw e; }
+  try {
+    if (data && data.usageMetadata && familyId) {
+      const log = require("./aiusage").logUsage;
+      log({ familyId, task: "worksheet-ocr", model, tokensIn: data.usageMetadata.promptTokenCount || 0, tokensOut: data.usageMetadata.candidatesTokenCount || 0, note: "ocr" });
+    }
+  } catch {}
   return parsed.text.trim().slice(0, 12000);
 }
 
