@@ -147,18 +147,12 @@ export default function Shell({
             <button
               type="button"
               className={`navlink${route === "settings" ? " on" : ""}`}
-              onClick={() => go("settings")}
+              onClick={() => { go("settings"); setSettingsOpen(!settingsOpen); }}
+              aria-expanded={settingsOpen}
             >
               <span className={`ic ${CHIPS.settings}`} aria-hidden="true"><IconSettings /></span>
               Settings
-              <span
-                className={`caret${settingsOpen ? " exp" : ""}`}
-                aria-label={settingsOpen ? "Collapse" : "Expand"}
-                role="button"
-                tabIndex={0}
-                onClick={(e) => { e.stopPropagation(); setSettingsOpen(!settingsOpen); }}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); setSettingsOpen(!settingsOpen); } }}
-              >
+              <span className={`caret${settingsOpen ? " exp" : ""}`} aria-hidden="true">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
               </span>
             </button>
@@ -205,7 +199,7 @@ export default function Shell({
             </button>
           </div>
         </header>
-        <main className="page">
+        <main className="page" id="main">
           <DemoBanner />
           {children}
         </main>

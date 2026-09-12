@@ -86,6 +86,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
 
       {demoError && <div className="formerror" role="alert" style={{ maxWidth: 980, margin: "10px auto 0", width: "calc(100% - 32px)" }}>{demoError}</div>}
 
+      <main id="main">
       <section className="mhero">
         <div className="mheroInner">
           <div className="mheroText">
@@ -489,6 +490,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
           </div>
         </div>
       </div>
+      </main>
 
       <footer className="mfoot">
         <div className="mfootMain">

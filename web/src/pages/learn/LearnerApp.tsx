@@ -84,6 +84,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
 
   return (
     <div className="kid">
+      <main id="main" className="kidmain">
       <div className="kidtop">
         <span className="chip">🌰 {me.familyName}</span>
         <button className="iconbtn" onClick={onLogout} aria-label="Sign out" title="Sign out" type="button">
@@ -181,6 +182,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
           })}
         </div>
       )}
+      </main>
     </div>
   );
 }
