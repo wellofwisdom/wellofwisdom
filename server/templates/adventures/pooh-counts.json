@@ -1,0 +1,28 @@
+{
+  "id": "pooh-counts",
+  "title": "Pooh's Honey Count",
+  "tagline": "A small bear, a big wood, and every pot counted once",
+  "description": "Pooh wakes hungry and the Hundred Acre Wood is already busy. A gentle counting adventure through Milne's wood where every pot, acorn, and paw print is counted, compared, and shared fairly.",
+  "worldPrompt": "An original, gentle adventure in A. A. Milne's Hundred Acre Wood (Winnie-the-Pooh 1926 and The House at Pooh Corner 1928, public domain). The learner helps Pooh, Piglet, Rabbit, Eeyore, Tigger, Owl, Kanga and Roo, and Christopher Robin count the wood's small treasures. Each chapter gates the counting unit: one-to-one counting to 20, comparing more and fewer, adding within 10, subtracting, and estimating. Characters are the canonical wood friends only, described from the books. Tone is warm, unhurried, and wry. Loot is wood-found things: honey pot, acorn, carrot, thistle.",
+  "gameType": "story",
+  "characters": [
+    { "name": "Pooh", "role": "self", "bio": "A bear of very little brain who is very good at liking honey. You walk beside him and count carefully, because he trusts you to." },
+    { "name": "Piglet", "role": "ally", "bio": "Small, brave, and meticulous. He lines things in neat rows so they can be counted one to one." },
+    { "name": "Rabbit", "role": "mentor", "bio": "Busy and orderly, keeps lists and rows. He teaches matching and more versus fewer." },
+    { "name": "Eeyore", "role": "ally", "bio": "Not hopeful, but observant. He notices when a pile is unchanged, which is how equal is proved." },
+    { "name": "Christopher Robin", "role": "mentor", "bio": "Knows how to count slowly, one touch, one number, and that the last number is how many." }
+  ],
+  "chapters": [
+    { "title": "The Row of Pots", "hook": "On the shelf, on the table, not yet anywhere twice." },
+    { "title": "Whose Pile Is Bigger?", "hook": "Match pot to pot and see what sticks out." },
+    { "title": "Together and Away", "hook": "Join a group, make more. Take away, see what is left." },
+    { "title": "Guessing Well", "hook": "Owl says about. Pooh counts and says exactly." }
+  ],
+  "loot": [
+    { "name": "Honey Pot", "description": "Pooh's pot, counted one to one. Chapter 1, the shelf.", "icon": "🍯", "rarity": "common" },
+    { "name": "Acorn String", "description": "Piglet's row of acorns, ten and three more. Chapter 1, the row.", "icon": "🌰", "rarity": "common" },
+    { "name": "Rabbit's Ruler Row", "description": "Rabbit's carrot line, matched one to one against Pooh's. Teaches more and fewer. Chapter 2, the matching.", "icon": "🥕", "rarity": "uncommon" },
+    { "name": "Number Line Path", "description": "The wood path as a number line. Hop forward to add, back to subtract. Chapter 3, the joining and taking away.", "icon": "🛤️", "rarity": "rare" },
+    { "name": "Owl's About Badge", "description": "Owl's kind nod when about was close enough to be useful, and you checked it. Legendary estimation clear.", "icon": "🦉", "rarity": "legendary" }
+  ]
+}

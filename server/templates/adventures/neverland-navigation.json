@@ -1,0 +1,28 @@
+{
+  "id": "neverland-navigation",
+  "title": "Charting Neverland",
+  "tagline": "A sketch, a scale, and a walk a human can actually take",
+  "description": "Peter flies but you walk, so you must chart an island from Barrie's sketch. A navigation adventure through scale, latitude, compass, speed as a ratio, and a plan that still fits daylight.",
+  "worldPrompt": "An original mapmaker's adventure after J. M. Barrie's Peter Pan (1911, public domain). The learner is the mapkeeper of the nursery party: Wendy, John, Michael, and the lost boys following Peter's sketch. Each chapter gates the geography and ratio unit: scale and ground distance, latitude as a sideways line, compass rose and direction, speed as distance over time, combining scale and speed into a walk plan, and a chart a sailor would trust. Characters are Barrie's nursery party only. Tone is crisp and serious about accuracy, playful only about Neverland's impossibilities. Loot is navigation gear: scale ruler, latitude string, compass rose, sand timer.",
+  "gameType": "dungeon",
+  "characters": [
+    { "name": "Wendy", "role": "mentor", "bio": "The mapkeeper who measures along curves and writes the ratio so another person could check it." },
+    { "name": "John", "role": "ally", "bio": "Loves hats and latitudes. He holds the sideways string at the right degree." },
+    { "name": "Michael", "role": "self", "bio": "Small, keen, and trusted with the scale. You walk in his careful shoes." },
+    { "name": "Peter Pan", "role": "rival", "bio": "Brilliant at flying, bad at counting. His about is always braver than the ground allows." }
+  ],
+  "chapters": [
+    { "title": "How Big on Paper?", "hook": "One centimetre on the sketch stands for some kilometres on the island." },
+    { "title": "How Far North?", "hook": "Sideways lines that tell the equator how far away you are." },
+    { "title": "Which Way Is Southeast?", "hook": "Between south and east lies the hill. Check the rose, not your guess." },
+    { "title": "How Fast? How Long?", "hook": "Time equals distance over speed. The hill will be slower than the beach." },
+    { "title": "A Walk That Fits Daylight", "hook": "Scale then speed, then ask whether the hours fit the afternoon." }
+  ],
+  "loot": [
+    { "name": "Scale Ruler", "description": "Wendy's ruler: map centimetres times km per centimetre equals ground. Chapter 1, the sketch.", "icon": "📏", "rarity": "common" },
+    { "name": "Latitude String", "description": "John's sideways string held at 10 N while sailing west: latitude stays, longitude changes. Chapter 2, at sea.", "icon": "🧵", "rarity": "common" },
+    { "name": "Compass Rose", "description": "The rose that puts north at the top unless an arrow says otherwise, between south and east lies southeast. Chapter 3, direction.", "icon": "🧭", "rarity": "uncommon" },
+    { "name": "Sand Timer", "description": "The glass that measures hours against km per hour. Distance divided by speed, daylight left over. Chapter 4, speed.", "icon": "⏳", "rarity": "rare" },
+    { "name": "Chartmaster's Seal", "description": "Wendy's seal when scale, latitude, rose, and hours all check and the walk fits daylight. Legendary navigation clear.", "icon": "🗺️", "rarity": "legendary" }
+  ]
+}

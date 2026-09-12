@@ -1,0 +1,243 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Neverland Navigation: Maps, Scale, and Time",
+  "topic": "Maps, scale, latitude and time, and proportional thinking through Peter Pan",
+  "lens": "Peter Pan by J. M. Barrie (1911)",
+  "gradeLevel": 6,
+  "description": "Peter can fly but you cannot, so you need a map that is true. Follow Barrie's Neverland as a mapmaker's problem: scale a sketch, find position with latitude, and plan time across space. Ratios carry every page. Inspired by a book and play in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Charting Neverland",
+      "lessons": [
+        {
+          "title": "Scale: small drawing, real island",
+          "summary": "A drawing distance becomes a ground distance through the scale.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "How big is Neverland on paper?",
+                "body": "Wendy looks at Nana's old sketch of Neverland and wonders how far the lagoon is from the hill. The sketch says $1\\ cm : 2\\ km$, one centimetre on paper stands for two kilometres on the ground. The lagoon to the hill measures $6\\ cm$ along the path.\n\n- **Scale** multiplies map length into ground length: $ground = map \\times scale$\n- Measure **along the path**, not in a straight jump between endpoints\n- Keep units matched: centimetres on the map times kilometres per centimetre\n- A larger scale number means each map centimetre stands for more ground\n\n$6 \\times 2 = 12\\ km$ from lagoon to hill. Peter could fly it. You would walk it."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "On a map where 1 cm = 3 km, a trail measures 7 cm along its curves. How many km on the ground?",
+                "answer": 21,
+                "explanation": "7 times 3 equals 21 km.",
+                "hint": "Multiply the map centimetres by km per centimetre."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which scale stands for more ground per centimetre on the map?",
+                "choices": [
+                  { "id": "c1", "text": "1 cm : 10 km" },
+                  { "id": "c2", "text": "1 cm : 2 km" },
+                  { "id": "c3", "text": "They are the same" }
+                ],
+                "answer": "c1",
+                "explanation": "Each centimetre on the first map represents ten km, more than two.",
+                "hint": "Which number after the colon is larger?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Latitude and the sea around the map",
+          "summary": "Lines that run sideways tell how far north or south you are.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Where is Neverland on the world?",
+                "body": "Barrie says Neverland is second to the right and straight on till morning, which is not a real direction. Real sailors use **latitude**, the lines that run east and west, measured in degrees north or south of the equator. Longitude runs north to south and meets them in a grid. The pair names a place.\n\n- **Latitude** runs sideways like steps around the globe. 0 at the equator, 90 at the pole.\n- **Equator** splits north and south. The Tropic of Cancer lies near $23.5^\\circ$ N.\n- Moving north increases latitude north. Moving south past the equator increases latitude south.\n- Latitude alone is not enough to name a spot. You need longitude too, the other line of the grid."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which line tells how far north or south a place is from the equator?",
+                "choices": [
+                  { "id": "c1", "text": "Latitude" },
+                  { "id": "c2", "text": "A legend" },
+                  { "id": "c3", "text": "A scale bar" }
+                ],
+                "answer": "c1",
+                "explanation": "Latitude measures north-south position in degrees from the equator.",
+                "hint": "Which word matches sideways lines around the globe?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "A point lies at 10 degrees N, then sails west along that line of latitude. What changes and what stays the same?",
+                "choices": [
+                  { "id": "c1", "text": "Latitude stays at 10 N, longitude changes" },
+                  { "id": "c2", "text": "Latitude moves toward the equator" },
+                  { "id": "c3", "text": "The place is no longer at sea" }
+                ],
+                "answer": "c1",
+                "explanation": "Sailing along a latitude line keeps latitude fixed and changes longitude.",
+                "hint": "Does sailing along a sideways line change your distance from the equator?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Direction on a real map",
+          "summary": "A compass rose and a path that bends.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Wendy checks the rose",
+                "body": "The sketch has a compass rose with **north, east, south, west** and the halves near the corners: northeast, southeast, southwest, northwest. John says the hill is southeast of the lagoon. Wendy turns until the rose's north points the way her feet expect, then sees he is right.\n\n- On a printed map, north is usually at the top unless the arrow says otherwise\n- The rose's **arrow** tells north. Assume nothing if there is no arrow.\n- Between north and east lies northeast, exactly halfway"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "On a standard map with no special arrow, which way is north?",
+                "choices": [
+                  { "id": "c1", "text": "Toward the top of the page" },
+                  { "id": "c2", "text": "Always toward your left hand" },
+                  { "id": "c3", "text": "Toward the bottom of the page" }
+                ],
+                "answer": "c1",
+                "explanation": "Standard orientation places north at the top. A special north arrow overrides that if present.",
+                "hint": "Where does a standard map put north?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "John is at the lagoon and the hill is southeast of him. To face the hill, in which general compass octant does he turn?",
+                "choices": [
+                  { "id": "c1", "text": "Between south and east" },
+                  { "id": "c2", "text": "Due west" },
+                  { "id": "c3", "text": "Directly north" }
+                ],
+                "answer": "c1",
+                "explanation": "Southeast lies halfway between south and east.",
+                "hint": "Break southeast into two halves."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Time, speed, and getting there",
+      "lessons": [
+        {
+          "title": "Speed as a ratio: distance for time",
+          "summary": "Speed ties distance and time in one ratio, $speed = distance / time$.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Peter's pace, your pace",
+                "body": "Peter says he flew from the nursery to the second star in moments, which is not a measurement. Wendy times herself along the beach: $12\\ km$ in $3\\ hours$. Her average **speed** is $distance / time$.\n\n- $speed = distance / time$. Units like $km/h$\n- Then $distance = speed \\times time$ and $time = distance / speed$\n- Average speed hides rests and hills. It is still the tie that lets you plan\n\n$12 / 3 = 4\\ km/h$ along the sand. The hill path will be slower, so do not use the beach number for a mountain."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "Wendy walks 18 km in 3 hours. What is her average speed in km per hour?",
+                "answer": 6,
+                "explanation": "18 divided by 3 equals 6 km per hour.",
+                "hint": "Distance over time."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "At 4 km per hour, how long to cover 20 km?",
+                "answer": 5,
+                "explanation": "Time equals distance divided by speed: 20 divided by 4 equals 5 hours.",
+                "hint": "Which of the three forms uses distance and speed to get time?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which uses the same speed ratio correctly for a new time?",
+                "choices": [
+                  { "id": "c1", "text": "At 5 km/h for 4 h, distance is 5 times 4 equals 20 km" },
+                  { "id": "c2", "text": "At 5 km/h for 4 h, distance is 5 plus 4 equals 9 km" },
+                  { "id": "c3", "text": "At 5 km/h for 4 h, distance is 5 minus 4 equals 1 km" }
+                ],
+                "answer": "c1",
+                "explanation": "Distance equals speed multiplied by time.",
+                "hint": "Which rearrangement of speed, distance, time matches 5 km per hour for 4 hours?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Planning is multiplying ratios",
+          "summary": "Scale and speed combine by multiplication, then a sensible check.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Two ratios meet",
+                "body": "To plan a day on Neverland you combine two multiplications. First, **scale**: map centimetres times km per centimetre gives ground km. Then, **time**: ground km divided by km per hour gives hours. One chain of ratios, then sense check.\n\n- Ground = map length times scale ($km = cm \\times km/cm$)\n- Hours = ground divided by speed ($h = km / (km/h)$)\n- Sense check: does the answer fit the daylight you have? Would a steep section slow you? Rewrite the plan, not the ground"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "Trail A is 9 cm on a 1 cm : 2 km map. At 3 km per hour, how many hours to walk it if you could hold that speed?",
+                "answer": 6,
+                "explanation": "Ground is 9 times 2 equals 18 km. Time is 18 divided by 3 equals 6 hours.",
+                "hint": "First scale, then distance divided by speed."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In one sentence, say why a plan that says 12 hours for a day walk needs rewriting, and name one fix.",
+                "answer": "Twelve hours leaves no margin for rest or error, so shorten the route, choose a flatter path, or plan to camp.",
+                "explanation": "Any sentence that notices the plan exceeds sensible daylight and proposes shortening, choosing easier terrain, or camping is good.",
+                "hint": "Does 12 hours fit a sane daylight walk? What changes the hours?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Chart Neverland, then chart home",
+          "summary": "Make a chart a sailor or a hiker would trust.",
+          "items": [
+            {
+              "type": "project",
+              "content": {
+                "title": "Two charts with ratios",
+                "description": "On one page, chart a small Neverland: lagoon, hill, Crocodile Creek along an 8 to 10 cm winding trail, with a north arrow, a scale bar that states the ratio, and two scale computations showing ground km. On a second page, chart your own walk to a shop or park: map cm, choice of scale ratio, ground km computed, a steady speed you can hold, and hours computed, plus a one sentence sense check on whether the walk fits your afternoon. Share the ground you chose and the speed you assumed so someone could check your hours.",
+                "rubric": "- Neverland chart has north arrow, scale bar with ratio, and two correct ground distance computations along a winding trail\n- Real walk chart shows map cm, ground km via scale, chosen speed, and hours via speed, with units\n- One sense-check sentence says whether the hours fit the time available and what to change"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

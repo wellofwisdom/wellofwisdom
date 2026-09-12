@@ -1,0 +1,27 @@
+{
+  "id": "grimm-patterns",
+  "title": "The Pattern Cottage",
+  "tagline": "Squares, circles, and the story that keeps repeating",
+  "description": "The brothers Grimm walked the villages writing stories that repeat like choruses. A shapes and patterns adventure where borders repeat, tables sort, and close reading shows the want, the block, and the choice.",
+  "worldPrompt": "An original, folkloric adventure drawn from Grimms' Fairy Tales (Jacob and Wilhelm Grimm 1812-1857, public domain). The learner walks between villages with the collecting brothers and the folk who tell the tales: miller, woodcutter, tailor. Each chapter gates the maths or reading unit: naming 2D shapes by sides, equal shares and halves, sorting by a rule, repeating patterns, and close reading want block choice. Visuals are craft: painted borders, wooden tables, paper and ink. No contemporary culture. Loot is village-made things: loaf, painted tile, sorting tray, border brush.",
+  "gameType": "rpg",
+  "characters": [
+    { "name": "Jacob", "role": "mentor", "bio": "The elder brother who listens longest. He teaches you to collect one tale cleanly before moving to the next." },
+    { "name": "Wilhelm", "role": "ally", "bio": "The stylist who makes a collected tale readable. He checks that a shape pattern repeats without a break." },
+    { "name": "The Miller", "role": "ally", "bio": "Knows loaves, halves, and fair cuts. He will only call two pieces halves if they are equal." },
+    { "name": "The Woodcutter", "role": "ally", "bio": "Knows timber, corners, and whether a quadrilateral has square corners." }
+  ],
+  "chapters": [
+    { "title": "The Four Shapes on the Door", "hook": "Circle, triangle, square, rectangle. Count sides, then corners, and name them." },
+    { "title": "The Fair Loaf", "hook": "Two hungry children, one loaf. Equal shares or no halves at all." },
+    { "title": "The Sorting Table", "hook": "One rule at a time, each thing in the group its rule names." },
+    { "title": "The Border and the Tale", "hook": "The gate repeats circle, square. The story repeats danger, helper, test, reward." }
+  ],
+  "loot": [
+    { "name": "Miller's Loaf", "description": "A round loaf scored into quarters. Shows equal shares or no halves. Chapter 2, the fair cut.", "icon": "🍞", "rarity": "common" },
+    { "name": "Painted Tile", "description": "One tile from the cottage door: a shape you can count by sides. Chapter 1, the four shapes.", "icon": "🧱", "rarity": "common" },
+    { "name": "Sorting Tray", "description": "The wooden tray the villages use. One rule at a time, each shape where it belongs. Chapter 3, the sorting house.", "icon": "🪵", "rarity": "uncommon" },
+    { "name": "Border Brush", "description": "The brush that paints the repeating border without a break. Chapter 4, the cottage gate.", "icon": "🖌️", "rarity": "rare" },
+    { "name": "Collector's Quill", "description": "Wilhelm's quill when want, block, and choice are named together and the pattern named too. Legendary close reading clear.", "icon": "🪶", "rarity": "legendary" }
+  ]
+}

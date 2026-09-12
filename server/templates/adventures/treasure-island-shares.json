@@ -1,0 +1,29 @@
+{
+  "id": "treasure-island-shares",
+  "title": "The Hispaniola Account",
+  "tagline": "Name the whole, count the parts, write the divide a crew can sign",
+  "description": "The Hispaniola returns with a chart and a dispute. A Stevenson adventure in fractions, ratios, and the arithmetic of fairness where every share can be checked and every remainder named.",
+  "worldPrompt": "An original, clear-eyed adventure after Robert Louis Stevenson's Treasure Island (1883, public domain). The learner is the honest clerk aboard the Hispaniola with Jim, Dr Livesey, Squire Trelawney, and Long John Silver. Each chapter gates the fractions and ratios unit: bearing and chart scale, fractions as shares of the crew's take, ratios in the galley, naming the whole before arguing parts, and checking that shares sum to one. Silver is a brilliant cook and a close arguer, not a caricature. Loot is shipboard gear the book makes familiar: chart, bearing ring, ration tin, ledger. Boss is the signed account, not a fight.",
+  "gameType": "rpg",
+  "characters": [
+    { "name": "Jim Hawkins", "role": "self", "bio": "Young, watches closely, carries the chart. You learn the island through his straight account." },
+    { "name": "Dr Livesey", "role": "mentor", "bio": "Calm, counts twice. He will not let you name a share before you name the whole." },
+    { "name": "Long John Silver", "role": "rival", "bio": "Warm, canny, and hard to corner. He tests whether your parts really make the whole." },
+    { "name": "Squire Trelawney", "role": "ally", "bio": "Brave and budget-blind. He needs the galley ratio scaled carefully for the hands he hired." }
+  ],
+  "chapters": [
+    { "title": "The Chart in the Chest", "hook": "X marks a point, but bearings and scale mark the way." },
+    { "title": "Shares of the Crew", "hook": "Every person's take is a fraction of one whole chest." },
+    { "title": "Biscuit and Water", "hook": "Two to one in the galley. Scale both sides or the dough fails." },
+    { "title": "What the Whole Is", "hook": "Gold? Gold plus gear? The voyage account? Name the one before you cut it." },
+    { "title": "The Sum and the Remainder", "hook": "Add the promised parts and ask what is left for the next decision." },
+    { "title": "The Account a Crew Can Sign", "hook": "A one page divide, worked so a stranger could check it." }
+  ],
+  "loot": [
+    { "name": "Chart Fragment", "description": "A corner of the island chart with an X and a scale bar. Chapter 1, the chest.", "icon": "🗺️", "rarity": "common" },
+    { "name": "Bearing Ring", "description": "The brass ring that counts clockwise from north: east 90, south 180, west 270. Chapter 1, bearings.", "icon": "🧭", "rarity": "common" },
+    { "name": "Ration Tin", "description": "Galley tin marked 2 flour to 1 water. Scaling it keeps the ratio. Chapter 3, the galley.", "icon": "🫙", "rarity": "uncommon" },
+    { "name": "Ledger Page", "description": "The page where fractions share a denominator and add back to the whole. Chapter 5, the sum.", "icon": "📒", "rarity": "rare" },
+    { "name": "Clerk's Seal", "description": "Dr Livesey's approval when the whole is named, shares add correctly, remainder assigned, ratio scaled, fairness stated. Legendary fair divide.", "icon": "🔖", "rarity": "legendary" }
+  ]
+}

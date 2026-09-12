@@ -1,0 +1,248 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Grimm Patterns: Shapes, Sorting, and Stories",
+  "topic": "2D shapes, sorting, patterns, and careful reading through the Brothers Grimm",
+  "lens": "Grimm's Fairy Tales by Jacob and Wilhelm Grimm (1812-1857)",
+  "gradeLevel": 2,
+  "description": "Two brothers once walked from village to village writing down the stories people told. Each tale is short, each has a clear shape, and each repeats a pattern you can see coming. Learners build shape sense, sorting by rules, and repeating patterns while reading Grimm tales closely. Inspired by tales in the public domain. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Shapes like stories",
+      "lessons": [
+        {
+          "title": "Squares, circles, triangles, rectangles",
+          "summary": "Name four shapes by their sides and corners.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The shapes hidden in old pages",
+                "body": "In the Grimm book, bread loaves are round like **circles**, windows are **squares** or **rectangles**, and the mountain tops are **triangles**. A shape is not a guess. It is a rule about sides and corners.\n\n- **Circle:** one curved edge, no corners\n- **Triangle:** 3 straight sides, 3 corners\n- **Square:** 4 equal straight sides, 4 square corners\n- **Rectangle:** 4 straight sides with opposite sides equal, 4 square corners\n\nCount sides, then corners. The shape tells its name."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which shape has 3 straight sides and 3 corners?",
+                "choices": [
+                  { "id": "c1", "text": "Triangle" },
+                  { "id": "c2", "text": "Circle" },
+                  { "id": "c3", "text": "Square" }
+                ],
+                "answer": "c1",
+                "explanation": "A triangle is defined by 3 straight sides and 3 corners.",
+                "hint": "How many sides does a triangle have?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "The miller's door in a picture is 4 sides with opposite sides equal and 4 square corners, but not all 4 sides equal. What is it?",
+                "choices": [
+                  { "id": "c1", "text": "Rectangle" },
+                  { "id": "c2", "text": "Square" },
+                  { "id": "c3", "text": "Triangle" }
+                ],
+                "answer": "c1",
+                "explanation": "A rectangle has 4 square corners and opposite sides equal; a square would need all four sides equal.",
+                "hint": "Does the square rule require all sides equal?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "In a picture with 4 circles, 2 squares, and 3 triangles, how many shapes are there in total?",
+                "answer": 9,
+                "explanation": "4 plus 2 plus 3 equals 9.",
+                "hint": "Add all three kinds."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Equal shares and halves",
+          "summary": "Split a shape into equal parts and name the share.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The loaf and the fair cut",
+                "body": "A Grimms loaf is cut for two children. A fair cut makes **equal shares**. Cut a square into two equal parts and each part is a **half**. Cut it into four equal parts and each part is a **quarter** or a **fourth**. Unequal cuts are not halves, even if there are two pieces.\n\n- Equal means same size and same shape for the purpose counted\n- Half is one of two equal parts\n- Quarter is one of four equal parts\n- Two halves make one whole. Four quarters make one whole."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "A square cut into two parts where one is big and one is small: are the parts halves?",
+                "choices": [
+                  { "id": "c1", "text": "No, because halves must be equal" },
+                  { "id": "c2", "text": "Yes, because there are two parts" },
+                  { "id": "c3", "text": "Yes, because a square always makes halves" }
+                ],
+                "answer": "c1",
+                "explanation": "Halves must be equal shares. Unequal pieces are not halves.",
+                "hint": "What did equal mean in the loaf cut?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A circle is cut into 4 equal quarters. How many quarters make the whole circle?",
+                "answer": 4,
+                "explanation": "Four quarters make one whole.",
+                "hint": "Count the equal parts that rebuild the whole."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Sorting by a rule",
+          "summary": "Put each thing in the group its rule names.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The sorting house",
+                "body": "Two Grimms houses fill with things after a journey: straw, gold, charcoal, crowns, pebbles. The brothers sort them so they can be found. A **sort** puts each thing in a group by a **rule** you state out loud.\n\n- Rule must be checkable: has 4 sides, is yellow, is a circle\n- One rule at a time. Do not move a shape for its colour when sorting by sides.\n- After sorting, count each group. The counts tell the story."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Sort shapes by number of sides. Which group does a square go with?",
+                "choices": [
+                  { "id": "c1", "text": "Shapes with 4 sides" },
+                  { "id": "c2", "text": "Shapes with 3 sides" },
+                  { "id": "c3", "text": "Shapes with 0 sides" }
+                ],
+                "answer": "c1",
+                "explanation": "A square has 4 sides, so it belongs with the 4 sided group.",
+                "hint": "How many sides does a square have?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A table has 5 circles, 4 squares, and 6 triangles. Sorted by shape, how many are in the triangles group?",
+                "answer": 6,
+                "explanation": "The triangles group has 6.",
+                "hint": "Which count belongs to triangles?"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Patterns and close reading",
+      "lessons": [
+        {
+          "title": "What comes next: repeating patterns",
+          "summary": "Find the part that repeats, then say what is next.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The pattern at the cottage gate",
+                "body": "Gretel's cottage gate has a border of painted shapes: circle, square, circle, square, circle. The **unit** that repeats is circle, square. Once you name the unit you know what comes next.\n\n- Find the smallest part that repeats, the unit\n- Check: does it repeat without a break?\n- The next shape is the next piece of the unit\n\nStories repeat too. Many Grimms tales go danger, helper, test, reward. The characters change. The pattern stays, like a chorus in a song."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "The border goes circle, square, circle, square, circle. What comes next?",
+                "choices": [
+                  { "id": "c1", "text": "Square" },
+                  { "id": "c2", "text": "Circle" },
+                  { "id": "c3", "text": "Triangle" }
+                ],
+                "answer": "c1",
+                "explanation": "The repeating unit is circle, square, so after a circle comes a square.",
+                "hint": "What is the two-piece unit that repeats?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "A pattern uses the colour unit red, blue, blue. What are the next three after red, blue, blue, red?",
+                "choices": [
+                  { "id": "c1", "text": "Blue, blue, red" },
+                  { "id": "c2", "text": "Red, blue, blue" },
+                  { "id": "c3", "text": "Red, red, red" }
+                ],
+                "answer": "c1",
+                "explanation": "After a red in this unit, two blues follow, then the cycle restarts with red.",
+                "hint": "Say the unit aloud and follow it past the lone red at the end."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Reading the tale: who wants what?",
+          "summary": "Name what a character wants and what blocks them.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Want, block, choice",
+                "body": "Hansel wants to get home. The block is the forest and the witch. His choice matters. **Close reading** is noticing those three together.\n\n- Who wants something?\n- What blocks them?\n- What choice do they make, and what does it cost?\n\nA good reader can point to the line where the want is said, not just remember the ending."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In any Grimm tale you know, write one sentence for what the main character wants and one for what blocks them.",
+                "answer": "Hansel wants to return home and the forest plus the witch block him.",
+                "explanation": "Any answer with a clear want and a clear block is good, even for a different tale.",
+                "hint": "Want plus block, each in one short sentence."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which shows want, block, and choice together?",
+                "choices": [
+                  { "id": "c1", "text": "Gretel wants to free her brother, the cage blocks her, so she tricks the witch" },
+                  { "id": "c2", "text": "There was a forest and a house" },
+                  { "id": "c3", "text": "The story was long" }
+                ],
+                "answer": "c1",
+                "explanation": "It names what she wants, what stops her, and the choice she makes.",
+                "hint": "Which one names all three?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Make your village board",
+          "summary": "Draw, sort, and continue a pattern with shapes a villager would know.",
+          "items": [
+            {
+              "type": "project",
+              "content": {
+                "title": "Grimm village pattern board",
+                "description": "On paper, draw a border around the edge that repeats a two or three shape unit correctly for at least 9 shapes. Inside the border, draw 10 to 14 shapes (circles, triangles, squares, rectangles) and sort them in a small table by a rule you state out loud (by sides or by equal versus not equal). Below the border, write one sentence of want and one of block for a Grimm tale you liked, and say where the pattern danger, helper, test, reward showed up.",
+                "rubric": "- Border repeats its unit without a break for at least 9 shapes, unit named in a label\n- Table sorts at least 10 shapes by a stated rule with correct group counts\n- At least one equal-share example labelled half or quarter\n- Want, block, and pattern sentence each present and checkable"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

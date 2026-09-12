@@ -1,0 +1,243 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Pooh Counts Honey: Numbers 0 to 20 in the Hundred Acre Wood",
+  "topic": "Counting, comparing, adding within 20, and estimating through Winnie-the-Pooh",
+  "lens": "Winnie-the-Pooh by A. A. Milne (1926) and The House at Pooh Corner (1928)",
+  "gradeLevel": 1,
+  "description": "Pooh loves honey and friends. In the Hundred Acre Wood, every pot, acorn, and paw print is something to count. Learners build number sense from 0 to 20: counting carefully, comparing more and fewer, adding and taking away, and estimating before they count. Inspired by books in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Counting like Christopher Robin",
+      "lessons": [
+        {
+          "title": "Count every pot, once",
+          "summary": "Count with one to one matching and say the last number is how many.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Pooh's row of pots",
+                "body": "Pooh has honey pots on a shelf. To know how many, Christopher Robin touches each pot once and says one number at a time: 1, 2, 3. The last number he says is the total. That is **counting** with care.\n\n- Touch one thing, say one number\n- Do not skip, do not count one thing twice\n- The last number tells **how many**\n\nRabbit keeps his carrots the same way, in a neat row for counting."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Pooh counts pots: 1, 2, 3, 4. How many pots are there?",
+                "choices": [
+                  { "id": "c1", "text": "4" },
+                  { "id": "c2", "text": "3" },
+                  { "id": "c3", "text": "5" }
+                ],
+                "answer": "c1",
+                "explanation": "The last number counted is the total, so 4 pots.",
+                "hint": "What was the last number he said?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "Piglet lines up 7 acorns in a row. Tigger adds 3 more to the row. How many acorns are there now? Count on from 7.",
+                "answer": 10,
+                "explanation": "7 plus 3 is 10. Count on: 8, 9, 10.",
+                "hint": "Start at 7 and count three more."
+              }
+            }
+          ]
+        },
+        {
+          "title": "More, fewer, and the same",
+          "summary": "Compare two groups and say which has more.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Who has more honey?",
+                "body": "Pooh has 5 pots. Piglet has 3. Put them in two rows and match them one to one. Two pots stick out on Pooh's side with nothing to match. Pooh has **more**, Piglet has **fewer**, and if they had the same number it would be **equal**.\n\n- Line up, match, see what sticks out\n- More means extra with no partner\n- Equal means every pot has a partner and none sticks out\n\nEeyore's thistles can be compared the same way."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Row A has 9 leaves. Row B has 6 leaves. Which row has more?",
+                "choices": [
+                  { "id": "c1", "text": "Row A" },
+                  { "id": "c2", "text": "Row B" },
+                  { "id": "c3", "text": "They are equal" }
+                ],
+                "answer": "c1",
+                "explanation": "9 is more than 6, so row A has more.",
+                "hint": "Which number is bigger, 9 or 6?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Pooh and Piglet each collect 8 sticks. What can you say about the two groups?",
+                "choices": [
+                  { "id": "c1", "text": "They are equal: each has 8" },
+                  { "id": "c2", "text": "Pooh has more" },
+                  { "id": "c3", "text": "Piglet has fewer" }
+                ],
+                "answer": "c1",
+                "explanation": "Both have 8, so the groups are equal.",
+                "hint": "Do the numbers match?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "Kanga has 12 thistles. Roo has 9 thistles. How many more does Kanga have than Roo?",
+                "answer": 3,
+                "explanation": "12 minus 9 equals 3 more.",
+                "hint": "Match Roo's 9 against Kanga's 12. How many stick out?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "A little more: adding within 10",
+          "summary": "Join groups and count the total.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "One more pot for Pooh",
+                "body": "Pooh and Piglet put their honey together. 4 pots and 2 pots make 6 pots. That is **adding**, joining two groups into one.\n\n- $4 + 2 = 6$ means four joined with two is six\n- The plus sign means join. The equals sign means is the same as.\n- A number line is a path. Start at 4, hop 2, land on 6.\n\nOwl would call the total the sum. That just means how many in all."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "3 honey pots and 4 more pots are put on one shelf. How many in all?",
+                "answer": 7,
+                "explanation": "3 plus 4 equals 7.",
+                "hint": "Join the two groups and count."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "On a number line at 5, you hop 3 forward. Where do you land?",
+                "choices": [
+                  { "id": "c1", "text": "8" },
+                  { "id": "c2", "text": "3" },
+                  { "id": "c3", "text": "5" }
+                ],
+                "answer": "c1",
+                "explanation": "5 plus 3 equals 8. Hopping forward on a number line is adding.",
+                "hint": "5 plus 3, hop by hop."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Taking away and guessing well",
+      "lessons": [
+        {
+          "title": "Taking away",
+          "summary": "Eat or give away and see how many are left.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Pooh eats two",
+                "body": "Pooh has 8 pots. He eats 2. Now 6 remain. That is **subtracting**, taking away from a group.\n\n- $8 - 2 = 6$ means eight take away two leaves six\n- The minus sign means take away\n- Count back to check. 8, 7, 6, yes.\n\nIf Tigger bounces off with 3, take away 3 more and count back again."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "9 acorns, 4 are given to Piglet. How many are left?",
+                "answer": 5,
+                "explanation": "9 minus 4 equals 5.",
+                "hint": "Count back 4 from 9."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which matches taking away on a number line?",
+                "choices": [
+                  { "id": "c1", "text": "Start at 7, hop 2 back, land on 5" },
+                  { "id": "c2", "text": "Start at 7, hop 2 forward, land on 9" },
+                  { "id": "c3", "text": "Stay at 7" }
+                ],
+                "answer": "c1",
+                "explanation": "Hopping back on a number line is subtracting.",
+                "hint": "Taking away moves which way on the line?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Estimate before you count",
+          "summary": "Guess close before you count close.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Owl estimates",
+                "body": "Owl likes to **estimate**, to guess close on purpose before counting. If he sees a scattered pile of about two rows of ten, he says about twenty. Then he counts to check. A good estimate is not wild. It is close enough to be useful.\n\n- Look, think of a handy group like 5 or 10, then say about how many\n- Then count one to one to check\n- If you guessed 12 and counted 14, that was a good estimate. If you guessed 50, try using tens next time"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "A scattered picture shows about two tens worth of berries. Which is the best estimate?",
+                "choices": [
+                  { "id": "c1", "text": "About 20" },
+                  { "id": "c2", "text": "About 2" },
+                  { "id": "c3", "text": "About 100" }
+                ],
+                "answer": "c1",
+                "explanation": "Two groups of ten is about twenty.",
+                "hint": "How many tens did you see?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Look around your room. Estimate how many books are on one shelf, then count and say whether your estimate was close.",
+                "answer": "I estimated about 8 books and counted 9, so my estimate was close.",
+                "explanation": "Any answer with an estimate and a check count and a judgement about closeness is good.",
+                "hint": "Guess, count, compare."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Make your Wood counting board",
+          "summary": "A board, a row, and a shelf to play counting on paper.",
+          "items": [
+            {
+              "type": "project",
+              "content": {
+                "title": "Pooh's counting board",
+                "description": "On cardboard, make three rows. On row one glue or draw up to 10 honey pot shapes. On row two make an addition row: draw a group, then another, then how many in all with a plus and equals sign. On row three make a subtraction row the same way. Add a row of real things to count at home and estimate before you do. Bring the board to the table and tell someone what each row shows.",
+                "rubric": "- Row one has up to 10 shapes counted one to one with the total written\n- One correct addition within 10 with groups drawn and a number sentence\n- One correct subtraction within 10 with groups drawn and a number sentence\n- One estimate and count of real things with a note on how close"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

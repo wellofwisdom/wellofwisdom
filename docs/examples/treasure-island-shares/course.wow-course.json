@@ -1,0 +1,233 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Treasure Island Shares: Fractions, Ratios, and an Honest Divide",
+  "topic": "Fractions, ratios, and fair division through Treasure Island",
+  "lens": "Treasure Island by Robert Louis Stevenson (1883)",
+  "gradeLevel": 6,
+  "description": "The Hispaniola sails, a chart says X marks the spot, and a crew argues how to share after the work. Stevenson's adventure becomes a course in parts and wholes: fractions of a crew's share, ratios for rum and rations, and the maps and scales that decide whether the divide is fair. Inspired by a book in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "The chart and the shares",
+      "lessons": [
+        {
+          "title": "The map that promises treasure",
+          "summary": "X marks a point. Bearing and scale tell how to get there without guessing.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Stevenson's chart",
+                "body": "In the Admiral Benbow, Jim finds a dead captain's chest and inside a chart of an island where X marks the spot. What turns ink into treasure is not the X. It is the **bearing**, the angle from north, and the **chart scale** that turns inches on paper into miles at sea. Without them the X is just a guess.\n\n- **Chart scale** multiplies map length into sea distance: $distance = map \\times scale$\n- **Bearing** is the clockwise angle from north: east is 90, south is 180, west is 270\n- A course that ignores bearings drifts, however pretty the chart. A course with both finds the bay."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "On a chart where 1 cm = 5 miles, a plotted course measures 6 cm. How far at sea?",
+                "choices": [
+                  { "id": "c1", "text": "30 miles" },
+                  { "id": "c2", "text": "6 miles" },
+                  { "id": "c3", "text": "11 miles" }
+                ],
+                "answer": "c1",
+                "explanation": "6 times 5 equals 30 miles.",
+                "hint": "Multiply map length by miles per centimetre."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "On a standard compass, which bearing is due east?",
+                "choices": [
+                  { "id": "c1", "text": "90 degrees" },
+                  { "id": "c2", "text": "180 degrees" },
+                  { "id": "c3", "text": "270 degrees" }
+                ],
+                "answer": "c1",
+                "explanation": "Bearings count clockwise from north: east is 90, south 180, west 270.",
+                "hint": "A quarter turn from north is east."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Shares of the crew: fractions the book uses",
+          "summary": "The crew's take is a fraction of the whole. An honest share can be written plainly.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "A fair piece of the chest",
+                "body": "The crew agree that the treasure is one whole and each person's **share** is a **fraction** of it. The captain takes $\\frac{1}{5}$, the sailing master $\\frac{1}{10}$, and the rest drifts in argument until someone writes it down.\n\n- $\\frac{1}{10}$ means one of ten equal parts of the whole\n- Smaller denominator means bigger pieces. $\\frac{1}{5} > \\frac{1}{10}$ because fifths are larger than tenths.\n- A **fair** share is stated so anyone could check it, not passed by a shout\n\nWriting the share as a fraction is the first act of fairness."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which crew share is larger: one fifth or one tenth of the chest?",
+                "choices": [
+                  { "id": "c1", "text": "$\\frac{1}{5}$" },
+                  { "id": "c2", "text": "$\\frac{1}{10}$" },
+                  { "id": "c3", "text": "They are equal" }
+                ],
+                "answer": "c1",
+                "explanation": "Fewer parts makes larger pieces, so a fifth beats a tenth.",
+                "hint": "Which denominator is smaller?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "If 3 sailors each receive one tenth of the treasure, what fraction have the three together?",
+                "answer": 0.3,
+                "explanation": "Three tenths is 3/10, which is 0.3. Any answer equal to 3/10 counts, including 0.3.",
+                "hint": "Add three tenths: how many tenths in all?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Rum and rations: ratios the galley counts",
+          "summary": "A recipe is a ratio. Change the people and you scale the amounts.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "How much biscuit for twelve hands?",
+                "body": "Long John Silver's galley feeds twelve hands. His biscuit recipe is a **ratio**: 2 parts flour to 1 part water. Twice the flour, twice the water, or the dough fails. A ratio is $a : b$, a pair with a built in multiplier.\n\n- **Ratio** $2:1$ means two of this for one of that, in the same units\n- Scaling keeps the ratio: $4:2$ is the same as $2:1$, both halves reduce to 2 to 1\n- **Unit rate** puts one side to one: 2 flour per 1 water, or 0.5 water per 1 flour\n\nThe crew argue loudest about rum, but biscuit keeps them alive longer."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A galley ratio is 2 flour to 1 water. Keeping the same ratio, how much water for 6 flour?",
+                "answer": 3,
+                "explanation": "2 to 1 scaled to 6 flour needs 6 divided by 2 equals 3 water.",
+                "hint": "The ratio says half as much water as flour."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which ratio is the same as 2 flour to 1 water?",
+                "choices": [
+                  { "id": "c1", "text": "4 flour to 2 water" },
+                  { "id": "c2", "text": "2 flour to 2 water" },
+                  { "id": "c3", "text": "1 flour to 2 water" }
+                ],
+                "answer": "c1",
+                "explanation": "Multiplying both sides by 2 keeps the 2 to 1 proportion.",
+                "hint": "Multiply both sides by the same number."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The divide, fairly judged",
+      "lessons": [
+        {
+          "title": "What the whole really is",
+          "summary": "Name the whole before you argue the parts.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "One chest, counted once",
+                "body": "Silver says the chest is not what it seems. Is it the gold? The gold plus the gear? The whole voyage account? Until the **whole** is named, no fraction can be judged. In mathematics, the **whole** is the 1 that fractions divide. Change the whole and every piece changes.\n\n- Name the whole in one sentence: the chest gold, or the net after costs, or the voyage account. One per argument.\n- A half of the gold is not a half of the gold plus gear\n- A fair dispute writes the whole first, in the same words both sides use"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why does arguing shares get worse when no one names the whole?",
+                "choices": [
+                  { "id": "c1", "text": "A half depends on what the one whole is; change the whole and a half is a different amount" },
+                  { "id": "c2", "text": "Halves are always equal no matter what the whole is" },
+                  { "id": "c3", "text": "Fractions do not need a whole at all" }
+                ],
+                "answer": "c1",
+                "explanation": "Fractions divide a specific whole. Two people arguing halves of different wholes are not arguing about the same amount.",
+                "hint": "Does a half depend on what the one is?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Name a whole for a share dispute in your school or family: one whole sentence that says what the 1 is, so a fraction could be checked.",
+                "answer": "The whole is tonight's pocket money, £10, before any purchases.",
+                "explanation": "Any sentence that names one specific total as the 1, clearly enough for a fraction to be checked, is good.",
+                "hint": "What is the one pile you are dividing?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "The divide that holds",
+          "summary": "Check that shares sum to 1, or name what is left for the next decision.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Do the parts make the whole?",
+                "body": "When the shares are proposed, there is one check that quiets the room: do the parts add back to the whole? Fractions of the same whole can be added once they share a **common denominator**, or as decimals.\n\n- $\\frac{1}{5} + \\frac{1}{10} + \\frac{1}{10} = \\frac{2}{10} + \\frac{1}{10} + \\frac{1}{10} = \\frac{4}{10} = \\frac{2}{5}$, so $1 - \\frac{2}{5} = \\frac{3}{5}$ remains\n- If the named shares exceed 1, someone is double counted. Name the double count.\n- If they fall short of 1, the remainder is unassigned and must be decided, not forgotten"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "Shares promised: one fifth plus one tenth plus one tenth. What fraction of the chest is promised in total? Give your answer as a decimal.",
+                "answer": 0.4,
+                "explanation": "One fifth is 2 tenths, so 2/10 plus 1/10 plus 1/10 equals 4/10, which is 0.4. 2/5 is also correct and equals 0.4.",
+                "hint": "Turn one fifth into tenths first, then add."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "If promised shares total 1.2 wholes, what must have happened?",
+                "choices": [
+                  { "id": "c1", "text": "Some share was counted twice or the whole was named two different ways" },
+                  { "id": "c2", "text": "The shares are certainly fair" },
+                  { "id": "c3", "text": "Fractions over 1 are impossible" }
+                ],
+                "answer": "c1",
+                "explanation": "More than one whole in promised shares means double counting or a shifting definition of the whole.",
+                "hint": "Can promised parts fairly add to more than the one whole that exists?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Divide the chest: a record a crew can sign",
+          "summary": "Write a divide that can be checked by a stranger.",
+          "items": [
+            {
+              "type": "project",
+              "content": {
+                "title": "The Hispaniola account",
+                "description": "Write a one page Hispaniola account as a fraction check a crew could sign. Name the whole in one sentence. Propose at least three shares as fractions (include one tenth and one fifth), add them to show the total promised, name the remainder that is left for the next decision, and state one galley ratio scaled for the crew size. Show your working as fractions or decimals with units and a short fairness sentence explaining whether the parts make the whole.",
+                "rubric": "- One sentence naming the whole so a fraction can be checked\n- At least three shares as fractions with correct addition to a total (common denominator or decimal shown)\n- Remainder after promised shares named explicitly\n- One galley ratio stated and correctly scaled (both sides multiplied by the same factor)\n- A short fairness sentence that checks whether promised parts make the whole, or what to fix"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
