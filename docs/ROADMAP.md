@@ -126,9 +126,12 @@ and why. Anything marked shipped has a commit and is live.
 
 ## Now
 
-- [ ] **Publish four or five genuinely good courses** from this instance,
-      including one only this app would ever produce. Sharing is not real until
-      something is shared.
+- [x] **Publish four or five genuinely good courses: SHIPPED and LIVE.**
+      Five CC-BY-4.0 courses are published on wellofwisdom.app (`/api/public/courses`
+      returns 5: Comparing Fractions, Fractions Through Sewing (the lens-only course
+      only this app would make), Photosynthesis Through Cooking, Your Horoscope Is
+      Not Science, River Ecology Field Study). Gallery and `.txt` verified live;
+      sharing is no longer inert.
 - [x] **Plain-text course view** at `/c/<slug>.txt` (`e55a947`). No chrome, no
       markup, the highest-signal thing to hand a research tool. Built from the
       public projection (`share.courseText`), so the answer key cannot leak into
@@ -138,8 +141,8 @@ and why. Anything marked shipped has a commit and is live.
       page URL and export URL on the clipboard, plain-text first as the one to
       feed a notebook. A visible "View as plain text" link ships alongside it,
       which also gives a crawler a real anchor to the `.txt`.
-- [~] **`community-courses` git repository + in-app library.** The courses live in
-      git, the teachers live in the app. Two halves:
+- [x] **`community-courses` git repository + in-app library: SHIPPED.**
+      Two halves, one app:
   - [x] **Everything the repository needs from this one.**
         `scripts/validate-course.js` (`lib/coursecheck.js`) reads a package
         exactly as an import will and names every place something would be
@@ -150,26 +153,21 @@ and why. Anything marked shipped has a commit and is live.
         Export now carries the course's licence and author.
         `docs/COMMUNITY-COURSES.md` is the layout, the rules and the CI
         workflow; `docs/examples/*.wow-course.json` (5 courses, all validated)
-        are the templates. Staged at `C:/tmp/community-courses-staging` with
-        `courses/<slug>/course.wow-course.json` + README per course and
-        `.github/workflows/validate.yml`.
-  - [ ] **The repository itself.** PAT cannot create org repos via API (needs
-        org owner via browser). One click at `https://github.com/new?org=wellofwisdom`
-        with name `community-courses`, then push the staged dir. Your browser is
-        already logged in via chrome-devtools MCP, token `github_pat_11B7GF…` in
-        `~/.zcode/cli/config.json` is ready.
-  - [ ] **In-app community library (no GitHub for teachers).** Browse inside
-        the app, not on GitHub. Plan: a tab on the Courses page (Your courses /
-        Community library), cards from the community repo, [Add to my library]
-        that calls the import you already have. The repo stores courses, the app
-        shows them. Teachers never touch git. See note below.
-
-> **How the in-app library works (for the next PR):** The app never clones git.
-> It fetches the community repo's file list via the GitHub API (or a cached
-> `courses/index.json` in that repo) and shows cards (title, grade, lens,
-> description). [Add to my library] just imports the `course.wow-course.json`
-> file the teacher picked, the same code path as pasting a URL today. The repo
-> stays plain files so forks inherit it. Teachers browse, tap Add, done.
+        are the templates.
+  - [x] **The repository itself: LIVE and PUBLIC.**
+        `https://github.com/wellofwisdom/community-courses` (private false,
+        5 CC-BY courses at `f8d2345`). Pushed from `C:/tmp/community-courses-staging`
+        after the fine-grained PAT was re-saved to include the new org repo
+        (Selected repositories must opt in each new repo).
+  - [x] **In-app community library (no GitHub for teachers): SHIPPED `8d12928`.**
+        A `Community library` tab on the Courses page. `GET /api/community`
+        proxies the library via GitHub tree + raw (or `COMMUNITY_COURSES_URL`
+        override), 5 minute cache, with fallback to `docs/examples` so the tab
+        is never empty before the org repo exists. `POST /api/community/import`
+        adds the chosen course to the teacher's own library as a draft,
+        reusing the normalizer path. The tab shows cards with title, grade,
+        lens, description, units and lessons and a single Add to my library
+        button. Teachers never touch git.
 - [x] **World UI** (`48c9ced`, `69c7156`). The learner's world view: chapters as
       a journey, encounter cards that are locked, open or won, loot, crew and
       real rewards. The guide's builder on the course page: pick a game type,
