@@ -1,0 +1,30 @@
+{
+  "id": "frankenstein-cells",
+  "title": "Frankenstein and the Living Thread",
+  "tagline": "From cell to system, from spark to stewardship",
+  "description": "Shelley asks what life is and who answers for it when it is made. A biology-and-reading adventure from cell to system, information to inheritance, Gothic night to ethical before and after.",
+  "worldPrompt": "An original, serious adventure after Mary Shelley's Frankenstein (1818, public domain). The learner is the steward who must check Victor's work: Robert Walton is the outer letter writer whose own ambition frames the tale, Victor is the maker, the Creature is the abandoned who learns language and judges, Elizabeth and Clerval are the humane ties. Each chapter gates the biology or reading unit: what is alive, tissue and vascular need, homeostasis by feedback, DNA to protein, Gothic and the ethical hinge can versus ought. Tone is compassionate and unflinching. Loot is laboratory and letter: slide, vessel tie, night watch card.",
+  "gameType": "cyoa",
+  "characters": [
+    { "name": "Victor Frankenstein", "role": "rival", "bio": "Brilliant, rash, unwilling to keep what he starts. He is the case study in ability without care." },
+    { "name": "The Creature", "role": "mentor", "bio": "Speaks clearly, feels acutely, asks the care question better than his maker. Your judgement is whether he is owed it." },
+    { "name": "Robert Walton", "role": "ally", "bio": "Writes the frame from the ice. He lets you see two ambitions echo and judge both." },
+    { "name": "Elizabeth Lavenza", "role": "ally", "bio": "Steady and humane. She asks what a life needs beyond a first breath." }
+  ],
+  "chapters": [
+    { "title": "What Counts as Alive?", "hook": "A list most living things check, and two that fire and crystal do not." },
+    { "title": "From Cells to Keeping", "hook": "A seam needs blood and signal or it dies. Systems need vessels and stewardship." },
+    { "title": "What the Cold Requires", "hook": "A cold night steadies temperature and pH by loops that correct drift." },
+    { "title": "Information Read Into Flesh", "hook": "DNA to RNA to protein. A random letter rarely makes a new organ well." },
+    { "title": "Night, Ice, and the Question", "hook": "Dread is Gothic. Can versus ought is the ethical hinge that chooses before the spark." },
+    { "title": "The Review That Would Have Kept a Life", "hook": "Consent, risk, a care plan: the board that would have said not yet or care this way." }
+  ],
+  "loot": [
+    { "name": "Night Watch Card", "description": "The Arctic night and the frame letter that lets two ambitions be judged at once. Chapter 1, Walton's ice.", "icon": "🌌", "rarity": "common" },
+    { "name": "Tissue Slide", "description": "The four tissues under glass: covering, holding, moving, signalling. Ordered cell to tissue to organ to system. Chapter 2, the anatomy.", "icon": "🔬", "rarity": "common" },
+    { "name": "Vessel Tie", "description": "The tie Victor forgot. Without blood and signal, stitched tissue dies. Chapter 2, the seam.", "icon": "🩸", "rarity": "uncommon" },
+    { "name": "Feedback Loop", "description": "A loop that steadies: sense, compare, correct. Night after night the inside is kept. Chapter 3, homeostasis.", "icon": "🔄", "rarity": "rare" },
+    { "name": "Codex Strand", "description": "DNA to RNA to protein, letter by letter. Most random edits are not gifts. Chapter 4, the code.", "icon": "🧬", "rarity": "rare" },
+    { "name": "Steward's Answer", "description": "The sentence that says ability alone does not justify the act, and the plan that shows it. Legendary stewardship clear.", "icon": "📖", "rarity": "legendary" }
+  ]
+}

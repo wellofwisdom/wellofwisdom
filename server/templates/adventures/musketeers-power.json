@@ -1,0 +1,31 @@
+{
+  "id": "musketeers-power",
+  "title": "The Four's Ordinance",
+  "tagline": "Oaths spoken, offices kept, ledgers checked, and the letter that claims to be law",
+  "description": "Paris in the year of the diamond studs. A civics-and-rhetoric adventure through Dumas's France where power moves by oath, office, and purse, rhetoric wins scenes, and the sealed lettre tests whether law or favour shall have the last word.",
+  "worldPrompt": "An original civics adventure after Alexandre Dumas's The Three Musketeers (1844, public domain). The learner is the honest clerk of the four: d'Artagnan, Athos, Porthos, Aramis, with Treville, Richelieu, and Milady testing their tests. Each chapter gates the history and civics unit: personal versus institutional power, oaths as constitutions, rhetoric devices, fiscal centralisation and ledgers, blank lettres versus rule of law and separation of powers, and a written ordinance with a test lettre case. Tone is grave about law and lively about Dumas. Loot is 17th century French life: rapier hilt, sealed lettre, treasury ledger, innkeeper's bill.",
+  "gameType": "cyoa",
+  "characters": [
+    { "name": "d'Artagnan", "role": "self", "bio": "Young, fast, learning to choose when honour and interest pull apart. You counsel him before he draws." },
+    { "name": "Athos", "role": "mentor", "bio": "Nobly born, grieved, exacting about oaths. He asks what must costs and who pays it." },
+    { "name": "Porthos", "role": "ally", "bio": "Big heart and big appetite for pay and praise. He checks whether courage has a budget." },
+    { "name": "Aramis", "role": "rival", "bio": "Pious and plotting. In late Dumas he is the reminder that a sacred vow claimed for a scheme is still a scheme." },
+    { "name": "Cardinal Richelieu", "role": "boss", "bio": "Brilliant centraliser. His sealed lettre is the test: necessity asked as favour versus law's answer." }
+  ],
+  "chapters": [
+    { "title": "Whose France Is It?", "hook": "King, cardinal, captains. Ask who pays and who writes the record." },
+    { "title": "The Words You Swear", "hook": "All for one. Say who is bound, to what, at what price must means." },
+    { "title": "How Speeches Move Us", "hook": "Ethos, pathos, logos. Deliberative or forensic. Anaphora, antithesis, and what is missing." },
+    { "title": "Who Can Pay the March?", "hook": "The innkeeper waits. A lord's purse runs out. A ministry's ledger does not, until it fails its audit." },
+    { "title": "The Lettre That Says It Is Law", "hook": "A seal that pre-excuses. Law that must bind even the hand that holds the seal." },
+    { "title": "Write the Ordinance", "hook": "Name your oath, set your offices, keep your ledger, and test the lettre before you obey it." }
+  ],
+  "loot": [
+    { "name": "Oath Ribbon", "description": "The ribbon four men touched when they said all for one. Who, what, at what cost. Chapter 2, the oath.", "icon": "🎀", "rarity": "common" },
+    { "name": "Rapier Hilt", "description": "Cross and guard, honour where it costs. Chapter 2, the quarrel of motives.", "icon": "🤺", "rarity": "common" },
+    { "name": "Sealed Lettre", "description": "A folded sheet with a great seal that says all is for the state. The claim to test against law and process. Chapter 5, the cardinal's test.", "icon": "📜", "rarity": "rare" },
+    { "name": "Treasury Ledger", "description": "Where taxes to one account and pay by office can be counted and audited. Chapter 4, fiscal France.", "icon": "📒", "rarity": "rare" },
+    { "name": "Innkeeper's Bill", "description": "Supper, horse, and march charged and receipted. The small record that proves whether favour or institution fed the company. Chapter 4, the march.", "icon": "🧾", "rarity": "uncommon" },
+    { "name": "Ordinance Seal", "description": "The Four's seal when oath, offices, ledger, dispute steps, and lettre judgement are written and hold. Legendary ordinance clear.", "icon": "⚖️", "rarity": "legendary" }
+  ]
+}

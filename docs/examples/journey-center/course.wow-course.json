@@ -1,0 +1,233 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Journey to the Center: Layers, Plates, and How Earth Moves",
+  "topic": "Earth science: layers, plate tectonics, volcanoes, and earthquakes through Journey to the Center of the Earth",
+  "lens": "Journey to the Center of the Earth by Jules Verne (1864)",
+  "gradeLevel": 7,
+  "description": "Professor Lidenbrock cracks a cipher and descends through an Icelandic crater. Verne imagined a hollow world. Real earth science found layered rock, moving plates, and magma that builds islands. Follow the novel's descent as a field of evidence: what the journey got wrong, what it got usefully close to, and how plates explain the route. Inspired by a novel in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Down through the layers",
+      "lessons": [
+        {
+          "title": "Verne imagined a hollow world. Earth is layered.",
+          "summary": "Crust, mantle, outer core, inner core, and how we know without digging there.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Lidenbrock's wrong idea that moved science forward",
+                "body": "Verne's professor thought a crater could lead straight to an open center. We have drilled about $12\\ km$ down, a scratch on an earth $6{,}371\\ km$ in radius. We know the layers from **seismic waves**, the shaking that runs after an earthquake.\n\n- **Crust:** the thin skin. Ocean crust about $7\\ km$ thick, continental crust about $30$ to $70\\ km$.\n- **Mantle:** the thick rocky shell below, solid but that flows over long time. About $2{,}900\\ km$ thick.\n- **Outer core:** liquid iron and nickel, moving, making the magnetic field.\n- **Inner core:** solid iron pressed by weight, hotter than the surface of the sun yet held solid by pressure.\n\nA hollow earth would not bend seismic waves as observed. A layered earth does."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "How do we know Earth is layered, even though no hole reaches the center?",
+                "choices": [
+                  { "id": "c1", "text": "Seismic wave paths and speeds change at layer boundaries" },
+                  { "id": "c2", "text": "Someone drilled to the center and looked" },
+                  { "id": "c3", "text": "Verne wrote it in a novel" }
+                ],
+                "answer": "c1",
+                "explanation": "Seismic waves refract and change speed at the crust mantle boundary, the mantle core boundary, and elsewhere, mapping layers without direct drilling.",
+                "hint": "Which tool shakes the whole planet and listens to how the shake travels?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which is the correct order from the surface down?",
+                "choices": [
+                  { "id": "c1", "text": "Crust, mantle, outer core, inner core" },
+                  { "id": "c2", "text": "Mantle, crust, inner core, outer core" },
+                  { "id": "c3", "text": "Inner core, outer core, mantle, crust" }
+                ],
+                "answer": "c1",
+                "explanation": "The layers run crust on the outside, then mantle, then liquid outer core, then solid inner core.",
+                "hint": "Where does the thin skin sit?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Minerals, rocks, and where you find them",
+          "summary": "Igneous, sedimentary, metamorphic, and the place each forms.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Axel names the rock and knows the road",
+                "body": "Axel, the nephew, knows minerals by their look and hardness. That is practical underground. **Minerals** have a set chemistry and structure. **Rocks** are made of one or more minerals.\n\n- **Igneous:** cooled from magma or lava, like basalt and granite\n- **Sedimentary:** grains laid down by water, wind, or ice and pressed, like sandstone and limestone\n- **Metamorphic:** existing rock changed by heat and pressure without melting, like marble from limestone\n\nIceland, where Verne's crater sits, is basalt from the Mid Atlantic Ridge. A sandstone would be a wrong clue there."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Basalt from an Icelandic lava field is:",
+                "choices": [
+                  { "id": "c1", "text": "Igneous, cooled from magma or lava" },
+                  { "id": "c2", "text": "Sedimentary, pressed from sand on a beach" },
+                  { "id": "c3", "text": "Man made, poured like concrete" }
+                ],
+                "answer": "c1",
+                "explanation": "Basalt solidifies from molten rock, so it is igneous.",
+                "hint": "Did it cool from liquid rock?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Pick one rock type (igneous, sedimentary, or metamorphic) and write where you would expect to find it on a real landscape, in one sentence.",
+                "answer": "Limestone, a sedimentary rock, forms in layers where an old sea once laid down shell and mud.",
+                "explanation": "Any sentence that pairs the rock type with a fitting landscape or formation setting is good.",
+                "hint": "Igneous near volcanoes, sedimentary where grains settle, metamorphic where heat and weight press."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Plates that creep and maps that prove it",
+          "summary": "The crust is broken into plates that move centimetres per year.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Wegener's map that nobody believed, then did",
+                "body": "In 1912 Alfred Wegener noticed South America and Africa fit like torn paper. Few believed him until the 1960s when sea floor **magnetic stripes** and **earthquake belts** proved it. The outer shell is broken into **plates** that slide at about the speed fingernails grow, $2$ to $10\\ cm$ per year.\n\n- **Divergent** boundaries: plates pull apart, new crust forms at mid ocean ridges like Iceland\n- **Convergent** boundaries: plates collide, one slides beneath the other, mountains and deep trenches form\n- **Transform** boundaries: plates grind past each other, like California's San Andreas\n\nVerne's straight path down would cross all three kinds and not survive the encounter with a subduction zone."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What modern evidence most changed minds about Wegener's continental drift?",
+                "choices": [
+                  { "id": "c1", "text": "Symmetrical magnetic stripes on either side of mid ocean ridges plus belts of quakes and volcanoes at plate edges" },
+                  { "id": "c2", "text": "A photograph of the center of the Earth" },
+                  { "id": "c3", "text": "A novel about a journey underground" }
+                ],
+                "answer": "c1",
+                "explanation": "Sea floor spreading left mirrored magnetic stripes and live plate edges, confirming motion.",
+                "hint": "Which evidence is physically recorded in rock and in live shaking?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A plate moves 4 cm per year. About how many metres does it move in 1,000 years?",
+                "answer": 40,
+                "explanation": "4 cm per year times 1,000 is 4,000 cm, which is 40 m.",
+                "hint": "Multiply rate by years, then convert cm to metres (100 cm = 1 m)."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Volcanoes, quakes, and why they cluster",
+      "lessons": [
+        {
+          "title": "Fire mountains where plates meet",
+          "summary": "Volcano type follows plate setting, not random luck.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Snaefellsness and the real Sneffels",
+                "body": "Verne's entrance crater, Sneffels, is on Iceland's Snaefellsness Peninsula. Iceland sits astride the Mid Atlantic Ridge, a divergent boundary where plates pull apart and basalt erupts. Real Icelandic volcanoes are mostly **shield and fissure** types that pour fluid basalt, not the steep explosive cones of subduction zones like the Andes.\n\n- **Ridge volcanoes:** basalt, fluid, broad shields, many safe to approach at a distance\n- **Subduction volcanoes:** andesite to rhyolite, stickier, explosive, steep cones\n- **Hotspot volcanoes:** plumes like Hawai i, tracked lines of islands over a fixed deep source\n\nKnowing the plate setting predicts the hazard before the mountain speaks."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why is Iceland volcanic?",
+                "choices": [
+                  { "id": "c1", "text": "It sits on a divergent plate boundary where new crust forms" },
+                  { "id": "c2", "text": "It sits in the middle of a thick continental plate far from any edge" },
+                  { "id": "c3", "text": "It was created by a meteor impact last century" }
+                ],
+                "answer": "c1",
+                "explanation": "Iceland rides the Mid Atlantic Ridge where the Atlantic plates diverge and magma rises.",
+                "hint": "What plate boundary runs through Iceland on maps of ridges?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "A stranger asks whether all volcanoes are the same danger. In two sentences, explain how plate setting changes what kind of eruption to expect.",
+                "answer": "Divergent ridge volcanoes erupt fluid basalt broadly, while subduction volcanoes erupt stickier magma explosively. So hazard depends on which boundary the volcano sits on.",
+                "explanation": "Any answer that ties eruption style to divergent versus subduction setting is good.",
+                "hint": "Does the kind of plate edge change the lava type and the danger?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Quakes: sudden slip on a loaded fault",
+          "summary": "Stress builds, the rock holds, then snaps.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "When the ground moved under Axel",
+                "body": "Mid journey, Axel feels the tunnel shudder. A real earthquake is **elastic rebound**: plates lock, bend, and then slip, releasing energy as shaking that travels outward.\n\n- **Fault:** the surface where rock breaks and slides\n- **Epicenter:** the point on the surface above the slip\n- **Magnitude:** a logarithmic measure of energy. Each whole point is about 32 times more energy.\n- **Intensity:** what shaking does to people and buildings, which weakens with distance\n\nA map of recent epicenters traces plate edges more cleanly than any coastline."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What is elastic rebound?",
+                "choices": [
+                  { "id": "c1", "text": "Strain builds at a locked fault then releases in a sudden slip" },
+                  { "id": "c2", "text": "Magma slowly pushing the ground up like a hill" },
+                  { "id": "c3", "text": "Rain washing soil downhill" }
+                ],
+                "answer": "c1",
+                "explanation": "Stored elastic strain snaps free when friction is overcome.",
+                "hint": "Does strain build smoothly or with a hold and snap?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "If a magnitude 5 quake releases E, about how many E does a magnitude 6 release (to the nearest whole number)?",
+                "answer": 32,
+                "explanation": "Each magnitude step is about 32 times more energy.",
+                "hint": "How many times 1.0 in Richter log energy is each step?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Correct Verne's descent and keep what is true",
+          "summary": "Retell the route with the right science, keeping his sense of wonder.",
+          "items": [
+            {
+              "type": "project",
+              "content": {
+                "title": "Revise the route: Verne checked by plates",
+                "description": "Pick one leg of Verne's tunnel (the crater rim, a salt flat with fossils, or the deep chamber). On one page, quote or paraphrase how Verne describes it in one sentence, then in two or three sentences retell that leg with correct plate and rock science: layer name, rock type, boundary type, or hazard. Add a small sketch of a plate boundary with two labelled arrows showing which way plates move. Close with one sentence on what Verne's sense of wonder keeps that is still true about earth.",
+                "rubric": "- One quoted or paraphrased line from Verne with chapter context\n- Two or three sentences of corrected science naming at least two of: crust/mantle, basalt versus andesite, divergent/convergent/transform, ridge versus subduction\n- A small boundary sketch with two directional arrows and labels\n- A final sentence that names wonder that survives correction"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

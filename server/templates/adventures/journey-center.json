@@ -1,0 +1,29 @@
+{
+  "id": "journey-center",
+  "title": "Descent: Correcting Verne",
+  "tagline": "Carry wonder down, but carry the atlas too",
+  "description": "Professor Lidenbrock cracked a cipher and dragged his nephew into a crater. A descent adventure that keeps Verne's wonder and corrects his science layer by layer, boundary by boundary, until a real earth emerges from the fiction.",
+  "worldPrompt": "An original descent adventure after Jules Verne's Journey to the Center of the Earth (1864, public domain). The learner descends with gruff Professor Lidenbrock, nervous nephew Axel, and steady Icelandic guide Hans as a plate-tectonics field team. Each chapter gates the earth science unit: layered earth and seismic proof, mineral and rock type by setting, plate types and Wegener's evidence, volcano type by boundary, quakes by elastic rebound, and a corrected retelling that preserves wonder. Characters are the canonical three only, described faithfully. Tone is sturdy, curious, and respectful of Verne's imagination. Loot is descent gear: cipher slip, basalt chip, pocket lens, seismograph trace.",
+  "gameType": "dungeon",
+  "characters": [
+    { "name": "Professor Lidenbrock", "role": "mentor", "bio": "Mineralogist, impatient, brilliant, wrong in useful ways. He teaches you to argue with your own hero." },
+    { "name": "Axel", "role": "self", "bio": "Mineral-knowing, comfort-craving, your eyes in the dark. You keep the strand of correct science." },
+    { "name": "Hans", "role": "ally", "bio": "Icelandic guide, few words, each true. He knows basalt from limestone and ice that grinds." }
+  ],
+  "chapters": [
+    { "title": "The Cipher and the Crater", "hook": "A runic slip says to descend. Iceland says what the rock is first." },
+    { "title": "What the Layers Tell", "hook": "No hollow centre, but four layers that bend every shake." },
+    { "title": "Plates at the Speed of Nails", "hook": "Wegener's torn paper, magnetic stripes that convinced, and the speed at which ground moves." },
+    { "title": "Fire That Comes in Two Kinds", "hook": "Ridge basalt and subduction andesite wear different hazards." },
+    { "title": "The Snap", "hook": "Loaded faults hold, then rebound. The shudder proves it." },
+    { "title": "Retell the Route, Keep the Wonder", "hook": "Quote Verne once, correct him twice, then say what awe survives." }
+  ],
+  "loot": [
+    { "name": "Cipher Slip", "description": "The runic slip Lidenbrock cracked. The journey's permission, not its proof. Chapter 1, the study.", "icon": "📜", "rarity": "common" },
+    { "name": "Basalt Chip", "description": "Black basalt from the ridge. Marks igneous cooled from lava. Chapter 2, Snaefellsness.", "icon": "🪨", "rarity": "common" },
+    { "name": "Pocket Lens", "description": "Axel's mineral lens. Tells basalt from sandstone before the hazard is guessed. Chapter 2, the mineral check.", "icon": "🔍", "rarity": "uncommon" },
+    { "name": "Stripe Card", "description": "Card of mirrored magnetic stripes either side of a ridge. The evidence that moved minds. Chapter 3, Wegener.", "icon": "🧲", "rarity": "rare" },
+    { "name": "Rebound Scroll", "description": "Hans's note: stress, lock, slip, wave. The hold and snap that quakes remember. Chapter 5, the fault.", "icon": "📈", "rarity": "rare" },
+    { "name": "Atlas Seal", "description": "Hans's nod when your corrected route shows layers, rocks, boundaries, quakes, and wonder that remains true. Legendary descent clear.", "icon": "🗺️", "rarity": "legendary" }
+  ]
+}

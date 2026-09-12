@@ -1,0 +1,263 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Around the World in 80 Days: Ratios, Time, and World Geography",
+  "topic": "Ratios, proportional reasoning, time zones, and world geography through Around the World in Eighty Days",
+  "lens": "Around the World in Eighty Days by Jules Verne (1873)",
+  "gradeLevel": 7,
+  "description": "Phileas Fogg bets he can circle the world in 80 days. Verne's race becomes a course in ratios and geography: keep the constant ratio of speed, convert time across zones, and see how continents, oceans, and latitude set the route. Inspired by a novel in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Keeping a constant ratio: speed",
+      "lessons": [
+        {
+          "title": "The punctual gentleman",
+          "summary": "Speed is a constant ratio of distance to time.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Fogg is never late",
+                "body": "In London, Phileas Fogg lives by the clock. When his friends doubt that 80 days is enough to circle the globe, he says the maths will hold if the ratios do. **Speed** is the ratio $distance / time$, written $km/h$ or $mph$. Keep a speed and the relation between distance and time stays fixed, a **proportional relationship**.\n\n- $speed = distance / time$, so $distance = speed \\times time$ and $time = distance / speed$\n- At a fixed speed, double the time means double the distance. That is proportion.\n- Units must match. Do not mix miles and kilometres without converting. $1\\ mile$ is about $1.6\\ km$, $1\\ inch$ about $2.54\\ cm$.\n\nFogg's trick is not speed. It is keeping the next departure true to the ratio he planned."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A train holds 60 miles per hour for 4 hours. How many miles does it cover?",
+                "answer": 240,
+                "explanation": "Distance equals speed times time: 60 times 4 equals 240 miles.",
+                "hint": "Distance = speed x time."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A ship covers 480 nautical miles at 20 nautical miles per hour. How many hours does it take?",
+                "answer": 24,
+                "explanation": "Time equals distance divided by speed: 480 / 20 equals 24 hours.",
+                "hint": "Time = distance / speed."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "At a steady speed, which describes distance and time?",
+                "choices": [
+                  { "id": "c1", "text": "They are proportional: double one, double the other" },
+                  { "id": "c2", "text": "They are unrelated: time does not affect distance" },
+                  { "id": "c3", "text": "Faster always means a shorter route on the map" }
+                ],
+                "answer": "c1",
+                "explanation": "At a fixed speed, distance scales with time in a constant ratio.",
+                "hint": "If you travel twice as long at the same speed, how far do you get?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Scaling the trip by ratio",
+          "summary": "Scale timetables and supplies by the same factor without breaking the ratio.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Twice the coal, twice the steam",
+                "body": "Passepartout watches the coal heave into the bunker. At full steam the ship burns fuel at a steady ratio to the distance made good. Double the distance, double the coal. Change the people, change the stores. That is **scaling a ratio**: multiply both sides by the same factor and the proportion holds.\n\n- Ratio $a : b$ scaled by $k$ is $k\\times a : k\\times b$.\n- A rate like $km/h$ already is a ratio per one hour. Apply it for $n$ hours, get $n$ times the distance.\n- Watch for hidden conversions. A timetable in hours and a speed in miles per hour must be in the same time unit before you multiply."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A dining car plans 3 bread rolls per traveller. A party of 8 travellers needs how many rolls?",
+                "answer": 24,
+                "explanation": "3 times 8 equals 24.",
+                "hint": "The rate is 3 per 1, scaled to 8."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which keeps the ratio 4 coal to 1 distance?",
+                "choices": [
+                  { "id": "c1", "text": "8 coal to 2 distance" },
+                  { "id": "c2", "text": "4 coal to 2 distance" },
+                  { "id": "c3", "text": "6 coal to 1 distance" }
+                ],
+                "answer": "c1",
+                "explanation": "Both sides doubled: 4*2 : 1*2 equals 8 : 2 and preserves 4 to 1.",
+                "hint": "Did both sides get multiplied by the same number?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In one or two sentences, explain how you scale a timetable when the distance doubles at the same speed.",
+                "answer": "Double the time, because distance is proportional to time at a fixed speed.",
+                "explanation": "Any answer stating distance and time scale together at constant speed is good.",
+                "hint": "What did double mean for the proportional pair?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Time gained and lost around the world",
+          "summary": "The earth turns 360 degrees in 24 hours, so time depends on where you stand.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The day Fogg did not count",
+                "body": "The famous ending: Fogg thinks he is a day late, but by travelling east he gained a day. Earth turns $360^\\circ$ in $24\\ h$, about $15^\\circ$ per hour. **Time zones** are roughly one hour per 15 degrees of **longitude** east to west. Cross the **International Date Line** near $180^\\circ$ and the calendar jumps.\n\n- Moving **east**, you meet the sun earlier, so clocks go forward. Moving west, clocks go back.\n- About $15^\\circ$ longitude equals one hour of time.\n- Fogg travelling east all the way around gained 24 hours, one whole day, because $360 / 15 = 24$.\n\nLocal time is not universal time. That is why a train timetable lists zones."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "The earth turns 360 degrees in 24 hours. How many degrees per hour does that equal?",
+                "answer": 15,
+                "explanation": "360 / 24 equals 15 degrees per hour.",
+                "hint": "Degrees divided by hours."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "When you fly east across three time zones, what happens to local clock time?",
+                "choices": [
+                  { "id": "c1", "text": "It moves forward about three hours" },
+                  { "id": "c2", "text": "It moves back about three hours" },
+                  { "id": "c3", "text": "It stays the same" }
+                ],
+                "answer": "c1",
+                "explanation": "Eastward travel meets the sun earlier, so local time advances.",
+                "hint": "Does the eastern sun rise earlier or later?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In one sentence, explain why circling the world eastwards as Fogg did adds a calendar day, using 360 and 15 or 24.",
+                "answer": "Travelling east 360 degrees gains about 15 degrees per hour times 24 hours, one whole day.",
+                "explanation": "Any answer tying the full circle at 15 degrees per hour to 24 hours equals one gained day is good.",
+                "hint": "How many 15 degree steps make 360?"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Continents, oceans, and the route that is possible",
+      "lessons": [
+        {
+          "title": "Water and land set the path",
+          "summary": "Oceans and continents decide which crossings are by sea and which by rail.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Why Fogg sails some stretches and rails others",
+                "body": "In 1873 Fogg could not fly. Oceans meant ships, continents meant rails and coaches. The places of **oceans** (Atlantic, Pacific, Indian), **continents** (Europe, Asia, Africa, North America, South America, Australia, Antarctica), and choke points like the Suez Canal set the route's shape. A great detour costs days. A canal saves weeks.\n\n- **Physical regions** like the Sahara or the Ganges plain slow a party\n- **Political regions** set borders and delays: visas, coaling stations, a pause at Bombay then called under British rule\n- A good planner asks both: what does the ground permit, and what do authorities permit?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which explains why Fogg's 1873 route was part sea and part rail?",
+                "choices": [
+                  { "id": "c1", "text": "Oceans require ships and continents allow rails; you cannot rail an ocean" },
+                  { "id": "c2", "text": "Ships are always faster than trains everywhere" },
+                  { "id": "c3", "text": "He chose at random" }
+                ],
+                "answer": "c1",
+                "explanation": "Physical geography determines the feasible mode for each leg.",
+                "hint": "Can rails cross the Atlantic?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which is the most direct pairing of ocean to crossing?",
+                "choices": [
+                  { "id": "c1", "text": "Atlantic between Europe and North America" },
+                  { "id": "c2", "text": "Indian Ocean between London and Paris" },
+                  { "id": "c3", "text": "Arctic Ocean between Cairo and Bombay" }
+                ],
+                "answer": "c1",
+                "explanation": "The Atlantic separates Europe from North America; the other pairings misplace continents and oceans.",
+                "hint": "Which ocean lies between those landmasses on a world map?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Latitude and climate: why the route bends",
+          "summary": "How far north or south decides climate for the date travelled.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Why not go the short way over the pole?",
+                "body": "A straight line over the North Pole is short on a globe and terrible in October for a steam party. **Latitude** sets expectation for temperature, daylight, and ice. The Tropic of Cancer near $23.5^\\circ$ N and the Arctic Circle near $66.5^\\circ$ N mark where the sun stands and how short a winter day is.\n\n- Low latitudes near the equator tend warmer, with monsoon and cyclone seasons a planner must respect\n- Mid latitudes where most of Fogg's route passes carry temperate seasons\n- High latitudes have short winter daylight and long summer daylight because of axial tilt\n\nA sensible route trades a few extra miles for open sea and safe daylight."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why avoid a high Arctic shortcut in late autumn for a steam party?",
+                "choices": [
+                  { "id": "c1", "text": "Short daylight, ice, and cold raise time and danger, outweighing the shorter globe distance" },
+                  { "id": "c2", "text": "Latitude has no effect on climate" },
+                  { "id": "c3", "text": "Maps show the pole as flat, so wind does not matter" }
+                ],
+                "answer": "c1",
+                "explanation": "Latitude and season determine daylight, ice, and storm risk, which dominate feasibility at high latitudes in winter.",
+                "hint": "Is the shortest geometric path always the quickest lived path?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Your route can clip the Arabian Peninsula or swing south around it. Name one physical and one human factor to check before you decide, for the Arabian leg.",
+                "answer": "Physical: desert heat and water for the crew; human: permits and coaling stations available at ports.",
+                "explanation": "Any pairing of a terrain or climate factor with a political or service factor for that leg is good.",
+                "hint": "One factor is ground and air, one is people and permissions."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Revise Fogg's journey for today and prove it with ratios",
+          "summary": "Keep Verne's wonder, use today's world and real ratios to check the bet.",
+          "items": [
+            {
+              "type": "project",
+              "content": {
+                "title": "Fogg in 2026: can 80 days still hold?",
+                "description": "Write a one page plan answering Fogg's bet for today. Name your route Londonto Paris to Suez to Bombay to Singapore to Hong Kong to Yokohama to San Francisco to New York to London, or revise one ocean leg, with country and ocean for each. Pick one timetable rate (for example 900 km per hour for flight) and use a proportional calculation to show hours for at least two legs (distance = speed x time or time = distance / speed). State where local time gains or loses across zones alter departure times and where the date line matters. Add a timetable of three departures with zones labelled. Close with one sentence holding Verne's wonder: what about distance and being in time feels different after doing the maths?",
+                "rubric": "- Route lists countries and oceans for each leg, at least four legs, destination oceans correct\n- Two legs show proportional hours computed correctly with units (distance = speed x time or time = distance / speed)\n- One zone statement says east adds time, west loses it, and where the date line changes the calendar\n- Three departure times with zones labelled\n- A final wonder sentence grounded in the maths, not a bare opinion"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

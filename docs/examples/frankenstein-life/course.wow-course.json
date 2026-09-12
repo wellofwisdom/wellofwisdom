@@ -1,0 +1,238 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Frankenstein and Life: Cells to Systems, Choice to Responsibility",
+  "topic": "Biology from cells to systems plus the Gothic and ethical reading through Frankenstein",
+  "lens": "Frankenstein; or, The Modern Prometheus by Mary Shelley (1818)",
+  "gradeLevel": 9,
+  "description": "Shelley asks what it means to make life and then answer for it. Follow the novel alongside the biology it haunts: cells that build tissues, systems that keep them alive, and inheritance that carries change. Then read the Gothic closely and decide: when the central act is being able to do something, is being willing next, or is consent and care? Inspired by a novel in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "The spark: cells, tissues, and what alive means",
+      "lessons": [
+        {
+          "title": "Is it alive?",
+          "summary": "The traits biologists use to call something alive, and where the creature strains them.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Victor keeps no list",
+                "body": "Victor Frankenstein works by night, stitching what no list could settle. Biologists do settle it, by traits checked together, not one passion.\n\nA living thing tends to check most of: organization into **cells**, **energy** use and **metabolism**, **growth**, **response** to stimuli, **reproduction**, and over time **evolution** of populations. A crystal grows but does not metabolize. A fire uses energy but has no cells and does not reproduce as an organism does.\n\n- **Cell:** the smallest unit that can carry on the processes of life\n- **Metabolism** is chemistry that keeps you going, repair included\n- Shelley's question is not how to spark life, but whether the checklist plus care equals a life worth living"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which pair of failures helps show why a fire is not considered alive?",
+                "choices": [
+                  { "id": "c1", "text": "It has no cells and no biological reproduction" },
+                  { "id": "c2", "text": "It is hot" },
+                  { "id": "c3", "text": "It moves" }
+                ],
+                "answer": "c1",
+                "explanation": "Life criteria include cellular organization and organismal reproduction. Fire lacks both.",
+                "hint": "Which two checklist items does fire not check at all?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "The creature learns to speak and reasons. Name one checklist item for alive that speaking does not settle, and say why a biologist would still require it.",
+                "answer": "Cellular organization, because speaking is behaviour while being made of cells is structure biologists require.",
+                "explanation": "Any answer naming one proper trait (cells, metabolism, reproduction) and saying behaviour alone does not prove membership is good.",
+                "hint": "Is speaking on the biologists' list?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Cells to tissues to organs",
+          "summary": "Stitching parts is not the same as building tissues that work together.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Parts do not make a body",
+                "body": "Victor assembles parts. Real bodies build from **cells** to **tissues** (groups of similar cells with a shared job) to **organs** to **systems**.\n\n- **Four animal tissue types:** epithelial (covers), connective (holds, including blood and bone), muscle (moves), nervous (signals)\n- Tissues need blood supply and innervation to live. A stitched seam without vessels is dying from the start.\n- **Homeostasis** holds the inside steady: temperature, $pH$, salt, oxygen, past narrow ranges. Feedback loops correct drift\n\nShelley's horror is not stitching. It is stitching without enough care to keep a system homeostatic, then abandoning the result."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "In correct biological order, small to large, which chain is right?",
+                "choices": [
+                  { "id": "c1", "text": "Cell to tissue to organ to system to organism" },
+                  { "id": "c2", "text": "Tissue to cell to system to organism" },
+                  { "id": "c3", "text": "Organ to cell to tissue" }
+                ],
+                "answer": "c1",
+                "explanation": "Biological organization nests: cells form tissues, tissues form organs, organs form systems.",
+                "hint": "What is the smallest living unit that tissues are made of?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why is a stitched limb without blood vessels a problem in biology, not just in story?",
+                "choices": [
+                  { "id": "c1", "text": "Without supply, tissues cannot get oxygen and nutrients and cannot remove waste, so homeostasis fails" },
+                  { "id": "c2", "text": "A scar always means healthy tissue" },
+                  { "id": "c3", "text": "Vessels are decorative" }
+                ],
+                "answer": "c1",
+                "explanation": "Vascular supply and nerve signals are required for tissue viability and regulation.",
+                "hint": "What do tissues need continuously to stay alive?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Systems that keep the inside steady",
+          "summary": "Circulation, breathing, and nerves as feedback that guards narrow ranges.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "How a body stays itself",
+                "body": "The creature walks into weather and lives. That implies **homeostasis**, not a single organ. Three systems meet every cold night.\n\n- **Circulation:** heart drives blood. Vessels carry oxygen in and carbon dioxide out. Clotting and immune cells patrol.\n- **Respiration:** lungs move $O_2$ in and $CO_2$ out by diffusion across thin epithelium. Surface area and thinness are the point.\n- **Nervous and endocrine signals:** thermoregulation, thirst, hunger, and the stress axis correct drift by **negative feedback**: a rise triggers a counter that lowers it\n\nAn abandonment is abandonment of maintenance. A creature needs food, shelter, and steady correction of its inside, not just a first breath."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What keeps blood $pH$ and temperature inside narrow, survivable ranges?",
+                "choices": [
+                  { "id": "c1", "text": "Homeostasis by negative feedback loops" },
+                  { "id": "c2", "text": "Wishing" },
+                  { "id": "c3", "text": "A single protein doing everything at once" }
+                ],
+                "answer": "c1",
+                "explanation": "Sensors, control centers, and effectors correct deviations via feedback.",
+                "hint": "What kind of loop corrects a drift back toward set point?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Pick one system (circulation or breathing) and in two sentences say what it moves, where, and how that supports homeostasis on a cold night.",
+                "answer": "Breathing moves oxygen into blood at the lungs and carbon dioxide out; oxygen lets cells release energy to keep temperature steady while carbon dioxide removal holds blood pH.",
+                "explanation": "Any answer that names what is moved, across what thin surface, toward a steadied variable is good.",
+                "hint": "What gas comes in? What goes out? What is steadied?"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Inheritance, difference, and why Shelley's spark stays fiction",
+      "lessons": [
+        {
+          "title": "Information in cells: DNA to RNA to protein",
+          "summary": "Cells store, copy, and read information, then build bodies from what they read.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Victor misreads making",
+                "body": "Victor wants a recipe for a being, not a body. Modern biology separates **information** from **will**. **DNA** stores a base sequence. **RNA** carries a working copy. **Proteins** built from that copy do work: enzymes, scaffolds, signals. The sequence in a human cell is about $3$ billion bases together across paired chromosomes.\n\n- DNA replication copies before a cell divides, still proofread and sometimes erring\n- Transcription makes RNA from DNA. Translation builds a chain of amino acids from RNA at the ribosome.\n- A change in base order can change the protein and sometimes how the organism develops, but most changes are neutral or harmful, not a new species in a night"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which is the correct direction of information flow for building proteins?",
+                "choices": [
+                  { "id": "c1", "text": "DNA to RNA to protein" },
+                  { "id": "c2", "text": "Protein to RNA to DNA" },
+                  { "id": "c3", "text": "RNA to DNA to protein" }
+                ],
+                "answer": "c1",
+                "explanation": "The central flow is transcription then translation.",
+                "hint": "Where is the long term store?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What does it mean that most random DNA changes are neutral or harmful rather than improvements?",
+                "choices": [
+                  { "id": "c1", "text": "A random single-letter change rarely builds a new organ well the first time" },
+                  { "id": "c2", "text": "DNA never changes" },
+                  { "id": "c3", "text": "Every change creates a superior being" }
+                ],
+                "answer": "c1",
+                "explanation": "Well tuned systems are seldom improved by a random edit without selection over time.",
+                "hint": "Is a random edit to a working text usually an improvement?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "The Gothic and the ethical hinge: can versus ought",
+          "summary": "Read how Shelley builds dread, and test ability against permission.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Night, ice, and the question the book keeps asking",
+                "body": "The Gothic uses night walks, Arctic ice, a careful letter, a sudden storm to keep you on edge. Shelley's deeper tool is a question: Victor can animate. May he? And once he has, may he refuse care?\n\n- **Gothic**: dread from setting, isolation, sublime cold, a creature that speaks more feelingly than its maker\n- **Promethean**: stealing fire, then paying. **Frame narrative**: Walton's letters hold the whole tale at a second hand, so you judge both men.\n- **Deontology** asks after duty regardless of outcome: a parent owes care. **Consequentialism** weighs harms and goods. Both indict abandonment.\n\nA modern board now separates them: a researcher must show **consent**, **risk and benefit**, and **ongoing care**. Shelley called its absence tragic. We call it prohibited."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why does Shelley use a frame of Walton writing to his sister?",
+                "choices": [
+                  { "id": "c1", "text": "To hold Victor's tale at one remove so readers can judge Walton too and hear two ambitions echo" },
+                  { "id": "c2", "text": "To make the journey seem unremarkable" },
+                  { "id": "c3", "text": "Because only sea letters were permitted in 1818" }
+                ],
+                "answer": "c1",
+                "explanation": "The outer letter makes the ambitions mirror and lets the reader weigh both narrators.",
+                "hint": "Who else wants glory on the ice?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Victor says he can, so he will. The creature answers for care. In two sentences, argue whether ability alone can make an act right, using one biology fact and one Gothic detail.",
+                "answer": "A body needs ongoing homeostasis, not just a first spark, so ability without care abandons what biology requires. The ice that ends the novel is a Gothic reminder that sublime nature, not the creator, will do the judging.",
+                "explanation": "Any answer that pits ability against duty or care and ties one science fact to one text detail is good.",
+                "hint": "Pair a tissue or system requirement with night, ice, or Walton's watching eyes."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Frankenstein stewardship page",
+          "summary": "A biology check plus a reading, in the voice your stewardship assigns.",
+          "items": [
+            {
+              "type": "project",
+              "content": {
+                "title": "Was care designed before the spark? A stewardship review",
+                "description": "Write a two page review as if for a modern care board and as a reader of the Gothic. Page one checks the biology: name the tissue and vascular requirement Victor ignores and one homeostasis feedback that would need keeping on a cold night, citing cell to tissue and one system. Page two answers the law of 1818 versus today: file consent, risk and benefit, and a care plan that would have followed the creature if Shelley had permitted one. Page two must pair one quoted or precisely placed text detail (night, ice, Walton, the cottagers) with the ethical position you take. Close with one sentence: may ability alone justify what Walton and Victor pursue?",
+                "rubric": "- Page one names a required tissue type and vascular or innervation requirement plus one homeostasis feedback (sensor and counter) tied to a system\n- Page one uses cell to tissue hierarchy correctly and names circulation, breathing, or nervous signalling\n- Page two lists consent, risk and benefit, and a concrete ongoing care plan as required today\n- Page two cites one precise Gothic or frame detail from the novel for the judgement\n- A final sentence judges whether ability alone justifies the act, consistent with the review"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

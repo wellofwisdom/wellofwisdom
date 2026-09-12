@@ -1,0 +1,30 @@
+{
+  "id": "around-world-80",
+  "title": "Fogg's Wager",
+  "tagline": "Eighty days, one ratio, all the meridians",
+  "description": "Phileas Fogg bet he could circle the world in 80 days. A ratios-and-geography adventure that keeps his timetable honest, counts time zones, and proves whether the bet still holds today.",
+  "worldPrompt": "An original round-the-world adventure after Jules Verne's Around the World in Eighty Days (1873, public domain). The learner travels as Passepartout's apprentice with Fogg, quick-footed Passepartout, sharp Inspector Fix, and steady Aouda. Each chapter gates the ratios and geography unit: speed as a proportional ratio, scaling by a factor, 15 degrees per hour, date-line gain, oceans and continents setting the mode, and latitude and season bending the route. Tone is precise like Fogg, wry like Passepartout, where Verne is most modern it is quoted closely. Loot is timetable gear: ticket, zone dial, date-line slip.",
+  "gameType": "rpg",
+  "characters": [
+    { "name": "Phileas Fogg", "role": "mentor", "bio": "Exact to the minute, never to the harsh. He teaches constant ratios and asks whether the hours fit the world, not just the watch." },
+    { "name": "Passepartout", "role": "ally", "bio": "Resourceful, funny, loyal. He turns a timetable into meals, coal, and beds counted by the same factor." },
+    { "name": "Inspector Fix", "role": "rival", "bio": "Certain Fogg is the wrong man for the right reason. He tests whether your time gain argument holds." },
+    { "name": "Aouda", "role": "ally", "bio": "Calm and clear sighted. She asks whose land and whose permissions each leg needs." }
+  ],
+  "chapters": [
+    { "title": "The Bet at the Reform", "hook": "80 days is a circle divided by speed. Prove it with one ratio." },
+    { "title": "Scale the Stores", "hook": "Twice the coal, twice the steam. Keep the ratio when the party doubles." },
+    { "title": "Where Time Slips", "hook": "15 degrees per hour. East gains, west loses, the line jumps." },
+    { "title": "Sea and Rail", "hook": "Oceans call ships. Continents call rail. The world, not will, draws the route." },
+    { "title": "Where Warm and Cold Bend the Line", "hook": "Latitude says whether the shortcut is shorter in daylight and safety." },
+    { "title": "Fogg Rechecked for Today", "hook": "Pick speeds, name oceans, count hours, and prove the bet anew." }
+  ],
+  "loot": [
+    { "name": "Wager Ticket", "description": "Fogg's club ticket: London to Suez to Bombay in hours counted by speed times time. Chapter 1, the bet.", "icon": "🎫", "rarity": "common" },
+    { "name": "Supply Scale", "description": "Passepartout's list: 1778 bread counted by 3 per head, coal per mile. Keep the factor on both sides. Chapter 2, the scaling.", "icon": "⚖️", "rarity": "uncommon" },
+    { "name": "Zone Dial", "description": "Dial that turns 15 degrees into one hour. East forward, west back. Chapter 3, longitude.", "icon": "🕐", "rarity": "common" },
+    { "name": "Date Line Slip", "description": "The slip Fogg did not count: 360 degrees east gains one day. Chapter 3, the calendar jump.", "icon": "📅", "rarity": "rare" },
+    { "name": "World Ribbon", "description": "Aouda's ribbon of continents and oceans, the rail where the sea ends. Chapter 4, the world.", "icon": "🌍", "rarity": "rare" },
+    { "name": "Globe Seal", "description": "Fogg's nod when legs are named, hours proved, zones stated, and wonder asked honestly. Legendary circumnavigation clear.", "icon": "🌐", "rarity": "legendary" }
+  ]
+}

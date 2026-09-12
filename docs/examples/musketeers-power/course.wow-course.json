@@ -1,0 +1,233 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Musketeers and Power: How Oaths, Orders, and Coins Rule",
+  "topic": "World history, civics, and rhetoric through The Three Musketeers",
+  "lens": "The Three Musketeers by Alexandre Dumas (1844)",
+  "gradeLevel": 11,
+  "description": "Paris, 1625. A boy rides in to become a musketeer and finds a France ruled by oaths, patronage, uniforms, and ledgers. Dumas lets you see where power lives: in personal loyalty, in standing offices, and in who can pay. Trace France from the king and Richelieu to the modern state, read rhetoric as action, and test budgets against oaths. Inspired by a novel in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Power in France, 1625: person, office, and moment",
+      "lessons": [
+        {
+          "title": "One land, three claimants",
+          "summary": "The king, the cardinal minister, and the captains each claim to speak for France.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Where power lives when d'Artagnan arrives",
+                "body": "In 1625 King Louis XIII sits on the throne, Cardinal Richelieu serves as chief minister, and captains of companies command musketeers and guards. France still runs in great part on **personal power**: whose man you are, whose letter you carry, whose debts you can call. Across the century ahead, offices, courts, and bureaucracies will pull much of that power into **impersonal institutions** that outlast any one patron. Dumas writes the seam between those worlds.\n\n- **Personal power:** loyalty to a person and their household, fast, brittle when the patron falls\n- **Institutional power:** loyalty to an office and its rules, slower, harder to topple with one dismissal\n- A scene can be read by asking: who pays, who orders, and who writes the record"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What marks personal power in Dumas's France?",
+                "choices": [
+                  { "id": "c1", "text": "Loyalty to a patron whose favour is the channel for pay, protection, and posting" },
+                  { "id": "c2", "text": "A printed code that any clerk administers without favour" },
+                  { "id": "c3", "text": "A ballot cast by all adults every year" }
+                ],
+                "answer": "c1",
+                "explanation": "Patronage links power to persons and their households, not to offices and rules that survive change.",
+                "hint": "Who do you belong to in that world?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which is the most institutional power of the three?",
+                "choices": [
+                  { "id": "c1", "text": "A standing treasury office with written accounts subject to audit regardless of who holds the seal" },
+                  { "id": "c2", "text": "A favour owed by the cardinal" },
+                  { "id": "c3", "text": "A captain's private promise to a friend" }
+                ],
+                "answer": "c1",
+                "explanation": "Offices with rules and accounts outlast a single patron's favour.",
+                "hint": "Which one survives the person who holds it?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "All for one is a constitution you speak",
+          "summary": "An oath is a small constitution: who is bound, to what, at what cost.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "When four men say the words",
+                "body": "\"All for one and one for all\" is spoken early and tested hard: at the siege of La Rochelle, at the inn where bills are due, at Milady's trial. An **oath** binds persons, narrows choice, and raises cost. **Three motives** quarrel in every Dumas decision.\n\n- **Honour:** keeping a promise or a reputation even when it costs\n- **Interest:** gain or safety, counting the ledger\n- **Coercion:** pressure that narrows what is feasible: a lettre de cachet, a threat, a debt\n\nThe word **\"must\"** often smuggles coercion inside honour. Ask who says must, and who pays if they do not."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Name your oath for one page ,  for example with classmates, teammates, or family. Say in one sentence who is bound, in one what is promised, and in one at what cost you would still hold it or release it.",
+                "answer": "We four are bound; we will share work evenly and not leave one to carry the load; at the cost of saying no to an easier plan that breaks fairness.",
+                "explanation": "Any answer stating who, what, and a cost consistent with the promise is good.",
+                "hint": "Bound party, promised act, price you name plainly."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which analysis best separates honour from interest in Aramis's late plot to raise a claim?",
+                "choices": [
+                  { "id": "c1", "text": "Honour would keep the existing succession oath at known cost, interest seeks advantage by changing it under coercive pressure" },
+                  { "id": "c2", "text": "Both are the same thing" },
+                  { "id": "c3", "text": "Honour always means fighting, interest always means paying" }
+                ],
+                "answer": "c1",
+                "explanation": "Honour asks after keeping a vow despite cost. Interest asks after gain. Their tension is the scene.",
+                "hint": "Which one keeps a vow and which counts gain?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Rhetoric that moves people",
+          "summary": "Dumas's speeches work through devices you can name and test.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "How Milady talks and Athos answers",
+                "body": "Rhetoric is not decoration. It is the tool Dumas gives Milady to survive and Athos to judge. Three devices carry the weight.\n\n- **Ethos** leans on who the speaker is. **Pathos** moves feeling. **Logos** argues from reason and evidence.\n- A **forensic speech** argues what happened. A **deliberative speech** argues what to do next. Dumas switches between them at the inn, in court, before the cardinal.\n- **Anaphora** repeats a word at the start of clauses to hold attention. **Antithesis** places opposites together to force a choice: trust or arms\n\nA speech that wins a scene usually hides one of the three outside its own pillar. See what is missing and name it."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Milady recalls past misery vividly to move pity before asking for help. Which appeal is she leaning on?",
+                "choices": [
+                  { "id": "c1", "text": "Pathos, feeling" },
+                  { "id": "c2", "text": "Logos, evidence counted" },
+                  { "id": "c3", "text": "A tide table" }
+                ],
+                "answer": "c1",
+                "explanation": "Recalled suffering aimed at pity is pathos.",
+                "hint": "Is she counting or making you feel?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Quote or paraphrase one short line of a Dumas speech in one sentence and name which appeal it leans on in a second sentence.",
+                "answer": "Milady says none has suffered as she has. That leans on pathos and invites pity before proof.",
+                "explanation": "Any quoted or paraphrased line paired with a correct ethos, pathos, or logos label and a short why is good.",
+                "hint": "Who, how it feels, or counted reasons?"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "From muskets to ministries: money, law, and a France you can budget",
+      "lessons": [
+        {
+          "title": "Who can pay? Bills in a world of favours",
+          "summary": "Loyalty is priced. A personal favour fails where a budgeted office holds.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The innkeeper's ledger",
+                "body": "Dumas pauses for bills. A supper is charged, a horse is lost, a company must be paid before it marches. A state that funds war by calling on a favourite's purse borrows in the strongest man's name. A state that funds itself by a **treasury, a tax, and an account** borrows in the law's name. The first can raise money faster. The second can keep an audit.\n\n- **Fiscal centralisation:** the same tax flows to the same ledger regardless of the collector's friends\n- **Standing army versus household guard:** paid by the treasury versus paid by the patron who raises it\n- **Record versus favour:** a receipt you can check later beats a promise you must trust now\n\nThe siege before La Rochelle shows both at once: Richelieu's will, and the exchequer counting whether will can be fed."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which funds war by an institution rather than a patron?",
+                "choices": [
+                  { "id": "c1", "text": "A treasury levy that posts to a standing account subject to audit" },
+                  { "id": "c2", "text": "A great lord's personal purse lent to the crown" },
+                  { "id": "c3", "text": "A single great bribe to a gate keeper" }
+                ],
+                "answer": "c1",
+                "explanation": "Institutional fiscal power is regular, recorded, and auditable beyond a single patron's favour.",
+                "hint": "Which one a clerk could audit after the patron is gone?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In one sentence, explain why a standing army paid by a ministry differs from a household guard paid by a lord.",
+                "answer": "A standing army is funded and recorded by the state, while a household guard depends on one patron's purse and favour.",
+                "explanation": "Any sentence contrasting treasury backed, accountable pay versus private patronage is good.",
+                "hint": "Who pays, who can audit, who survives the patron's fall?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Richelieu, law, and the letter that claims to be the law",
+          "summary": "A signature that says you may do anything is not law until law says so.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The blank lettre",
+                "body": "Richelieu hands out letters that pre-excuse what the bearer will do: what is done for the good of the state cannot be blamed. Dumas turns the plot on a scrap with a great seal. Under later law the question becomes sharp.\n\n- **Rule of law:** even the minister is bound by law and by courts that can check him, not above them\n- **Due process:** a person answers by a known procedure, with evidence and a defence, before punishment\n- **Separation of powers:** making, judging, and executing law are held in different hands so no one hand writes itself a leave to act\n\nFor a long time France had **raison d'Etat**, reason of state, where the crown claimed necessity as its warrant. Modern constitutionalism answers necessity with law every time."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "A letter signed 'what the bearer does is for the state' claims to excuse any act ahead of time. Which later principle would most directly test it?",
+                "choices": [
+                  { "id": "c1", "text": "Rule of law plus due process before punishment" },
+                  { "id": "c2", "text": "A longer cloak" },
+                  { "id": "c3", "text": "A louder drum" }
+                ],
+                "answer": "c1",
+                "explanation": "Prior blanket excuse conflicts with law that binds officials and requires a heard process before penalty.",
+                "hint": "Who must the law still bind, and what must happen before punishment?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Choose a scene where a character must decide: open the letter, obey it, or test it. In one sentence name which powers are asked to confide in one hand, and in one whether that serves law or favour.",
+                "answer": "The letter asks executing and judging to confide in the minister's hand, which serves favour over law.",
+                "explanation": "Any answer naming the fused powers and judging favour versus law is good.",
+                "hint": "Is making, judging, or executing being handed to the same hand?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Hold a council: a case a stranger could approve",
+          "summary": "Make a small state where oaths, offices, and ledgers can be checked.",
+          "items": [
+            {
+              "type": "project",
+              "content": {
+                "title": "The Four's Ordinance",
+                "description": "Write a two page ordinance as if for the musketeers and for a small co-op, classroom, or project team that must run more than one day. Page one is structure: name an oath with who is bound, to what, at what cost; name three offices with one duty each and the record each must keep; state where the ledger lives and who can audit it; state who judges a dispute and by which written steps (a short due process). Page two answers a test case: a sealed letter arrives saying a decision is excused for the good of the whole. In four to six sentences, say whether you obey it as written, and judge personal favour versus law, cost versus honour, with one Dumas line quoted or closely paraphrased and one budget consequence named. Close with one sentence holding what Aramis forgot: which power must not sleep in one hand?",
+                "rubric": "- An oath with bound party, promise, and cost; three offices with duties; ledger place and auditability named\n- A written dispute process with at least three steps before penalty\n- Test case judged with a quoted or paraphrased Dumas line and a fiscal or operational consequence named\n- A final sentence naming the power (judging or tax and purse) that must not confide with execution\n- Style uses no sentence that claims the novel proves a modern law as fact; each is an argued continuity, not a bare assertion"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
