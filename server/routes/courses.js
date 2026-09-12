@@ -158,21 +158,94 @@ function allItems(tree) {
 }
 
 // Paste-a-worksheet -> AI parses into exercises (job; poll /jobs/:id).
+// Also accepts an uploaded image id (a photo of the worksheet): the image is
+// read with a vision model to text first, then follows the SAME job path, so
+// no second trust boundary and no separate OCR vendor.
 router.post("/worksheet-import", async (req, res, next) => {
   try {
-    const { text, title, courseId } = req.body || {};
-    if (!String(text || "").trim() || String(text).trim().length < 30) return bad(res, "text_required");
+    const { text, title, courseId, uploadId } = req.body || {};
+    let finalText = String(text || "").trim();
+    if (uploadId != null) {
+      const imageId = Number(uploadId);
+      if (!Number.isInteger(imageId) || imageId <= 0) return bad(res, "upload_invalid");
+      const { rows } = await db.query(
+        "select id, mime, storage_key, bytes from uploads where id = $1 and family_id = $2 and kind = 'image'",
+        [imageId, req.user.familyId]
+      );
+      if (!rows[0]) return bad(res, "upload_not_found", 404);
+      if (Number(rows[0].bytes) > 12 * 1024 * 1024) return bad(res, "too_large", 413);
+      const store = require("../lib/uploads");
+      const abs = store.resolveKey(rows[0].storage_key);
+      if (!abs) return bad(res, "file_missing", 410);
+      const fsp = require("node:fs/promises");
+      const buf = await fsp.readFile(abs).catch(() => null);
+      if (!buf) return bad(res, "file_missing", 410);
+      const ocr = require("../lib/ocr");
+      if (!ocr.hasVision()) return bad(res, "ocr_not_configured", 503);
+      let extracted;
+      try {
+        extracted = await ocr.extractTextFromImage({ buffer: buf, mime: rows[0].mime, familyId: req.user.familyId });
+      } catch (e) {
+        const code = e && e.code ? e.code : "ocr_failed";
+        // Keep the NICE wording stable: ocr_failed maps to a sentence in api.ts.
+        if (code === "ocr_not_configured") return bad(res, "ocr_not_configured", 503);
+        return bad(res, code === "ocr_failed" ? "ocr_failed" : "ocr_failed", 502);
+      }
+      if (!extracted || extracted.trim().length < 10) return bad(res, "ocr_empty", 400);
+      finalText = extracted;
+    }
+    if (!finalText || finalText.length < 30) return bad(res, "text_required");
     if (!ai.configured()) return bad(res, "ai_not_configured", 503);
     if (courseId != null) {
       const owns = await db.query("select 1 from courses where id = $1 and family_id = $2", [Number(courseId), req.user.familyId]);
       if (!owns.rowCount) return bad(res, "course_not_found", 404);
     }
     const jobId = await jobs.enqueue(req.user.familyId, "worksheet-import", {
-      text: String(text).slice(0, 12000),
+      text: finalText.slice(0, 12000),
       title: String(title || "").trim().slice(0, 160) || "Imported worksheet",
       courseId: courseId ? Number(courseId) : null,
     }, req.user.id);
-    res.status(202).json({ jobId });
+    // Return the extracted text too, so the dialog can show it for correction
+    // before the job finishes (no second round trip).
+    if (uploadId != null) res.status(202).json({ jobId, extractedText: finalText.slice(0, 12000) });
+    else res.status(202).json({ jobId });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Preview the OCR extraction without enqueuing: upload an image, read it to
+// text, return { text }. The guide reviews/corrects it, then posts to
+// /worksheet-import with { text }. No AI spend stored, no course written.
+router.post("/worksheet-ocr", async (req, res, next) => {
+  try {
+    const { uploadId } = req.body || {};
+    const imageId = Number(uploadId);
+    if (!Number.isInteger(imageId) || imageId <= 0) return bad(res, "upload_invalid");
+    const ocr = require("../lib/ocr");
+    if (!ocr.hasVision()) return bad(res, "ocr_not_configured", 503);
+    const { rows } = await db.query(
+      "select id, mime, storage_key, bytes from uploads where id = $1 and family_id = $2 and kind = 'image'",
+      [imageId, req.user.familyId]
+    );
+    if (!rows[0]) return bad(res, "upload_not_found", 404);
+    if (Number(rows[0].bytes) > 12 * 1024 * 1024) return bad(res, "too_large", 413);
+    const store = require("../lib/uploads");
+    const abs = store.resolveKey(rows[0].storage_key);
+    if (!abs) return bad(res, "file_missing", 410);
+    const fsp = require("node:fs/promises");
+    const buf = await fsp.readFile(abs).catch(() => null);
+    if (!buf) return bad(res, "file_missing", 410);
+    let text;
+    try {
+      text = await ocr.extractTextFromImage({ buffer: buf, mime: rows[0].mime, familyId: req.user.familyId });
+    } catch (e) {
+      const code = e && e.code ? e.code : "ocr_failed";
+      if (code === "ocr_not_configured") return bad(res, "ocr_not_configured", 503);
+      return bad(res, "ocr_failed", 502);
+    }
+    if (!text || text.trim().length < 10) return bad(res, "ocr_empty", 400);
+    res.json({ text: text.slice(0, 12000) });
   } catch (err) {
     next(err);
   }

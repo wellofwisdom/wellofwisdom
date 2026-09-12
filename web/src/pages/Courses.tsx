@@ -105,6 +105,8 @@ function WorksheetDialog({ onClose, onDone }: { onClose: () => void; onDone: (co
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [ocrBusy, setOcrBusy] = useState(false);
+  const [photoName, setPhotoName] = useState("");
   const [err, setErr] = useState("");
   const pollRef = useRef<number | null>(null);
 
@@ -141,6 +143,44 @@ function WorksheetDialog({ onClose, onDone }: { onClose: () => void; onDone: (co
     }
   }
 
+  // Photo path: upload the image, OCR it to text, fill the textarea so the
+  // guide can correct it before it becomes exercises.
+  async function onPhoto(file: File) {
+    setErr("");
+    setPhotoName(file.name);
+    setOcrBusy(true);
+    try {
+      const up = await new Promise<{ id: number }>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/uploads");
+        xhr.setRequestHeader("Content-Type", file.type);
+        xhr.setRequestHeader("x-upload-name", encodeURIComponent(file.name).slice(0, 260));
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { resolve(JSON.parse(xhr.responseText).upload); } catch { reject(new Error("Bad upload response")); }
+          } else {
+            let msg = `Upload failed (${xhr.status})`;
+            if (xhr.status === 415) msg = "That image type isn't supported.";
+            if (xhr.status === 413) msg = "That file is too large.";
+            reject(new Error(msg));
+          }
+        };
+        xhr.onerror = () => reject(new Error("Upload failed. Check the connection."));
+        xhr.send(file);
+      });
+      const r = await api<{ text: string }>("/api/courses/worksheet-ocr", {
+        method: "POST",
+        body: { uploadId: up.id },
+      });
+      setText(r.text);
+      if (!title && file.name) setTitle(file.name.replace(/\.[^.]+$/, "").slice(0, 160));
+    } catch (e) {
+      setErr(niceError(e));
+    } finally {
+      setOcrBusy(false);
+    }
+  }
+
   return (
     <Modal title="Import a worksheet" onClose={busy ? () => {} : onClose}>
       {err && <div className="formerror" role="alert">{err}</div>}
@@ -154,12 +194,21 @@ function WorksheetDialog({ onClose, onDone }: { onClose: () => void; onDone: (co
           <Field label="Worksheet title">
             <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Fractions practice: page 42" />
           </Field>
-          <Field label="Paste the worksheet text" hint="Questions in order. The AI turns each question into a graded exercise with an explanation and a hint.">
-            <textarea className="input" rows={8} value={text} onChange={(e) => setText(e.target.value)} />
+          <Field label="Photo of the worksheet" hint="A photo works too: snap the page with your phone and correct the extracted text before it becomes exercises. Needs AI_VISION_MODEL on the server.">
+            <label className="btn" style={{ cursor: ocrBusy ? "default" : "pointer", opacity: ocrBusy ? 0.6 : 1 }}>
+              {ocrBusy ? "Reading photo…" : photoName ? `📷 ${photoName}` : "📷 Choose photo…"}
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: "none" }}
+                disabled={ocrBusy}
+                onChange={(e) => { const f = e.target.files && e.target.files[0]; if (f) onPhoto(f); e.target.value = ""; }} />
+            </label>
+            {ocrBusy && <span className="muted small" style={{ marginLeft: 8 }}>Extracting text…</span>}
+          </Field>
+          <Field label="Worksheet text" hint="Questions in order. The AI turns each question into a graded exercise with an explanation and a hint. Correct the photo's text here if it misread a number.">
+            <textarea className="input" rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste here, or use a photo above…" />
           </Field>
           <div className="row">
             <button className="btn" type="button" onClick={onClose}>Cancel</button>
-            <button className="btn primary" type="button" disabled={text.trim().length < 30} onClick={submit}>✨ Turn into exercises</button>
+            <button className="btn primary" type="button" disabled={text.trim().length < 30 || ocrBusy} onClick={submit}>✨ Turn into exercises</button>
           </div>
         </>
       )}

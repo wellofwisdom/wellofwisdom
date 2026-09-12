@@ -216,7 +216,7 @@ and why. Anything marked shipped has a commit and is live.
 - [x] **Invite links with expiry** (migration 021). Single-use, expiring invites
       carry the role and the assigned learners; a join code no longer has to be
       the whole story.
-- [ ] **Accessibility, measured not guessed.** Reviewed properly on 2026-09-01
+- [x] **Accessibility, measured not guessed.** Reviewed properly on 2026-09-01
       (`1c44e6b`). Two of the items below turned out to be overstated when
       checked against the code, which is recorded rather than quietly dropped.
       The gaps, worst first:
@@ -408,7 +408,14 @@ and why. Anything marked shipped has a commit and is live.
       unapproved learner inventions are never drawn (a guide may still remove
       them). The art route also carries `spend_media` now, like every other
       paid route: an assistant could trigger it before.
-- [ ] **Photo to worksheet** (OCR into the existing import pipeline).
+- [x] **Photo to worksheet (OCR into the existing import pipeline).** Snap a
+      printed worksheet with a phone, the vision model reads it to text, the
+      guide corrects it, then the same worksheet pipeline turns it into graded
+      exercises. Same trust boundary, no new OCR vendor, one optional env
+      (`AI_VISION_MODEL`): without it the dialog stays paste-only, with it the
+      photo button reads via `POST /api/courses/worksheet-ocr` (family-scoped,
+      image allowlist, 12 MB cap) and the extracted text is edited before it is
+      ever a job. `server/lib/ocr.js` + two routes in `courses.js`.
 - [ ] **Local models.** The Ollama profile exists. "Runs entirely on your own
       hardware, nothing leaves the house" is a headline feature for the overlap
       between self-hosters and homeschoolers.
