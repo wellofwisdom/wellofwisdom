@@ -46,5 +46,14 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
 
 ## Status
 
-- Branch cut at `b03cbb1` from `main`. Roadmap section plus `.env.example` block already on `main` and inherited here. Next: slice 1 in this tree.
+- Branch cut at `b03cbb1` from `main`. Roadmap section plus `.env.example` block already on `main` and inherited here.
+- Slices 1 to 7 shipped on this branch:
+  1. Learner shell + HUD (8ba4dfc): full-screen 100dvh, XP ring, streak, pack, sound, Map, /api/learn/hud.
+  2. Course path map (bdc1ae6): SVG winding trail, done/next/locked nodes, avatar, list fallback.
+  3. World map canvas (feac9d4): same trail for encounters, chapter chips, Show chapters fallback.
+  4. TTS narrator (d8be928): Google Cloud TTS provider + /api/narration cache at /media/:id, browser fallback.
+  5. Lyria music provider (2f1a4a5, revised 6e4ac02 to kie Gemini TTS + Suno on same kie key).
+  6. Quest log (000eb45): returned + practice + upcoming made playable, no new API.
+  7. Scene transitions (a5e766b): fade-rise per route, reduced-motion respected.
+- Check + tests + web build green. Each slice reuses existing data; no migrations.
 
