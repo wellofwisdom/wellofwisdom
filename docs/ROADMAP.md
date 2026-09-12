@@ -421,7 +421,14 @@ and why. Anything marked shipped has a commit and is live.
 The single biggest lever is a **public demo instance**, which course sharing
 now makes possible. Everything else here is cheap by comparison.
 
-- [ ] Seeded public demo. NOT reset nightly: retention converts to cloud, not a wipe. See the new block below.
+- [x] **Seeded public demo: LIVE and verified 2026-09-12.** DEMO_MODE and
+      DEMO_SINGLE_FAMILY are set on the instance, one click on Try the demo
+      signs a visitor into the shared Demo Family with the Keep this banner,
+      and the gallery seeds all five example courses (`70a802c`; found and
+      fixed live: .dockerignore had kept the seed packages out of the image
+      entirely, and the shared family never re-seeded, so every demo visitor
+      until then landed in an empty console). NOT reset nightly: retention
+      converts to cloud, not a wipe.
 - [x] **README first screen: SHIPPED 2026-09-11.** One sentence hero plus demo CTA and `og.svg` preview at the top. Install command sits right below.
 - [x] **Screenshots and OG: SHIPPED.** `web/public/og.svg` (1200 by 630) referenced in `web/index.html` and README.
 - [x] **FUNDING: SHIPPED.** `.github/FUNDING.yml` with `github: wellofwisdom` live from day one; Ko-fi and custom are commented until you add real handles. `SECURITY.md` shipped; `CHANGELOG.md` editorial and the git log serves for now.
