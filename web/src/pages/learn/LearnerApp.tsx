@@ -12,6 +12,8 @@ import Practice from "./Practice";
 import LessonPlayer from "./LessonPlayer";
 import GamificationStrip from "./GamificationStrip";
 import QuestLog from "./QuestLog";
+import SceneTransition from "./SceneTransition";
+import "./SceneTransition.css";
 import "./QuestLog.css";
 import WorldView from "./WorldView";
 
@@ -70,23 +72,24 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
   }, [route]);
 
   if (route === "practice") {
-    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><PracticeInner onNavigate={onNavigate} /></LearnerShell>;
+    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><SceneTransition routeKey={route}><PracticeInner onNavigate={onNavigate} /></SceneTransition></LearnerShell>;
   }
   if (route.startsWith("course/")) {
     const id = Number(route.split("/")[1]);
-    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><CourseView courseId={id} onNavigate={onNavigate} onLogout={onLogout} /></LearnerShell>;
+    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><SceneTransition routeKey={route}><CourseView courseId={id} onNavigate={onNavigate} onLogout={onLogout} /></SceneTransition></LearnerShell>;
   }
   if (route.startsWith("world/")) {
     const id = Number(route.split("/")[1]);
-    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><WorldView adventureId={id} onNavigate={onNavigate} /></LearnerShell>;
+    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><SceneTransition routeKey={route}><WorldView adventureId={id} onNavigate={onNavigate} /></SceneTransition></LearnerShell>;
   }
   if (route.startsWith("lesson/")) {
     const id = Number(route.split("/")[1]);
-    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><LessonPlayer lessonId={id} onNavigate={onNavigate} onLogout={onLogout} /></LearnerShell>;
+    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><SceneTransition routeKey={route}><LessonPlayer lessonId={id} onNavigate={onNavigate} onLogout={onLogout} /></SceneTransition></LearnerShell>;
   }
 
   return (
     <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}>
+      <SceneTransition routeKey={route}>
       <LearnerHome
         me={me}
         courses={courses}
@@ -96,6 +99,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
         upcoming={upcoming}
         onNavigate={onNavigate}
       />
+      </SceneTransition>
     </LearnerShell>
   );
 }

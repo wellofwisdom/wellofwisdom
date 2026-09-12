@@ -1,0 +1,4 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+.scenetransition{opacity:0;transform:translateY(8px);transition:opacity .28s ease, transform .28s cubic-bezier(.2,.8,.3,1)}
+.scenetransition.on{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.scenetransition{opacity:1 !important;transform:none !important;transition:none !important}}
