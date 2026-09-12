@@ -396,6 +396,12 @@ a:hover { text-decoration: underline; }
 .mhero h1 { font-size: 40px; line-height: 1.1; letter-spacing: -0.03em; margin: 0 0 14px; font-weight: 800; max-width: 640px; }
 .mlead { color: var(--muted); font-size: 17px; line-height: 1.65; margin: 0 0 22px; max-width: 580px; }
 .mctaRow { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.mheroAuth { display: flex; flex-direction: column; gap: 10px; max-width: 380px; margin: 0 0 14px; padding: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); }
+.mheroAuthHint { font-size: 13px; color: var(--muted); line-height: 1.5; text-align: center; }
+.mheroAuthOr { display: flex; align-items: center; gap: 10px; }
+.mheroAuthOr span:first-child, .mheroAuthOr span:last-child { flex: 1; height: 1px; background: var(--border); }
+.mheroAuthRow { display: flex; gap: 10px; flex-wrap: wrap; }
+.mheroAuthRow .btn { flex: 1; min-width: 140px; }
 .mtrust { color: var(--muted); font-size: 13px; margin: 16px 0 14px; line-height: 1.5; }
 .mkwds { display: flex; gap: 8px; flex-wrap: wrap; }
 .kwd { font-size: 12px; color: var(--muted); border: 1px solid var(--border); background: var(--panel); border-radius: 999px; padding: 5px 12px; font-weight: 500; }
@@ -475,8 +481,15 @@ a:hover { text-decoration: underline; }
 .authIntro p { font-size: 14.5px; line-height: 1.6; }
 .authcard { width: 100%; max-width: 440px; }
 
-.mfoot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 20px 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; background: var(--panel); }
-.mfoot a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.mfoot { display: flex; flex-direction: column; gap: 14px; padding: 24px 24px 20px; border-top: 1px solid var(--border); background: var(--panel-2); }
+.mfootMain { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
+.mfootBrand { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+.mfootLogo { font-size: 18px; }
+.mfootTag { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 6px; }
+.mfootLinks { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13.5px; }
+.mfootLinks a { color: var(--muted); text-decoration: none; font-weight: 500; }
+.mfootLinks a:hover { color: var(--text); text-decoration: underline; }
+.mfootMeta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 12px; }
 
 /* Legacy centered landing when auth is the whole page (still used if JS hides hero) */
 .landing { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 16px; gap: 0; }

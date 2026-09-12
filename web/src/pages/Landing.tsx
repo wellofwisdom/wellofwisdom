@@ -104,6 +104,44 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
                 Create your group
               </button>
             </div>
+            {error && <div className="formerror" role="alert">{error}</div>}
+            {googleClientId ? (
+              <div className="mheroAuth" aria-label="Sign up">
+                <GoogleButton
+                  clientId={googleClientId}
+                  onAuthed={onAuthed}
+                  onError={setError}
+                  label="signup_with"
+                />
+                <div className="mheroAuthHint">Sign up with Google to create your group. Then add learners.</div>
+                <div className="mheroAuthOr">
+                  <span />
+                  <span className="hint">or</span>
+                  <span />
+                </div>
+                <div className="mheroAuthRow">
+                  {demoAvailable !== false && (
+                    <button className="btn big" type="button" disabled={demoBusy} onClick={tryDemo}>
+                      {demoBusy ? "Opening demo…" : "Try the demo"}
+                    </button>
+                  )}
+                  <button className="btn big" type="button" onClick={() => { setTimeout(() => document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }), 30); }}>
+                    Create with email
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mctaRow">
+                {demoAvailable !== false && (
+                  <button className="btn primary big" type="button" disabled={demoBusy} onClick={tryDemo}>
+                    {demoBusy ? "Opening demo…" : "Try the demo - no email needed"}
+                  </button>
+                )}
+                <button className="btn big" type="button" onClick={() => { setTimeout(() => document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }), 30); }}>
+                  Create your group
+                </button>
+              </div>
+            )}
             <p className="mtrust">
               Open source - your server, your data - works fully offline with Ollama - one command to run: <code className="k">docker compose up -d</code>
             </p>
@@ -453,8 +491,24 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
       </div>
 
       <footer className="mfoot">
-        <span>Well of Wisdom · AGPL-3.0 · <a href="https://github.com/wellofwisdom/wellofwisdom" target="_blank" rel="noreferrer">Source</a> · <a href="/c">Shared courses</a> · <a href="/api/health">Health</a></span>
-        <span className="hint">Nine hazels over the well. Many ways to be wise.</span>
+        <div className="mfootMain">
+          <div className="mfootBrand">
+            <span className="mfootLogo" aria-hidden="true">🌰</span>
+            <strong>Well of Wisdom</strong>
+            <span className="mfootTag">AGPL-3.0 · open source</span>
+          </div>
+          <nav className="mfootLinks" aria-label="Footer">
+            <a href="https://github.com/wellofwisdom/wellofwisdom" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="/c">Shared courses</a>
+            <a href="#pricing">Self-host</a>
+            <a href="/api/health">Health</a>
+            <a href="https://github.com/wellofwisdom/wellofwisdom/blob/main/docs/ROADMAP.md" target="_blank" rel="noreferrer">Roadmap</a>
+          </nav>
+        </div>
+        <div className="mfootMeta">
+          <span>Well of Wisdom · Nine hazels over the well. Many ways to be wise.</span>
+          <span className="hint">Your server, your data. No tracking.</span>
+        </div>
       </footer>
     </div>
   );
