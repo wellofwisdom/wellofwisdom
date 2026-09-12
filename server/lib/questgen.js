@@ -155,12 +155,52 @@ async function fleshOutWorld({ adventureId, familyId }) {
 }
 
 
-/** Illustrate the encounters that have a prompt waiting and no art yet.
+/** Chapters that still need a cover. Pure, so the route's pending count and
+ *  the job's work list can never disagree. */
+function chaptersNeedingArt(world) {
+  const chapters = world && Array.isArray(world.chapters) ? world.chapters : [];
+  const out = [];
+  chapters.forEach((chapter, index) => {
+    if (chapter && typeof chapter === "object" && !chapter.artUrl) out.push({ chapter, index });
+  });
+  return out;
+}
+
+/** A chapter cover needs no new AI writing: the chapter already carries its
+ *  title and hook, and the world its setting. Pure. */
+function chapterPrompt(world, chapter) {
+  const setting = (world && (world.setting || world.tagline)) || "an adventure";
+  const title = String((chapter && chapter.title) || "").trim() || "the next chapter";
+  const hook = String((chapter && chapter.hook) || "").trim();
+  return `A wide, warm storybook illustration that opens a chapter of an adventure.
+Chapter: ${title}.${hook ? ` ${hook}` : ""}
+Setting: ${setting}
+Consistent style across the set. No text, no words, no letters anywhere in the image.`;
+}
+
+/** A portrait prompt for a character row, built only from what the row says,
+ *  so a guide's character and a learner's invention draw the same way the
+ *  original cast did. Pure. */
+function portraitPrompt(world, ch) {
+  const setting = (world && (world.setting || world.tagline)) || "an adventure";
+  const name = String((ch && ch.name) || "").trim() || "a character";
+  const role = String((ch && ch.role) || "ally").trim() || "ally";
+  const article = /^[aeiou]/i.test(role) ? "an" : "a";
+  const bio = String((ch && ch.bio) || "").trim();
+  return `A character portrait of ${name}, ${article} ${role} in this world.${bio ? ` ${bio}` : ""}
+Setting: ${setting}
+Children's storybook style, warm and inviting, painterly, consistent across the set.
+No text, no words, no letters anywhere in the image.`;
+}
+
+/** Illustrate the world: encounters with a prompt waiting, chapter covers,
+ *  and portraits for characters that have none.
  *
  *  Costs real money per image, so it only ever runs when a guide asks, it
  *  never re-illustrates something that already has art, and a single failure
- *  is skipped rather than aborting the batch. `max` caps one run so a large
- *  world cannot quietly spend a fortune.
+ *  is skipped rather than aborting the batch. `max` caps one RUN (attempts,
+ *  including skips) so a large world cannot quietly spend a fortune; whatever
+ *  is left stays counted as pending for the next click.
  */
 async function illustrateWorld({ adventureId, familyId, userId, max = 24 }) {
   const media = require("./media");
@@ -189,6 +229,7 @@ No text, no words, no letters anywhere in the image.`;
 
   let drawn = 0;
   let skipped = 0;
+  const budgetLeft = () => drawn + skipped < max;
   for (const e of rows) {
     const line = e.rewards && e.rewards.artPrompt;
     if (!line) { skipped++; continue; }
@@ -211,7 +252,71 @@ ${style}`,
       console.error(`[questgen] art for encounter ${e.id} failed (skipped): ${err.message}`);
     }
   }
+
+  // Chapter covers: the journey view gets a banner per chapter. The art lives
+  // on the chapter inside the world jsonb, where the learner view already
+  // reads its chapters from.
+  for (const { chapter, index } of chaptersNeedingArt(world)) {
+    if (!budgetLeft()) break;
+    try {
+      const { url } = await media.generateImage({
+        prompt: chapterPrompt(world, chapter),
+        size: "1536x1024",
+        purpose: "chapter-art",
+        refType: "adventure",
+        refId: adventureId,
+        familyId,
+        userId,
+      });
+      await db.query(
+        `update adventures
+            set world = jsonb_set(world, $3::text[], to_jsonb($2::text))
+          where id = $1 and family_id = $4`,
+        [adventureId, url, ["chapters", String(index), "artUrl"], familyId]
+      );
+      drawn++;
+    } catch (err) {
+      skipped++;
+      console.error(`[questgen] art for chapter ${index} failed (skipped): ${err.message}`);
+    }
+  }
+
+  // Portraits, for the cast the world actually shows. Only approved
+  // characters: an unapproved invention is not in the world yet, and drawing
+  // it would spend money on something a guide may still remove.
+  if (budgetLeft()) {
+    const chars = await db.query(
+      `select id, name, role, bio
+         from adventure_characters
+        where adventure_id = $1 and family_id = $2 and approved and portrait_url is null
+        order by position, id
+        limit $3`,
+      [adventureId, familyId, max]
+    );
+    for (const ch of chars.rows) {
+      if (!budgetLeft()) break;
+      try {
+        const { url } = await media.generateImage({
+          prompt: portraitPrompt(world, ch),
+          size: "1024x1024",
+          purpose: "character-portrait",
+          refType: "adventure",
+          refId: adventureId,
+          familyId,
+          userId,
+        });
+        await db.query("update adventure_characters set portrait_url = $2 where id = $1", [ch.id, url]);
+        drawn++;
+      } catch (err) {
+        skipped++;
+        console.error(`[questgen] portrait for character ${ch.id} failed (skipped): ${err.message}`);
+      }
+    }
+  }
   return { drawn, skipped };
 }
 
-module.exports = { fleshOutWorld, illustrateWorld, normalizeBeats, buildPrompt, SYSTEM };
+module.exports = {
+  fleshOutWorld, illustrateWorld, normalizeBeats, buildPrompt, SYSTEM,
+  chaptersNeedingArt, chapterPrompt, portraitPrompt,
+};

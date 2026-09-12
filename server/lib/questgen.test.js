@@ -99,3 +99,49 @@ test("SYSTEM prompt holds the safety and immersion rules", () => {
   // Breaking the fiction with app vocabulary is the fastest way to lose a kid.
   assert.match(questgen.SYSTEM, /Never mention XP/);
 });
+
+const world = { title: "The Amber Road", setting: "A salt marsh under a copper sky", chapters: [] };
+
+test("chaptersNeedingArt: counts chapters without art, keeps their jsonb index", () => {
+  const out = questgen.chaptersNeedingArt({
+    chapters: [{ title: "One", artUrl: "https://x/1.png" }, { title: "Two" }, { title: "Three" }],
+  });
+  assert.deepEqual(out.map((x) => x.index), [1, 2]);
+  assert.equal(out[0].chapter.title, "Two");
+});
+
+test("chaptersNeedingArt: a world without chapters is empty, never an error", () => {
+  assert.deepEqual(questgen.chaptersNeedingArt(null), []);
+  assert.deepEqual(questgen.chaptersNeedingArt({}), []);
+  assert.deepEqual(questgen.chaptersNeedingArt({ chapters: "nope" }), []);
+});
+
+test("chapterPrompt: builds from the chapter and the setting, and forbids text", () => {
+  const p = questgen.chapterPrompt(world, { title: "The Long Causeway", hook: "The tide comes in fast." });
+  assert.match(p, /The Long Causeway/);
+  assert.match(p, /The tide comes in fast\./);
+  assert.match(p, /salt marsh under a copper sky/);
+  assert.match(p, /No text, no words, no letters/);
+});
+
+test("chapterPrompt: survives a chapter with nothing but a fallback", () => {
+  const p = questgen.chapterPrompt({}, null);
+  assert.match(p, /the next chapter/);
+  assert.match(p, /an adventure/);
+});
+
+test("portraitPrompt: says who, what they are, and where", () => {
+  const p = questgen.portraitPrompt(world, { name: "Fen", role: "mentor", bio: "A cartographer who cannot swim." });
+  assert.match(p, /portrait of Fen/i);
+  assert.match(p, /a mentor in this world/);
+  assert.match(p, /cartographer who cannot swim/);
+  assert.match(p, /salt marsh under a copper sky/);
+  assert.match(p, /No text, no words, no letters/);
+});
+
+test("portraitPrompt: a bare name still draws, with a role fallback", () => {
+  const p = questgen.portraitPrompt(null, { name: "Pib" });
+  assert.match(p, /portrait of Pib/i);
+  assert.match(p, /an ally in this world/);
+  assert.match(p, /an adventure/);
+});

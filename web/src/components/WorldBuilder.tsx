@@ -55,7 +55,7 @@ export default function WorldBuilder({ adventureId, learners }:
   { adventureId: number; learners: { id: number; name: string }[] }) {
   const [gameTypes, setGameTypes] = useState<GameType[]>([]);
   const [world, setWorld] = useState<{
-    adventure: { id: number; world: { title?: string } };
+    adventure: { id: number; world: { title?: string; chapters?: { title: string; hook: string; artUrl?: string }[] } };
     gameType: GameType;
     encounters: Encounter[];
     characters: Character[];
@@ -149,7 +149,7 @@ export default function WorldBuilder({ adventureId, learners }:
     setMsg("");
     try {
       const r = await api<{ jobId: number; pending: number }>(`/api/worlds/${adventureId}/art`, { method: "POST" });
-      setMsg(`Drawing ${r.pending} scenes. They appear as they finish.`);
+      setMsg(`Drawing ${r.pending} images. They appear as they finish.`);
       const started = Date.now();
       const poll = async (): Promise<void> => {
         if (Date.now() - started > 8 * 60 * 1000) {
@@ -163,7 +163,7 @@ export default function WorldBuilder({ adventureId, learners }:
         if (!j) return void setTimeout(poll, 4000);
         if (j.job.status === "done") {
           const res = j.job.result || { drawn: 0, skipped: 0 };
-          setMsg(`✅ Drew ${res.drawn} scenes${res.skipped ? `, skipped ${res.skipped}` : ""}.`);
+          setMsg(`✅ Drew ${res.drawn} images${res.skipped ? `, skipped ${res.skipped}` : ""}.`);
           setBusy(false);
           await load();
           return;
@@ -228,7 +228,11 @@ export default function WorldBuilder({ adventureId, learners }:
   if (!world) return null;
 
   const pending = world.characters.filter((c) => !c.approved);
-  const needsArt = world.encounters.filter((e) => !e.art_url && e.rewards && e.rewards.artPrompt).length;
+  const chapters = (world.adventure.world && world.adventure.world.chapters) || [];
+  const needsArt =
+    world.encounters.filter((e) => !e.art_url && e.rewards && e.rewards.artPrompt).length +
+    chapters.filter((c) => !c.artUrl).length +
+    world.characters.filter((c) => c.approved && !c.portrait_url).length;
   const byChapter = new Map<number, Encounter[]>();
   for (const e of world.encounters) {
     const list = byChapter.get(e.chapter_index) || [];
@@ -257,7 +261,7 @@ export default function WorldBuilder({ adventureId, learners }:
               ✍️ Write the story
             </button>
             <button className="btn" type="button" disabled={busy || !needsArt} onClick={illustrate}
-              title={needsArt ? `${needsArt} scenes waiting to be drawn` : "Write the story first"}>
+              title={needsArt ? `${needsArt} images waiting: scenes, chapter covers and crew portraits` : "Write the story first"}>
               🎨 Illustrate it{needsArt ? ` (${needsArt})` : ""}
             </button>
             <button className="btn ghost" type="button" disabled={busy} onClick={() => build(true)}>
@@ -270,8 +274,9 @@ export default function WorldBuilder({ adventureId, learners }:
         <p className="hint">
           Writing the story fills every encounter with prose set in this world, nodding at the real
           work behind each chapter without ever naming the subject. Run it again any time to reroll.
-          Illustrating draws one picture per encounter, which costs a few cents each, so it only
-          ever runs when you ask and never redraws a scene that already has art.
+          Illustrating draws one picture per encounter, a cover per chapter and a portrait for each
+          approved crew member, which costs a few cents each, so it only ever runs when you ask and
+          never redraws anything that already has art.
         </p>
       )}
 

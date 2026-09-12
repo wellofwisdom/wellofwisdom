@@ -39,7 +39,7 @@ interface Character {
 }
 
 interface WorldPayload {
-  adventure: { id: number; world: { title?: string; tagline?: string; setting?: string; chapters?: { title: string; hook: string }[] }; xp: number; cover_url: string | null };
+  adventure: { id: number; world: { title?: string; tagline?: string; setting?: string; chapters?: { title: string; hook: string; artUrl?: string }[] }; xp: number; cover_url: string | null };
   gameType: { id: string; label: string; blurb: string };
   characters: Character[];
   encounters: Encounter[];
@@ -268,12 +268,15 @@ function Journey({ chapters, onOpen }: {
 }
 
 function Chapter({ chapter, onOpen }: {
-  chapter: { title: string; hook: string; index: number; encounters: Encounter[] };
+  chapter: { title: string; hook: string; artUrl?: string; index: number; encounters: Encounter[] };
   onOpen: (e: Encounter) => void;
 }) {
   const { ref, shown } = useReveal<HTMLElement>();
   return (
     <section className={`chapter${shown ? " shown" : ""}`} ref={ref}>
+      {chapter.artUrl && (
+        <img className="chapterart" src={chapter.artUrl} alt={`Illustration for ${chapter.title}`} loading="lazy" />
+      )}
       <div className="chapterhead">
         <span className="chapternum">{chapter.index + 1}</span>
         <div>

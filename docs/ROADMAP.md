@@ -395,8 +395,19 @@ and why. Anything marked shipped has a commit and is live.
       than the streak needs, and boss answers count as real practice (they feed
       attempts, spaced review, badges and XP). Not smoke-tested against a live DB
       yet: the pure paths are tested, the wiring runs after deploy.
-- [ ] **AI art per character and chapter.** The image path works; this is
-      mostly wiring.
+- [x] **AI art per character and chapter.** One guide click in the World
+      builder now illustrates the whole world: the encounters (as before), a
+      cover for every chapter, and a portrait for every approved crew member.
+      Chapter covers need no new AI writing (the chapter already carries its
+      title and hook, the world its setting), portraits are built from what
+      the character row itself says, and the art lands where the views already
+      read from: `world.chapters[i].artUrl` and
+      `adventure_characters.portrait_url`. All of it is the existing paid-path
+      discipline: one confirmed count before anything is spent, never
+      redrawing what already has art, a per-run cap, fail-soft per image, and
+      unapproved learner inventions are never drawn (a guide may still remove
+      them). The art route also carries `spend_media` now, like every other
+      paid route: an assistant could trigger it before.
 - [ ] **Photo to worksheet** (OCR into the existing import pipeline).
 - [ ] **Local models.** The Ollama profile exists. "Runs entirely on your own
       hardware, nothing leaves the house" is a headline feature for the overlap
