@@ -490,6 +490,25 @@ router.get("/gamification", async (req, res, next) => {
   }
 });
 
+// Compact HUD for the full-screen game shell: XP, streak, pack size.
+// One request for the pinned header so the shell does not fan out to three.
+router.get("/hud", async (req, res, next) => {
+  try {
+    const streak = await require("../lib/badges").computeStreak(req.user.id);
+    const xpRow = await db.query(
+      "select coalesce(sum(xp),0)::int as xp from adventures where family_id = $1 and (learner_id = $2 or learner_id is null)",
+      [req.user.familyId, req.user.id]
+    );
+    const packRow = await db.query(
+      "select count(*)::int as c from learner_inventory where learner_id = $1",
+      [req.user.id]
+    );
+    res.json({ xp: xpRow.rows[0].xp, streak, packCount: packRow.rows[0].c });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // The learner's adventure for a course (world + xp + portraits).
 router.get("/adventure/:courseId", async (req, res, next) => {
   try {
