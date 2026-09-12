@@ -9,7 +9,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { VideoPlayer } from "../../components/VideoUI";
 import { RichText, MathText } from "../../lib/rich";
+import WorldMap from "./WorldMap";
 import { useReveal, useScrollProgress } from "../../lib/scrollReveal";
+import "./WorldMap.css";
 
 const BOSS_KINDS = ["boss", "miniboss"];
 const isBoss = (kind: string) => BOSS_KINDS.includes(kind);
@@ -156,7 +158,11 @@ export default function WorldView({ adventureId, onNavigate }:
         </p>
       )}
 
-      <Journey chapters={byChapter} onOpen={setOpen} />
+      <WorldMap chapters={byChapter.map((c) => ({ ...c, encounters: c.encounters.map((e) => ({ id: e.id, kind: e.kind, title: e.title, state: e.state as any, lockedReason: e.lockedReason })) }))} onOpen={(e) => { const full = data.encounters.find((x) => x.id === e.id); if (full) setOpen(full); }} />
+      <details className="world-fallback" style={{ marginTop: 14 }}>
+        <summary className="muted small" style={{ cursor: "pointer" }}>Show chapters</summary>
+        <Journey chapters={byChapter} onOpen={setOpen} />
+      </details>
 
       {loot.length > 0 && (
         <section className="worldpanel">
