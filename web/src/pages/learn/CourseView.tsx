@@ -47,10 +47,20 @@ export default function CourseView({ courseId, onNavigate, onLogout }: {
         lessonsTotal={course.progress.lessonsTotal}
         onNavigate={onNavigate} />
 
+      {course.progress.lessonsTotal === 0 && (
+        <div className="kidcard" style={{ marginTop: 8 }}>
+          <div className="big" aria-hidden="true">🌱</div>
+          <h2 style={{ margin: "10px 0 6px" }}>Lessons coming soon</h2>
+          <p className="muted">Your guide is still building this course. Check back soon, or explore another one.</p>
+          <button className="btn" type="button" onClick={() => onNavigate("")} style={{ marginTop: 14 }}>Back to courses</button>
+        </div>
+      )}
       {course.units.map((u, ui) => (
         <div key={u.id} style={{ width: "100%", marginBottom: 16 }}>
           <h2 style={{ fontSize: 16, margin: "0 0 8px 4px" }}>Unit {ui + 1}: {u.title}</h2>
-          {u.lessons.map((l, li) => (
+          {u.lessons.length === 0 ? (
+            <p className="muted small" style={{ padding: "8px 4px" }}>No lessons in this unit yet.</p>
+          ) : u.lessons.map((l, li) => (
             <button
               key={l.id}
               type="button"

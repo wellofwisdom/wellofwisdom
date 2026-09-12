@@ -208,8 +208,8 @@ export function PublicCourse({ slug }: { slug: string }) {
           <a className="btn primary" href={exportUrl} download>⬇ Download course file</a>
           <a className="btn" {...linkProps("dashboard")}>Import into my instance</a>
           <a className="btn ghost" href={textUrl} target="_blank" rel="noopener noreferrer">View as plain text</a>
-          <button className="btn ghost" type="button" onClick={copyLinks}>
-            {copied ? "Links copied" : "Copy source links"}
+          <button className="btn ghost" type="button" onClick={copyLinks} aria-live="polite">
+            {copied ? "✓ Links copied" : "Copy source links"}
           </button>
         </div>
         <p className="hint">

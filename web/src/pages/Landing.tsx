@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Logged-out site: marketing that converts plus the sign in forms. Never a
 // wall of paragraphs, per AGENTS.md. Every claim gets a proof tile or a CTA.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../api";
 import { PillTabs } from "../components/ui";
 import { GoogleButton, GoogleOneTap } from "../components/GoogleAuth";
@@ -18,6 +18,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
   const [inviteRequired, setInviteRequired] = useState(false);
   const [demoAvailable, setDemoAvailable] = useState<boolean | null>(null);
   const [googleClientId, setGoogleClientId] = useState<string | null>(null);
+  const authPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     api<{ inviteRequired: boolean; googleClientId?: string | null; googleEnabled?: boolean }>("/api/auth/config")
@@ -426,15 +427,22 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
             )}
             <PillTabs
               ariaLabel="Sign in type"
+              tabPanelId="auth-panel"
               tabs={[
                 { id: "signin", label: "Guide sign in" },
                 { id: "signup", label: "Create your group" },
                 { id: "learner", label: "I'm a learner" },
               ]}
               value={tab}
-              onChange={(v) => { setTab(v); setError(""); }}
+              onChange={(v) => {
+                setTab(v); setError("");
+                requestAnimationFrame(() => {
+                  const first = authPanelRef.current?.querySelector<HTMLElement>("input, button, select, textarea");
+                  first?.focus();
+                });
+              }}
             />
-            <div className="panel">
+            <div className="panel" id="auth-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} ref={authPanelRef as never}>
               {error && <div className="formerror" role="alert">{error}</div>}
               {tab === "signin" && <SignIn busy={busy} onSubmit={(b) => submit("/api/auth/login", b)} />}
               {tab === "signup" && <SignUp busy={busy} inviteRequired={inviteRequired} onSubmit={(b) => submit("/api/auth/signup", b)} />}

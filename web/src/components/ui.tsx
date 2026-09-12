@@ -65,19 +65,24 @@ export function PillTabs<T extends string>({
   value,
   onChange,
   ariaLabel,
+  tabPanelId,
 }: {
   tabs: { id: T; label: string }[];
   value: T;
   onChange: (id: T) => void;
   ariaLabel: string;
+  tabPanelId?: string;
 }) {
   return (
     <div className="pilltabs" role="tablist" aria-label={ariaLabel}>
       {tabs.map((t) => (
         <button
           key={t.id}
+          id={`tab-${t.id}`}
           role="tab"
           aria-selected={t.id === value}
+          aria-controls={t.id === value && tabPanelId ? tabPanelId : undefined}
+          tabIndex={t.id === value ? 0 : -1}
           className={`pilltab${t.id === value ? " on" : ""}`}
           onClick={() => onChange(t.id)}
           type="button"
