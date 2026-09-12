@@ -32,3 +32,4 @@ pgdata/
 
 # Private ops/handoff notes: contains live credentials, never publish
 HANDOFF.md
+wellofwisdom-well3/
