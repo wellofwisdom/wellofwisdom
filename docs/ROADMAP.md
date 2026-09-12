@@ -500,9 +500,25 @@ hidden blob.
 - [x] **Plain-text and llms.txt: SHIPPED.** `/llms.txt` plus /c/<slug>.txt and /api/public, discoverable for tools. Served from `server/index.js` via `seo.llmsTxt`.
 - [x] **Sitemap and robots: SHIPPED.** Marketing pages indexed, private app routes out, via `server/lib/seo.js`.
 - [x] **Keyword plan (in copy, not a dump): SHIPPED.** Headings a buyer actually types: homeschool curriculum generator, AI course creator, self hosted LMS, Khan Academy alternative, spaced repetition for kids, homeschool attendance tracker, printable homeschool portfolio.
-- [ ] **Performance and accessibility proofs.** Lighthouse target 95+ on perf and
-      a11y, correct heading order, one H1, alt on the hero image, keyboard path
-      through the marketing nav and the auth tabs.
+- [x] **Performance and accessibility proofs (measured 2026-09-12, commit
+      `f78dc41`).** Lighthouse on the live site, desktop and mobile, on BOTH
+      the logged-out landing and the logged-in guide console: accessibility
+      100, SEO 100, best practices 100. The first run caught three real
+      failures and they were fixed in the same commit: the skip link pointed
+      at a `#main` that only the public course page ever rendered (the
+      console, the learner home and the landing all get a real main landmark
+      now), the Settings caret was a 14px nested button-in-button (the whole
+      Settings button toggles now, with `aria-expanded`), and llms.txt listed
+      bare URLs instead of markdown links. Also verified by hand: one H1 per
+      page, heading order never skips a level, every image has alt, and the
+      keyboard path starts with the skip link then the marketing nav. Cold
+      load: LCP 1.3s, CLS 0.05 desktop / 0.048 mobile, both inside the good
+      thresholds. One known, accepted wart: on desktop, a visitor with no
+      Google session gets a harmless "Not signed in with the identity
+      provider" console line from Google's own Identity Services library when
+      One Tap initializes; silencing it would mean dropping One Tap, and it
+      does not appear on mobile (One Tap is large-screen only) or for signed
+      in visitors.
 
 ## Paying for it
 
