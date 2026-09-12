@@ -103,7 +103,12 @@ Latest image: `ghcr.io/wellofwisdom/wellofwisdom:latest` (and `v0.1.0`), so `doc
 ```bash
 docker compose --profile local-ai up -d
 docker compose exec ollama ollama pull llama3.1
-# then in .env:  AI_BASE_URL=http://ollama:11434/v1
+# then in .env:
+#   AI_BASE_URL=http://ollama:11434/v1
+#   AI_MODEL_PRO=llama3.1  AI_MODEL_FLASH=llama3.1
+# Photo to worksheet with a local vision model:
+#   docker compose exec ollama ollama pull llava
+#   AI_VISION_MODEL=llava
 ```
 
 Or point `AI_BASE_URL` at any OpenAI-compatible provider (DeepSeek, OpenAI, LM
@@ -137,8 +142,8 @@ review, progress, reports, calendar, and email all still work.
 - [x] Quarterly reports (AI narrative, printable)
 - [x] Worksheet import + course export/import
 - [x] Workspace (Notion-style) + resource library (4 views)
-- [ ] Essay/project grading with rubrics
-- [ ] Photo → worksheet (camera capture + OCR)
+- [x] Essay/project grading with rubrics (AI drafts feedback, a guide sends it back)
+- [x] Photo → worksheet (snap the page, vision reads it to text you can correct)
 - [ ] Audio overviews (podcast-style unit summaries)
 - [ ] Community template gallery (contributed curricula)
 - [ ] Co-op mode: multiple guides, shared learners

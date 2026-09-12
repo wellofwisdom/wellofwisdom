@@ -8,6 +8,7 @@ import { MathText } from "../lib/rich";
 import { IconPencil, IconTrash, IconCheck } from "../components/Icons";
 import { AdventureDialog, AdventuresPanel, CoverButton, WorldBuilders } from "../components/AdventureUI";
 import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from "../components/VideoUI";
+import { RecordButton } from "../components/RecordButton";
 import type { UploadRow } from "../components/VideoUI";
 
 const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️", video: "▶️", project: "🛠️" };
@@ -182,6 +183,9 @@ function VideoPanel({ courseId, trailerUploadId, onChanged }:
   return (
     <Panel title="Videos" side={usage ? `${usage.files} files · ${humanBytes(usage.bytes)}` : undefined}>
       <VideoUploader onUploaded={() => reload()} />
+      <div style={{ marginTop: 10 }}>
+        <RecordButton onRecorded={() => reload()} />
+      </div>
 
       {trailer && (
         <div style={{ marginTop: 14 }}>

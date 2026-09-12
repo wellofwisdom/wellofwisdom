@@ -416,12 +416,21 @@ and why. Anything marked shipped has a commit and is live.
       photo button reads via `POST /api/courses/worksheet-ocr` (family-scoped,
       image allowlist, 12 MB cap) and the extracted text is edited before it is
       ever a job. `server/lib/ocr.js` + two routes in `courses.js`.
-- [ ] **Local models.** The Ollama profile exists. "Runs entirely on your own
-      hardware, nothing leaves the house" is a headline feature for the overlap
-      between self-hosters and homeschoolers.
+- [x] **Local models: wired.** `docker compose --profile local-ai up -d` brings
+      Ollama alongside app + Postgres (`docker-compose.yml` profile `local-ai`).
+      Point `AI_BASE_URL=http://ollama:11434/v1` + pull `llama3.1` for normal
+      AI, `llava` + `AI_VISION_MODEL=llava` for photo to worksheet. Worked
+      since before this session; docs now spell it out in README and
+      `.env.example`. "Runs entirely on your own hardware" is true today.
 - [ ] **Uploaded video at scale**: object storage, transcoding, quotas. Only
       once hosting revenue exists.
-- [ ] **Webcam recording** for a guide's two-minute explainer, after uploads.
+- [x] **Webcam recording** for a guide's two-minute explainer: `RecordButton`
+      (`web/src/components/RecordButton.tsx`) in the Videos panel on the course
+      page. Browser MediaRecorder (webm/mp4, whatever the browser supports),
+      2 minute cap, live preview with timer, then upload through the same
+      `POST /api/uploads` path so quotas and streaming just work. No new server
+      endpoint, no new dependency. Needs https or localhost + camera permission;
+      falls back to file upload when blocked.
 
 ## Launch readiness
 

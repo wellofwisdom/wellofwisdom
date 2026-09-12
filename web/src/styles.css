@@ -1507,3 +1507,10 @@ code.k {
 }
 .demobannerLeft { display: flex; gap: 8px; align-items: center; font-size: 14px; }
 .demobannerActions { margin-left: auto; display: flex; align-items: center; }
+
+/* webcam explainer: live preview + controls */
+.recordbox { padding: 10px 0 2px; }
+.recordpreview {
+  width: 100%; max-height: 260px; border-radius: 12px; background: #000;
+  display: block; border: 1px solid var(--border);
+}
