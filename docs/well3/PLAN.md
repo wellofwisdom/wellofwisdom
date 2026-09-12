@@ -9,17 +9,17 @@ This is the execution plan for `docs/ROADMAP.md` Immersive game. Well 1 already 
 
 The learner side still reads like centered panels on a page. The fix is a full-screen shell plus a HUD plus a place you move through, with voice and music that bring each scene to life. Same data, different frame. No new tables unless noted.
 
-## Music provider: Vertex Lyria
+## Voice plus music: kie.ai, no GCP
 
-Vertex AI (Lyria) over Suno and over MusicFX. Suno is stronger for standalone songs but its voice ownership and commercial API fencing make it a bad fit for a school product. MusicFX is a lab demo. Lyria shares the GCP auth already used for Cloud TTS, bills per second to the same project, and loops are cacheable in `UPLOAD_DIR` like kie images. Fail soft per track, silent when keys are absent.
+Gemini 3.1 Flash TTS plus Suno on kie.ai over Vertex Lyria and over MusicFX. Gemini TTS at $0.70 per million input tokens plus $14 per million output tokens (sub cent per chapter) and Suno Generate Music at $0.06 per loop, both on the same kie key you already use for images and video. One bill, no GCP project, loops cached in `UPLOAD_DIR` like kie images. Fail soft per track, silent when keys are absent.
 
 ## Work order: 8 slices, one PR each
 
 1. **Learner shell plus HUD**: `web/src/pages/learn/LearnerApp.tsx` grows a `LearnerShell` plus `LearnerHUD` (XP ring, streak flame, pack, sound, Map). Learner routes go full viewport `100dvh`, cover art bleeds edge to edge, HUD pinned. Same routes.
 2. **Course path map**: replace `CourseView` lesson list with a path SVG, lessons as nodes, journey line drives a traveling avatar. Reuse `progress` plus `lesson.done`.
 3. **World map canvas**: replace `WorldView` encounters grid with an SVG path plus absolute node buttons, chapter banners as full-bleed regions, parallax hero. Recompute from `chapters` plus `encounters`.
-4. **Google TTS narrator**: `server/lib/providers/google-tts.js` plus `voice.js` helper, job `tts-narrate` via `server/lib/jobs.js`, cache in `UPLOAD_DIR` as `media/:id/audio`, serve from `server/routes/uploads.js`. Browser `speechSynthesis` stays fallback. Voices pinned per `adventure_characters`.
-5. **Chapter music stems**: `server/lib/providers/google-music.js`, same cache plus spend path, loop per chapter, mood swap on `kind`, duck under narration, slider in settings, no autoplay before a tap.
+4. **Kie voice narrator (Gemini 3.1 Flash TTS)**: `server/lib/providers/kie-voice.js`, job `tts-narrate` via `server/lib/jobs.js`, cache in `UPLOAD_DIR` as `media/:id/audio`, serve from `server/routes/uploads.js`. Browser `speechSynthesis` stays fallback. Voices pinned per `adventure_characters`. Sub cent per chapter.
+5. **Chapter music loops (Suno on kie)**: `server/lib/providers/kie-music.js`, same cache plus spend path, Suno Generate Music at $0.06 per loop, one per chapter, mood swap on `kind`, duck under narration, slider in settings, no autoplay before a tap.
 6. **Scene transitions plus sound cues**: CSS wipes, view transitions, correct chime, boss thud, page turn, all muted by default, `prefers-reduced-motion` respected.
 7. **Quest log plus map overview**: full-screen Map, path SVG, avatar on path, quest log reusing `upcoming` plus `returned` plus `reviewsDue`. Collection gallery with lore per loot item.
 8. **Follow-up game mechanics**: one per PR, no migration unless called out: stamina for boss, choice branches, companion reactions (one TTS clip per chapter), dailies plus weeklies, mastery stars, lore collection, doors plus keys, photo finish.
@@ -32,13 +32,13 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
 
 - Degraded mode first. No key means no voice plus no music, never a broken player.
 - Audio is generated server side, cached as a file, served from `/media/:id`. Nothing streams live from a vendor per tap.
-- Cost per second plus per chapter, fail soft per track, same posture as `media.js` kie images.
+- Cost sub cent per chapter for voice (a few thousand tokens at $0.70 plus $14) plus $0.06 per Suno loop, each cached and fail soft per track, same posture as `media.js` kie images.
 - Learning stays primary. Replay and stars are opt-in, no dark pattern, no gate that blocks learning.
 - Keep `npm run check && npm test && npm --prefix web run build` green. Validate examples with `npm run validate-course -- --library docs/examples`.
 
 ## Where to look
 
-- `server/lib/providers/`: existing pattern is `google.js` plus `anthropic.js`, same shape for TTS and music.
+- `server/lib/providers/`: existing pattern is `google.js` plus `anthropic.js`, same shape. New files are `kie-voice.js` plus `kie-music.js` on the same kie key.
 - `server/lib/jobs.js`: add `tts-narrate` plus `music-generate` as job types.
 - `server/lib/media.js`: spend plus quota plus cache shape to copy.
 - `web/src/pages/learn/`: `LearnerApp.tsx`, `CourseView.tsx`, `LessonPlayer.tsx`, `WorldView.tsx`, `GamificationStrip.tsx`.
@@ -47,3 +47,4 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
 ## Status
 
 - Branch cut at `b03cbb1` from `main`. Roadmap section plus `.env.example` block already on `main` and inherited here. Next: slice 1 in this tree.
+
