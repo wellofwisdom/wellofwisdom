@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Task-routed AI layer. Point AI_BASE_URL at ANY OpenAI-compatible endpoint:
-// Ollama, LM Studio, DeepSeek, OpenAI, ... All features degrade gracefully
-// when no endpoint is configured: generated courses stay usable offline.
+// Task-routed AI layer. Point AI_BASE_URL at ANY provider:
+// OpenAI-compatible (DeepSeek, OpenAI, Ollama, ...) OR Claude (Anthropic).
+// All features degrade gracefully when no endpoint is configured.
 const { fetchT } = require("./http");
 
 // Which model class each task uses. "pro" = quality (course generation),
@@ -37,35 +37,60 @@ function resolveRoute(task) {
   return { task, tier, model: model || null };
 }
 
-// Injected at boot to avoid a circular import (db ← aiusage → nothing ← ai).
+// ---- provider detection ----
+// AI_PROVIDER=anthropic is explicit. Otherwise auto-detect: any base URL
+// containing api.anthropic.com is Anthropic. Everything else is OpenAI-compatible.
+function provider() {
+  const explicit = String(process.env.AI_PROVIDER || "").trim().toLowerCase();
+  if (explicit === "anthropic" || explicit === "claude") return "anthropic";
+  if (explicit === "openai" || explicit === "openai-compatible" || explicit === "openai_compatible") return "openai";
+  const base = String(process.env.AI_BASE_URL || "").toLowerCase();
+  if (base.includes("api.anthropic.com")) return "anthropic";
+  return "openai";
+}
+
+function configured() {
+  if (provider() === "anthropic") {
+    return Boolean(process.env.AI_API_KEY && String(process.env.AI_API_KEY).trim());
+  }
+  return Boolean(process.env.AI_BASE_URL && String(process.env.AI_BASE_URL).trim());
+}
+
+function health() {
+  return {
+    configured: configured(),
+    provider: provider(),
+    baseUrl: provider() === "anthropic" ? "https://api.anthropic.com" : (process.env.AI_BASE_URL || null),
+    routeSample: resolveRoute("course-gen"),
+  };
+}
+
+// Injected at boot to avoid a circular import (db <- aiusage -> nothing <- ai).
 // Signature: usageLogger({familyId, task, model, tokensIn, tokensOut, note})
 let usageLogger = null;
 function setUsageLogger(fn) {
   usageLogger = fn;
 }
 
-function configured() {
-  return Boolean(process.env.AI_BASE_URL && process.env.AI_BASE_URL.trim());
-}
-
-function health() {
-  return {
-    configured: configured(),
-    baseUrl: configured() ? process.env.AI_BASE_URL : null,
-    routeSample: resolveRoute("course-gen"),
-  };
+function logUsageTokens({ familyId, task, model, tokensIn, tokensOut, note }) {
+  if (!usageLogger) return;
+  try {
+    usageLogger({ familyId, task, model, tokensIn, tokensOut, note });
+  } catch {
+    /* accounting never breaks AI */
+  }
 }
 
 /**
  * Send a chat completion for a task.
  * @param {string} task - one of the keys in DEFAULT_ROUTES
  * @param {Array<{role:string,content:string}>} messages
- * @param {{json?:boolean, maxTokens?:number, temperature?:number}} [opts]
+ * @param {{json?:boolean, maxTokens?:number, temperature?:number, usage?:{familyId:number,note:string}}} [opts]
  * @returns {Promise<{content:string, usage:object|null, model:string|null}>}
  */
 async function chat(task, messages, opts = {}) {
   if (!configured()) {
-    const err = new Error("ai_not_configured: set AI_BASE_URL to any OpenAI-compatible endpoint (see .env.example)");
+    const err = new Error("ai_not_configured: set AI_BASE_URL (OpenAI-compatible) or AI_PROVIDER=anthropic + AI_API_KEY (Claude). See .env.example");
     err.code = "ai_not_configured";
     throw err;
   }
@@ -75,6 +100,46 @@ async function chat(task, messages, opts = {}) {
     err.code = "ai_no_model";
     throw err;
   }
+  if (provider() === "anthropic") {
+    return chatViaAnthropic(task, messages, opts, model);
+  }
+  return chatViaOpenAI(task, messages, opts, model);
+}
+
+async function chatViaAnthropic(task, messages, opts, model) {
+  const { chatAnthropic } = require("./providers/anthropic");
+  const baseUrl = String(process.env.AI_BASE_URL || "").trim() || "https://api.anthropic.com";
+  const key = process.env.AI_API_KEY || "";
+  // For json tasks, nudge extractable JSON via prompt (Anthropic has no json_object mode).
+  let effMessages = messages;
+  if (opts.json) {
+    effMessages = [...messages];
+    const last = effMessages[effMessages.length - 1];
+    if (last && last.role === "user" && typeof last.content === "string") {
+      effMessages[effMessages.length - 1] = { ...last, content: last.content + "\n\nReturn ONLY valid JSON, no fences, no commentary." };
+    }
+  }
+  let out = await chatAnthropic({ baseUrl, apiKey: key, model, messages: effMessages, opts });
+  let ladder = 0;
+  while (out.finish === "length" && ladder < 1 && opts.maxTokens) {
+    ladder++;
+    const bigger = Math.min((opts.maxTokens || 4096) * 2, 8192);
+    out = await chatAnthropic({ baseUrl, apiKey: key, model, messages: effMessages, opts: { ...opts, maxTokens: bigger } });
+  }
+  if (out.usage) {
+    logUsageTokens({
+      familyId: opts.usage && opts.usage.familyId,
+      task,
+      model: out.model || model,
+      tokensIn: out.usage.prompt_tokens,
+      tokensOut: out.usage.completion_tokens,
+      note: opts.usage && opts.usage.note,
+    });
+  }
+  return out;
+}
+
+async function chatViaOpenAI(task, messages, opts, model) {
   const body = {
     model,
     messages,
@@ -85,29 +150,25 @@ async function chat(task, messages, opts = {}) {
 
   // DeepSeek-style models can truncate (finish_reason=length) when reasoning
   // eats the budget: ladder the token cap until the reply actually finishes.
-  let res = await post(body);
+  let res = await postOpenAI(body);
   let data = await readJson(res);
   let ladder = 0;
   while (data.choices && data.choices[0] && data.choices[0].finish_reason === "length" && ladder < 2) {
     ladder++;
     body.max_tokens = Math.min(body.max_tokens * 2, 32768);
-    res = await post(body);
+    res = await postOpenAI(body);
     data = await readJson(res);
   }
   const choice = data.choices && data.choices[0];
   if (usageLogger && data.usage) {
-    try {
-      usageLogger({
-        familyId: opts.usage && opts.usage.familyId,
-        task,
-        model: data.model || model,
-        tokensIn: data.usage.prompt_tokens,
-        tokensOut: data.usage.completion_tokens,
-        note: opts.usage && opts.usage.note,
-      });
-    } catch {
-      /* accounting never breaks AI */
-    }
+    logUsageTokens({
+      familyId: opts.usage && opts.usage.familyId,
+      task,
+      model: data.model || model,
+      tokensIn: data.usage.prompt_tokens,
+      tokensOut: data.usage.completion_tokens,
+      note: opts.usage && opts.usage.note,
+    });
   }
   return {
     content: choice ? choice.message.content : "",
@@ -116,7 +177,7 @@ async function chat(task, messages, opts = {}) {
     finish: choice ? choice.finish_reason : null,
   };
 
-  async function post(b) {
+  async function postOpenAI(b) {
     const r = await fetchT(`${process.env.AI_BASE_URL.replace(/\/$/, "")}/chat/completions`, {
       method: "POST",
       headers: {
@@ -174,4 +235,4 @@ function tryParse(text) {
   return undefined;
 }
 
-module.exports = { chat, chatJson, resolveRoute, configured, health, setUsageLogger };
+module.exports = { chat, chatJson, resolveRoute, configured, health, setUsageLogger, provider };

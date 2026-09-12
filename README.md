@@ -82,9 +82,10 @@ gallery). Export any course as a portable file; import courses from any other
 instance: sharing between families needs no platform at all.
 
 ### 🔒 Yours
-Self-hosted in one Docker command. Works with any OpenAI-compatible AI
-including **fully local Ollama**, so nothing ever leaves your server.
-AGPL-3.0. No accounts on our servers, no tracking, no ads.
+Self-hosted in one Docker command. Works with any OpenAI-compatible AI,
+**Claude (Anthropic)**, or **fully local Ollama**, so nothing ever leaves your
+server if you don't want it to. AGPL-3.0. No accounts on our servers, no
+tracking, no ads.
 
 ## Quick start
 
@@ -112,8 +113,10 @@ docker compose exec ollama ollama pull llama3.1
 ```
 
 Or point `AI_BASE_URL` at any OpenAI-compatible provider (DeepSeek, OpenAI, LM
-Studio, …). See [`.env.example`](.env.example). No AI key? Templates, lessons,
-review, progress, reports, calendar, and email all still work.
+Studio, …) or use Claude: set `AI_PROVIDER=anthropic` + `AI_API_KEY=sk-ant-…`
+and pick `claude-sonnet-4-5` style models. See [`.env.example`](.env.example).
+No AI key? Templates, lessons, review, progress, reports, calendar, and email
+all still work.
 
 ## How it compares
 
