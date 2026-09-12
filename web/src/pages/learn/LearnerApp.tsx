@@ -11,6 +11,8 @@ import CourseView from "./CourseView";
 import Practice from "./Practice";
 import LessonPlayer from "./LessonPlayer";
 import GamificationStrip from "./GamificationStrip";
+import QuestLog from "./QuestLog";
+import "./QuestLog.css";
 import WorldView from "./WorldView";
 
 interface PathPlan {
@@ -170,6 +172,8 @@ function LearnerHome({
           <span className="kc-go" aria-hidden="true">→</span>
         </button>
       )}
+
+      <QuestLog upcoming={upcoming} returned={returned} reviewsDue={reviewsDue} onNavigate={onNavigate} />
 
       {!courses ? (
         <div className="skel" style={{ width: "100%", height: 120 }} />
