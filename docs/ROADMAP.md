@@ -553,6 +553,90 @@ hidden blob.
       does not appear on mobile (One Tap is large-screen only) or for signed
       in visitors.
 
+## Immersive game: voice, music, map, quests, game mechanics (Well 3)
+
+> **Verdict on 2026-09-12:** the learner side reads like a good course forum with a
+> game skin. Marketing and the guide console feel modern, the learner home plus
+> course map plus lesson player are still centered panels, and `WorldView` is a
+> vertical scroll list. Fix: a full-screen shell plus a persistent HUD plus a
+> place you move through. This section is the plan. Well 1 stays on `main`,
+> Well 2 keeps shipping IP courses, Well 3 builds this.
+
+**Music provider pick:** **Vertex AI (Lyria) is the choice over Suno and over
+Google Labs MusicFX.** Suno makes stronger standalone songs but owns the voice
+it sings with and its API is IP-fenced for commercial use. MusicFX is a lab
+demo, no SLA. Lyria on Vertex shares the same GCP auth the app already uses for
+TTS, bills per second to the same project, and loops are cacheable in
+`UPLOAD_DIR` like kie images, so the cost stays low and the app degrades clean
+when keys are absent. `server/lib/providers/google-tts.js` and a small
+`server/lib/providers/google-music.js` pair to the existing `media.js` spend
+path, one pattern, no new vendor shape.
+
+### What it feels like when done
+
+* A learner opens a course and lands in a full-screen world, not a feed.
+  Cover art bleeds edge to edge behind a HUD that shows XP ring, streak flame,
+  pack, sound, and Map. Lesson and World use the same shell.
+* Every chapter has a narrator voice and a per-chapter music stem that ducks
+  under speech. Characters have stable voices pinned in `adventure_characters`.
+* The course map is a path, not a list. Done nodes glow, next pulses, locked
+  bridges are dim. The journey line drives a small avatar that travels the path.
+* The quest board is the learner's todo made playable: main quest (next lesson),
+  side quests (practice due, returned work), collection (loot and lore). Tap Go
+  to move.
+* Transitions are real scene wipes and the boss is a timed arena, with sound
+  cues that respect `prefers-reduced-motion`.
+
+### Planned slices, ordered to ship (Well 3 worktree: `feat/well3-immersive`)
+
+1. **Full-screen learner shell plus HUD** (CSS plus layout, no migration).
+   Drop the 720px `kid` center column for `role === learner`, use `100dvh`
+   with `worldhero` art as scrim, add `LearnerHUD` (XP, streak, pack count,
+   map, sound). Same routes, different frame.
+2. **Course path map** (replace `CourseView` lesson list). Render units as
+   path SVG, lessons as nodes. Reuse `progress.lessonsTotal` and `lesson.done`.
+3. **World map canvas** (replace `encounters` grid in `WorldView`). SVG path
+   plus absolute node buttons, chapter banners as full-bleed regions, parallax
+   hero, existing `Journey` scroll progress drives avatar.
+4. **Google TTS narrator** (`server/lib/providers/google-tts.js`, job
+   `tts-narrate` via `server/lib/jobs.js`, cache in `UPLOAD_DIR`, serve as
+   `media/:id/audio`). Browser `speechSynthesis` stays as fallback. Voice
+   choice pinned per character, generated at lesson publish time, capped plain
+   text, SSML kept simple, captions stay.
+5. **Chapter music stems via Vertex Lyria** (provider
+   `server/lib/providers/google-music.js`, same cache plus spend path, loop
+   per chapter, mood swap on `kind`, low volume, duck under narration,
+   music slider in settings, no autoplay with sound before a tap).
+6. **Scene transitions plus sound cues** (CSS wipes, view transitions,
+   correct chime, boss thud, page turn, all muted by default, gated on
+   reduced motion).
+7. **Quest log plus map overview** (full-screen Map, path SVG, avatar on
+   path, quest log reusing `upcoming`, `returned`, `reviewsDue` from
+   `LearnerApp`). Collection gallery with lore lines per loot item.
+8. **Game loop additions** (one per follow-up PR, no migrations unless noted):
+   stamina for boss, choice branches that change next hook, companion reactions
+   (one TTS clip per chapter), daily plus weekly board, mastery stars per
+   lesson, collection lore, doors plus keys (rare loot opens shortcut), photo
+   finish on project return. Guides set voice plus music level per learner,
+   learner owns mute.
+
+### Guardrails while building
+
+* Every slice keeps degraded mode. No key means no voice plus no music, never
+  a broken player.
+* Audio is generated server side, cached as a file, and served from
+  `/media/:id`. Nothing streams live from a vendor on every tap.
+* Cost is per second and per chapter, fail soft per track, same as kie images.
+* The app stays a learning platform first. Replay and stars are opt-in, no
+  dark pattern, no gate that blocks learning.
+
+### While building, keep making the UX more alive
+
+Each PR also looks for one small interactivity lift nearby, even when not in
+the slice: a button that needs a pressed scale, a card that wants a spring, a
+stat that should count up, an inventory that reads better as a hotbar. Small
+polish compounds.
+
 ## Paying for it
 
 Ordered by when it becomes worth doing, not by size.
