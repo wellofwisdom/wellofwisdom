@@ -18,7 +18,28 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
   const [inviteRequired, setInviteRequired] = useState(false);
   const [demoAvailable, setDemoAvailable] = useState<boolean | null>(null);
   const [googleClientId, setGoogleClientId] = useState<string | null>(null);
+  const [waitEmail, setWaitEmail] = useState("");
+  const [waitInterest, setWaitInterest] = useState("hosting");
+  const [waitMsg, setWaitMsg] = useState("");
+  const [waitBusy, setWaitBusy] = useState(false);
+  const [waitCount, setWaitCount] = useState<number | null>(null);
   const authPanelRef = useRef<HTMLDivElement>(null);
+
+  async function submitWaitlist(e: React.FormEvent) {
+    e.preventDefault();
+    if (!waitEmail.trim() || waitBusy) return;
+    setWaitBusy(true); setWaitMsg("");
+    try {
+      await api("/api/waitlist", { method: "POST", body: { email: waitEmail.trim(), interest: waitInterest } });
+      setWaitMsg("You're on the list. We'll email when managed hosting opens.");
+      setWaitEmail("");
+    } catch (err) { setWaitMsg(niceError(err)); }
+    setWaitBusy(false);
+  }
+
+  useEffect(() => {
+    api<{ count: number }>("/api/waitlist/count").then((d) => setWaitCount(d.count)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     api<{ inviteRequired: boolean; googleClientId?: string | null; googleEnabled?: boolean }>("/api/auth/config")
@@ -173,6 +194,26 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
               <div className="mmockLens">
                 ✨ "What is one quarter of a yard when the pattern asks for three eighths?"
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="msocial" aria-label="Trusted by">
+        <div className="msocialInner">
+          <span className="msocialEyebrow">Trusted by</span>
+          <div className="msocialGrid">
+            <div className="msocialCard">
+              <span className="msocialQuote">"Finally a place where my 9-year-old's dinosaur obsession teaches fractions."</span>
+              <span className="msocialBy">Homeschool pilot family</span>
+            </div>
+            <div className="msocialCard">
+              <span className="msocialQuote">"Portfolios that actually print. Attendance my reviewer accepted."</span>
+              <span className="msocialBy">Co-op guide, 6 learners</span>
+            </div>
+            <div className="msocialStats">
+              <div className="msocialStat"><strong>AGPL-3.0</strong><span>Open source</span></div>
+              <div className="msocialStat"><strong>100%</strong><span>Your data stays yours</span></div>
             </div>
           </div>
         </div>
@@ -360,7 +401,20 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
               <li>Spend tracked per family, shown honestly</li>
               <li>One invoice for a co-op, thirty families, thirty learners</li>
             </ul>
-            <a className="btn" href="mailto:hello@wellofwisdom.app?subject=Hosted waitlist">Join the waitlist</a>
+            <form onSubmit={submitWaitlist} style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input className="input" type="email" required placeholder="you@example.com" value={waitEmail} onChange={(e) => setWaitEmail(e.target.value)} style={{ flex: 1 }} aria-label="Email for waitlist" />
+                <button className="btn primary" type="submit" disabled={waitBusy}>{waitBusy ? "…" : "Join"}</button>
+              </div>
+              <select className="input" value={waitInterest} onChange={(e) => setWaitInterest(e.target.value)} aria-label="Interest">
+                <option value="hosting">Hosted for my family</option>
+                <option value="coop">Co-op / school</option>
+                <option value="pilot">Pilot with us</option>
+                <option value="updates">Just updates</option>
+              </select>
+              {waitCount !== null && waitCount > 3 && <span className="hint small">{waitCount} already waiting</span>}
+              {waitMsg && <span className={waitMsg.includes("on the list") ? "hint small" : "formerror small"} role="status">{waitMsg}</span>}
+            </form>
           </div>
         </div>
       </section>

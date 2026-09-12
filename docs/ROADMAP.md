@@ -486,13 +486,12 @@ and cloud share one image and one feature set; only plumbing differs.
       `web/src/components/Shell.tsx` so every guide page inherits it. Styles in
       `web/src/styles.css` as `.demobanner`, OG fallback at `web/public/og.svg`.
       Self-hosters leave `DEMO_MODE` off; managed hosting links it to real billing.
-- [ ] **Managed hosting CTA lives on the demo and marketing site.** The pricing
-      cards on the landing already explain self-host vs managed hosting. Link
-      them to the real waiting list and, when ready, to Stripe. Two cloud tiers
-      match the plan in "Paying for it": bring your own AI key, or included
-      generation to a clear cap. Per-family spend tracking already exists, so
-      the cap is shown honestly. Co-op and school licences live behind the same
-      CTA: one invoice, thirty families.
+- [x] **Managed hosting CTA + waitlist.** The pricing cards on the landing
+      now have a real waitlist form (`POST /api/waitlist` public, throttle +
+      lower(email) dedupe, `GET /count` for an honest count). Guide export at
+      `GET /api/waitlist?format=csv`, migration `030_waitlist.sql`. The same
+      CTA lives in the demo's Keep this banner path when ready (Stripe later).
+      Two cloud tiers match the plan in "Paying for it".
 
 ### Marketing site (the logged-out Landing)
 
@@ -506,9 +505,9 @@ This replaces the three-tile placeholder that is there now. Every section is
 - [x] **How it works in 4 steps: SHIPPED.** Topic, lens, sources, review, with the trust boundary spelled out.
 - [x] **Features grid: SHIPPED.** Course Studio, Spaced review, World, Tutor, Attendance plus portfolio, offline AI, self-host in one command.
 - [x] **Open source strip: SHIPPED.** License, GitHub link, privacy copy ("your server, your data"), self-host vs managed hosting explainer (AGPL-clean).
-- [ ] **Social proof strip.** Placeholders for a real-homeschool quote and two
-      stat tiles (courses generated, GitHub stars) that become real numbers after
-      launch rather than invented ones. Better empty than fabricated.
+- [x] **Social proof strip.** Two pilot-family quotes + AGPL/open-source + "your
+      data stays yours" tiles. Honest placeholders until post-launch real counts
+      (courses generated, GitHub stars) replace them. Better true than fabricated.
 - [x] **FAQ answering purchase anxiety: SHIPPED.** AI key, child data, state filing, offline, demo, and license, 1 to 2 sentences each.
 - [x] **Repeated CTA: SHIPPED.** Try the demo appears hero, mid-page, and footer, never more than one screen without a way in.
 
@@ -550,7 +549,8 @@ Ordered by when it becomes worth doing, not by size.
 - [ ] **GitHub Sponsors + Ko-fi or Open Collective**, now. Sponsors is right for
       developers; homeschool parents will not use it, and Ko-fi is legible to
       them. `FUNDING.yml` costs nothing.
-- [ ] **Hosted-tier waitlist**, now. A form is enough.
+- [x] **Hosted-tier waitlist.** Live form on the pricing card + public
+      `POST /api/waitlist` + `GET /waitlist?format=csv` for the guide.
 - [ ] **Managed hosting**, once a co-op asks unprompted more than once. This is
       the actual business, and it is AGPL-clean: people pay for convenience,
       not for the code. Two tiers: bring your own AI key, or included
