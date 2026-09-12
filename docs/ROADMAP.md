@@ -562,15 +562,24 @@ hidden blob.
 > place you move through. This section is the plan. Well 1 stays on `main`,
 > Well 2 keeps shipping IP courses, Well 3 builds this.
 
-**Music provider pick:** **Vertex AI (Lyria) is the choice over Suno and over
-Google Labs MusicFX.** Suno makes stronger standalone songs but owns the voice
-it sings with and its API is IP-fenced for commercial use. MusicFX is a lab
-demo, no SLA. Lyria on Vertex shares the same GCP auth the app already uses for
-TTS, bills per second to the same project, and loops are cacheable in
-`UPLOAD_DIR` like kie images, so the cost stays low and the app degrades clean
-when keys are absent. `server/lib/providers/google-tts.js` and a small
-`server/lib/providers/google-music.js` pair to the existing `media.js` spend
-path, one pattern, no new vendor shape.
+**Voice plus music provider pick (updated 2026-09-12): kie.ai for both, no
+GCP project.** Voice is **Gemini 3.1 Flash TTS on kie** (Google text to
+speech, same key you already use for images and video), music is **Suno
+Generate Music on kie**. One key, one bill, loops cached in `UPLOAD_DIR`
+like every other piece of generated media. This beats Vertex Lyria and beats
+calling Suno plus Google Labs directly: Vertex wants a separate GCP plus
+service account, MusicFX is a lab demo, and direct Suno needs a second vendor
+plus a voice you have to license. On kie the prices are public and cheap for
+what we do: Gemini 3.1 Flash TTS is $0.70 per million input tokens plus $14
+per million output tokens (a chapter narration is a few thousand tokens, so
+sub cent per chapter), Suno Generate Music is $0.06 per generation (one loop
+per chapter, cached). Sibling Suno models on kie (Boost Style Boost, TimeStamped
+Lyrics, Cover Generate, personas, MIDI from audio, sounds, mashup, replace
+section, multi-stem, vocal separate, wav convert, lyrics, upload and cover,
+video, upload and extend, add instrumental) stay available later without a new
+vendors: we ship with Generate Music first. Server side will be
+`server/lib/providers/kie-voice.js` (Gemini TTS) plus `kie-music.js` (Suno)
+against the existing `media.js` spend path, same shape you already run.
 
 ### What it feels like when done
 
@@ -591,22 +600,24 @@ path, one pattern, no new vendor shape.
 
 1. **Full-screen learner shell plus HUD** (CSS plus layout, no migration).
    Drop the 720px `kid` center column for `role === learner`, use `100dvh`
-   with `worldhero` art as scrim, add `LearnerHUD` (XP, streak, pack count,
-   map, sound). Same routes, different frame.
+   with `worldhero` art as scrim, add `LearnerHUD` (XP ring, streak flame,
+   pack count, map, sound). Same routes, different frame.
 2. **Course path map** (replace `CourseView` lesson list). Render units as
    path SVG, lessons as nodes. Reuse `progress.lessonsTotal` and `lesson.done`.
 3. **World map canvas** (replace `encounters` grid in `WorldView`). SVG path
    plus absolute node buttons, chapter banners as full-bleed regions, parallax
    hero, existing `Journey` scroll progress drives avatar.
-4. **Google TTS narrator** (`server/lib/providers/google-tts.js`, job
-   `tts-narrate` via `server/lib/jobs.js`, cache in `UPLOAD_DIR`, serve as
-   `media/:id/audio`). Browser `speechSynthesis` stays as fallback. Voice
-   choice pinned per character, generated at lesson publish time, capped plain
-   text, SSML kept simple, captions stay.
-5. **Chapter music stems via Vertex Lyria** (provider
-   `server/lib/providers/google-music.js`, same cache plus spend path, loop
-   per chapter, mood swap on `kind`, low volume, duck under narration,
-   music slider in settings, no autoplay with sound before a tap).
+4. **Kie voice narrator (Gemini 3.1 Flash TTS)** (`server/lib/providers/
+   kie-voice.js`, job `tts-narrate` via `server/lib/jobs.js`, cache in
+   `UPLOAD_DIR`, serve as `media/:id/audio`). Browser `speechSynthesis`
+   stays as fallback. Voice choice pinned per character, generated at lesson
+   publish time, capped plain text, SSML kept simple, captions stay. Cost is
+   sub cent per chapter at kie's $0.70 plus $14 per million tokens.
+5. **Chapter music loops via kie Suno** (provider
+   `server/lib/providers/kie-music.js`, same cache plus spend path, Suno
+   Generate Music at $0.06 per loop, one per chapter, mood swap on `kind`,
+   low volume, duck under narration, music slider in settings, no autoplay
+   with sound before a tap).
 6. **Scene transitions plus sound cues** (CSS wipes, view transitions,
    correct chime, boss thud, page turn, all muted by default, gated on
    reduced motion).
@@ -626,7 +637,9 @@ path, one pattern, no new vendor shape.
   a broken player.
 * Audio is generated server side, cached as a file, and served from
   `/media/:id`. Nothing streams live from a vendor on every tap.
-* Cost is per second and per chapter, fail soft per track, same as kie images.
+* Cost is sub cent per chapter for voice (a few thousand tokens at
+  $0.70 plus $14) plus $0.06 per chapter for a Suno loop, each cached
+  and fail soft per track, same posture as kie images.
 * The app stays a learning platform first. Replay and stars are opt-in, no
   dark pattern, no gate that blocks learning.
 
