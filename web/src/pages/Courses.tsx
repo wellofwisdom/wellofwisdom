@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../api";
 import type { CourseSummary, Job } from "../types";
-import { Panel, EmptyState, StatBar, Modal, Field } from "../components/ui";
+import { Panel, EmptyState, PillTabs, StatBar, Modal, Field } from "../components/ui";
 import { IconSparkle } from "../components/Icons";
 import { linkProps } from "../router";
 
@@ -13,6 +13,7 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
   const [error, setError] = useState("");
   const [worksheetOpen, setWorksheetOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [tab, setTab] = useState<"mine" | "community">("mine");
 
   const load = () =>
     api<{ courses: CourseSummary[] }>("/api/courses")
@@ -28,6 +29,16 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
 
   return (
     <>
+      <PillTabs
+        ariaLabel="Course library"
+        tabs={[{ id: "mine", label: "Your courses" }, { id: "community", label: "Community library" }]}
+        value={tab}
+        onChange={(v) => setTab(v as "mine" | "community")}
+      />
+      {tab === "community" ? (
+        <CommunityLibrary onDone={(cid) => { load(); onNavigate(`course/${cid}`); }} />
+      ) : (
+        <>
       <StatBar
         stats={[
           { label: "Courses", value: courses?.length ?? "…" },
@@ -96,6 +107,79 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
       )}
       {importOpen && (
         <ImportDialog onClose={() => setImportOpen(false)} onDone={(cid) => { setImportOpen(false); load(); onNavigate(`course/${cid}`); }} />
+      )}
+        </>
+      )}
+    </>
+  );
+}
+
+type CommunityCourse = {
+  slug: string; title: string; description: string;
+  topic: string | null; lens: string | null; gradeLevel: number | null;
+  license: string; units: number; lessons: number;
+  rawUrl: string | null; local?: boolean;
+};
+
+function CommunityLibrary({ onDone }: { onDone: (courseId: number) => void }) {
+  const [courses, setCourses] = useState<CommunityCourse[] | null>(null);
+  const [error, setError] = useState("");
+  const [busySlug, setBusySlug] = useState<string | null>(null);
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    api<{ courses: CommunityCourse[] }>("/api/community")
+      .then((d) => setCourses(d.courses))
+      .catch((e) => setError(niceError(e)));
+  }, []);
+
+  async function add(c: CommunityCourse) {
+    setBusySlug(c.slug); setMsg(""); setError("");
+    try {
+      const d = await api<{ courseId: number }>("/api/community/import", {
+        method: "POST", body: { slug: c.slug, rawUrl: c.rawUrl || undefined },
+      });
+      setMsg(`Added ${c.title}. Opening it now.`);
+      onDone(d.courseId);
+    } catch (e) {
+      setError(niceError(e));
+    } finally {
+      setBusySlug(null);
+    }
+  }
+
+  if (!courses) return <div className="skel" style={{ height: 80 }} />;
+  if (error && !courses.length) return <div className="formerror" role="alert">{error}</div>;
+
+  return (
+    <>
+      <p className="muted small" style={{ marginBottom: 10 }}>
+        CC-BY courses from the <a href="https://github.com/wellofwisdom/community-courses" target="_blank" rel="noopener noreferrer">community library</a>.
+        Tap Add and it lands in Your courses as a draft to review before learners see it.
+      </p>
+      {error && <div className="formerror" role="alert">{error}</div>}
+      {msg && <div className="hint" role="status" style={{ marginBottom: 8 }}>{msg}</div>}
+      {courses.length === 0 ? (
+        <p className="muted">No community courses yet. Check back soon, or publish one of your own.</p>
+      ) : (
+        courses.map((c) => (
+          <div key={c.slug} className="learnerrow coursecard">
+            <span className="avatar" aria-hidden="true">{c.lens ? "🧵" : "📘"}</span>
+            <div className="meta" style={{ minWidth: 0 }}>
+              <div className="n">{c.title}</div>
+              <div className="u">
+                {c.units} units · {c.lessons} lessons
+                {c.lens ? ` · through ${c.lens}` : ""}
+                {c.gradeLevel != null ? ` · grade ${c.gradeLevel}` : ""}
+                {c.license ? ` · ${c.license}` : ""}
+              </div>
+              {c.description && <div className="muted small" style={{ marginTop: 2, lineHeight: 1.4 }}>{c.description}</div>}
+            </div>
+            <button className="btn primary" type="button" disabled={busySlug === c.slug} onClick={() => add(c)}>
+              {busySlug === c.slug ? "Adding…" : "Add to my library"}
+            </button>
+          </div>
+        ))
       )}
     </>
   );
