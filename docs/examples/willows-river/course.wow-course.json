@@ -1,0 +1,250 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Mole, Rat, and the River: Life Where Water Meets Land",
+  "topic": "Riverbank ecology, food webs, and descriptive writing through The Wind in the Willows",
+  "lens": "The Wind in the Willows by Kenneth Grahame (1908)",
+  "gradeLevel": 4,
+  "description": "Mole scrambles up from his burrow and finds Rat waiting by the river, and the bank is alive. Follow Grahame's friends through the seasons to learn what lives at the water's edge, how food webs hold, and how careful words can hold a landscape still. Pairs with the River Ecology Field Study on a real creek. Inspired by a book in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "The riverbank in spring",
+      "lessons": [
+        {
+          "title": "The edge is the richest place",
+          "summary": "The strip where water meets land feeds the rest.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Mole meets the river",
+                "body": "Mole has spent his life underground, sweeping. When he scrambles up to the meadow, scent hits him first: damp earth, then willow. Rat is on the bank with a picnic basket and a boat that has been in his family forever. The bank they sit on is not just an edge. It is a belt of life called the **riparian strip**, the green border of roots, shrubs, and trees that holds the river together.\n\n- Roots grip soil so banks do not crumble\n- Leaves and twigs feed insects that feed fish and birds\n- Shade cools the water, and cooler water holds more oxygen\n- A healthy bank has layers: groundcover, shrubs, trees, each sheltering a different crowd"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why does a strip of willows and shrubs help the river even though the trees are not in the water?",
+                "choices": [
+                  { "id": "c1", "text": "Roots hold soil, leaves feed insects, shade cools water" },
+                  { "id": "c2", "text": "Trees drink all the river water" },
+                  { "id": "c3", "text": "Willows stop the river from flowing" }
+                ],
+                "answer": "c1",
+                "explanation": "A riparian strip stabilises banks, feeds the food web with leaf litter, and cools water by shading it.",
+                "hint": "Think of roots, food, and shade."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which bank shows three layers of riparian life?",
+                "choices": [
+                  { "id": "c1", "text": "Groundcover below, shrubs in the middle, trees above" },
+                  { "id": "c2", "text": "Bare soil to the water with one lonely tree" },
+                  { "id": "c3", "text": "A concrete wall" }
+                ],
+                "answer": "c1",
+                "explanation": "Layers are groundcover, shrubs, and trees together.",
+                "hint": "How many layers did the article name?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Who lives by the water",
+          "summary": "Producers, consumers, and decomposers each have a job on the bank.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Rat's picnic and Badger's larder",
+                "body": "Rat brings bread, cold chicken, and a bottle of something bubbly. Badger, when you finally meet him, keeps a deep, tidy larder. Both are eating what the bank and the Wild Wood made, step by step.\n\n- **Producers** make food from sunlight: willows, reeds, waterweed, algae\n- **Consumers** eat that food: mayflies graze algae, small fish eat mayflies, the heron eats the fish\n- **Decomposers** break dead matter back into nutrients: fungi, bacteria, worms, slaters\n\nA line of who eats whom is a **food chain**. Many chains woven together are a **food web**. Take one thread away and the others sag."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which shows a food chain in the right order?",
+                "choices": [
+                  { "id": "c1", "text": "Algae to mayfly to small fish to heron" },
+                  { "id": "c2", "text": "Heron to small fish to mayfly to algae" },
+                  { "id": "c3", "text": "Small fish to algae to heron" }
+                ],
+                "answer": "c1",
+                "explanation": "Energy flows from producers to consumers: algae makes food, mayfly eats it, fish eats mayfly, heron eats fish.",
+                "hint": "Start with the producer that makes food from sunlight."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What do decomposers do in the web?",
+                "choices": [
+                  { "id": "c1", "text": "Break dead matter into nutrients producers can reuse" },
+                  { "id": "c2", "text": "Eat sunlight directly" },
+                  { "id": "c3", "text": "Make new sunlight" }
+                ],
+                "answer": "c1",
+                "explanation": "Decomposers return nutrients to the soil and water so producers can grow again.",
+                "hint": "Which word means to undo or break down?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Words that hold a landscape",
+          "summary": "Grahame's sentences teach how description does its work.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "How Rat describes a river",
+                "body": "Grahame does not write \"the river was nice.\" He writes of a river that glints, slips, chatters, and keeps going. His nouns pick the right scale. His verbs carry the motion. His images let you feel a place without having visited it.\n\n- A good description names **what is there** (willow, bank, water, light) before how it felt\n- Strong **verbs** carry motion: the river slides rather than just is there\n- **Sensory detail** picks one sense at a time: the scent of damp earth, the chill on the water\n- A simile earns its keep when it makes the strange familiar: the river like a lazy road\n\nWrite what you saw. Let the feeling follow, not lead."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which sentence shows sensory detail doing its job?",
+                "choices": [
+                  { "id": "c1", "text": "The bank smelled of damp earth and the water ran cool over my ankles" },
+                  { "id": "c2", "text": "The place was good" },
+                  { "id": "c3", "text": "There was water and some ground" }
+                ],
+                "answer": "c1",
+                "explanation": "It picks two checkable senses (scent and touch temperature) rather than a vague judgement.",
+                "hint": "Which one lets you smell or feel the place?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Write one sentence describing a place by a creek using one specific sight and one specific sound. Keep it under 25 words.",
+                "answer": "Willow shadow fell on still water while a moorhen chattered among the reeds.",
+                "explanation": "Any sentence that names one clear visual and one audible, concrete detail is good. Short is fine.",
+                "hint": "What did you see? What did you hear?"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Seasons, care, and the Wild Wood",
+      "lessons": [
+        {
+          "title": "The year turns on the bank",
+          "summary": "Seasons shift who is active, what grows, and where the food is.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Toad in summer, Badger in winter",
+                "body": "In Grahame's year, summer is Toad wild on the road in a motorcar, winter is Badger quiet in his sett. Nature keeps a similar clock. In spring the bank greens first; in summer insects and young birds crowd; in autumn seeds and leaf fall feed the water; in winter many creatures shelter and slow.\n\n- **Spring:** fresh growth, nesting, more food appearing\n- **Summer:** peak activity, warm water, insects abundant\n- **Autumn:** seed and leaf drop, water cloudier after rains\n- **Winter:** less growth, cooler water, many animals sheltering\n\nA change in temperature by even a few degrees can shift who thrives, because cooler water holds more oxygen and warmer water can stress fish."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why might a fish prefer a shaded stretch in summer?",
+                "choices": [
+                  { "id": "c1", "text": "Shade keeps water cooler so it holds more oxygen" },
+                  { "id": "c2", "text": "Shade makes water warmer" },
+                  { "id": "c3", "text": "Fish like to sit in direct sun" }
+                ],
+                "answer": "c1",
+                "explanation": "Cooler water holds more dissolved oxygen, which fish need to breathe.",
+                "hint": "What does cooler water hold more of?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Name one seasonal change on a creek you could observe and one question you would ask after seeing it.",
+                "answer": "Autumn leaf fall darkened the water. Question: do more leaf-eating insects appear after leaves fall?",
+                "explanation": "Any real seasonal observation plus a question it naturally raises is good.",
+                "hint": "What did you see change? What would that make you look for next?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "One patch, well kept",
+          "summary": "A small care plan a group can actually tend.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "How Rat and Mole keep house",
+                "body": "Rat keeps his bank tidy by habit: a swept door, a stocked pantry, a boat tied snug. He does not fix the whole river. He keeps his stretch well. A class or family can do the same.\n\n- Choose **one patch** of bank, not the whole creek\n- Plant what already lives nearby, not thirsty garden favourites\n- Agree who waters, when you will weed, and where you wrote the plan so next term finds it\n- Leave the rest alone to recover while your patch establishes\n\nThe aim is a plan someone else could continue, not a grand map nobody tends."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which care plan is most likely to last?",
+                "choices": [
+                  { "id": "c1", "text": "One small patch with local plants, a named waterer, and a written record" },
+                  { "id": "c2", "text": "The entire bank replanted with garden flowers, no written plan" },
+                  { "id": "c3", "text": "A single big planting day with no follow up" }
+                ],
+                "answer": "c1",
+                "explanation": "Small, local, written, and tended beats grand and abandoned.",
+                "hint": "Which one could next year's class actually continue?"
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Your riverbank stewardship page",
+                "description": "Make a stewardship page for a patch you know or have visited. Name the patch, sketch one food web chain from producer to consumer there, describe one patch using one sight and one sound in one sentence, and write a three-line care plan: what you will plant, where, and how you will know it is working. If you can, use your River Ecology Field Study notes for real data.",
+                "rubric": "- The patch is named and located in one line\n- One correct producer to consumer chain with at least three links\n- One descriptive sentence with a specific sight and a specific sound\n- Three-line plan: what, where, and how you will check it"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Field day companion",
+          "summary": "Pair this with a real creek visit and your River Ecology Field Study course.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Two courses, one creek",
+                "body": "This book gave you language. The field course gave you numbers. Use them together on a visit: read the bank first with words, then measure with a sheet.\n\n- Walk the bank and write your one sentence of description before you measure anything\n- Then take the field sheet from your River Ecology course: date, air and water temperature, clarity when a disc vanishes, and three rock lifts listing each kind you saw\n- Add one question the numbers raise and one line for next time\n\nThe words make the numbers matter. The numbers make the words honest."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "On a creek visit after these two courses together, what is the best order?",
+                "choices": [
+                  { "id": "c1", "text": "Describe the bank, then measure and tally, then note a question" },
+                  { "id": "c2", "text": "Guess the answers before looking, then describe to fit the guesses" },
+                  { "id": "c3", "text": "Only measure, skip the description" }
+                ],
+                "answer": "c1",
+                "explanation": "Description first grounds observation; measures then check and extend it; the question carries the learning forward.",
+                "hint": "Which order keeps observing before guessing?"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

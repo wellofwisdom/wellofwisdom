@@ -1,0 +1,265 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Holmes Observes: Matter and Measurement",
+  "topic": "Matter, properties, measurement, and scientific observation through Sherlock Holmes",
+  "lens": "The adventures of Sherlock Holmes by Arthur Conan Doyle (1887-1927)",
+  "gradeLevel": 5,
+  "description": "London needs a careful observer. Follow Holmes and Watson through cases where every clue depends on matter and measurement: what something is made of, how much there is, and how to measure without guessing. Learners build observation, properties of matter, mass and volume, and measurement practice, all inside Doyle's London. Inspired by stories in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "The careful eye: observation and properties",
+      "lessons": [
+        {
+          "title": "Observe before you guess",
+          "summary": "Observe with care, describe with words you can check, then infer.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "What Holmes saw first",
+                "body": "At 221B Baker Street, Holmes watches a visitor for ten seconds and says what the man does for work. Watson is amazed. Holmes answers that he did not guess, he observed: ink on the cuff, chalk dust on the coat, a particular way of holding a hat. Each detail is small, each can be checked.\n\nScientists do the same. An **observation** is what you detect with your senses or a tool. An **inference** is what you think it means. Mix them and you mislead yourself.\n\n- Observation: the powder is white, grainy, dissolves in water\n- Inference: the powder might be salt\n- Good science keeps the two in separate columns, then tests the link"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which is an observation, not an inference?",
+                "choices": [
+                  { "id": "c1", "text": "The substance left a white chalky mark on dark paper" },
+                  { "id": "c2", "text": "The substance must be classroom chalk" },
+                  { "id": "c3", "text": "The substance was made last week" }
+                ],
+                "answer": "c1",
+                "explanation": "A chalky white mark is what you saw. What it must be and when it was made are inferences that need testing.",
+                "hint": "Which one only says what you detected, with no guess about what it is?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "You see a footprint in damp soil near a window. Write one observation and one inference about it, and label which is which.",
+                "answer": "Observation: the print is about 12 cm long with a ridged sole. Inference: the person who left it may have worn boots.",
+                "explanation": "Any answer that keeps a checkable sensory detail separate from a meaning is good.",
+                "hint": "Observation is what you saw. Inference is what you think it means."
+              }
+            }
+          ]
+        },
+        {
+          "title": "What things are made of",
+          "summary": "Matter has properties you can observe and measure.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The catalogue of matter",
+                "body": "Holmes keeps a catalogue of powders, inks, and tobaccos, each with its **properties**: colour, texture, odour, whether it dissolves, whether a magnet pulls it. Those properties tell him what the matter is without needing a label.\n\nAll of this is **matter**, anything that has mass and takes up space. Properties come in two kinds.\n\n- **Physical properties** can be observed or measured without changing what the substance is: colour, hardness, mass, volume, density, melting point, whether it floats\n- **Chemical properties** describe how it changes into something else: whether it burns, rusts, or reacts with vinegar\n\nHolmes cares most about physical properties first, because they answer without destroying the clue."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which is a physical property?",
+                "choices": [
+                  { "id": "c1", "text": "The metal is pulled by a magnet" },
+                  { "id": "c2", "text": "The paper burns when held to a flame" },
+                  { "id": "c3", "text": "The milk sours after two days" }
+                ],
+                "answer": "c1",
+                "explanation": "Being pulled by a magnet can be observed without changing the metal into something else. Burning and souring change the substance.",
+                "hint": "Which one can you check without turning the material into a new material?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "A powder dissolves in water and leaves no grit. Which best describes dissolving?",
+                "choices": [
+                  { "id": "c1", "text": "The powder's particles spread evenly among water particles; no new substance is made" },
+                  { "id": "c2", "text": "The powder turns into water" },
+                  { "id": "c3", "text": "The powder disappears and its matter is gone" }
+                ],
+                "answer": "c1",
+                "explanation": "Dissolving spreads particles without making a new substance. The matter is still there, just mixed.",
+                "hint": "Does dissolving change what the powder is, or just where its particles are?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Floating, sinking, and density",
+          "summary": "Density is mass for its size, and it decides what floats.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Why the cork floats and the iron sinks",
+                "body": "Watson once asks why a cork floats while an iron key of the same size sinks. Holmes answers with a ratio: **density** is mass divided by volume, $density = m / V$. A cork has little mass for its size. An iron key packs a lot of mass into the same space.\n\n- Density has units like $g/cm^3$ (grams per cubic centimetre)\n- Water has a density near $1\\ g/cm^3$\n- A material denser than water sinks in water. Less dense floats.\n- Shape can trap air and change the average density, which is why a steel ship floats while a steel key does not"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A block has mass 120 g and volume 40 cm^3. What is its density in g/cm^3?",
+                "answer": 3,
+                "explanation": "Density = mass / volume = 120 / 40 = 3 g/cm^3.",
+                "hint": "Divide mass by volume."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "An object has density 0.8 g/cm^3. Placed gently in water (about 1 g/cm^3), what happens?",
+                "choices": [
+                  { "id": "c1", "text": "It floats" },
+                  { "id": "c2", "text": "It sinks" },
+                  { "id": "c3", "text": "It dissolves" }
+                ],
+                "answer": "c1",
+                "explanation": "Less dense than water, so it floats. Denser than water would sink.",
+                "hint": "Is 0.8 less than or greater than 1?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In one or two sentences, explain why a steel ship floats while a steel nail sinks.",
+                "answer": "The ship encloses a lot of air so its average density including the air is less than water, while the solid nail has the full density of steel which is greater than water.",
+                "explanation": "Any answer that names trapped air and average density is good.",
+                "hint": "What does the ship contain that the nail does not?"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Measure like a detective: mass, volume, and units",
+      "lessons": [
+        {
+          "title": "Mass and weight are not the same",
+          "summary": "Mass is how much matter you have. Weight is the pull on it.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The scale tells mass, the spring tells weight",
+                "body": "Holmes weighs powders on a balance scale against known masses. A balance compares **mass**, how much matter is there, in grams or kilograms. A spring scale hanging from a hook measures **weight**, the force of gravity on that mass, in newtons.\n\n- Mass does not change when you carry the object to another place. Weight does, because gravity changes.\n- On the Moon your mass is the same, your weight is about one sixth\n- A balance scale compares masses. A spring scale measures a force\n\nDetectives care about mass: it tells what is really there regardless of where you stand."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "An astronaut's mass on Earth is 60 kg. On the Moon, their mass is about:",
+                "choices": [
+                  { "id": "c1", "text": "60 kg" },
+                  { "id": "c2", "text": "10 kg" },
+                  { "id": "c3", "text": "360 kg" }
+                ],
+                "answer": "c1",
+                "explanation": "Mass does not depend on gravity. Weight on the Moon would be lighter, but the amount of matter is the same.",
+                "hint": "Does the amount of matter change when gravity changes?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which tool best measures mass, regardless of local gravity?",
+                "choices": [
+                  { "id": "c1", "text": "A balance scale comparing against known masses" },
+                  { "id": "c2", "text": "A spring scale hanging from a hook" },
+                  { "id": "c3", "text": "A ruler" }
+                ],
+                "answer": "c1",
+                "explanation": "A balance compares mass to mass, so gravity pulls both sides equally and cancels out.",
+                "hint": "Which tool puts the unknown and a known mass on opposite sides of the same pull?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Volume by overflow",
+          "summary": "Measure space an object fills, even when its shape is awkward.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The water that the key moved",
+                "body": "An irregular key will not fit a volume formula. Holmes fills a small overflow can to the spout, slides the key in, and collects what spills. The spilled water's volume equals the key's **volume**. One cubic centimetre equals one millilitre, $1\\ cm^3 = 1\\ mL$.\n\n- Volume is how much space something fills\n- Regular shapes: $V = length \\times width \\times height$ or $V = \\pi r^2 h$\n- Irregular shapes: displacement, the overflow you collect\n- Read the meniscus at eye level, bottom of the curve"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A key displaces 18 mL of water. What is its volume in cm^3?",
+                "answer": 18,
+                "explanation": "One mL equals one cm^3, so 18 mL is 18 cm^3.",
+                "hint": "What is the exchange between mL and cm^3?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Why must you read a water level at the bottom of the curved meniscus, at eye level?",
+                "answer": "To avoid parallax error and read the true volume where the water surface curves, not the high edge.",
+                "explanation": "Any answer mentioning reading at eye level and the bottom of the curve is good.",
+                "hint": "What happens to your reading if you look from above or from the side?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Measure twice, record once",
+          "summary": "Units, honest records, and the habit of checking your work.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The notebook that makes a case",
+                "body": "Holmes solves a case once. His notebook lets the court see why. Every entry has a number, a unit, and a note about uncertainty: mass $12.4\\ g \\pm 0.1\\ g$, volume $6.0\\ mL \\pm 0.2\\ mL$. Without units a number is a riddle. Without an uncertainty note it pretends to be more exact than it was.\n\n- Record the number, the **unit** ($g$, $mL$, $cm$, $s$), and the tool used\n- Record the **range**: what the smallest mark on the tool was\n- Repeat and compare. One measure is a guess. Two that agree is evidence"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which notebook entry is best?",
+                "choices": [
+                  { "id": "c1", "text": "12.4 g on balance scale, smallest mark 0.1 g, two trials: 12.4 and 12.3" },
+                  { "id": "c2", "text": "12" },
+                  { "id": "c3", "text": "about twelve" }
+                ],
+                "answer": "c1",
+                "explanation": "It gives number, unit, tool, precision, and a repeat so the reader can judge it.",
+                "hint": "Which one could another person check?"
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "A Holmes field kit: your observation notebook",
+                "description": "Make a two page field notebook. On page one, describe three small objects in your home using only observations: colour, texture, mass on a kitchen scale, volume by ruler or water displacement if safe, whether a magnet pulls them. On page two, list one inference for each object and one test that would check it. Use correct units and note your tool's smallest mark.",
+                "rubric": "- Three objects, each with at least three physical properties, units included\n- Each object has one labelled inference separate from the observations\n- Each has one testable check that would confirm or refute the inference\n- A note of the tool and its smallest mark"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

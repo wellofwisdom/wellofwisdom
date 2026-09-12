@@ -1,0 +1,30 @@
+{
+  "id": "holmes-matter",
+  "title": "Holmes and the Catalogue of Matter",
+  "tagline": "Observe, measure, and let the evidence speak",
+  "description": "London fog, a cluttered table at 221B, and a client with a powder nobody can name. Follow Holmes and Watson room by room as each case depends on matter and measurement: what it is, how dense it floats or sinks, and whether the record can be checked. Doyle's method becomes the learner's method.",
+  "worldPrompt": "An original mystery adventure in Arthur Conan Doyle's Sherlock Holmes London (1887-1927, public domain). The learner is the junior assistant at 221B Baker Street. Each chapter is a case room whose puzzle gates the science unit: observation versus inference, properties of matter, density and floating, mass versus weight, volume by overflow, and the honest record. Characters are Holmes, Watson, and Mrs Hudson only, plus one original client per chapter drawn plainly as a Londoner of the period. Inspector Lestrade appears once as a rival who jumps to inferences. Loot is detective gear the stories name: lens, notebook, balance weight, overflow can, footprint cast. The building is a dungeon of rooms, traps are rushed inferences, treasure is a checked measurement.",
+  "gameType": "dungeon",
+  "characters": [
+    { "name": "Sherlock Holmes", "role": "mentor", "bio": "Lean, precise, kind in his own sharp way. He never guesses. He shows you how to look longer and write smaller." },
+    { "name": "Dr Watson", "role": "ally", "bio": "Steady and warm. He keeps the notebook honest and asks the question the reader is thinking." },
+    { "name": "Mrs Hudson", "role": "ally", "bio": "Keeps the rooms at 221B liveable despite powders and overflow cans on the mantel. She rewards tidy records." },
+    { "name": "Inspector Lestrade", "role": "rival", "bio": "Quick to name the culprit, slow to check the powder. His rushed inference is the trap you learn to step around." }
+  ],
+  "chapters": [
+    { "title": "The Powder on the Cuff", "hook": "A white powder, a chalky mark, and two columns: what you saw and what you think it means." },
+    { "title": "What It Is Made Of", "hook": "Every matter has tells. Learn the catalogue before you name it." },
+    { "title": "The Cork and the Key", "hook": "Same size, different fate. Weigh and dip until floating makes sense." },
+    { "title": "The Weight That Lies", "hook": "The scale agrees but the spring does not. Know which tool tells mass." },
+    { "title": "How Much Space It Takes", "hook": "No formula fits a key. Catch the water it moves." },
+    { "title": "The Record That Closes the Case", "hook": "A case is not solved until the book is tight enough for a stranger to check." }
+  ],
+  "loot": [
+    { "name": "Magnifying Lens", "description": "Holmes's own lens. Lets you read the meniscus at eye level, bottom of the curve. Chapter 1, the cuff powder.", "icon": "🔍", "rarity": "common" },
+    { "name": "Pocket Notebook", "description": "Watson's spare notebook. Hold a clean record: number, unit, tool, smallest mark. Chapter 1, 221B table.", "icon": "📓", "rarity": "common" },
+    { "name": "Balance Weight", "description": "A brass gram weight from Holmes's balance. Weighs mass regardless of where you stand. Chapter 4, the weighing bench.", "icon": "⚖️", "rarity": "uncommon" },
+    { "name": "Overflow Can", "description": "Tin can with a spout, straight from the bench. Catches the water an awkward shape displaces. Chapter 5, the back room.", "icon": "🫙", "rarity": "rare" },
+    { "name": "Footprint Cast", "description": "Plaster cast of the print by the window, ridges and all. Proof that description came before naming. Chapter 1, the window case.", "icon": "👣", "rarity": "rare" },
+    { "name": "Case Closed Seal", "description": "Holmes's own stamp when the record is tight enough for court. Legendary final clear.", "icon": "🔖", "rarity": "legendary" }
+  ]
+}

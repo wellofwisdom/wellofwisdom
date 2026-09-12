@@ -1,0 +1,275 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "How Alice Shares the Tarts: Fractions in Wonderland",
+  "topic": "Fractions: understanding, comparing, and equivalent fractions through Alice in Wonderland",
+  "lens": "Alice's Adventures in Wonderland by Lewis Carroll (1865)",
+  "gradeLevel": 4,
+  "description": "Alice falls through a hall of tiny doors and lands at a tea party that never ends. The tarts are cut into different sizes and the guests cannot agree who has more. Step by step, learners build what a fraction means, compare same-size pieces, rename different-size pieces, and place fractions on a number line, all inside Carroll's Wonderland. Inspired by a book in the public domain in the United States. All illustrations are original.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Down the rabbit hole: what is a fraction?",
+      "lessons": [
+        {
+          "title": "Pieces of the cake",
+          "summary": "A fraction names equal pieces of one whole.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "One whole, cut fairly",
+                "body": "At the bottom of the rabbit hole Alice finds a table with a cake that says Eat Me. When she eats it she grows, when she drinks from the bottle she shrinks. Every change is about parts of one whole.\n\nA **fraction** names equal parts of a whole. The bottom number, the **denominator**, tells how many equal parts the whole is cut into. The top number, the **numerator**, tells how many of those parts you have.\n\n- $\\frac{1}{4}$ means one out of four equal parts\n- $\\frac{3}{4}$ means three out of four equal parts\n- $\\frac{4}{4}$ is the whole cake, all four parts\n\nIf the pieces are not equal, it is not a fair fraction. The Hatter would insist the cuts be fair."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Alice cuts a tart into 8 equal slices and eats 3. What fraction did she eat?",
+                "choices": [
+                  { "id": "c1", "text": "$\\frac{3}{8}$" },
+                  { "id": "c2", "text": "$\\frac{8}{3}$" },
+                  { "id": "c3", "text": "$\\frac{5}{8}$" }
+                ],
+                "answer": "c1",
+                "explanation": "The tart was cut into 8 equal parts and she ate 3, so the fraction is 3 out of 8.",
+                "hint": "How many equal parts was the whole cut into? How many did she eat?"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A whole cake cut into 6 equal pieces: how many sixths make the whole cake?",
+                "answer": 6,
+                "explanation": "Six sixths is the whole: $\\frac{6}{6} = 1$.",
+                "hint": "Count the pieces that make one whole."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Same size pieces are easy to compare",
+          "summary": "When the denominator matches, compare the numerators.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The Dormouse and the fair share",
+                "body": "At the tea party the Dormouse, the Hatter, and the March Hare argue about who has more tart. The tarts are all cut into eighths, so the pieces are the same size. The Dormouse has 3 eighths, the Hare has 5 eighths.\n\nWhen the **denominator** is the same, the pieces match. Then the bigger **numerator** is the bigger fraction.\n\n- $\\frac{5}{8} > \\frac{3}{8}$ because 5 pieces beats 3 pieces of the same size\n- $\\frac{2}{6} < \\frac{4}{6}$ for the same reason\n\nThe trick is to check the bottom numbers first. If they match, just compare the tops."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which is larger: $\\frac{7}{10}$ or $\\frac{4}{10}$?",
+                "choices": [
+                  { "id": "c1", "text": "$\\frac{7}{10}$" },
+                  { "id": "c2", "text": "$\\frac{4}{10}$" },
+                  { "id": "c3", "text": "They are equal" }
+                ],
+                "answer": "c1",
+                "explanation": "Tenths are the same size, and 7 tenths is more than 4 tenths.",
+                "hint": "The denominators match, so compare the numerators."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "Order these from smallest to largest and write only the middle value's numerator: $\\frac{2}{8}$, $\\frac{6}{8}$, $\\frac{5}{8}$",
+                "answer": 5,
+                "explanation": "From smallest: 2 eighths, 5 eighths, 6 eighths. The middle numerator is 5.",
+                "hint": "Same denominator, so order by the top number."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In one sentence, explain why $\\frac{3}{4} > \\frac{1}{4}$ without calculating.",
+                "answer": "Both are quarters so the pieces are the same size, and 3 pieces is more than 1 piece.",
+                "explanation": "Any sentence that says the pieces match and compares the numerators is good.",
+                "hint": "What do the two fractions share on the bottom?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Adding pieces of the same size",
+          "summary": "Add the tops, keep the bottom the same.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The endless tea table",
+                "body": "The Hatter says it is always six o clock, so the tea never stops. Alice brings tarts cut into sixths. She gives the Hatter $\\frac{2}{6}$ and the Hare $\\frac{3}{6}$. How much did she give away?\n\nWhen you add fractions with the **same denominator**, add the **numerators** and keep the denominator.\n\n- $\\frac{2}{6} + \\frac{3}{6} = \\frac{5}{6}$\n- $\\frac{1}{8} + \\frac{4}{8} = \\frac{5}{8}$\n\nWhy keep the bottom? You are counting pieces of the same size. Two sixths plus three sixths is five sixths. You never add the bottom numbers."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "What is $\\frac{2}{8} + \\frac{3}{8}$? Give the numerator of the answer in lowest terms if needed, but here the answer is already in eighths so just give the numerator.",
+                "answer": 5,
+                "explanation": "$\\frac{2}{8} + \\frac{3}{8} = \\frac{5}{8}$. The numerator is 5.",
+                "hint": "Add the tops, keep the denominator as 8."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why is $\\frac{2}{6} + \\frac{3}{6} = \\frac{5}{12}$ wrong?",
+                "choices": [
+                  { "id": "c1", "text": "It added the denominators, which changes the piece size" },
+                  { "id": "c2", "text": "It used the wrong numerator" },
+                  { "id": "c3", "text": "The answer should be $\\frac{6}{6}$" }
+                ],
+                "answer": "c1",
+                "explanation": "Adding denominators would mean the pieces got smaller to twelfths, but you were counting sixths. Keep the denominator.",
+                "hint": "What did that wrong answer do to the bottom number?"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Queen's croquet: when pieces do not match",
+      "lessons": [
+        {
+          "title": "Different denominators, different sizes",
+          "summary": "Thirds and sixths are not the same size, so compare carefully.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The croquet ground makes no sense",
+                "body": "On the Queen's croquet ground the balls are hedgehogs and the mallets are flamingos. Nothing is the size you expect. Fractions can feel the same: $\\frac{1}{3}$ and $\\frac{1}{6}$ look close, but a third is twice as big as a sixth because the whole is cut into fewer pieces.\n\n- Fewer pieces means bigger pieces. $\\frac{1}{3} > \\frac{1}{6}$\n- You cannot compare numerators until the denominators match\n- To compare, rename one or both so the bottom numbers are the same\n\nThe next lesson shows how to rename fairly."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which is larger: $\\frac{1}{3}$ or $\\frac{1}{6}$?",
+                "choices": [
+                  { "id": "c1", "text": "$\\frac{1}{3}$" },
+                  { "id": "c2", "text": "$\\frac{1}{6}$" },
+                  { "id": "c3", "text": "They are equal" }
+                ],
+                "answer": "c1",
+                "explanation": "Thirds are larger than sixths because the whole is cut into fewer pieces.",
+                "hint": "Fewer cuts means bigger pieces."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why can you NOT say $\\frac{2}{3} > \\frac{3}{4}$ just because 3 is greater than 2?",
+                "choices": [
+                  { "id": "c1", "text": "The pieces are different sizes, so the numerators do not compare directly" },
+                  { "id": "c2", "text": "Two thirds is always larger than three quarters" },
+                  { "id": "c3", "text": "Fractions cannot be compared at all" }
+                ],
+                "answer": "c1",
+                "explanation": "Thirds and quarters are different size pieces, so you must rename to a common denominator first.",
+                "hint": "Do thirds and quarters match in size?"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Making pieces match: equivalent fractions",
+          "summary": "Multiply top and bottom by the same number to rename a fraction.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The Cheshire Cat's renaming trick",
+                "body": "The Cheshire Cat appears and disappears but stays the same cat. Fractions can do that too: $\\frac{1}{2}$ can look like $\\frac{2}{4}$ or $\\frac{3}{6}$ or $\\frac{6}{12}$ and still be the same amount. These are **equivalent fractions**.\n\nMultiply the top and bottom by the same number to rename without changing the value.\n\n- $\\frac{1}{2} = \\frac{2}{4}$ (multiply by 2)\n- $\\frac{2}{3} = \\frac{8}{12}$ (multiply by 4)\n- $\\frac{3}{4} = \\frac{9}{12}$ (multiply by 3)\n\nTo compare $\\frac{2}{3}$ and $\\frac{3}{4}$, rename both to twelfths: $\\frac{2}{3} = \\frac{8}{12}$ and $\\frac{3}{4} = \\frac{9}{12}$, so $\\frac{3}{4}$ is larger."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "Write $\\frac{3}{4}$ with denominator 12. What is the new numerator?",
+                "answer": 9,
+                "explanation": "Multiply top and bottom by 3: $\\frac{3}{4} = \\frac{9}{12}$.",
+                "hint": "What times 4 equals 12? Multiply the top by the same number."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which shows $\\frac{2}{3}$ and $\\frac{3}{5}$ with a common denominator of 15?",
+                "choices": [
+                  { "id": "c1", "text": "$\\frac{10}{15}$ and $\\frac{9}{15}$, so $\\frac{2}{3} > \\frac{3}{5}$" },
+                  { "id": "c2", "text": "$\\frac{2}{15}$ and $\\frac{3}{15}$, so $\\frac{3}{5} > \\frac{2}{3}$" },
+                  { "id": "c3", "text": "$\\frac{6}{15}$ and $\\frac{9}{15}$, so $\\frac{2}{3} < \\frac{3}{5}$" }
+                ],
+                "answer": "c1",
+                "explanation": "$\\frac{2}{3} = \\frac{10}{15}$ and $\\frac{3}{5} = \\frac{9}{15}$, and 10 fifteenths beats 9 fifteenths.",
+                "hint": "Multiply 2/3 by 5/5 and 3/5 by 3/3 to get fifteenths."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Explain in one or two sentences how you know $\\frac{1}{2} < \\frac{3}{4}$ by making the pieces match.",
+                "answer": "Rename one half as two quarters. Two quarters is less than three quarters, so one half is less than three quarters.",
+                "explanation": "Any explanation that renames to a common denominator and then compares is good.",
+                "hint": "Try writing one half as quarters."
+              }
+            }
+          ]
+        },
+        {
+          "title": "The number line through Wonderland",
+          "summary": "Place fractions on a line from 0 to 1 and see them in order.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Alice's line from small to tall",
+                "body": "When Alice grows and shrinks, she passes every size in between. Fractions live on a **number line** from 0 to 1 the same way. Mark halves, quarters, and eighths all on one line and you can see which is bigger without calculating.\n\n- 0 is no cake, 1 is the whole cake\n- $\\frac{1}{4}$, $\\frac{1}{2}$, $\\frac{3}{4}$ sit evenly spaced\n- $\\frac{3}{8}$ sits halfway between $\\frac{1}{4}$ and $\\frac{1}{2}$\n\nA number line turns comparing into seeing. That is why mapmakers and carpenters love it."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "On a number line from 0 to 1 marked in quarters, where does $\\frac{3}{8}$ sit?",
+                "choices": [
+                  { "id": "c1", "text": "Between $\\frac{1}{4}$ and $\\frac{1}{2}$" },
+                  { "id": "c2", "text": "Between $\\frac{1}{2}$ and $\\frac{3}{4}$" },
+                  { "id": "c3", "text": "Past 1" }
+                ],
+                "answer": "c1",
+                "explanation": "Three eighths is 0.375, which is between one quarter (0.25) and one half (0.5).",
+                "hint": "Is 3/8 closer to 1/4 or 3/4?"
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Your Wonderland tart table",
+                "description": "On a long strip of paper draw a number line from 0 to 1. In different colours, mark halves, quarters, and eighths. Place $\\frac{3}{8}$, $\\frac{1}{2}$, and $\\frac{3}{4}$ on the line. Then bake or draw three tarts cut into halves, thirds, and sixths and label where one half sits on each. Write one sentence about what the line showed you.",
+                "rubric": "- Number line from 0 to 1 with halves, quarters, eighths each evenly spaced in its own colour\n- The three fractions placed in the correct positions\n- Tarts or drawings showing one half as two quarters and three sixths\n- One sentence comparing at least two fractions using the line"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

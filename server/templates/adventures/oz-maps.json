@@ -1,0 +1,31 @@
+{
+  "id": "oz-maps",
+  "title": "The Roads to the Emerald City",
+  "tagline": "Follow the brick, read the land, choose the way a person can actually walk",
+  "description": "Dorothy must cross an unfamiliar country divided into four coloured regions. Baum's Oz becomes a true map skills course: compass and direction, legend and symbols, scale and winding distance, regions and borders, barriers and route choice, and a final pair of sketch maps a stranger can follow.",
+  "worldPrompt": "An original mapmaker's adventure across L. Frank Baum's Oz (The Wonderful Wizard of Oz, 1900, public domain). The learner travels with Dorothy, Scarecrow, Tin Woodman, and Lion from Munchkin Country to the Emerald City. Each chapter gates the geography unit: directions with the compass rose, symbols and legend, scale bar and winding distance, regions as Munchkin, Winkie, Gillikin, and Quadling countries, and barriers versus route choice. Characters are Dorothy, Scarecrow, Tin Woodman, Lion, and the Wizard only. The Scarecrow puzzles directions, the Woodman guards care over the road, the Lion tests courage at the barrier. No new Oz characters invented. Loot is wayfinding gear: compass, road tile, legend card, scale ruler, pass token.",
+  "gameType": "story",
+  "characters": [
+    { "name": "Dorothy", "role": "self", "bio": "Carried far from Kansas, observant and practical. You walk in her sensible shoes and read the map before you move." },
+    { "name": "Scarecrow", "role": "mentor", "bio": "Wants brains more than anything. He is brilliant at directions and checks the compass twice." },
+    { "name": "Tin Woodman", "role": "ally", "bio": "Careful and kind. He keeps the road's edges, bridges, and legend tidy." },
+    { "name": "Lion", "role": "ally", "bio": "Loud worry, deep courage. He steps up at the mountain pass and tests the barrier choice." },
+    { "name": "Wizard", "role": "mentor", "bio": "Kind in the final telling, smaller than his legend. He stamps a map that strangers can follow." }
+  ],
+  "chapters": [
+    { "title": "Which Way Is West?", "hook": "Munchkin Country to the Emerald City, but the Scarecrow points the wrong way." },
+    { "title": "What the Map Means", "hook": "A dot, a line, a colour patch. Without the key they are just pictures." },
+    { "title": "How Far Is Far?", "hook": "One centimetre stands for ten kilometres. The brick road does not run straight." },
+    { "title": "Four Countries, One Land", "hook": "Blue east, yellow west, purple north, red south, and green at the heart." },
+    { "title": "The Pass or the Long Way Round", "hook": "Straight over the mountains or winding around them. The short draw can be the long walk." },
+    { "title": "Draw It So a Stranger Finds It", "hook": "Oz and home, each with title, arrow, legend, bar, and border a test walker can check." }
+  ],
+  "loot": [
+    { "name": "Compass Rose", "description": "The rose that settles Never Eat Soggy Waffles: N, E, S, W and the points between. Chapter 1, Munchkin Country.", "icon": "🧭", "rarity": "common" },
+    { "name": "Yellow Brick", "description": "One brick from the winding road. Reminds you to measure along curves, not straight jumps. Chapter 1-2, the brick road.", "icon": "🧱", "rarity": "common" },
+    { "name": "Legend Card", "description": "The key that promises each symbol means one thing everywhere on the map. Chapter 2, the legend.", "icon": "🗝️", "rarity": "uncommon" },
+    { "name": "Scale Ruler", "description": "One centimetre to ten kilometres. Multiplies a short line into the real walk. Chapter 3, the scale bar.", "icon": "📏", "rarity": "uncommon" },
+    { "name": "Pass Token", "description": "Stone chip from the chosen valley route. Proof the best path is the one a person can walk. Chapter 5, the mountains.", "icon": "⛰️", "rarity": "rare" },
+    { "name": "Cartographer's Seal", "description": "The Wizard's own stamp on a pair of maps a stranger actually followed. Legendary wayfinding clear.", "icon": "🗺️", "rarity": "legendary" }
+  ]
+}

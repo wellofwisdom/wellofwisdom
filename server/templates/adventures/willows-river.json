@@ -1,0 +1,28 @@
+{
+  "id": "willows-river",
+  "title": "The Riverbank Year",
+  "tagline": "A year on the bank with Mole, Rat, Badger, and Toad",
+  "description": "Mole leaves his burrow and finds the river, and the river is busy. Through Grahame's seasons on the bank, learners see the riparian strip, the food web thread, and the descriptive sentences that can hold a landscape. Companion to the River Ecology Field Study creek course.",
+  "worldPrompt": "An original, gentle adventure on Kenneth Grahame's riverbank (The Wind in the Willows, 1908, public domain). The learner walks the bank beside Mole, Ratty, Badger, and Toad through spring green to winter sett. Each chapter gates the ecology or writing unit: the riparian edge, producers to consumers to decomposers, sensory description, seasonal change, and one patch well kept. Characters are Mole, Rat, Badger, Toad, and Otter only, faithful to the book. No new creatures invented. The lender is the river itself: the bank shelters, the current carries, the wood rustles. Boss is winter readiness before Badger's door, not a fight. Loot is bank-found things: willow withe, picnic basket, boat tie, wild wood lantern.",
+  "gameType": "story",
+  "characters": [
+    { "name": "Mole", "role": "self", "bio": "Fresh from underground, delighted and easily distracted. You learn the bank through his new eyes." },
+    { "name": "Ratty", "role": "mentor", "bio": "Knows every bend, loves a well-packed picnic. He teaches you to read the bank before you measure it." },
+    { "name": "Badger", "role": "mentor", "bio": "Lives deep in the Wild Wood and comes out when it matters. He respects a plan that a stranger could follow." },
+    { "name": "Toad", "role": "rival", "bio": "Grand plans, no follow through. His abandoned mansion makes the case for one patch, well kept." },
+    { "name": "Otter", "role": "ally", "bio": "Quick on water, quick with a story. He shows you what lives under three stones." }
+  ],
+  "chapters": [
+    { "title": "Spring: The Bank Wakes", "hook": "Mole scrambles up and Rat is there with a boat and a basket. The green edge begins." },
+    { "title": "Summer: Who Eats Whom", "hook": "Bread, waterweed, mayfly, fish, heron. Pull one thread and watch it sag." },
+    { "title": "Autumn: Words That Hold Water", "hook": "Write the place before you weigh it. One sight, one sound, and let feeling follow." },
+    { "title": "Winter into Care: One Patch", "hook": "The year turns. Choose one patch and keep it well, so next spring knows your name with gratitude." }
+  ],
+  "loot": [
+    { "name": "Willow Withe", "description": "A bendy willow shoot from Rat's bank. Binds the riparian edge in memory. Chapter 1, the green border.", "icon": "🌿", "rarity": "common" },
+    { "name": "Picnic Basket", "description": "Rat's wicker basket, packed for the bank. Holds the producer to consumer thread: waterweed to mayfly to fish. Chapter 2, the food web.", "icon": "🧺", "rarity": "common" },
+    { "name": "Boat Tie", "description": "The rope that holds Rat's boat snug. Rewards tidy records. Chapter 3, words that hold place.", "icon": "🪢", "rarity": "uncommon" },
+    { "name": "Wild Wood Lantern", "description": "Badger's lantern for dark wood paths. Marks the steady winter watch. Chapter 4, the Wild Wood.", "icon": "🏮", "rarity": "rare" },
+    { "name": "Bank Steward's Badge", "description": "Badger's own quiet thanks when your one patch plan is written well enough for next year's keeper. Legendary stewardship clear.", "icon": "🦡", "rarity": "legendary" }
+  ]
+}
