@@ -147,6 +147,7 @@ function llmsTxt(base) {
     `- Plain-text courses (for research tools): ${base}/c/<slug>.txt`,
     `- Course packages (portable JSON): ${base}/api/public/courses/<slug>/export`,
     `- Public course list (JSON): ${base}/api/public/courses`,
+    `- Product story and roadmap: https://github.com/wellofwisdom/wellofwisdom/blob/main/docs/ROADMAP.md`,
     `- Source: https://github.com/wellofwisdom/wellofwisdom`,
     `- License: AGPL-3.0`,
     "",

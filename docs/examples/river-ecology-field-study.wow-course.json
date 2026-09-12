@@ -1,0 +1,155 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "River Ecology Field Study",
+  "topic": "How a river lives: water, food webs, and human care",
+  "lens": "field science",
+  "gradeLevel": 6,
+  "description": "A co-op ready field course. Observe a real creek or river near you: measure water, map life, and make a small care plan. Each lesson has a page for notes and a task to do outside.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Water and the field site",
+      "lessons": [
+        {
+          "title": "Where water goes",
+          "summary": "Catchment, flow, and what rain brings.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Your creek has an address",
+                "body": "Every puddle near you belongs to a catchment, the bowl of land that drains to one river. Rain that falls inside the bowl runs downhill, gathers in tiny rills, then creeks, then the river you can visit. Anything the land carries, soil, salt, litter, rides along.\n\n- Catchment is the land that feeds one river\n- Rills join to creeks, creeks join to a river\n- Slope and soil decide how fast water moves\n- A map of your catchment is a map of what your river drinks"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What is a catchment?",
+                "choices": [
+                  { "id": "c1", "text": "The land that drains to one river" },
+                  { "id": "c2", "text": "A net for catching fish" },
+                  { "id": "c3", "text": "The deepest pool in a river" }
+                ],
+                "answer": "c1",
+                "explanation": "A catchment is the whole bowl of land whose rain runs to the same river.",
+                "hint": "Think of a bowl. Where does every drop go?"
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Map your catchment",
+                "description": "On paper, sketch your field site: river, banks, nearby streets or paths, and where you think rain flows from. Photograph it, label north, and bring it next visit.",
+                "rubric": "- River and banks drawn with labels\n- Arrows showing flow direction\n- Photograph or sketch attached"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Life along the banks",
+          "summary": "Who lives where the water meets the land.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The edge is the richest place",
+                "body": "Where water meets land, life crowds. Willow roots hold the bank, insects cling under stones, birds feed where shallows spread. Remove the bank plants and the river loses shade, shelter, and food at once. That is why the first thing a field team looks at is the bank: how much is bare, how much is covered?\n\n- Riparian strip is the green belt along the bank\n- Roots hold soil, leaves feed insects, shade cools water\n- A healthy bank has layers: groundcover, shrubs, trees"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Why does a strip of trees and shrubs along a bank help the river even though they are not in the water?",
+                "answer": "Trees and shrubs shade the water, hold soil with roots, drop leaves that feed insects, and shelter birds and insects.",
+                "explanation": "Any answer that names shade, soil holding, food, and shelter is right."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which bank is healthiest?",
+                "choices": [
+                  { "id": "c1", "text": "Bare, mown to the water" },
+                  { "id": "c2", "text": "Trees and shrubs with groundcover underneath" },
+                  { "id": "c3", "text": "Concrete wall with no plants" }
+                ],
+                "answer": "c2",
+                "explanation": "Layers of plants protect soil, cool water, and feed the food web.",
+                "hint": "Which one has shade, roots, and leaves for insects?"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Measuring and caring",
+      "lessons": [
+        {
+          "title": "Quick measures at the site",
+          "summary": "Temperature, clarity, and a count of what you see.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Three numbers that tell a story",
+                "body": "You can learn a lot with three quick checks. Temperature: cooler water holds more dissolved oxygen, so shade matters. Clarity: hold a white disc or a striped ruler under water and note when it vanishes; cloudier often means more soil washing in. Life: count the kinds of creatures under three rocks, not just how many. Warm plus cloudy plus few kinds is a creek asking for help.\n\n- Cool is usually healthier than warm\n- Cloudy often means erosion upstream\n- Count kinds, not just numbers, under rocks"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why might a sunny, bare stretch have fewer insect kinds under rocks than a shaded one nearby?",
+                "choices": [
+                  { "id": "c1", "text": "Water is warmer and holds less oxygen" },
+                  { "id": "c2", "text": "The sun makes more oxygen" },
+                  { "id": "c3", "text": "Insects prefer bright light on rocks" }
+                ],
+                "answer": "c1",
+                "explanation": "Shade keeps water cooler, which holds more dissolved oxygen for insects.",
+                "hint": "Which water holds more of what insects need to breathe?"
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Field sheet",
+                "description": "Make one field sheet for your site: date, air and water temperature if you can take them, clarity (when did the disc vanish?), and a tally of three rock lifts: list each kind you see. Add one sentence of what you would you check next time.",
+                "rubric": "- Date and two measures filled in\n- Three rock lifts with kinds listed\n- One next-question note"
+              }
+            }
+          ]
+        },
+        {
+          "title": "A small care plan",
+          "summary": "What a group can actually do, this term.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "One patch, well kept",
+                "body": "Big plans often fail. Small ones stick: pick one patch of bank, agree who waters or weeds, and leave the rest alone while that patch recovers. Pick plants that already live nearby rather than garden favourites that need constant water. Record what you planted and where, so next year's group inherits your plan, not a mystery.\n\n- One patch beats a grand map nobody tends\n- Local plants need less water and feed local insects\n- A record makes next year's work possible"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Your co-op can tend one patch of bank this term. What would you plant, why there, and how will you know it worked?",
+                "answer": "Name a local plant, a reason it suits that patch, and a simple check like survival count or shade at noon.",
+                "explanation": "A good plan names the patch, a local plant, and a way to tell if it helped."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

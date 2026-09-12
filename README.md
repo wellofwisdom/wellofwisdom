@@ -13,7 +13,7 @@ Catch any subject through what your child loves. Your server, your data.
 
 **Try the demo: [wellofwisdom.app](https://wellofwisdom.app) (no email, no invite). Or [self-host in one command](#quick-start).**
 
-![Well of Wisdom marketing and Course Studio preview](web/public/og.svg)
+![Well of Wisdom marketing and Course Studio preview](web/public/og.png)
 
 </div>
 
@@ -95,6 +95,8 @@ docker compose up -d
 ```
 
 Open `http://localhost:3000`. That's it: app plus database, one command.
+
+Latest image: `ghcr.io/wellofwisdom/wellofwisdom:latest` (and `v0.1.0`), so `docker pull` works once the release workflow has published it.
 
 **Fully offline AI** (no cloud, no API keys):
 

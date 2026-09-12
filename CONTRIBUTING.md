@@ -19,11 +19,12 @@ endpoint: [Ollama](https://ollama.com) is free and local).
 ## Before you open a PR
 
 ```bash
-npm run check      # syntax check on server code
-npm test           # unit tests (node --test)
+npm run check                            # syntax check + no em dashes
+npm test                                 # unit tests (node --test)
+npm --prefix web run build               # type check + Vite build
 ```
 
-Both must pass: CI runs them on every push.
+All three must pass: CI runs them on every push.
 
 ## Ground rules
 

@@ -3,7 +3,7 @@
 // No extra dependency: verifies the credential with Google's tokeninfo
 // endpoint via the existing fetchT helper, with a tiny cache and rate gate.
 
-const { fetchT } = require("./http");
+const http = require("./http");
 
 const TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo";
 const CACHE_TTL_MS = 5 * 60 * 1000; // a credential is one-time; this is just burst dedupe
@@ -51,7 +51,7 @@ async function verifyCredential(credential) {
   let res;
   try {
     const url = `${TOKENINFO_URL}?id_token=${encodeURIComponent(tok)}`;
-    res = await fetchT(url, {}, { timeoutMs: 8000, retries: 1 });
+    res = await http.fetchT(url, {}, { timeoutMs: 8000, retries: 1 });
   } catch {
     throw Object.assign(new Error("google_verify_failed"), { code: "google_verify_failed" });
   }
@@ -68,13 +68,14 @@ async function verifyCredential(credential) {
   }
 
   // aud must be our client, and azp must too when present.
-  const aud = String(data.aud || "");
-  const azp = String(data.azp || "");
-  // Also accept comma-joined aud lists.
-  const audList = aud.split(",").map((s) => s.trim());
-  if (!audList.includes(cid) && aud !== cid) {
+  // Google may return aud as a string, a comma-joined string, or an array.
+  const rawAud = data.aud;
+  const audVals = Array.isArray(rawAud) ? rawAud.map((v) => String(v).trim()) : String(rawAud || "").split(",").map((s) => s.trim());
+  const audOk = audVals.includes(cid);
+  if (!audOk) {
     throw Object.assign(new Error("google_invalid_credential"), { code: "google_invalid_credential" });
   }
+  const azp = String(data.azp || "").trim();
   if (azp && azp !== cid) {
     throw Object.assign(new Error("google_invalid_credential"), { code: "google_invalid_credential" });
   }
