@@ -51,8 +51,8 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
   1. Learner shell + HUD (8ba4dfc): full-screen 100dvh, XP ring, streak, pack, sound, Map, /api/learn/hud.
   2. Course path map (bdc1ae6): SVG winding trail, done/next/locked nodes, avatar, list fallback.
   3. World map canvas (feac9d4): same trail for encounters, chapter chips, Show chapters fallback.
-  4. TTS narrator (d8be928): Google Cloud TTS provider + /api/narration cache at /media/:id, browser fallback.
-  5. Lyria music provider (2f1a4a5, revised 6e4ac02 to kie Gemini TTS + Suno on same kie key).
+  4. TTS narrator (d8be928): Google Cloud TTS provider + /api/narration cache at /media/:id, browser fallback. (Main at 8210d49 switches this to kie-voice: Gemini 3.1 Flash TTS on kie.ai, same key as images. Well 3 still ships google-tts.js + narration route; align to kie-voice.js next.)
+  5. Lyria music provider (2f1a4a5, revised 6e4ac02 to kie Gemini TTS + Suno on same kie key). Well 3 ships google-music.js (Vertex Lyria + service account); main now calls for Suno on kie.ai at $0.06 per loop. Align to kie-music.js next.
   6. Quest log (000eb45): returned + practice + upcoming made playable, no new API.
   7. Scene transitions (a5e766b): fade-rise per route, reduced-motion respected.
 - Check + tests + web build green. Each slice reuses existing data; no migrations.
