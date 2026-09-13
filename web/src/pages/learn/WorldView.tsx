@@ -11,6 +11,8 @@ import { VideoPlayer } from "../../components/VideoUI";
 import { RichText, MathText } from "../../lib/rich";
 import WorldMap from "./WorldMap";
 import { useReveal, useScrollProgress } from "../../lib/scrollReveal";
+import CollectionGallery from "./CollectionGallery";
+import "./CollectionGallery.css";
 import "./WorldMap.css";
 
 const BOSS_KINDS = ["boss", "miniboss"];
@@ -211,6 +213,8 @@ export default function WorldView({ adventureId, onNavigate }:
           </div>
         </section>
       )}
+
+      <CollectionGallery loot={loot} rewards={rewards} />
 
       <CrewPanel
         adventureId={adventureId}
