@@ -49,6 +49,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
   const [reviewsDue, setReviewsDue] = useState<number | null>(null);
   const [paths, setPaths] = useState<PathPlan[] | null>(null);
   const [upcoming, setUpcoming] = useState<{ label: string; date: string }[] | null>(null);
+  const [homeStreakActive, setHomeStreakActive] = useState(false);
 
   useEffect(() => {
     if (route === "" || route === "home") {
@@ -70,6 +71,9 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
           ...(d.milestones || []).map((m) => ({ label: `${m.title}`, date: m.target_date })),
         ].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4)))
         .catch(() => setUpcoming([]));
+      api<{ streak: { activeToday: boolean } }>("/api/learn/gamification")
+        .then((d) => setHomeStreakActive(Boolean(d.streak && d.streak.activeToday)))
+        .catch(() => {});
     }
   }, [route]);
 
@@ -99,6 +103,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
         reviewsDue={reviewsDue}
         paths={paths}
         upcoming={upcoming}
+        streakActive={homeStreakActive}
         onNavigate={onNavigate}
       />
       </SceneTransition>
@@ -107,7 +112,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
 }
 
 function LearnerHome({
-  me, courses, returned, reviewsDue, paths, upcoming, onNavigate,
+  me, courses, returned, reviewsDue, paths, upcoming, streakActive, onNavigate,
 }: {
   me: Me;
   courses: (LearnCourse & { lessons_done?: number })[] | null;
@@ -115,6 +120,7 @@ function LearnerHome({
   reviewsDue: number | null;
   paths: PathPlan[] | null;
   upcoming: { label: string; date: string }[] | null;
+  streakActive: boolean;
   onNavigate: (hash: string) => void;
 }) {
   const firstName = (me.name || "there").split(" ")[0] || "there";
@@ -179,7 +185,7 @@ function LearnerHome({
         </button>
       )}
 
-      <DailiesBoard reviewsDue={reviewsDue} upcomingCount={upcoming ? upcoming.length : 0} streakActive={false} />
+      <DailiesBoard reviewsDue={reviewsDue} upcomingCount={upcoming ? upcoming.length : 0} streakActive={streakActive} />
       <QuestLog upcoming={upcoming} returned={returned} reviewsDue={reviewsDue} onNavigate={onNavigate} />
 
       {!courses ? (
