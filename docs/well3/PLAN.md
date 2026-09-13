@@ -59,5 +59,6 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
 - Slice 8 (af6f6d4): collection gallery on WorldView (loot art + lore + real rewards) and MasteryStars display helper.
 - Slice 9 (1a92ee7): kie alignment live. kie-voice.js (Gemini 3.1 Flash TTS, $0.70 + $14 per million tokens) plus kie-music.js (Suno $0.06 per loop) on the same KIE_API_KEY as images. NarratorButton on encounter scenes, cached at /media/:id, no autoplay before a tap.
 - Slice 10 (63af7a9 + 5891193 + 1e24d00): chapter music Suno loop routes and per-chapter ChapterMusic player (ducked low, looping), plus stamina bar on boss fight, dailies board on home, and photo finish on lesson complete.
-- Check + tests + web build still green. Branch diff from main is +25 files (~1700 lines), no migrations, degraded mode kept.
+- Vault (e1fa4fd + 924e9fa): AI provider vault in Settings (providers, pro/flash models, vision, kie image/video/voice/music, monthly plus daily caps, spend chart over 14 days with by-task and by-model plus recent). Server reads vault-first with env fallback, enforces caps before generation. One save mirrors kie to media.
+- Check + tests + web build still green. Branch diff from main is ~31 files (~2700 lines), no migrations, degraded mode kept.
 
