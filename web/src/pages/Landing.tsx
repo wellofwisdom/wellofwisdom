@@ -128,7 +128,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
               </button>
             </div>
             {error && <div className="formerror" role="alert">{error}</div>}
-            {googleClientId ? (
+            {googleClientId && (
               <div className="mheroAuth" aria-label="Sign up">
                 <GoogleButton
                   clientId={googleClientId}
@@ -143,26 +143,10 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
                   <span />
                 </div>
                 <div className="mheroAuthRow">
-                  {demoAvailable !== false && (
-                    <button className="btn big" type="button" disabled={demoBusy} onClick={tryDemo}>
-                      {demoBusy ? "Opening demo…" : "Try the demo"}
-                    </button>
-                  )}
                   <button className="btn big" type="button" onClick={() => { setTimeout(() => document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }), 30); }}>
                     Create with email
                   </button>
                 </div>
-              </div>
-            ) : (
-              <div className="mctaRow">
-                {demoAvailable !== false && (
-                  <button className="btn primary big" type="button" disabled={demoBusy} onClick={tryDemo}>
-                    {demoBusy ? "Opening demo…" : "Try the demo - no email needed"}
-                  </button>
-                )}
-                <button className="btn big" type="button" onClick={() => { setTimeout(() => document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }), 30); }}>
-                  Create your group
-                </button>
               </div>
             )}
             <p className="mtrust">
