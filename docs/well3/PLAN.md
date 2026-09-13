@@ -56,4 +56,5 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
   6. Quest log (000eb45): returned + practice + upcoming made playable, no new API.
   7. Scene transitions (a5e766b): fade-rise per route, reduced-motion respected.
 - Check + tests + web build green. Each slice reuses existing data; no migrations.
+- Slice 8 (af6f6d4): collection gallery on WorldView (loot art + lore + real rewards) and MasteryStars display helper.
 
