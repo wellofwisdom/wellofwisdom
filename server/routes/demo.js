@@ -74,9 +74,10 @@ async function createDemoFamily(suffix) {
 
 async function seedDemoCourses(familyId, guideId) {
   if (!familyId || !guideId) return;
-  // Idempotency: do not seed twice for the same family.
-  const has = await db.query("select 1 from courses where family_id = $1 limit 1", [familyId]);
-  if (has.rowCount) return;
+  const existing = await db.query("select title from courses where family_id = $1", [familyId]);
+  const haveTitles = new Set(existing.rows.map((r) => String(r.title || "").trim().toLowerCase()));
+  const alreadySeeded = haveTitles.size > 0;
+  const seedAll = !alreadySeeded;
 
   const path = require("node:path");
   const fs = require("node:fs");
@@ -111,7 +112,16 @@ async function seedDemoCourses(familyId, guideId) {
     } catch {}
   }
 
-  for (const file of files.slice(0, 5)) {
+  const pending = files.filter((f) => {
+    try {
+      const raw = fs.readFileSync(path.join(examplesDir, f), "utf8");
+      const pkg = JSON.parse(raw);
+      const t = String(pkg.title || "").trim().toLowerCase();
+      return t && !haveTitles.has(t);
+    } catch { return false; }
+  });
+  const toSeed = pending.length ? pending : (seedAll ? files : []);
+  for (const file of toSeed) {
     try {
       const full = path.join(examplesDir, file);
       const pkg = JSON.parse(fs.readFileSync(full, "utf8"));
