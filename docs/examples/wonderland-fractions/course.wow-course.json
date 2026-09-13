@@ -25,14 +25,30 @@
               }
             },
             {
+              "type": "audio",
+              "content": {
+                "title": "Listen: Alice at the tiny door",
+                "transcript": "Alice found a cake that said Eat Me. When she ate it she grew tall, and when she drank from the bottle she shrank small. We will learn what it means to cut one whole into equal parts, and to name those parts as fractions. Listen for how Alice shares fairly, every piece the same size."
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
                 "prompt": "Alice cuts a tart into 8 equal slices and eats 3. What fraction did she eat?",
                 "choices": [
-                  { "id": "c1", "text": "$\\frac{3}{8}$" },
-                  { "id": "c2", "text": "$\\frac{8}{3}$" },
-                  { "id": "c3", "text": "$\\frac{5}{8}$" }
+                  {
+                    "id": "c1",
+                    "text": "$\\frac{3}{8}$"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "$\\frac{8}{3}$"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "$\\frac{5}{8}$"
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "The tart was cut into 8 equal parts and she ate 3, so the fraction is 3 out of 8.",
@@ -68,9 +84,18 @@
                 "kind": "mcq",
                 "prompt": "Which is larger: $\\frac{7}{10}$ or $\\frac{4}{10}$?",
                 "choices": [
-                  { "id": "c1", "text": "$\\frac{7}{10}$" },
-                  { "id": "c2", "text": "$\\frac{4}{10}$" },
-                  { "id": "c3", "text": "They are equal" }
+                  {
+                    "id": "c1",
+                    "text": "$\\frac{7}{10}$"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "$\\frac{4}{10}$"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "They are equal"
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Tenths are the same size, and 7 tenths is more than 4 tenths.",
@@ -126,9 +151,18 @@
                 "kind": "mcq",
                 "prompt": "Why is $\\frac{2}{6} + \\frac{3}{6} = \\frac{5}{12}$ wrong?",
                 "choices": [
-                  { "id": "c1", "text": "It added the denominators, which changes the piece size" },
-                  { "id": "c2", "text": "It used the wrong numerator" },
-                  { "id": "c3", "text": "The answer should be $\\frac{6}{6}$" }
+                  {
+                    "id": "c1",
+                    "text": "It added the denominators, which changes the piece size"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "It used the wrong numerator"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "The answer should be $\\frac{6}{6}$"
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Adding denominators would mean the pieces got smaller to twelfths, but you were counting sixths. Keep the denominator.",
@@ -159,9 +193,18 @@
                 "kind": "mcq",
                 "prompt": "Which is larger: $\\frac{1}{3}$ or $\\frac{1}{6}$?",
                 "choices": [
-                  { "id": "c1", "text": "$\\frac{1}{3}$" },
-                  { "id": "c2", "text": "$\\frac{1}{6}$" },
-                  { "id": "c3", "text": "They are equal" }
+                  {
+                    "id": "c1",
+                    "text": "$\\frac{1}{3}$"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "$\\frac{1}{6}$"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "They are equal"
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Thirds are larger than sixths because the whole is cut into fewer pieces.",
@@ -174,9 +217,18 @@
                 "kind": "mcq",
                 "prompt": "Why can you NOT say $\\frac{2}{3} > \\frac{3}{4}$ just because 3 is greater than 2?",
                 "choices": [
-                  { "id": "c1", "text": "The pieces are different sizes, so the numerators do not compare directly" },
-                  { "id": "c2", "text": "Two thirds is always larger than three quarters" },
-                  { "id": "c3", "text": "Fractions cannot be compared at all" }
+                  {
+                    "id": "c1",
+                    "text": "The pieces are different sizes, so the numerators do not compare directly"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Two thirds is always larger than three quarters"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Fractions cannot be compared at all"
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Thirds and quarters are different size pieces, so you must rename to a common denominator first.",
@@ -197,6 +249,13 @@
               }
             },
             {
+              "type": "audio",
+              "content": {
+                "title": "Listen: The Cheshire Cat's renaming trick",
+                "transcript": "The Cheshire Cat smiles and says the same cat can look like two quarters or three sixths and still be the same amount. To make pieces match, we multiply the top and the bottom by the same number. Then we compare. Listen for how renaming changes the look but not the value."
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
@@ -212,9 +271,18 @@
                 "kind": "mcq",
                 "prompt": "Which shows $\\frac{2}{3}$ and $\\frac{3}{5}$ with a common denominator of 15?",
                 "choices": [
-                  { "id": "c1", "text": "$\\frac{10}{15}$ and $\\frac{9}{15}$, so $\\frac{2}{3} > \\frac{3}{5}$" },
-                  { "id": "c2", "text": "$\\frac{2}{15}$ and $\\frac{3}{15}$, so $\\frac{3}{5} > \\frac{2}{3}$" },
-                  { "id": "c3", "text": "$\\frac{6}{15}$ and $\\frac{9}{15}$, so $\\frac{2}{3} < \\frac{3}{5}$" }
+                  {
+                    "id": "c1",
+                    "text": "$\\frac{10}{15}$ and $\\frac{9}{15}$, so $\\frac{2}{3} > \\frac{3}{5}$"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "$\\frac{2}{15}$ and $\\frac{3}{15}$, so $\\frac{3}{5} > \\frac{2}{3}$"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "$\\frac{6}{15}$ and $\\frac{9}{15}$, so $\\frac{2}{3} < \\frac{3}{5}$"
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "$\\frac{2}{3} = \\frac{10}{15}$ and $\\frac{3}{5} = \\frac{9}{15}$, and 10 fifteenths beats 9 fifteenths.",
@@ -238,6 +306,13 @@
           "summary": "Place fractions on a line from 0 to 1 and see them in order.",
           "items": [
             {
+              "type": "audio",
+              "content": {
+                "title": "Wonderland aura (low, warm)",
+                "transcript": "Background music for the number line walk. Warm and curious, low enough to hear every word. If you prefer quiet, mute it."
+              }
+            },
+            {
               "type": "article",
               "content": {
                 "title": "Alice's line from small to tall",
@@ -250,9 +325,18 @@
                 "kind": "mcq",
                 "prompt": "On a number line from 0 to 1 marked in quarters, where does $\\frac{3}{8}$ sit?",
                 "choices": [
-                  { "id": "c1", "text": "Between $\\frac{1}{4}$ and $\\frac{1}{2}$" },
-                  { "id": "c2", "text": "Between $\\frac{1}{2}$ and $\\frac{3}{4}$" },
-                  { "id": "c3", "text": "Past 1" }
+                  {
+                    "id": "c1",
+                    "text": "Between $\\frac{1}{4}$ and $\\frac{1}{2}$"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Between $\\frac{1}{2}$ and $\\frac{3}{4}$"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Past 1"
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Three eighths is 0.375, which is between one quarter (0.25) and one half (0.5).",

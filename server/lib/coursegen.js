@@ -33,6 +33,7 @@ Schema (obey exactly):
                 "hint": string (a nudge, never the answer)
               } }
             | { "type": "video", "content": { "youtubeId": string (11-char id only if a REAL relevant video is known), "title": string, "note": string, "questions": [{"prompt": string, "choices": [{"id":"c1","text":string},...], "answer": "c1"}] } }
+            | { "type": "audio", "content": { "title": string, "transcript": string, "uploadId": number, "audioUrl": string } }
             | { "type": "project", "content": { "title": string, "description": string, "rubric": string } }
           ]
         }
@@ -189,6 +190,23 @@ function normalizeVideo(content) {
   return v;
 }
 
+function normalizeAudio(content) {
+  const title = clean(content.title, 300) || "Listen";
+  const transcript = str(content.transcript, 8000) || clean(content.text, 8000) || str(content.body, 8000) || "";
+  const uploadId = Number(content.uploadId);
+  const hasUpload = Number.isInteger(uploadId) && uploadId > 0;
+  // audioUrl is a kie.ai generated URL or an external URL already vetted at write time.
+  const audioUrl = typeof content.audioUrl === "string" && /^https:\/\//.test(content.audioUrl.trim()) ? content.audioUrl.trim().slice(0, 2000) : null;
+  const url = typeof content.url === "string" && /^https:\/\//.test(content.url.trim()) ? content.url.trim().slice(0, 2000) : null;
+  const finalUrl = audioUrl || url || null;
+  if (!hasUpload && !finalUrl && !transcript) return null;
+  const out = { title, transcript: transcript.slice(0, 8000) };
+  if (hasUpload) out.uploadId = uploadId;
+  if (finalUrl) out.audioUrl = finalUrl;
+  // Keep short even without a file yet: the player falls back to browser speech.
+  return out;
+}
+
 function normalizeItem(item) {
   if (!item || typeof item !== "object") return null;
   const type = item.type;
@@ -205,6 +223,10 @@ function normalizeItem(item) {
   if (type === "video") {
     const v = normalizeVideo(content);
     return v ? { type, content: v } : null;
+  }
+  if (type === "audio") {
+    const a = normalizeAudio(content);
+    return a ? { type, content: a } : null;
   }
   if (type === "project") {
     const title = clean(content.title, 300);
@@ -258,6 +280,13 @@ function itemProblem(item) {
     return str(c.answer, 2000) ? null : "answer_required";
   }
 
+  if (item.type === "audio") {
+    const a = normalizeAudio(c);
+    if (!a) return "audio_source_required";
+    if (!a.transcript || !a.transcript.trim()) return "audio_transcript_required";
+    return null;
+  }
+
   if (item.type === "video") {
     if (!normalizeVideo({ ...c, questions: [] })) return "video_source_required";
     const qs = Array.isArray(c.questions) ? c.questions : [];
@@ -298,6 +327,9 @@ function missingAnswers(items) {
       else n += keyed(c.choices, c.answer) ? 0 : 1;
     } else if (i.type === "video" && Array.isArray(c.questions)) {
       for (const q of c.questions) n += q && keyed(q.choices, q.answer) ? 0 : 1;
+    } else if (i.type === "audio") {
+      // No graded question, just needs transcript for accessibility.
+      if (!c.transcript || !String(c.transcript).trim()) n += 1;
     }
   }
   return n;
@@ -429,7 +461,7 @@ async function generateCourse(spec, userId, familyId) {
 }
 
 module.exports = {
-  generateCourse, normalizeCourse, normalizeItem, normalizeExercise, itemProblem, missingAnswers, mapChoices,
+  generateCourse, normalizeCourse, normalizeItem, normalizeExercise, normalizeAudio, itemProblem, missingAnswers, mapChoices,
   buildUserPrompt, persistCourse, MAX_CHOICES, MAX_VIDEO_QUESTIONS,
   MAX_UNITS, LESSONS_SCANNED, MAX_LESSONS, MAX_ITEMS,
 };

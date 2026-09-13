@@ -11,7 +11,7 @@ import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from
 import { RecordButton } from "../components/RecordButton";
 import type { UploadRow } from "../components/VideoUI";
 
-const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️", video: "▶️", project: "🛠️" };
+const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️", video: "▶️", audio: "🔊", project: "🛠️" };
 
 
 const LICENSES = [
@@ -509,6 +509,17 @@ function ItemPreview({ item, onEdit, onDelete }: { item: ItemNode; onEdit: () =>
               </div>
             </>
           )}
+          {item.type === "audio" && (
+            <>
+              <strong>🔊 {c.title || "Listen"}</strong>
+              <div className="small muted">
+                {c.uploadId ? "uploaded audio"
+                  : c.audioUrl || c.url ? "audio URL"
+                  : "audio: transcript only, browser voice fallback"}
+                {c.transcript ? ` · ${String(c.transcript).slice(0, 60)}…` : ""}
+              </div>
+            </>
+          )}
           {item.type === "project" && (
             <>
               <strong>🛠️ {c.title}</strong>
@@ -542,6 +553,9 @@ function lacksAnswer(item: ItemNode): boolean {
   }
   if (item.type === "video" && Array.isArray(c.questions)) {
     return c.questions.some((q: any) => !q || !keyed(q.choices, q.answer));
+  }
+  if (item.type === "audio") {
+    return !has(c.transcript || c.text || c.body);
   }
   return false;
 }
