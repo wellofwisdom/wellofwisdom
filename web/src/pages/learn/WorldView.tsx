@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { VideoPlayer } from "../../components/VideoUI";
 import { RichText, MathText } from "../../lib/rich";
+import NarratorButton from "../../components/NarratorButton";
 import WorldMap from "./WorldMap";
 import { useReveal, useScrollProgress } from "../../lib/scrollReveal";
 import CollectionGallery from "./CollectionGallery";
@@ -345,7 +346,12 @@ function EncounterDialog({ encounter, busy, onClose, onTakeOn, onFaceBoss }: {
         {won && encounter.video_upload_id && (
           <VideoPlayer content={{ uploadId: encounter.video_upload_id, title: `${encounter.title} victory` }} />
         )}
-        {encounter.narration && <RichText text={encounter.narration} />}
+        {encounter.narration && (
+          <>
+            <RichText text={encounter.narration} />
+            <NarratorButton encounterId={encounter.id} text={encounter.narration} soundOn={true} />
+          </>
+        )}
 
         {won ? (
           <p className="muted">You have already cleared this one.</p>
