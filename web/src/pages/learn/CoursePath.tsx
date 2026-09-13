@@ -4,6 +4,7 @@
 // locked is dim. The path drives a traveling avatar that advances with progress.
 // Pure layout, no new API. Reuses the same LearnCourseTree the list used.
 import type { LearnCourseTree } from "../../types";
+import MasteryStars from "./MasteryStars";
 
 type Node = { id: number; title: string; done: boolean; unitTitle: string; unitIdx: number; lessonIdx: number };
 
@@ -63,7 +64,7 @@ export default function CoursePath({
           <span style={{ width: `${Math.round(pct * 100)}%` }} />
         </div>
         <p className="muted small" style={{ textAlign: "center", marginTop: 6 }}>
-          {doneCount} of {flat.length} lessons done{pct === 1 ? ". You finished it! 🎉" : ""}
+          {doneCount} of {flat.length} lessons done{pct === 1 ? ". You finished it! \uD83C\uDF89" : ""}
         </p>
       </div>
 
@@ -96,27 +97,28 @@ export default function CoursePath({
                 style={{ left: x, top: y }}
                 onClick={() => onNavigate(`lesson/${n.id}`)}
                 aria-label={`${n.unitIdx + 1}.${n.lessonIdx + 1} ${n.title}${isDone ? " (done)" : isNext ? " (next up)" : " (locked until earlier lessons are done)"}`}
-                title={`${n.unitTitle} · ${n.title}`}
+                title={`${n.unitTitle} \u00B7 ${n.title}`}
               >
                 <span className="pathnode-dot" aria-hidden="true">
-                  {isDone ? "✓" : isNext ? "◆" : String(i + 1)}
+                  {isDone ? "\u2713" : isNext ? "\u25C6" : String(i + 1)}
                 </span>
                 <span className="pathnode-label">
                   <span className="pathnode-title">{n.title}</span>
                   <span className="pathnode-unit">{n.unitTitle}</span>
+                  {isDone && <MasteryStars done={true} stars={1} />}
                 </span>
               </button>
             );
           })}
           <span className="pathavatar" aria-hidden="true" style={{ left: avatar.x, top: avatar.y }}>
-            <span className="pathavatar-dot">●</span>
+            <span className="pathavatar-dot">\u25CF</span>
           </span>
         </div>
       </div>
 
       <div className="coursepath-legend muted small" aria-hidden="true">
-        <span className="pathlegend done">✓ done</span>
-        <span className="pathlegend next">◆ next</span>
+        <span className="pathlegend done">\u2713 done</span>
+        <span className="pathlegend next">\u25C6 next</span>
         <span className="pathlegend locked">1 locked</span>
       </div>
     </div>

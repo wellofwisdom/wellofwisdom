@@ -45,3 +45,6 @@
   .pathnode-title{max-width:110px}
   .pathnode-unit{max-width:110px}
 }
+
+.masterystars{display:inline-flex;gap:2px;font-size:11px;line-height:1}
+.masterystars .on{color:var(--accent)}
