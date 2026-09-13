@@ -36,21 +36,10 @@ function trustProxySetting(raw) {
 }
 app.set("trust proxy", trustProxySetting(process.env.TRUST_PROXY));
 
-// Behind Cloudflare the proxy in front of us may rewrite X-Forwarded-For to
-// Cloudflare's own edge address, so every visitor through one edge shares a
-// rate limit. Cloudflare also sends CF-Connecting-IP, which the proxy passes
-// through untouched. CLIENT_IP_HEADER names a header to read the client from
-// instead; it is only safe when the origin is reachable through that proxy
-// alone, which is what an orange-cloud DNS record plus a firewall gives you.
-const clientIpHeader = String(process.env.CLIENT_IP_HEADER || "").trim().toLowerCase();
-if (clientIpHeader) {
-  app.use((req, res, next) => {
-    const v = req.headers[clientIpHeader];
-    const ip = Array.isArray(v) ? v[0] : v;
-    if (ip && String(ip).trim()) Object.defineProperty(req, "ip", { value: String(ip).trim(), configurable: true });
-    next();
-  });
-}
+// Behind Cloudflare, read the client from CF-Connecting-IP instead of a
+// rewritten X-Forwarded-For. See server/lib/clientIp.js for when that is safe.
+const clientIp = require("./lib/clientIp").clientIpMiddleware(process.env.CLIENT_IP_HEADER);
+if (clientIp) app.use(clientIp);
 
 // A request id on every response, so a self-hoster can quote one line from
 // their logs in a bug report and we can find the matching server error.
