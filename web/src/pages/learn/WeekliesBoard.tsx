@@ -3,7 +3,7 @@
 // LearnerApp already knows: lessons done, reviews, streak. A weekly reset
 // via an ISO week key in localStorage, so Monday feels fresh without a
 // server job. Never a gate on learning, just a nudge.
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const STORAGE_KEY = "wow-weeklies-done";
 
@@ -38,17 +38,18 @@ interface Props {
 
 export default function WeekliesBoard({ reviewsDue, lessonsDone, lessonsTotal, streakActive }: Props) {
   const wk = weekKey();
-  const [done, setDone] = useState<Record<string, boolean>>(() => loadDone());
-
-  // Auto-check weekly review when caught up, like dailies.
-  useEffect(() => {
-    const key = `review-${wk}`;
-    if (reviewsDue === 0 && !done[key]) {
-      const next = { ...done, [key]: true };
-      setDone(next);
-      saveDone(next);
+  const [done, setDone] = useState<Record<string, boolean>>(() => {
+    const stored = loadDone();
+    if (reviewsDue === 0) {
+      const key = `review-${wk}`;
+      if (!stored[key]) {
+        const next = { ...stored, [key]: true };
+        saveDone(next);
+        return next;
+      }
     }
-  }, [reviewsDue, wk]); // eslint-disable-line react-hooks/exhaustive-deps
+    return stored;
+  });
 
   const toggle = (key: string) => {
     const next = { ...done, [key]: !done[key] };
@@ -63,7 +64,7 @@ export default function WeekliesBoard({ reviewsDue, lessonsDone, lessonsTotal, s
       label: "Weekly review",
       hint: reviewsDue != null && reviewsDue > 0 ? `${reviewsDue} due` : "All caught up",
       icon: "🔁",
-      done: Boolean(done[`review-${wk}`]),
+      done: reviewsDue === 0 ? true : Boolean(done[`review-${wk}`]),
     },
     {
       id: `streak3-${wk}`,

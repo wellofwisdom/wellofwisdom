@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// DailiesBoard: tiny daily plus weekly checks on learner home. Reuses the
-// same data LearnerApp already has: reviewsDue, upcoming, streak, and a
-// simple local done mark. No new API, no streak that shames, just nudges.
-import { useEffect, useState } from "react";
+// DailiesBoard: tiny daily checks on learner home. Reuses the same data
+// LearnerApp already has: reviewsDue, upcoming, streak, and a simple
+// local done mark. No new API, no streak that shames, just nudges.
+import { useState } from "react";
 
 const STORAGE_KEY = "wow-dailies-done";
 
@@ -15,7 +15,9 @@ function loadDone(): Record<string, boolean> {
 }
 
 function saveDone(map: Record<string, boolean>) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(map)); } catch {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+  } catch {}
 }
 
 interface Props {
@@ -26,16 +28,18 @@ interface Props {
 
 export default function DailiesBoard({ reviewsDue, upcomingCount, streakActive }: Props) {
   const today = new Date().toISOString().slice(0, 10);
-  const [done, setDone] = useState<Record<string, boolean>>(() => loadDone());
-
-  useEffect(() => {
-    const key = `practice-${today}`;
-    if (reviewsDue === 0 && done[key] !== true) {
-      const next = { ...done, [key]: true };
-      setDone(next);
-      saveDone(next);
+  const [done, setDone] = useState<Record<string, boolean>>(() => {
+    const stored = loadDone();
+    if (reviewsDue === 0) {
+      const key = `practice-${today}`;
+      if (!stored[key]) {
+        const next = { ...stored, [key]: true };
+        saveDone(next);
+        return next;
+      }
     }
-  }, [reviewsDue, today, done]);
+    return stored;
+  });
 
   const toggle = (key: string) => {
     const next = { ...done, [key]: !done[key] };
@@ -49,7 +53,7 @@ export default function DailiesBoard({ reviewsDue, upcomingCount, streakActive }
       label: "Practice",
       hint: reviewsDue != null && reviewsDue > 0 ? `${reviewsDue} due` : "All caught up",
       icon: "🔁",
-      done: Boolean(done[`practice-${today}`]),
+      done: reviewsDue === 0 ? true : Boolean(done[`practice-${today}`]),
     },
     {
       id: `streak-${today}`,
