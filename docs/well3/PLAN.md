@@ -68,5 +68,6 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
 - Polish (13391fc): brighter doors, companion styles, dash fix.
 - Weeklies progress (6126ca4): thin progress bar above weeklies.
 - World map legend (cac7b9b): kind counts above world trail.
+- ROADMAP close (9cdf001): immersive slices 2-8 marked SHIPPED in docs/ROADMAP.md.
 - Merge (79787a7): origin/main cc361b7 (Community filters) merged. Branch is current and pushed.
-- Check + tests + web build still green. No migrations, degraded mode kept.
+- Check + tests + web build still green. Branch at 9cdf001, no migrations, degraded mode kept.
