@@ -682,3 +682,90 @@ structurally cannot:
 4. Paperwork. Khan does not help with state reporting. We can.
 5. Any subject at all: a co-op's local river-ecology unit, a farm curriculum,
    Latin. Khan will never build those.
+
+
+---
+
+# Desktop, Steam, controller, speech, language (added 2026-09-13, Well 4)
+
+Full reasoning, alternatives and costs are in `docs/REVIEW-AND-PLAN-2026-09-13.md`
+sections 8 to 10. This is the checklist. Order matters: controller and speech come
+before the desktop build because they are what makes a Steam Deck verification
+pass and what makes language learning possible at all.
+
+## Controller mode (web first, no desktop needed)
+
+- [ ] `useGamepad` hook on the Gamepad API, polled in `requestAnimationFrame`.
+- [ ] Spatial focus manager: d-pad or left stick moves focus to the nearest
+      `data-nav` element by direction; A activates, B back, X read aloud,
+      Y hint, right trigger narrator, start opens the map.
+- [ ] Button legend in the HUD when a pad is connected.
+- [ ] Answer entry without a keyboard: MCQ on the four face buttons, on-screen
+      number pad with `/` and `.` for numeric, speech for text (below).
+- [ ] Rumble on correct and on boss hits (`gamepad.vibrationActuator`).
+- [ ] Setting "Controller mode", auto-on when a pad connects.
+
+## Speech input (voice answers) and a third voice-output tier
+
+- [ ] `POST /api/stt`: audio in, transcript out, through the existing AI layer
+      (any OpenAI-compatible `/v1/audio/transcriptions`, Groq and DeepInfra serve
+      Whisper), same spend caps, `STT_MODEL` env, card in the AI vault.
+- [ ] Browser `SpeechRecognition` as the zero-config tier; `whisper.cpp` sidecar
+      or in-browser `whisper-tiny` as the offline tier for strict mode and Steam.
+- [ ] Push-to-talk recorder (`AudioWorklet`, 16 kHz mono) with a small VAD.
+- [ ] Answer normalizer: number words to digits and fractions, letter names to
+      MCQ choice ids; transcript always shown and confirmed before grading.
+- [ ] New item kind `spoken`: answered aloud, graded by rubric or exact match.
+- [ ] Tutor voice mode: push-to-talk in, narrator voice out, text path unchanged.
+- [ ] Offline TTS tier (Piper sidecar or Kokoro in-browser) behind the same
+      `speak()` as kie TTS and `speechSynthesis`.
+- [ ] Audio discarded after transcription unless the guide turns on "keep
+      recordings".
+
+## Language learning v1 (Spanish A1 first, then French, then Latin)
+
+- [ ] Studio gains `target_language` and CEFR level (A1 to C1); generator writes
+      content in the target language, instructions in the learner's language.
+- [ ] Item kinds: vocabulary card (word, kie picture, TTS audio, example),
+      listen and choose, listen and repeat (STT word match with per-word
+      feedback), cloze, translate (rubric-graded with alternatives), dialogue
+      (tutor role-play with the existing strictness modes), graded reader
+      (public-domain chapter rewritten at level with tap-a-word glosses).
+- [ ] Vocabulary cards feed the existing spaced-review scheduler unchanged.
+- [ ] Translatable UI: one dictionary per language behind a tiny `t()` helper,
+      `lang` set per learner, TTS voice and STT model chosen from it.
+- [ ] Later: pronunciation scoring (goodness of pronunciation, wav2vec2 CTC) as
+      an optional offline model.
+
+## Desktop build (an exe without Rust code)
+
+Rust is not required. Tauri is a Rust shell but the app stays Node plus React;
+Electron is the fallback. Rust only enters if the world map ever wants a native
+renderer (Bevy), which is not planned.
+
+- [ ] PGlite driver behind `db.query()` (`DB_DRIVER=pglite`, `DATA_DIR` holds the
+      database, uploads and audio cache); run the full test suite against it.
+- [ ] Node single-executable build of the server (Node 22 SEA or `pkg`).
+- [ ] Tauri v2 shell with the server as a sidecar; webview loads
+      `http://127.0.0.1:<port>`; Windows, macOS and Linux from one config;
+      auto-update and code signing.
+- [ ] First run creates a local family with no email; AI is optional (bring a
+      key, or an optional local model pack).
+- [ ] All 17 example courses and 18 adventure templates bundled as content;
+      learner side full screen, guide console behind the parent PIN.
+
+## Steam
+
+- [ ] Steamworks partner account, Steam Direct fee, tax and bank forms.
+- [ ] Store page: capsule art, six screenshots, 30-second trailer (same loop as
+      the site hero), tags Education, Family Friendly, Casual.
+- [ ] Steamworks through `steamworks.js` in the sidecar (or the `steamworks`
+      Rust crate in Tauri): achievements from the `badges` table, Steam Cloud
+      on `DATA_DIR` under 1 GB, overlay.
+- [ ] SteamPipe upload from `release.yml`: `beta` branch for playtesters,
+      `default` for release.
+- [ ] Steam Deck verification: controller-only play, readable at 1280x800, no
+      OS keyboard (speech and on-screen pads cover text and numbers).
+- [ ] Steam Playtest, then Early Access, then 1.0.
+- [ ] Model: free base with public-domain courses, paid course packs as DLC,
+      AI generation bring-your-own-key or in-app credits.
