@@ -62,5 +62,6 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
 - Vault (e1fa4fd + 924e9fa): AI provider vault in Settings (providers, pro/flash models, vision, kie image/video/voice/music, monthly plus daily caps, spend chart over 14 days with by-task and by-model plus recent). Server reads vault-first with env fallback, enforces caps before generation. One save mirrors kie to media.
 - Fix (5f93e2a): dailies now reads live streak from /api/learn/gamification, no more hardcoded false.
 - Mastery (b2ed6ef): path nodes show MasteryStars on done lessons, with star CSS in CoursePath.css.
+- Weeklies (463a84b): WeekliesBoard on learner home (weekly review, three-day streak, make progress), with weekly ISO key in localStorage, plus door arch flourish in CoursePath.css.
 - Merge (67f5b3c): main 8210d49 (kie voice + music docs) merged. Branch is current and pushed.
 - Check + tests + web build still green. Branch diff from main is 39 files, about 2700 lines, no migrations, degraded mode kept.
