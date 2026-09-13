@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// CoursePath: the course as a path, not a list. Units become waypoints,
+// CoursePath: the course as a path, not a list. Units become waypoints;
 // lessons become nodes on a winding SVG trail. Done glows, next pulses,
 // locked is dim. The path drives a traveling avatar that advances with progress.
 // Pure layout, no new API. Reuses the same LearnCourseTree the list used.

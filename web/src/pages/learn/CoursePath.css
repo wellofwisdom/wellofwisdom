@@ -50,5 +50,5 @@
 .masterystars .on{color:var(--accent)}
 
 /* Door between units: tiny arch on the trail, decorative only, never blocks. */
-.pathdoor{position:absolute;left:50%;transform:translate(-50%,-50%);width:26px;height:18px;border-radius:10px 10px 0 0;border:2px solid var(--border);border-bottom:none;background:color-mix(in srgb,var(--panel) 96%,var(--accent) 4%);display:grid;place-items:center;font-size:10px;opacity:.9;pointer-events:none}
-.pathdoor.has-key{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 18%,transparent)}
+.pathdoor{position:absolute;left:50%;transform:translate(-50%,-50%);width:28px;height:20px;border-radius:10px 10px 0 0;border:2px solid var(--border);border-bottom:none;background:color-mix(in srgb,var(--panel) 96%,var(--accent) 4%);display:grid;place-items:center;font-size:11px;opacity:.92;pointer-events:none;transition:border-color .2s, box-shadow .2s}
+.pathdoor.has-key{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 18%,transparent), 0 2px 8px color-mix(in srgb,var(--accent) 22%,transparent)}
