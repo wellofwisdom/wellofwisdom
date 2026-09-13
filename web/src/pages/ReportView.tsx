@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Report view: printable progress report with editable narrative.
 import { useEffect, useState } from "react";
+import Logo from "../components/Logo";
 import { api, niceError } from "../api";
 import { Panel } from "../components/ui";
 
@@ -81,7 +82,7 @@ export default function ReportView({ reportId, onNavigate }: { reportId: number;
 
       <div className="reportpage">
         <div className="rp-head">
-          <div className="rp-nut" aria-hidden="true">🌰</div>
+          <div className="rp-nut"><Logo size={48} /></div>
           <h1>Progress Report</h1>
           <p className="rp-sub">
             {report.learner_name} · {report.family_name} · {report.period_start} to {report.period_end}

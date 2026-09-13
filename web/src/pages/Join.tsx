@@ -6,6 +6,7 @@
 // before asking for a password. Someone invited as an observer should know
 // they are an observer.
 import { useEffect, useState } from "react";
+import Logo from "../components/Logo";
 import { api, niceError } from "../api";
 import { go } from "../router";
 
@@ -48,7 +49,7 @@ export default function Join({ token }: { token: string }) {
     return (
       <div className="landing">
         <div className="lcard">
-          <div style={{ fontSize: 34 }}>🌰</div>
+          <div><Logo size={56} /></div>
           <h1>That invite is no longer good</h1>
           <p className="muted">
             Invites are single-use and expire after a week. Ask whoever sent it for a fresh link.
@@ -63,7 +64,7 @@ export default function Join({ token }: { token: string }) {
   return (
     <div className="landing">
       <div className="lcard">
-        <div style={{ fontSize: 34 }}>🌰</div>
+        <div><Logo size={56} /></div>
         <h1>Join {invite.family_name}</h1>
         {role && (
           <p className="muted">
