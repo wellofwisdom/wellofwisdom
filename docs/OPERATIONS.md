@@ -19,7 +19,7 @@ The hosted instance, how it is deployed, verified, tested and backed up. This is
 Beyond `.env.example`:
 
 - `COOKIE_SECURE=true` behind TLS.
-- `TRUST_PROXY=2` because Cloudflare sits in front of Traefik. A plain self-host behind one proxy uses the default of `1`; an app exposed with no proxy uses `false`. Never `true` on a public instance: it lets a client choose its own address and defeats the login rate limit.
+- `TRUST_PROXY=1` (the default) for Traefik, plus `CLIENT_IP_HEADER=cf-connecting-ip` because Cloudflare sits in front of it: Traefik rewrites `X-Forwarded-For` to Cloudflare's edge address, so without the header every visitor through one edge would share a rate limit. A plain self-host behind one proxy uses `1` alone; an app exposed with no proxy uses `false`. Never `true` on a public instance: it lets a client choose its own address and defeats the login rate limit. `CLIENT_IP_HEADER` is only safe when the origin cannot be reached except through Cloudflare (firewall the box to Cloudflare's ranges).
 - `CSP_MODE=enforce` (default). Set `report` to watch the browser console for violations before enforcing on an unusual setup, `off` only while debugging.
 - `SIGNUP_INVITE_CODE` set, so only invited families join while AI keys are configured.
 - `DEMO_MODE=true` and `DEMO_SINGLE_FAMILY=true` for the public demo.
