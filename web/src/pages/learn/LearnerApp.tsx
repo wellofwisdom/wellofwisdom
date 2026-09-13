@@ -14,6 +14,8 @@ import GamificationStrip from "./GamificationStrip";
 import QuestLog from "./QuestLog";
 import DailiesBoard from "./DailiesBoard";
 import "./DailiesBoard.css";
+import WeekliesBoard from "./WeekliesBoard";
+import "./WeekliesBoard.css";
 import SceneTransition from "./SceneTransition";
 import "./SceneTransition.css";
 import "./QuestLog.css";
@@ -186,6 +188,12 @@ function LearnerHome({
       )}
 
       <DailiesBoard reviewsDue={reviewsDue} upcomingCount={upcoming ? upcoming.length : 0} streakActive={streakActive} />
+      <WeekliesBoard
+        reviewsDue={reviewsDue}
+        lessonsDone={(courses || []).reduce((n, c) => n + (c.lessons_done || 0), 0)}
+        lessonsTotal={(courses || []).reduce((n, c) => n + (c.lesson_count || 0), 0)}
+        streakActive={streakActive}
+      />
       <QuestLog upcoming={upcoming} returned={returned} reviewsDue={reviewsDue} onNavigate={onNavigate} />
 
       {!courses ? (
