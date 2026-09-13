@@ -143,9 +143,17 @@ function localExamples() {
 // GET /api/community  (authenticated: inside the app)
 router.get("/", auth.parentOnly, async (_req, res, next) => {
   try {
-    let list = await fetchCommunityList().catch(() => []);
-    if (!list.length) list = localExamples();
-    res.json({ courses: list, source: list.length && list[0].local ? "local" : "community" });
+    const [remote, local] = await Promise.all([
+      fetchCommunityList().catch(() => []),
+      Promise.resolve(localExamples()),
+    ]);
+    const seen = new Set((remote || []).map((c) => c.slug));
+    const missingLocal = (local || []).filter((c) => !seen.has(c.slug));
+    const list = [...(remote || []), ...missingLocal];
+    const allLocal = list.length > 0 && list.every((c) => c.local);
+    const hasLocalAdditions = missingLocal.length > 0;
+    const source = allLocal ? "local" : hasLocalAdditions ? "mixed" : "community";
+    res.json({ courses: list, source });
   } catch (err) {
     next(err);
   }

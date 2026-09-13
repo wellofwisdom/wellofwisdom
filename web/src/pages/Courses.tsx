@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Courses list. Generation lives in the Course Studio; worksheet import and
-// course import/export live here.
-import { useEffect, useRef, useState } from "react";
+// course import/export live here. Community library is its own page at
+// /community so the two galleries are never hidden behind a tab.
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api, niceError } from "../api";
 import type { CourseSummary, Job } from "../types";
-import { Panel, EmptyState, PillTabs, StatBar, Modal, Field } from "../components/ui";
+import { Panel, EmptyState, StatBar, Modal, Field } from "../components/ui";
 import { IconSparkle } from "../components/Icons";
 import { linkProps } from "../router";
 
@@ -13,7 +14,10 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
   const [error, setError] = useState("");
   const [worksheetOpen, setWorksheetOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
-  const [tab, setTab] = useState<"mine" | "community">("mine");
+  const [q, setQ] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | CourseSummary["status"]>("all");
+  const [lensFilter, setLensFilter] = useState("");
+  const [gradeFilter, setGradeFilter] = useState("");
 
   const load = () =>
     api<{ courses: CourseSummary[] }>("/api/courses")
@@ -27,18 +31,32 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
   const published = courses?.filter((c) => c.status === "published").length ?? 0;
   const drafts = courses?.filter((c) => c.status === "draft").length ?? 0;
 
+  const lenses = useMemo(() => {
+    if (!courses) return [];
+    return [...new Set(courses.map((c) => String(c.lens || "").trim()).filter(Boolean))].sort();
+  }, [courses]);
+  const grades = useMemo(() => {
+    if (!courses) return [];
+    return [...new Set(courses.map((c) => c.grade_level).filter((v): v is number => v != null))].sort((a, b) => a - b);
+  }, [courses]);
+
+  const filtered = useMemo(() => {
+    if (!courses) return null;
+    const lower = q.trim().toLowerCase();
+    return courses.filter((c) => {
+      if (statusFilter !== "all" && c.status !== statusFilter) return false;
+      if (lensFilter && String(c.lens || "").trim() !== lensFilter) return false;
+      if (gradeFilter && String(c.grade_level ?? "") !== gradeFilter) return false;
+      if (!lower) return true;
+      const hay = `${c.title} ${c.topic || ""} ${c.lens || ""} ${c.description || ""}`.toLowerCase();
+      return hay.includes(lower);
+    });
+  }, [courses, q, statusFilter, lensFilter, gradeFilter]);
+
+  const hasFilters = q.trim() || statusFilter !== "all" || lensFilter || gradeFilter;
+
   return (
     <>
-      <PillTabs
-        ariaLabel="Course library"
-        tabs={[{ id: "mine", label: "Your courses" }, { id: "community", label: "Community library" }]}
-        value={tab}
-        onChange={(v) => setTab(v as "mine" | "community")}
-      />
-      {tab === "community" ? (
-        <CommunityLibrary onDone={(cid) => { load(); onNavigate(`course/${cid}`); }} />
-      ) : (
-        <>
       <StatBar
         stats={[
           { label: "Courses", value: courses?.length ?? "…" },
@@ -50,9 +68,10 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
       <Panel
         title="Your courses"
         side={
-          <span className="row">
-            <button className="btn" type="button" onClick={() => setWorksheetOpen(true)}>📥 Import worksheet</button>
-            <button className="btn" type="button" onClick={() => setImportOpen(true)}>⬆ Import course</button>
+          <span className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+            <button className="btn" type="button" onClick={() => setWorksheetOpen(true)}>Import worksheet</button>
+            <button className="btn" type="button" onClick={() => setImportOpen(true)}>Import course</button>
+            <button className="btn" type="button" onClick={() => onNavigate("community")}>Browse community</button>
             <button className="btn primary" type="button" onClick={() => onNavigate("studio")}>
               <IconSparkle /> Course Studio
             </button>
@@ -69,7 +88,7 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
             message="The Course Studio builds a complete course around any topic: lessons, exercises, projects, all woven through what your learners love. You can also import a paper worksheet, or a course file from another family."
             action={
               <span className="row">
-                <button className="btn big" type="button" onClick={() => setWorksheetOpen(true)}>📥 Import a worksheet</button>
+                <button className="btn big" type="button" onClick={() => setWorksheetOpen(true)}>Import a worksheet</button>
                 <button className="btn primary big" type="button" onClick={() => onNavigate("studio")}>
                   <IconSparkle /> Open the Course Studio
                 </button>
@@ -77,28 +96,72 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
             }
           />
         ) : (
-          courses.map((c) => (
-            <div
-              key={c.id}
-              className="learnerrow coursecard"
-              style={{ cursor: "pointer" }}
-              // Mouse convenience; the real, accessible link is the title.
-              onClick={(e) => { if ((e.target as HTMLElement).closest("a, button")) return; onNavigate(`course/${c.id}`); }}
-            >
-              <span className="avatar" aria-hidden="true">{c.lens ? "🧵" : "📘"}</span>
-              <div className="meta">
-                <div className="n"><a {...linkProps(`course/${c.id}`)} className="cardlink">{c.title}</a></div>
-                <div className="u">
-                  {c.unit_count} units · {c.lesson_count} lessons · {c.exercise_count} exercises
-                  {c.lens ? ` · through ${c.lens}` : ""}
-                  {c.learner_name ? ` · for ${c.learner_name}` : " · for everyone"}
-                </div>
-              </div>
-              <span className={`chip${c.status === "published" ? " on" : ""}`}>
-                {c.status === "published" ? "✅ Published" : "📝 Draft"}
-              </span>
+          <>
+            <div className="row" style={{ gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+              <input
+                className="input"
+                style={{ minWidth: 220, flex: "1 1 200px" }}
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search title, topic, lens"
+                aria-label="Search courses"
+              />
+              <select className="input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as never)} style={{ width: 148 }} aria-label="Filter by status">
+                <option value="all">All status</option>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
+              </select>
+              {lenses.length > 0 && (
+                <select className="input" value={lensFilter} onChange={(e) => setLensFilter(e.target.value)} style={{ width: 148 }} aria-label="Filter by lens">
+                  <option value="">All lenses</option>
+                  {lenses.map((v) => (
+                    <option key={v} value={v}>{v}</option>
+                  ))}
+                </select>
+              )}
+              {grades.length > 0 && (
+                <select className="input" value={gradeFilter} onChange={(e) => setGradeFilter(e.target.value)} style={{ width: 128 }} aria-label="Filter by grade">
+                  <option value="">All grades</option>
+                  {grades.map((v) => (
+                    <option key={v} value={String(v)}>Grade {v}</option>
+                  ))}
+                </select>
+              )}
+              {hasFilters && (
+                <button className="btn" type="button" onClick={() => { setQ(""); setStatusFilter("all"); setLensFilter(""); setGradeFilter(""); }}>Clear</button>
+              )}
             </div>
-          ))
+            {filtered && filtered.length === 0 ? (
+              <p className="muted">No courses match those filters.</p>
+            ) : (
+              (filtered || []).map((c) => (
+                <div
+                  key={c.id}
+                  className="learnerrow coursecard"
+                  style={{ cursor: "pointer" }}
+                  // Mouse convenience; the real, accessible link is the title.
+                  onClick={(e) => { if ((e.target as HTMLElement).closest("a, button")) return; onNavigate(`course/${c.id}`); }}
+                >
+                  <span className="avatar" aria-hidden="true">{c.lens ? "🧵" : "📘"}</span>
+                  <div className="meta">
+                    <div className="n"><a {...linkProps(`course/${c.id}`)} className="cardlink">{c.title}</a></div>
+                    <div className="u">
+                      {c.unit_count} units · {c.lesson_count} lessons · {c.exercise_count} exercises
+                      {c.lens ? ` · through ${c.lens}` : ""}
+                      {c.learner_name ? ` · for ${c.learner_name}` : " · for everyone"}
+                    </div>
+                  </div>
+                  <span className={`chip${c.status === "published" ? " on" : ""}`}>
+                    {c.status === "published" ? "Published" : c.status === "archived" ? "Archived" : "Draft"}
+                  </span>
+                </div>
+              ))
+            )}
+            {filtered && courses && filtered.length !== courses.length && (
+              <p className="muted small" style={{ marginTop: 10 }}>{filtered.length} of {courses.length}</p>
+            )}
+          </>
         )}
       </Panel>
 
@@ -107,79 +170,6 @@ export default function Courses({ onNavigate }: { onNavigate: (hash: string) => 
       )}
       {importOpen && (
         <ImportDialog onClose={() => setImportOpen(false)} onDone={(cid) => { setImportOpen(false); load(); onNavigate(`course/${cid}`); }} />
-      )}
-        </>
-      )}
-    </>
-  );
-}
-
-type CommunityCourse = {
-  slug: string; title: string; description: string;
-  topic: string | null; lens: string | null; gradeLevel: number | null;
-  license: string; units: number; lessons: number;
-  rawUrl: string | null; local?: boolean;
-};
-
-function CommunityLibrary({ onDone }: { onDone: (courseId: number) => void }) {
-  const [courses, setCourses] = useState<CommunityCourse[] | null>(null);
-  const [error, setError] = useState("");
-  const [busySlug, setBusySlug] = useState<string | null>(null);
-  const [msg, setMsg] = useState("");
-
-  useEffect(() => {
-    api<{ courses: CommunityCourse[] }>("/api/community")
-      .then((d) => setCourses(d.courses))
-      .catch((e) => setError(niceError(e)));
-  }, []);
-
-  async function add(c: CommunityCourse) {
-    setBusySlug(c.slug); setMsg(""); setError("");
-    try {
-      const d = await api<{ courseId: number }>("/api/community/import", {
-        method: "POST", body: { slug: c.slug, rawUrl: c.rawUrl || undefined },
-      });
-      setMsg(`Added ${c.title}. Opening it now.`);
-      onDone(d.courseId);
-    } catch (e) {
-      setError(niceError(e));
-    } finally {
-      setBusySlug(null);
-    }
-  }
-
-  if (!courses) return <div className="skel" style={{ height: 80 }} />;
-  if (error && !courses.length) return <div className="formerror" role="alert">{error}</div>;
-
-  return (
-    <>
-      <p className="muted small" style={{ marginBottom: 10 }}>
-        CC-BY courses from the <a href="https://github.com/wellofwisdom/community-courses" target="_blank" rel="noopener noreferrer">community library</a>.
-        Tap Add and it lands in Your courses as a draft to review before learners see it.
-      </p>
-      {error && <div className="formerror" role="alert">{error}</div>}
-      {msg && <div className="hint" role="status" style={{ marginBottom: 8 }}>{msg}</div>}
-      {courses.length === 0 ? (
-        <p className="muted">No community courses yet. Check back soon, or publish one of your own.</p>
-      ) : (
-        courses.map((c) => (
-          <div key={c.slug} className="learnerrow coursecard">
-            <span className="avatar" aria-hidden="true">{c.lens ? "🧵" : "📘"}</span>
-            <div className="meta" style={{ minWidth: 0 }}>
-              <div className="n">{c.title}</div>
-              <div className="u">
-                {c.units} units · {c.lessons} lessons
-                {c.lens ? ` · through ${c.lens}` : ""}
-                {c.gradeLevel != null ? ` · grade ${c.gradeLevel}` : ""}
-                {c.license ? ` · ${c.license}` : ""}
-              </div>
-              {c.description && <div className="muted small" style={{ marginTop: 2, lineHeight: 1.4 }}>{c.description}</div>}
-            </div>
-            <button className="btn primary" type="button" disabled={busySlug === c.slug} onClick={() => add(c)}>
-              {busySlug === c.slug ? "Adding…" : "Add to my library"}
-            </button>
-          </div>
-        ))
       )}
     </>
   );
@@ -292,7 +282,7 @@ function WorksheetDialog({ onClose, onDone }: { onClose: () => void; onDone: (co
           </Field>
           <div className="row">
             <button className="btn" type="button" onClick={onClose}>Cancel</button>
-            <button className="btn primary" type="button" disabled={text.trim().length < 30 || ocrBusy} onClick={submit}>✨ Turn into exercises</button>
+            <button className="btn primary" type="button" disabled={text.trim().length < 30 || ocrBusy} onClick={submit}>Turn into exercises</button>
           </div>
         </>
       )}
@@ -354,7 +344,7 @@ function ImportDialog({ onClose, onDone }: { onClose: () => void; onDone: (cours
       </Field>
       <div className="row">
         <label className="btn" style={{ cursor: "pointer" }}>
-          📂 Choose file…
+          Browse file…
           <input type="file" accept=".json,application/json" style={{ display: "none" }}
             onChange={async (e) => {
               const f = e.target.files && e.target.files[0];

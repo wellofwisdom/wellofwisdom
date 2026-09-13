@@ -17,6 +17,7 @@ const TITLES: Record<string, string> = {
   tutor: "Tutor",
   library: "Library",
   calendar: "Calendar",
+  community: "Community",
   "plans/new": "Plan Assistant",
   dashboard: "Dashboard",
   studio: "Course Studio",
@@ -34,6 +35,7 @@ const CHIPS: Record<string, string> = {
   dashboard: "c-green",
   studio: "c-violet",
   courses: "c-indigo",
+  community: "c-plum",
   learners: "c-sky",
   records: "c-amber",
   work: "c-violet",
@@ -127,6 +129,7 @@ export default function Shell({
           <Item id="dashboard" label="Dashboard" icon={<IconHome />} />
           <Item id="studio" label="Course Studio" icon={<IconSparkle />} />
           <Item id="courses" label="Courses" icon={<IconBook />} />
+          <Item id="community" label="Community" icon={<span style={{ fontSize: 15 }}>🌍</span>} />
         </nav>
 
         <nav className="nav" aria-label="Manage">

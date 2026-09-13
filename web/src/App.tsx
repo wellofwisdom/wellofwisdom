@@ -12,6 +12,7 @@ import CourseDetail from "./pages/CourseDetail";
 import Progress from "./pages/Progress";
 import Plans from "./pages/Plans";
 import Notes from "./pages/Notes";
+import Community from "./pages/Community";
 import Library from "./pages/Library";
 import Calendar from "./pages/Calendar";
 import ReportView from "./pages/ReportView";
@@ -171,6 +172,7 @@ export default function App() {
       )}
       {route === "studio" && <Studio me={me!} onNavigate={navigate} />}
       {route === "courses" && <Courses onNavigate={navigate} />}
+      {route === "community" && <Community onNavigate={navigate} />}
       {route === "experience" && <Experience />}
       {detailMatch && <CourseDetail me={me!} courseId={Number(detailMatch[1])} onNavigate={navigate} />}
       {route === "records" && <Progress />}
