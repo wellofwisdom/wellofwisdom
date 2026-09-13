@@ -57,4 +57,7 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
   7. Scene transitions (a5e766b): fade-rise per route, reduced-motion respected.
 - Check + tests + web build green. Each slice reuses existing data; no migrations.
 - Slice 8 (af6f6d4): collection gallery on WorldView (loot art + lore + real rewards) and MasteryStars display helper.
+- Slice 9 (1a92ee7): kie alignment live. kie-voice.js (Gemini 3.1 Flash TTS, $0.70 + $14 per million tokens) plus kie-music.js (Suno $0.06 per loop) on the same KIE_API_KEY as images. NarratorButton on encounter scenes, cached at /media/:id, no autoplay before a tap.
+- Slice 10 (63af7a9 + 5891193 + 1e24d00): chapter music Suno loop routes and per-chapter ChapterMusic player (ducked low, looping), plus stamina bar on boss fight, dailies board on home, and photo finish on lesson complete.
+- Check + tests + web build still green. Branch diff from main is +25 files (~1700 lines), no migrations, degraded mode kept.
 
