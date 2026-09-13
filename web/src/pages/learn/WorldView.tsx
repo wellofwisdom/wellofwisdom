@@ -10,6 +10,7 @@ import { api, niceError } from "../../api";
 import { VideoPlayer } from "../../components/VideoUI";
 import { RichText, MathText } from "../../lib/rich";
 import NarratorButton from "../../components/NarratorButton";
+import ChapterMusic from "../../components/ChapterMusic";
 import WorldMap from "./WorldMap";
 import { useReveal, useScrollProgress } from "../../lib/scrollReveal";
 import CollectionGallery from "./CollectionGallery";
@@ -293,6 +294,7 @@ function Chapter({ chapter, onOpen }: {
         <div>
           <h2>{chapter.title}</h2>
           {chapter.hook && <p className="muted small">{chapter.hook}</p>}
+          <ChapterMusic chapterTitle={chapter.title} soundOn={true} />
         </div>
       </div>
       <div className="encounters">
