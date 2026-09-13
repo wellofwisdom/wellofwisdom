@@ -1,13 +1,24 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Learner app: routes between home (course grid), course view, lesson player.
+// Learner app: routes between home, course, lesson, practice and world.
+// Slice 1 wraps every route in LearnerShell (full-screen HUD shell). Same
+// routes, different frame: the learner never sees a centered panel again.
 import { useEffect, useState } from "react";
 import { api } from "../../api";
 import type { Me, LearnCourse } from "../../types";
+import LearnerShell from "./LearnerShell";
+import "./LearnerShell.css";
 import CourseView from "./CourseView";
 import Practice from "./Practice";
 import LessonPlayer from "./LessonPlayer";
-import { IconLogout } from "../../components/Icons";
 import GamificationStrip from "./GamificationStrip";
+import QuestLog from "./QuestLog";
+import DailiesBoard from "./DailiesBoard";
+import "./DailiesBoard.css";
+import WeekliesBoard from "./WeekliesBoard";
+import "./WeekliesBoard.css";
+import SceneTransition from "./SceneTransition";
+import "./SceneTransition.css";
+import "./QuestLog.css";
 import WorldView from "./WorldView";
 
 interface PathPlan {
@@ -40,14 +51,13 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
   const [reviewsDue, setReviewsDue] = useState<number | null>(null);
   const [paths, setPaths] = useState<PathPlan[] | null>(null);
   const [upcoming, setUpcoming] = useState<{ label: string; date: string }[] | null>(null);
+  const [homeStreakActive, setHomeStreakActive] = useState(false);
 
   useEffect(() => {
     if (route === "" || route === "home") {
       api<{ courses: (LearnCourse & { lessons_done?: number })[] }>("/api/learn/courses")
         .then((d: { courses: (LearnCourse & { lessons_done?: number })[] }) => setCourses(d.courses))
         .catch(() => setCourses([]));
-      // Work the guide has answered that the learner has not opened yet. The
-      // only way they found out before was to go back to that lesson.
       api<{ returned: ReturnedWork[] }>("/api/learn/returned")
         .then((d) => setReturned(d.returned || []))
         .catch(() => setReturned([]));
@@ -63,34 +73,63 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
           ...(d.milestones || []).map((m) => ({ label: `${m.title}`, date: m.target_date })),
         ].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4)))
         .catch(() => setUpcoming([]));
+      api<{ streak: { activeToday: boolean } }>("/api/learn/gamification")
+        .then((d) => setHomeStreakActive(Boolean(d.streak && d.streak.activeToday)))
+        .catch(() => {});
     }
   }, [route]);
 
   if (route === "practice") {
-    return <Practice onNavigate={onNavigate} onLogout={onLogout} />;
+    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><SceneTransition routeKey={route}><PracticeInner onNavigate={onNavigate} /></SceneTransition></LearnerShell>;
   }
   if (route.startsWith("course/")) {
     const id = Number(route.split("/")[1]);
-    return <CourseView courseId={id} onNavigate={onNavigate} onLogout={onLogout} />;
+    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><SceneTransition routeKey={route}><CourseView courseId={id} onNavigate={onNavigate} onLogout={onLogout} /></SceneTransition></LearnerShell>;
   }
   if (route.startsWith("world/")) {
     const id = Number(route.split("/")[1]);
-    return <WorldView adventureId={id} onNavigate={onNavigate} />;
+    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><SceneTransition routeKey={route}><WorldView adventureId={id} onNavigate={onNavigate} /></SceneTransition></LearnerShell>;
   }
   if (route.startsWith("lesson/")) {
     const id = Number(route.split("/")[1]);
-    return <LessonPlayer lessonId={id} onNavigate={onNavigate} onLogout={onLogout} />;
+    return <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}><SceneTransition routeKey={route}><LessonPlayer lessonId={id} onNavigate={onNavigate} onLogout={onLogout} /></SceneTransition></LearnerShell>;
   }
 
   return (
-    <div className="kid">
-      <main id="main" className="kidmain">
-      <div className="kidtop">
-        <span className="chip">🌰 {me.familyName}</span>
-        <button className="iconbtn" onClick={onLogout} aria-label="Sign out" title="Sign out" type="button">
-          <IconLogout />
-        </button>
-      </div>
+    <LearnerShell me={me} onNavigate={onNavigate} onLogout={onLogout}>
+      <SceneTransition routeKey={route}>
+      <LearnerHome
+        me={me}
+        courses={courses}
+        returned={returned}
+        reviewsDue={reviewsDue}
+        paths={paths}
+        upcoming={upcoming}
+        streakActive={homeStreakActive}
+        onNavigate={onNavigate}
+      />
+      </SceneTransition>
+    </LearnerShell>
+  );
+}
+
+function LearnerHome({
+  me, courses, returned, reviewsDue, paths, upcoming, streakActive, onNavigate,
+}: {
+  me: Me;
+  courses: (LearnCourse & { lessons_done?: number })[] | null;
+  returned: ReturnedWork[];
+  reviewsDue: number | null;
+  paths: PathPlan[] | null;
+  upcoming: { label: string; date: string }[] | null;
+  streakActive: boolean;
+  onNavigate: (hash: string) => void;
+}) {
+  const firstName = (me.name || "there").split(" ")[0] || "there";
+  // me is needed only for display name, which LearnerShell already shows.
+  // Keep the greeting here for the home surface.
+  return (
+    <div className="learnerhome">
       {upcoming && upcoming.length > 0 && (
         <div className="comingup">
           {upcoming.map((u, i) => (
@@ -103,7 +142,7 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
       )}
 
       <GamificationStrip />
-      <div className="hi">Hi, {me.name.split(" ")[0]}!</div>
+      <div className="hi">Hi, {firstName}!</div>
       <p className="sub">Pick a course and dive in.</p>
 
       {paths && paths.map((p) => (
@@ -148,13 +187,22 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
         </button>
       )}
 
+      <DailiesBoard reviewsDue={reviewsDue} upcomingCount={upcoming ? upcoming.length : 0} streakActive={streakActive} />
+      <WeekliesBoard
+        reviewsDue={reviewsDue}
+        lessonsDone={(courses || []).reduce((n, c) => n + (c.lessons_done || 0), 0)}
+        lessonsTotal={(courses || []).reduce((n, c) => n + (c.lesson_count || 0), 0)}
+        streakActive={streakActive}
+      />
+      <QuestLog upcoming={upcoming} returned={returned} reviewsDue={reviewsDue} onNavigate={onNavigate} />
+
       {!courses ? (
         <div className="skel" style={{ width: "100%", height: 120 }} />
       ) : courses.length === 0 ? (
         <div className="kidcard">
           <div className="big" aria-hidden="true">🌱</div>
           <h2 style={{ margin: "8px 0 6px" }}>No courses yet</h2>
-          <p className="muted">Your guide is setting up your first course. It'll be built around the things you love.</p>
+          <p className="muted">Your guide is setting up your first course. It will be built around the things you love.</p>
         </div>
       ) : (
         <div style={{ width: "100%", display: "grid", gap: 12 }}>
@@ -182,7 +230,14 @@ export default function LearnerApp({ me, route, onNavigate, onLogout }: { me: Me
           })}
         </div>
       )}
-      </main>
+    </div>
+  );
+}
+
+function PracticeInner({ onNavigate }: { onNavigate: (hash: string) => void }) {
+  return (
+    <div className="learnerhome">
+      <Practice onNavigate={onNavigate} onLogout={() => {}} />
     </div>
   );
 }

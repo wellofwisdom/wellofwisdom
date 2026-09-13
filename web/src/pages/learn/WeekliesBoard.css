@@ -1,0 +1,20 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+.weeklies{margin-top:16px;width:100%}
+.weeklies-title{font-size:15px;font-weight:800;letter-spacing:-.01em;margin:0 0 10px}
+.weeklies-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.weeklies-grid{grid-template-columns:1fr}}
+.weekly{
+  display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;
+  background:var(--panel);border:1px solid var(--border);cursor:pointer;
+  font:inherit;color:inherit;text-align:left;min-height:64px;
+  transition:border-color .15s, transform .08s, background .15s;
+}
+.weekly:hover{border-color:var(--accent);transform:translateY(-1px)}
+.weekly:active{transform:scale(.98)}
+.weekly.done{border-color:var(--good);background:color-mix(in srgb,var(--good) 8%,var(--panel))}
+.weekly-icon{font-size:20px;flex:0 0 auto}
+.weekly-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.weekly-label{font-weight:700;font-size:13.5px}
+.weekly-hint{font-size:12px;color:var(--muted)}
+.weekly-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;flex:0 0 22px}
+.weekly.done .weekly-check{background:var(--good);border-color:var(--good)}

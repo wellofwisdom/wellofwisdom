@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+.questlog{margin-top:16px;width:100%}
+.questlog-title{font-size:15px;font-weight:800;letter-spacing:-.01em;margin:0 0 10px}
+.questlog-group{margin-bottom:14px}
+.questlog-group-title{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:700}
+.questcard{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  background:var(--panel);border:1px solid var(--border);border-radius:14px;
+  padding:12px 14px;cursor:pointer;min-height:56px;
+  font:inherit;color:inherit;transition:border-color .15s, transform .08s;
+}
+.questcard:hover{border-color:var(--accent);transform:translateY(-1px)}
+.questcard:active{transform:scale(.99)}
+.questcard-icon{font-size:20px;flex:0 0 auto}
+.questcard-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.questcard-title{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.questcard-sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.questcard-go{font-size:18px;color:var(--muted);flex:0 0 auto}
+.questlog-upcoming{border:1px solid var(--border);border-radius:12px;background:var(--panel);padding:6px 10px}
+.quest-uprow{display:flex;gap:10px;font-size:13px;padding:4px 0;align-items:baseline}
+.quest-up-date{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:1px 6px;flex:0 0 auto}

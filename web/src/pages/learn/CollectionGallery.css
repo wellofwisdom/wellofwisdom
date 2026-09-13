@@ -1,0 +1,25 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+.collection{margin-top:18px;width:100%}
+.collection-title{font-size:15px;font-weight:800;letter-spacing:-.01em;margin:0 0 10px}
+.collection-subtitle{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:12px 0 8px;font-weight:700}
+.collection-loot{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.collectcard{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  background:var(--panel);border:1px solid var(--border);border-radius:14px;
+  padding:12px 10px;text-align:center;position:relative;overflow:hidden;
+}
+.collectcard.common{border-color:var(--border)}
+.collectcard.uncommon{border-color:#4a9d5f}
+.collectcard.rare{border-color:#3d7fd6}
+.collectcard.epic{border-color:#9556d4}
+.collectcard.legendary{border-color:#d99a2b;box-shadow:0 0 0 2px rgba(217,154,43,.14)}
+.collectcard-art{width:64px;height:64px;border-radius:10px;object-fit:cover;display:block}
+.collectcard-icon{font-size:32px;line-height:1}
+.collectcard-name{font-weight:700;font-size:13.5px}
+.collectcard-rarity{font-size:11px;color:var(--muted)}
+.collectcard-lore{font-size:11.5px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.collectcard-qty{position:absolute;top:6px;right:8px;background:var(--accent);color:var(--accent-contrast);font-size:11px;font-weight:800;border-radius:999px;padding:1px 6px}
+.collection-rewardlist{display:flex;flex-wrap:wrap;gap:8px}
+.collectreward{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border);font-size:13px}
+.collectreward.granted{border-color:#d99a2b;background:color-mix(in srgb,#d99a2b 12%,var(--panel))}
+.collectreward-status{font-size:11px;color:var(--muted)}

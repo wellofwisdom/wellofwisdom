@@ -1451,6 +1451,13 @@ code.k {
   .journeyfill { transition: none; }
 }
 
+
+/* --- ai vault --- */
+.aivault-bars{display:flex;align-items:flex-end;gap:4px;height:64px;padding:8px;border:1px solid var(--border);border-radius:10px;background:var(--panel-2);margin-top:8px}
+.aivault-barwrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.aivault-bar{width:100%;background:var(--accent);border-radius:4px 4px 0 0;display:block}
+.aivault-day{font-size:10px;color:var(--muted)}
+
 /* ---------- preview banner ---------- */
 .previewbar {
   position: sticky; top: 0; z-index: 50;

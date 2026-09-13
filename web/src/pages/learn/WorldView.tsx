@@ -9,7 +9,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { VideoPlayer } from "../../components/VideoUI";
 import { RichText, MathText } from "../../lib/rich";
+import NarratorButton from "../../components/NarratorButton";
+import ChapterMusic from "../../components/ChapterMusic";
+import CompanionLine from "./CompanionLine";
+import StaminaBar from "./StaminaBar";
+import WorldMap from "./WorldMap";
 import { useReveal, useScrollProgress } from "../../lib/scrollReveal";
+import CollectionGallery from "./CollectionGallery";
+import "./CollectionGallery.css";
+import "./WorldMap.css";
 
 const BOSS_KINDS = ["boss", "miniboss"];
 const isBoss = (kind: string) => BOSS_KINDS.includes(kind);
@@ -156,7 +164,11 @@ export default function WorldView({ adventureId, onNavigate }:
         </p>
       )}
 
-      <Journey chapters={byChapter} onOpen={setOpen} />
+      <WorldMap chapters={byChapter.map((c) => ({ ...c, encounters: c.encounters.map((e) => ({ id: e.id, kind: e.kind, title: e.title, state: e.state as any, lockedReason: e.lockedReason })) }))} onOpen={(e) => { const full = data.encounters.find((x) => x.id === e.id); if (full) setOpen(full); }} />
+      <details className="world-fallback" style={{ marginTop: 14 }}>
+        <summary className="muted small" style={{ cursor: "pointer" }}>Show chapters</summary>
+        <Journey chapters={byChapter} characters={data.characters} onOpen={setOpen} />
+      </details>
 
       {loot.length > 0 && (
         <section className="worldpanel">
@@ -206,6 +218,8 @@ export default function WorldView({ adventureId, onNavigate }:
         </section>
       )}
 
+      <CollectionGallery loot={loot} rewards={rewards} />
+
       <CrewPanel
         adventureId={adventureId}
         characters={data.characters}
@@ -250,8 +264,9 @@ export default function WorldView({ adventureId, onNavigate }:
 
 /** The chapters as a path the learner travels. The line fills as they scroll,
  *  which is the whole point: the page should feel like distance covered. */
-function Journey({ chapters, onOpen }: {
+function Journey({ chapters, characters, onOpen }: {
   chapters: { title: string; hook: string; index: number; encounters: Encounter[] }[];
+  characters: Character[];
   onOpen: (e: Encounter) => void;
 }) {
   const { ref, progress } = useScrollProgress<HTMLDivElement>();
@@ -261,14 +276,15 @@ function Journey({ chapters, onOpen }: {
         <span className="journeyfill" style={{ height: `${Math.round(progress * 100)}%` }} />
       </div>
       {chapters.map((ch) => (
-        <Chapter key={ch.index} chapter={ch} onOpen={onOpen} />
+        <Chapter key={ch.index} chapter={ch} characters={characters} onOpen={onOpen} />
       ))}
     </div>
   );
 }
 
-function Chapter({ chapter, onOpen }: {
+function Chapter({ chapter, characters, onOpen }: {
   chapter: { title: string; hook: string; artUrl?: string; index: number; encounters: Encounter[] };
+  characters: Character[];
   onOpen: (e: Encounter) => void;
 }) {
   const { ref, shown } = useReveal<HTMLElement>();
@@ -282,6 +298,8 @@ function Chapter({ chapter, onOpen }: {
         <div>
           <h2>{chapter.title}</h2>
           {chapter.hook && <p className="muted small">{chapter.hook}</p>}
+          <ChapterMusic chapterTitle={chapter.title} soundOn={true} />
+          <CompanionLine chapterTitle={chapter.title} characters={characters} />
         </div>
       </div>
       <div className="encounters">
@@ -335,7 +353,12 @@ function EncounterDialog({ encounter, busy, onClose, onTakeOn, onFaceBoss }: {
         {won && encounter.video_upload_id && (
           <VideoPlayer content={{ uploadId: encounter.video_upload_id, title: `${encounter.title} victory` }} />
         )}
-        {encounter.narration && <RichText text={encounter.narration} />}
+        {encounter.narration && (
+          <>
+            <RichText text={encounter.narration} />
+            <NarratorButton encounterId={encounter.id} text={encounter.narration} soundOn={true} />
+          </>
+        )}
 
         {won ? (
           <p className="muted">You have already cleared this one.</p>
@@ -498,6 +521,7 @@ function BossFight({ encounter, onWin, onClose }: {
 
         <p className="muted small">Answer {need} in a row, no hints. A miss just resets the streak.</p>
 
+        <StaminaBar value={Math.max(0, need - streak)} max={need} />
         <div className="bossbar" role="img" aria-label={`${streak} of ${need} in a row`}>
           {Array.from({ length: need }).map((_, i) => (
             <span key={i} className={`bosspip${i < streak ? " lit" : ""}`} />

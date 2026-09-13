@@ -1,0 +1,41 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Learner shell + HUD. Imported by LearnerApp so it lives with the feature. */
+.learnershell{min-height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative;isolation:isolate}
+.learnershell-bg{position:fixed;inset:0;z-index:-1;background-size:cover;background-position:center;filter:saturate(1.05) brightness(.92)}
+.learnershell-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 18%,transparent),color-mix(in srgb,var(--bg) 72%,transparent) 55%,var(--bg))}
+[data-theme="dark"] .learnershell-bg{filter:saturate(1) brightness(.62)}
+[data-theme="dark"] .learnershell-bg::after{background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 14%,transparent),color-mix(in srgb,var(--bg) 78%,transparent) 58%,var(--bg))}
+.learnerhud{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:10px 14px;background:color-mix(in srgb,var(--panel) 86%,transparent);backdrop-filter:blur(10px) saturate(1.2);border-bottom:1px solid var(--border);min-height:56px}
+.hud-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto}
+.hud-home{display:inline-flex;align-items:center;gap:8px;border:none;background:transparent;cursor:pointer;padding:4px 8px;border-radius:999px;font:inherit;color:inherit;font-weight:700}
+.hud-home:hover{background:var(--panel-2)}
+.hud-home-name{font-size:15px;letter-spacing:-.01em}
+.hud-family{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hud-center{flex:0 0 auto;display:none}
+@media(min-width:720px){.hud-center{display:block}.hud-dot{width:6px;height:6px;border-radius:50%;background:var(--border);display:inline-block}}
+.hud-right{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.hud-xp{position:relative;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;flex:0 0 36px}
+.hud-xp-num{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.hud-stat{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border);font-size:13px;font-weight:700}
+.hud-stat.hot{border-color:color-mix(in srgb,var(--amber,#b07a0a) 55%,var(--border));background:var(--amber-bg,#faf0dc)}
+.hud-stat-num{font-variant-numeric:tabular-nums}
+.hud-pack{opacity:.95}
+.hud-iconbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--panel);display:inline-grid;place-items:center;cursor:pointer;font-size:16px;line-height:1;flex:0 0 36px}
+.hud-iconbtn:hover{background:var(--panel-2)}
+.hud-mapbtn{width:auto;padding:0 10px 0 8px;gap:6px;font-size:14px;font-weight:600}
+.hud-maplabel{font-size:13px}
+.hud-mapdrop{margin:0 14px 0;padding:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);z-index:19}
+.hud-mapdrop-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.hud-mapdrop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.hud-mapcard{display:flex;align-items:center;gap:8px;justify-content:center;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;font:inherit;font-weight:600;min-height:48px}
+.hud-mapcard:hover{border-color:var(--accent);background:var(--accent-soft)}
+.learnerstage{flex:1;display:flex;justify-content:center;padding:18px 14px 40px}
+.learnerstage-main{width:100%;max-width:860px}
+.learnerhome{display:flex;flex-direction:column;align-items:stretch;gap:0}
+.learnerhome .hi{font-size:30px;font-weight:800;margin:14px 0 4px;text-align:left}
+.learnerhome .sub{color:var(--muted);margin-bottom:18px;text-align:left}
+@media(max-width:560px){.learnerhud{padding:8px 10px;gap:6px;min-height:50px}.hud-family{display:none}.hud-maplabel{display:none}.hud-mapbtn{width:36px;padding:0}.learnerstage{padding:12px 10px 32px}}
+.learnerstage .kid{min-height:auto;padding:0;max-width:none;margin:0}
+.learnerstage .lessonwrap{max-width:none;margin:0;padding:0}
+.learnerstage .lessonwrap .lessontop{margin-bottom:10px}
+.learnerstage .world{max-width:none;margin:0;padding:0}

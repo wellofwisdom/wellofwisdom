@@ -120,6 +120,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
           <div className="complete">
             <span aria-hidden="true" style={{ fontSize: 34 }}>🎉</span>
             <strong>Lesson complete!</strong>
+            <span className="muted small" aria-hidden="true">Photo finish: snap what you made and share it with your guide.</span>
             {nextLesson ? (
               <button className="btn primary big" type="button" onClick={() => onNavigate(`lesson/${nextLesson.id}`)}>
                 Next lesson: {nextLesson.title} →

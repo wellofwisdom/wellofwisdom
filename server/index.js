@@ -88,6 +88,9 @@ app.use("/api/attendance", require("./routes/attendance"));
 app.use("/api/assessments", require("./routes/assessments"));
 app.use("/api/waitlist", require("./routes/waitlist"));
 app.use("/api/community", require("./routes/community"));
+app.use("/api/narration", require("./routes/narration"));
+app.use("/api/ai", require("./routes/ai"));
+app.use("/api/music", require("./routes/music"));
 
 // Media streaming sits at the app root, not under /api, so a <video src> is a
 // plain URL. auth.attachUser has already run, so the handler can tell whether
@@ -95,14 +98,7 @@ app.use("/api/community", require("./routes/community"));
 app.get("/media/:id/captions.vtt", require("./routes/uploads").captionsHandler);
 app.get("/media/:id", require("./routes/uploads").streamHandler);
 
-// AI usage for this family (parent only): spend transparency.
-app.get("/api/ai/usage", auth.parentOnly, async (req, res, next) => {
-  try {
-    res.json(await require("./lib/aiusage").familySummary(req.user.familyId));
-  } catch (err) {
-    next(err);
-  }
-});
+// AI vault routes (usage + spend) live on /api/ai (see server/routes/ai.js).
 
 app.use("/api", (req, res) => res.status(404).json({ error: "not_found" }));
 
