@@ -3,6 +3,7 @@
 const express = require("express");
 const path = require("node:path");
 const fs = require("node:fs");
+const crypto = require("node:crypto");
 const db = require("./lib/db");
 const learners = require("./lib/learners");
 const seo = require("./lib/seo");
@@ -10,13 +11,47 @@ const share = require("./lib/share");
 const { publicTree } = require("./routes/public");
 const ai = require("./lib/ai");
 const auth = require("./lib/auth");
+const csp = require("./lib/csp");
 const { migrate } = require("./lib/migrate");
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
 
 app.disable("x-powered-by");
-app.set("trust proxy", true); // behind Coolify/traefik; gives req.ip for rate limiting
+
+// How many reverse proxies sit in front of this process. The number decides
+// which X-Forwarded-For entry is the client, which is what the login and demo
+// rate limiters key on. `true` (trust every hop) lets any client spoof its
+// address by sending its own X-Forwarded-For, so it is never the default:
+//   1 (default)  one proxy: Traefik, nginx, Caddy, or Coolify on its own
+//   2            Cloudflare in front of that proxy (wellofwisdom.app)
+//   false        the app is exposed directly, no proxy at all
+function trustProxySetting(raw) {
+  const v = String(raw ?? "").trim().toLowerCase();
+  if (v === "") return 1;
+  if (v === "false" || v === "0" || v === "no" || v === "off") return false;
+  if (v === "true") return true; // allowed, but you have to ask for it
+  if (/^\d+$/.test(v)) return Number(v);
+  return v; // a CIDR list ("loopback, 10.0.0.0/8") passes straight to Express
+}
+app.set("trust proxy", trustProxySetting(process.env.TRUST_PROXY));
+
+// A request id on every response, so a self-hoster can quote one line from
+// their logs in a bug report and we can find the matching server error.
+app.use((req, res, next) => {
+  req.id = crypto.randomUUID();
+  res.setHeader("x-request-id", req.id);
+  next();
+});
+
+// The big things people paste: a whole course package, a worksheet's text,
+// a photo of a worksheet as base64. These get their own limit so the general
+// one can stay small. express.json skips a body it has already parsed, so the
+// larger parser has to be mounted first.
+app.use(
+  ["/api/courses/import", "/api/courses/worksheet-import", "/api/courses/worksheet-ocr", "/api/community/import"],
+  express.json({ limit: process.env.IMPORT_BODY_LIMIT || "25mb" })
+);
 app.use(express.json({ limit: "2mb" }));
 
 // Basic security headers (no framework needed).
@@ -26,6 +61,7 @@ app.use((req, res, next) => {
   res.setHeader("x-frame-options", "SAMEORIGIN");
   next();
 });
+app.use(csp.cspMiddleware);
 app.use(auth.cookies);
 app.use(auth.attachUser);
 // An observer may read anything in their family and change nothing. Enforced
@@ -103,9 +139,19 @@ app.get("/media/:id", require("./routes/uploads").streamHandler);
 app.use("/api", (req, res) => res.status(404).json({ error: "not_found" }));
 
 // SPA: built frontend when present, plain placeholder otherwise (bare clone).
+// index.html is never served by the static handler: the shell goes out through
+// sendShell so each response carries its own CSP nonce on the inline script.
 const distDir = path.join(__dirname, "..", "web", "dist");
 const staticDir = fs.existsSync(distDir) ? distDir : path.join(__dirname, "..", "public");
-app.use(express.static(staticDir));
+app.use(express.static(staticDir, { index: false }));
+
+function readShell() {
+  return fs.readFileSync(path.join(staticDir, "index.html"), "utf8");
+}
+
+function sendShell(res, html) {
+  res.type("html").send(csp.injectNonce(html, res.locals.nonce));
+}
 
 // Discovery surface for published courses and for machines. These are the only
 // routes that answer without a session besides /api/public and the static shell.
@@ -153,8 +199,7 @@ app.get("/c/:slug", async (req, res, next) => {
     if (!db.configured()) return next();
     const meta = await seo.publishedMeta(String(req.params.slug));
     if (!meta) return next();
-    const shell = fs.readFileSync(path.join(staticDir, "index.html"), "utf8");
-    res.type("html").send(seo.injectHead(shell, seo.courseHead(meta, seo.origin(req))));
+    sendShell(res, seo.injectHead(readShell(), seo.courseHead(meta, seo.origin(req))));
   } catch {
     next();
   }
@@ -162,13 +207,35 @@ app.get("/c/:slug", async (req, res, next) => {
 
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
-  res.sendFile(path.join(staticDir, "index.html"));
+  try {
+    sendShell(res, readShell());
+  } catch (err) {
+    next(err);
+  }
 });
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error("[error]", err.message);
-  res.status(500).json({ error: "internal" });
+  // Production keeps one line per failure. Anywhere else the stack goes to the
+  // log too, because "internal" with no trace is what makes a bug report
+  // useless. The request id ties the two together.
+  const where = `${req.method} ${req.originalUrl || req.url}`;
+  // The body parser signals client mistakes with a status: a body over the
+  // limit (413) or JSON that does not parse (400). Those are answers, not
+  // failures, so they get a code the client can show and no stack trace.
+  const status = Number(err.status || err.statusCode) || 500;
+  if (status < 500) {
+    const code = status === 413 ? "payload_too_large" : err.type === "entity.parse.failed" ? "bad_json" : "bad_request";
+    if (res.headersSent) return;
+    return res.status(status).json({ error: code, requestId: req.id });
+  }
+  if (process.env.NODE_ENV === "production") {
+    console.error(`[error] id=${req.id} ${where} ${err.message}`);
+  } else {
+    console.error(`[error] id=${req.id} ${where}\n${err.stack || err.message}`);
+  }
+  if (res.headersSent) return;
+  res.status(500).json({ error: "internal", requestId: req.id });
 });
 
 async function boot() {
@@ -186,7 +253,7 @@ async function boot() {
   }
   if (require.main === module) {
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Well of Wisdom listening on :${PORT} (db=${db.configured()}, ai=${ai.configured() ? "on" : "off"})`);
+      console.log(`Well of Wisdom listening on :${PORT} (db=${db.configured()}, ai=${ai.configured() ? "on" : "off"}, csp=${csp.mode()}, trustProxy=${JSON.stringify(app.get("trust proxy"))})`);
     });
   }
 }
@@ -194,3 +261,4 @@ async function boot() {
 boot();
 
 module.exports = app;
+module.exports.trustProxySetting = trustProxySetting;
