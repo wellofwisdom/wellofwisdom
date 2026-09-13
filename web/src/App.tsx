@@ -31,6 +31,7 @@ import Work from "./pages/Work";
 import Attendance from "./pages/Attendance";
 import Portfolio from "./pages/Portfolio";
 import Join from "./pages/Join";
+import NotFound from "./pages/NotFound";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
 
 function currentRoute(): string {
@@ -152,6 +153,11 @@ export default function App() {
   const reportMatch = route.match(/^report\/(\d+)$/);
   const learnerEditMatch = route.match(/^learners\/(\d+)$/);
   const learnerNew = route === "learners/new";
+  const knownRoutes = new Set([
+    "learners", "studio", "courses", "community", "experience", "records", "tutor", "work", "attendance",
+    "plans", "notes", "library", "calendar", "plans/new", "settings", "dashboard",
+  ]);
+  const known = knownRoutes.has(route) || Boolean(portfolioMatch || detailMatch || planMatch || reportMatch || learnerEditMatch || learnerNew);
 
   return (
     <>
@@ -189,6 +195,7 @@ export default function App() {
       {planMatch && <PlanDetail planId={Number(planMatch[1])} onNavigate={navigate} meLearners={me.learners || []} />}
       {route === "settings" && <Settings me={me!} />}
       {route === "dashboard" && <Dashboard me={me!} onNavigate={navigate} />}
+      {!known && <NotFound path={route} />}
     </Shell>
     </>
   );
