@@ -42,6 +42,18 @@ async function resolveConfig() {
     const row = await db.query("select value from server_settings where key = 'media'").catch(() => ({ rows: [] }));
     const stored = row.rows[0] && row.rows[0].value;
     if (stored && (stored.kieKey || stored.openaiKey)) cfg = { ...cfg, ...stored, _fromDb: true };
+    // Single vault: also honor the ai vault for kie/openai/voice/music keys when media row is absent.
+    try {
+      const aiRow = await db.query("select value from server_settings where key = 'ai'").catch(() => ({ rows: [] }));
+      const ai = aiRow.rows[0] && aiRow.rows[0].value;
+      if (ai) {
+        if (!cfg) cfg = { _fromVault: true };
+        if (!cfg.kieKey && ai.kieKey) cfg.kieKey = ai.kieKey;
+        if (!cfg.openaiKey && ai.openaiKey) cfg.openaiKey = ai.openaiKey;
+        if (!cfg.imageModel && ai.googleTtsOnKie) cfg._voiceModel = ai.googleTtsOnKie;
+        if (ai.kieKey) cfg._fromVault = true;
+      }
+    } catch {}
   }
   cache = { at: Date.now(), config: cfg };
   return cfg;

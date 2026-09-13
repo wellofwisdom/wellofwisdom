@@ -26,11 +26,12 @@ function voiceFor(role) {
   return voiceNarratorName();
 }
 
-function kieVoiceConfigured() {
+function kieVoiceConfiguredSync() {
   const m = voiceModel();
   const key = String(process.env.KIE_API_KEY || "").trim();
   return Boolean(m && key);
 }
+function kieVoiceConfigured() { return kieVoiceConfiguredSync(); }
 
 function kieVoiceStatus() {
   return {

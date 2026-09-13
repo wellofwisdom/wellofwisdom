@@ -50,7 +50,28 @@ function provider() {
   return "openai";
 }
 
+let cachedAiConfig = null;
+let cachedAt = 0;
+
+async function aiConfigSnapshot() {
+  try {
+    const m = require("./aiConfig");
+    const cfg = await m.resolveConfig();
+    if (cfg && Date.now() - cachedAt < 15000) {
+      if (cachedAiConfig) cfg._cached = true;
+    }
+    if (cfg) { cachedAiConfig = cfg; cachedAt = Date.now(); }
+    return cfg;
+  } catch { return null; }
+}
+
 function configured() {
+  if (cachedAiConfig) {
+    const c = cachedAiConfig;
+    if (c.aiProvider === "anthropic" || c.aiProvider === "gemini") return Boolean((c.aiApiKey || "").trim());
+    if (c.aiBaseUrl) return true;
+    if (c.aiApiKey && (c.aiProvider === "openai" || !c.aiProvider)) return true;
+  }
   const p = provider();
   if (p === "anthropic" || p === "gemini") {
     return Boolean(process.env.AI_API_KEY && String(process.env.AI_API_KEY).trim());
@@ -58,17 +79,38 @@ function configured() {
   return Boolean(process.env.AI_BASE_URL && String(process.env.AI_BASE_URL).trim());
 }
 
+function configuredFromVault(cfg) {
+  if (!cfg) return configured();
+  const prov = String(cfg.aiProvider || "").trim().toLowerCase();
+  if (prov === "anthropic" || prov === "gemini") return Boolean((cfg.aiApiKey || "").trim());
+  const base = String(cfg.aiBaseUrl || "").trim();
+  if (base) return true;
+  if ((cfg.aiApiKey || "").trim()) return true;
+  return false;
+}
+
 function health() {
   const p = provider();
   let baseUrl = process.env.AI_BASE_URL || null;
   if (p === "anthropic") baseUrl = "https://api.anthropic.com";
   if (p === "gemini") baseUrl = "https://generativelanguage.googleapis.com";
+  const vault = cachedAiConfig;
+  if (vault && vault.aiBaseUrl) baseUrl = vault.aiBaseUrl;
+  if (vault && vault.aiProvider) {
+    const vp = String(vault.aiProvider).toLowerCase();
+    if (vp === "anthropic") baseUrl = "https://api.anthropic.com";
+    else if (vp === "gemini") baseUrl = "https://generativelanguage.googleapis.com";
+  }
   return {
-    configured: configured(),
-    provider: p,
+    configured: cachedAiConfig ? configuredFromVault(cachedAiConfig) : configured(),
+    provider: vault && vault.aiProvider ? vault.aiProvider : p,
     baseUrl,
     routeSample: resolveRoute("course-gen"),
   };
+}
+
+async function refreshVault() {
+  await aiConfigSnapshot();
 }
 
 // Injected at boot to avoid a circular import (db <- aiusage -> nothing <- ai).
@@ -94,28 +136,64 @@ function logUsageTokens({ familyId, task, model, tokensIn, tokensOut, note }) {
  * @param {{json?:boolean, maxTokens?:number, temperature?:number, usage?:{familyId:number,note:string}}} [opts]
  * @returns {Promise<{content:string, usage:object|null, model:string|null}>}
  */
+async function effectiveConfig() {
+  const vault = await aiConfigSnapshot();
+  if (!vault) return { provider: provider(), baseUrl: process.env.AI_BASE_URL || "", apiKey: process.env.AI_API_KEY || "", modelPro: process.env.AI_MODEL_PRO || "", modelFlash: process.env.AI_MODEL_FLASH || "", vision: process.env.AI_VISION_MODEL || "" };
+  return {
+    provider: vault.aiProvider || provider(),
+    baseUrl: vault.aiBaseUrl || process.env.AI_BASE_URL || "",
+    apiKey: vault.aiApiKey || process.env.AI_API_KEY || "",
+    modelPro: vault.aiModelPro || process.env.AI_MODEL_PRO || "",
+    modelFlash: vault.aiModelFlash || process.env.AI_MODEL_FLASH || "",
+    vision: vault.aiVisionModel || process.env.AI_VISION_MODEL || "",
+  };
+}
+
+function vaultConfigured(cfg) {
+  if (!cfg) return configured();
+  const pr = String(cfg.provider || "").toLowerCase();
+  if (pr === "anthropic" || pr === "gemini") return Boolean((cfg.apiKey || "").trim());
+  return Boolean((cfg.baseUrl || "").trim() || (cfg.apiKey || "").trim());
+}
+
 async function chat(task, messages, opts = {}) {
-  if (!configured()) {
-    const err = new Error("ai_not_configured: set AI_BASE_URL (OpenAI-compatible) or AI_PROVIDER=anthropic/gemini + AI_API_KEY. See .env.example");
+  const cfg = await effectiveConfig();
+  if (!vaultConfigured(cfg)) {
+    const err = new Error("ai_not_configured: set AI settings in Settings  vault or AI_BASE_URL / AI_PROVIDER + AI_API_KEY. See .env.example");
     err.code = "ai_not_configured";
     throw err;
   }
-  const { model } = resolveRoute(task);
-  if (!model) {
-    const err = new Error(`ai_no_model: task "${task}" resolved to tier with no model. Set AI_MODEL_PRO/AI_MODEL_FLASH`);
+  // Enforce spend limits before burning tokens
+  if (opts.usage && opts.usage.familyId) {
+    try {
+      const lim = require("./aiLimits");
+      const chk = await lim.checkFamily(opts.usage.familyId);
+      if (!chk.ok) {
+        const err = new Error(chk.reason === "monthly_limit" ? "ai_monthly_limit: monthly spend limit reached" : "ai_daily_limit: daily spend limit reached");
+        err.code = chk.reason === "monthly_limit" ? "ai_monthly_limit" : "ai_daily_limit";
+        throw err;
+      }
+    } catch (e) { if (e && (e.code === "ai_monthly_limit" || e.code === "ai_daily_limit")) throw e; }
+  }
+  const tm = resolveRoute(task);
+  const wantPro = tm.tier === "pro";
+  const vaultModel = wantPro ? (cfg.modelPro || "") : (cfg.modelFlash || "");
+  const effModel = vaultModel || tm.model || null;
+  if (!effModel) {
+    const err = new Error(`ai_no_model: task "${task}" resolved to tier with no model. Set models in the AI vault or AI_MODEL_PRO/AI_MODEL_FLASH`);
     err.code = "ai_no_model";
     throw err;
   }
-  const p = provider();
-  if (p === "anthropic") return chatViaAnthropic(task, messages, opts, model);
-  if (p === "gemini") return chatViaGemini(task, messages, opts, model);
-  return chatViaOpenAI(task, messages, opts, model);
+  const p = String(cfg.provider || provider()).toLowerCase();
+  if (p === "anthropic" || p === "claude") return chatViaAnthropic(task, messages, opts, effModel, cfg);
+  if (p === "gemini" || p === "google") return chatViaGemini(task, messages, opts, effModel, cfg);
+  return chatViaOpenAI(task, messages, opts, effModel, cfg);
 }
 
-async function chatViaGemini(task, messages, opts, model) {
+async function chatViaGemini(task, messages, opts, model, cfg) {
   const { chatGoogle } = require("./providers/google");
-  const baseUrl = String(process.env.AI_BASE_URL || "").trim() || "https://generativelanguage.googleapis.com";
-  const key = process.env.AI_API_KEY || "";
+  const baseUrl = String((cfg && cfg.baseUrl) || process.env.AI_BASE_URL || "").trim() || "https://generativelanguage.googleapis.com";
+  const key = (cfg && cfg.apiKey) || process.env.AI_API_KEY || "";
   let effMessages = messages;
   if (opts.json) {
     effMessages = [...messages];
@@ -144,10 +222,10 @@ async function chatViaGemini(task, messages, opts, model) {
   return out;
 }
 
-async function chatViaAnthropic(task, messages, opts, model) {
+async function chatViaAnthropic(task, messages, opts, model, cfg) {
   const { chatAnthropic } = require("./providers/anthropic");
-  const baseUrl = String(process.env.AI_BASE_URL || "").trim() || "https://api.anthropic.com";
-  const key = process.env.AI_API_KEY || "";
+  const baseUrl = String((cfg && cfg.baseUrl) || process.env.AI_BASE_URL || "").trim() || "https://api.anthropic.com";
+  const key = (cfg && cfg.apiKey) || process.env.AI_API_KEY || "";
   let effMessages = messages;
   if (opts.json) {
     effMessages = [...messages];
@@ -176,7 +254,7 @@ async function chatViaAnthropic(task, messages, opts, model) {
   return out;
 }
 
-async function chatViaOpenAI(task, messages, opts, model) {
+async function chatViaOpenAI(task, messages, opts, model, cfg) {
   const body = {
     model,
     messages,
@@ -213,11 +291,12 @@ async function chatViaOpenAI(task, messages, opts, model) {
   };
 
   async function postOpenAI(b) {
-    const r = await fetchT(`${process.env.AI_BASE_URL.replace(/\/$/, "")}/chat/completions`, {
+    const base = String((cfg && cfg.baseUrl) || process.env.AI_BASE_URL || "").replace(/\/$/, "");
+    const r = await fetchT(`${base}/chat/completions`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        ...(process.env.AI_API_KEY ? { authorization: `Bearer ${process.env.AI_API_KEY}` } : {}),
+        ...((cfg && cfg.apiKey ? cfg.apiKey : process.env.AI_API_KEY) ? { authorization: `Bearer ${(cfg && cfg.apiKey) || process.env.AI_API_KEY}` } : {}),
       },
       body: JSON.stringify(b),
     });
@@ -269,4 +348,4 @@ function tryParse(text) {
   return undefined;
 }
 
-module.exports = { chat, chatJson, resolveRoute, configured, health, setUsageLogger, provider };
+module.exports = { chat, chatJson, resolveRoute, configured, health, setUsageLogger, provider, refreshVault, configuredFromVault };
