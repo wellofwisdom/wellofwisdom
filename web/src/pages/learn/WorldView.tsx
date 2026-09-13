@@ -11,6 +11,7 @@ import { VideoPlayer } from "../../components/VideoUI";
 import { RichText, MathText } from "../../lib/rich";
 import NarratorButton from "../../components/NarratorButton";
 import ChapterMusic from "../../components/ChapterMusic";
+import StaminaBar from "./StaminaBar";
 import WorldMap from "./WorldMap";
 import { useReveal, useScrollProgress } from "../../lib/scrollReveal";
 import CollectionGallery from "./CollectionGallery";
@@ -516,6 +517,7 @@ function BossFight({ encounter, onWin, onClose }: {
 
         <p className="muted small">Answer {need} in a row, no hints. A miss just resets the streak.</p>
 
+        <StaminaBar value={Math.max(0, need - streak)} max={need} />
         <div className="bossbar" role="img" aria-label={`${streak} of ${need} in a row`}>
           {Array.from({ length: need }).map((_, i) => (
             <span key={i} className={`bosspip${i < streak ? " lit" : ""}`} />

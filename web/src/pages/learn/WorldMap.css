@@ -38,3 +38,7 @@
 .worldmap-chapterchip{padding:2px 8px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border);font-size:11px}
 @media(prefers-reduced-motion:reduce){.wmapnode.next .wmapnode-dot{animation:none}.worldmap-fill{transition:none}.worldmap-avatar{transition:none}}
 @media(max-width:520px){.wmapnode{max-width:44%}.wmapnode-title{max-width:110px}}
+
+/* stamina: thin bar above boss pips, opt-in feel */
+.staminabar{height:6px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border);overflow:hidden;margin-bottom:8px}
+.staminabar-fill{display:block;height:100%;background:var(--accent);transition:width .35s ease}

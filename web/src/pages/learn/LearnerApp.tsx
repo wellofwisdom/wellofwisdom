@@ -12,6 +12,8 @@ import Practice from "./Practice";
 import LessonPlayer from "./LessonPlayer";
 import GamificationStrip from "./GamificationStrip";
 import QuestLog from "./QuestLog";
+import DailiesBoard from "./DailiesBoard";
+import "./DailiesBoard.css";
 import SceneTransition from "./SceneTransition";
 import "./SceneTransition.css";
 import "./QuestLog.css";
@@ -177,6 +179,7 @@ function LearnerHome({
         </button>
       )}
 
+      <DailiesBoard reviewsDue={reviewsDue} upcomingCount={upcoming ? upcoming.length : 0} streakActive={false} />
       <QuestLog upcoming={upcoming} returned={returned} reviewsDue={reviewsDue} onNavigate={onNavigate} />
 
       {!courses ? (
