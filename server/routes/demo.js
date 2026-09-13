@@ -85,7 +85,17 @@ async function seedDemoCourses(familyId, guideId) {
   const examplesDir = path.join(__dirname, "..", "..", "docs", "examples");
   let files = [];
   try {
-    files = fs.readdirSync(examplesDir).filter((f) => f.endsWith(".wow-course.json"));
+    files = fs.readdirSync(examplesDir, { withFileTypes: true }).flatMap((e) => {
+      if (e.isFile() && e.name.endsWith(".wow-course.json")) return [e.name];
+      if (e.isDirectory() && !e.name.startsWith(".")) {
+        try {
+          return fs.readdirSync(path.join(examplesDir, e.name))
+            .filter((f) => f.endsWith(".wow-course.json"))
+            .map((f) => `${e.name}/${f}`);
+        } catch { return []; }
+      }
+      return [];
+    });
   } catch {
     files = [];
   }

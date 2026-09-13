@@ -107,11 +107,22 @@ function localExamples() {
   const path = require("node:path");
   const dir = path.join(__dirname, "..", "..", "docs", "examples");
   try {
-    const files = fs.readdirSync(dir).filter((f) => f.endsWith(".wow-course.json"));
+    const files = fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+      if (e.isFile() && e.name.endsWith(".wow-course.json")) return [e.name];
+      if (e.isDirectory() && !e.name.startsWith(".")) {
+        try {
+          return fs.readdirSync(path.join(dir, e.name))
+            .filter((f) => f.endsWith(".wow-course.json"))
+            .map((f) => `${e.name}/${f}`);
+        } catch { return []; }
+      }
+      return [];
+    });
     return files.map((f) => {
       const pkg = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+      const slug = f.replace(/\.wow-course\.json$/, "").replace(/\//g, "-");
       return {
-        slug: f.replace(".wow-course.json", ""),
+        slug,
         title: pkg.title,
         description: String(pkg.description || "").slice(0, 300),
         topic: pkg.topic || null,
@@ -141,19 +152,43 @@ router.get("/", auth.parentOnly, async (_req, res, next) => {
 });
 
 // POST /api/community/import  body: { rawUrl } or { slug }  -> imports as draft
+// For local fallback cards slug looks like "wonderland-fractions-course"
+// after flattening `dir/course.wow-course.json` via "/".replace -> "-".
+// Those are imported directly from disk without a network fetch.
 router.post("/import", auth.parentOnly, async (req, res, next) => {
   try {
     let rawUrl = String(req.body && req.body.rawUrl || "").trim();
     const slug = String(req.body && req.body.slug || "").trim();
-    if (!rawUrl && slug) rawUrl = `${rawBase()}/courses/${slug}/course.wow-course.json`;
-    if (!rawUrl) return res.status(400).json({ error: "rawUrl_or_slug_required" });
+    let localPkg = null;
+    if (!rawUrl && slug) {
+      const fs = require("node:fs");
+      const path = require("node:path");
+      const dir = path.join(__dirname, "..", "..", "docs", "examples");
+      const candidates = [
+        path.join(dir, `${slug}.wow-course.json`),
+        path.join(dir, slug, "course.wow-course.json"),
+        path.join(dir, slug.replace(/-course$/, ""), "course.wow-course.json"),
+      ];
+      for (const p of candidates) {
+        try {
+          if (fs.existsSync(p)) {
+            const raw = fs.readFileSync(p, "utf8");
+            const parsed = JSON.parse(raw);
+            if (parsed && parsed.title) { localPkg = parsed; break; }
+          }
+        } catch {}
+      }
+      if (!localPkg) rawUrl = `${rawBase()}/courses/${slug}/course.wow-course.json`;
+    }
+    if (!rawUrl && !localPkg) return res.status(400).json({ error: "rawUrl_or_slug_required" });
 
-    // Reuse the same import path as Courses -> Import course -> Paste link.
-    // Call the existing import-url logic inline to avoid URL SSRF dance for raw github.
-    const pkgRes = await fetchT(rawUrl, {}, { timeoutMs: 10000, retries: 1 });
-    if (!pkgRes.ok) return res.status(400).json({ error: "fetch_failed" });
-    const pkg = await pkgRes.json().catch(() => null);
-    if (!pkg || !pkg.title) return res.status(400).json({ error: "not_a_course" });
+    let pkg = localPkg;
+    if (!pkg) {
+      const pkgRes = await fetchT(rawUrl, {}, { timeoutMs: 10000, retries: 1 });
+      if (!pkgRes.ok) return res.status(400).json({ error: "fetch_failed" });
+      pkg = await pkgRes.json().catch(() => null);
+      if (!pkg || !pkg.title) return res.status(400).json({ error: "not_a_course" });
+    }
 
     const coursegen = require("../lib/coursegen");
     const db = require("../lib/db");

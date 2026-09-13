@@ -553,14 +553,13 @@ hidden blob.
       does not appear on mobile (One Tap is large-screen only) or for signed
       in visitors.
 
-## Immersive game: voice, music, map, quests, game mechanics (Well 3)
+## Immersive game: voice, music, map, quests, game mechanics (SHIPPED 2026-09-13, Well 3 merged into main at cf2117c)
 
-> **Verdict on 2026-09-12:** the learner side reads like a good course forum with a
+> **Shipped 2026-09-13:** merged `feat/well3-immersive` (32 commits) into `main` at `cf2117c` and deployed. The learner side **was** a good course forum with a
 > game skin. Marketing and the guide console feel modern, the learner home plus
 > course map plus lesson player are still centered panels, and `WorldView` is a
 > vertical scroll list. Fix: a full-screen shell plus a persistent HUD plus a
-> place you move through. This section is the plan. Well 1 stays on `main`,
-> Well 2 keeps shipping IP courses, Well 3 builds this.
+> place you move through. This section shipped as eight slices plus vault plus dailies/weeklies/mastery/companions (Well 3 `feat/well3-immersive` → `main`). Well 2 (`courses/well2-ip-curriculum`) now rebases onto the new shell; see `wellofwisdom-well2`.
 
 **Voice plus music provider pick (updated 2026-09-12): kie.ai for both, no
 GCP project.** Voice is **Gemini 3.1 Flash TTS on kie** (Google text to
@@ -596,12 +595,9 @@ against the existing `media.js` spend path, same shape you already run.
 * Transitions are real scene wipes and the boss is a timed arena, with sound
   cues that respect `prefers-reduced-motion`.
 
-### Planned slices, ordered to ship (Well 3 worktree: `feat/well3-immersive`)
+### Slices shipped (Well 3 `feat/well3-immersive` → `main` at `cf2117c`)
 
-1. **Full-screen learner shell plus HUD** (CSS plus layout, no migration).
-   Drop the 720px `kid` center column for `role === learner`, use `100dvh`
-   with `worldhero` art as scrim, add `LearnerHUD` (XP ring, streak flame,
-   pack count, map, sound). Same routes, different frame.
+1. **Full-screen learner shell plus HUD** (SHIPPED: `LearnerShell.tsx` plus `LearnerHUD`, 100dvh scrim, XP ring, streak, pack, map, sound; degraded no-key mode kept; CSS plus layout, no migration). Same routes, different frame; the 720px `kid` center column becomes 100dvh with `worldhero` art as scrim.
 2. **Course path map** (replace `CourseView` lesson list). Render units as
    path SVG, lessons as nodes. Reuse `progress.lessonsTotal` and `lesson.done`.
 3. **World map canvas** (replace `encounters` grid in `WorldView`). SVG path

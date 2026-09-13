@@ -12,3 +12,4 @@ pgdata
 # Keep docs/examples: the demo seed imports these course packages at runtime.
 docs/*
 !docs/examples
+!docs/examples/**
