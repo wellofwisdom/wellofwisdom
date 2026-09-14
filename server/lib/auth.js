@@ -157,17 +157,29 @@ function parentOnly(req, res, next) {
 
 // ---- login rate limiting (per IP, in-memory; cloud swaps for Redis) ----
 
-const attempts = new Map(); // ip -> { count, resetAt }
+const attempts = new Map(); // ip -> { count, resetAt }, insertion ordered
 
-function loginLimit(ip, { max = 10, windowMs = 15 * 60 * 1000 } = {}) {
+// Bounded: past maxEntries the oldest addresses are dropped one at a time.
+// Clearing the whole map instead (the old behaviour) reset every counter at
+// once, so a burst of fresh addresses would unlock an address being brute
+// forced. Expired entries are swept first so a busy but honest server does not
+// evict live counters while stale ones sit in the map.
+function loginLimit(ip, { max = 10, windowMs = 15 * 60 * 1000, maxEntries = 10000 } = {}) {
   const now = Date.now();
   const entry = attempts.get(ip);
   if (!entry || entry.resetAt < now) {
+    attempts.delete(ip); // re-insert at the end so eviction stays oldest-first
+    if (attempts.size >= maxEntries) {
+      for (const [k, v] of attempts) {
+        if (v.resetAt < now) attempts.delete(k);
+        if (attempts.size < maxEntries) break;
+      }
+      while (attempts.size >= maxEntries) attempts.delete(attempts.keys().next().value);
+    }
     attempts.set(ip, { count: 1, resetAt: now + windowMs });
     return { ok: true, remaining: max - 1 };
   }
   entry.count++;
-  if (attempts.size > 10000) attempts.clear(); // paranoia cap
   return entry.count <= max
     ? { ok: true, remaining: max - entry.count }
     : { ok: false, retryAfterSec: Math.ceil((entry.resetAt - now) / 1000) };
