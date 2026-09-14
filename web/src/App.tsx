@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useCallback, useEffect, useState } from "react";
+import Logo from "./components/Logo";
 import { api, getPreviewLearner } from "./api";
 import type { MeResponse } from "./types";
 import Shell from "./components/Shell";
@@ -118,7 +119,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="landing">
-        <div className="nutbig" aria-hidden="true">🌰</div>
+        <div className="nutbig"><Logo size={72} /></div>
         <div className="skel" style={{ width: 180, height: 20 }} />
       </div>
     );

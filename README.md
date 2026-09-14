@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🌰 Well of Wisdom
+<img src="docs/brand/logo-512.png" width="128" height="128" alt="Well of Wisdom logo: a carved stone well with nine hazel leaves on the water">
+
+# Well of Wisdom
 
 **Self-hosted, AI-first learning for homeschools, classrooms, and co-ops.**
 
