@@ -146,15 +146,15 @@ export default function WorldView({ adventureId, onNavigate }:
         style={data.adventure.cover_url ? { backgroundImage: `url(${data.adventure.cover_url})` } : undefined}
       >
         <div className="worldheroin">
-          <button className="btn ghost small-btn" type="button" data-nav data-say="Back" onClick={() => onNavigate("home")}>← Back</button>
-          <h1>{world.title || "Your adventure"}</h1>
+          <button className="btn ghost small-btn" type="button" data-nav data-say={t("world.back")} onClick={() => onNavigate("home")}>← {t("world.back")}</button>
+          <h1>{world.title || t("world.adventureFallback")}</h1>
           {world.tagline && <p className="tagline">{world.tagline}</p>}
           <div className="worldstats">
             <span className="wstat"><b>{data.adventure.xp}</b> XP</span>
-            <span className="wstat"><b>{wonCount}</b> of {data.encounters.length} cleared</span>
+            <span className="wstat">{t("world.clearedCount", { done: String(wonCount), total: String(data.encounters.length) })}</span>
             <span className="wstat">{data.gameType.label}</span>
             {data.progress && data.progress.correctStreak > 1 && (
-              <span className="wstat hot">🔥 {data.progress.correctStreak} in a row</span>
+              <span className="wstat hot">🔥 {t("world.streakRow", { count: String(data.progress.correctStreak) })}</span>
             )}
           </div>
         </div>
