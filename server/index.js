@@ -212,6 +212,17 @@ app.get("/c/:slug", async (req, res, next) => {
   }
 });
 
+// Static marketing and legal pages get a server-rendered head so crawlers and
+// link unfurlers see a real title and description without running JavaScript.
+const STATIC_ROUTES = ["for-homeschools", "for-co-ops", "for-teachers", "self-host", "privacy", "terms", "children"];
+for (const id of STATIC_ROUTES) {
+  app.get(`/${id}`, (req, res, next) => {
+    try {
+      sendShell(res, seo.injectHead(readShell(), seo.staticHead(id, seo.origin(req))));
+    } catch (err) { next(err); }
+  });
+}
+
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
   try {
