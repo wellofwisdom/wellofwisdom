@@ -7,6 +7,7 @@ import { Panel, Modal, Field } from "../components/ui";
 import { MathText } from "../lib/rich";
 import { IconPencil, IconTrash, IconCheck } from "../components/Icons";
 import { AdventureDialog, AdventuresPanel, CoverButton, WorldBuilders } from "../components/AdventureUI";
+import StandardsTags from "../components/StandardsTags";
 import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from "../components/VideoUI";
 import { RecordButton } from "../components/RecordButton";
 import type { UploadRow } from "../components/VideoUI";
@@ -411,6 +412,7 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
                   onClick={() => window.open(`/print/lesson/${l.id}`, "_blank")}>🖨️ Worksheet</button>
               </div>
               {l.summary && <p className="muted small" style={{ margin: "4px 0 10px" }}>{l.summary}</p>}
+              <StandardsTags value={(l as any).standards || []} onChange={(next) => patchLesson(l.id, { standards: next })} />
               {l.items.map((item) => (
                 <ItemPreview key={item.id} item={item} onEdit={() => setEditing(item)}
                   onDelete={() => {
