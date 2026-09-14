@@ -1,0 +1,247 @@
+{
+  "name": "Well of Wisdom",
+  "tagline": "Every learner drinks from their own well.",
+  "summary": "Open-source, AI-first learning for families, classrooms, schools, co-ops and tutors. Build a full course from any topic, taught through what each learner loves, and let them play it as a world. Self-host with one command, or run it fully offline.",
+  "repo": "https://github.com/wellofwisdom/wellofwisdom",
+
+  "pages": [
+    { "path": "", "title": "Well of Wisdom: open-source AI learning for every kind of teacher", "description": "Turn any topic into a full course shaped around what each learner loves, then let them play it as a world. Spaced review, a tutor with your rules, reports that print. Open source. Self-host free.", "section": "home", "priority": "1.0" },
+    { "path": "features", "title": "Every feature in Well of Wisdom", "description": "The complete list: Course Studio and lenses, learning paths, lessons with real maths and video, worlds and boss fights, a Socratic tutor, spaced review, reports and attendance, roles for groups, and open, portable, self-hosted AI.", "section": "product", "priority": "0.9" },
+    { "path": "for-homeschools", "title": "Well of Wisdom for families and homeschools", "description": "A curriculum that bends to what your child loves, with spaced review, printable portfolios and attendance your state will accept. Your data stays on your server.", "section": "audience", "priority": "0.8" },
+    { "path": "for-teachers", "title": "Well of Wisdom for classroom teachers", "description": "Generate courses from sources you choose, review every word before students see it, and see who is stuck on what. Reports and work samples print for the office.", "section": "audience", "priority": "0.8" },
+    { "path": "for-schools", "title": "Well of Wisdom for schools and districts", "description": "Run AI-assisted courses on your own servers with your own AI provider or fully offline. Roles for teachers, tutors and observers, spend caps, and no student data on someone else's platform.", "section": "audience", "priority": "0.8" },
+    { "path": "for-co-ops", "title": "Well of Wisdom for co-ops and microschools", "description": "One place for many families and teachers. Share courses once, keep each learner's work and reports separate, and give tutors access to only their own students.", "section": "audience", "priority": "0.8" },
+    { "path": "for-tutors", "title": "Well of Wisdom for tutors and learning centers", "description": "Build a course around one student's interests in minutes, see exactly where they slip, and hand parents a report built from real work.", "section": "audience", "priority": "0.8" },
+    { "path": "for-learners", "title": "Well of Wisdom for self-learners", "description": "Teach yourself anything through what you already love, with review that brings back what you are about to forget and a tutor that hints before it tells.", "section": "audience", "priority": "0.7" },
+    { "path": "developers", "title": "Well of Wisdom for developers and IT", "description": "AGPL-3.0, Node and Postgres, one Docker image. Any OpenAI-compatible model, Claude, Gemini or local Ollama. A public course API, a portable course format and llms.txt.", "section": "audience", "priority": "0.7" },
+    { "path": "self-host", "title": "Self-host Well of Wisdom in one command", "description": "Run Well of Wisdom on your own server with docker compose up -d. Bring any AI endpoint or run fully offline with Ollama. Your data stays yours.", "section": "product", "priority": "0.8" },
+    { "path": "c", "title": "Open courses from Well of Wisdom", "description": "Free courses published under open licences. Read them, download the package, and import them into your own Well of Wisdom.", "section": "product", "priority": "0.9" },
+    { "path": "privacy", "title": "Privacy policy: Well of Wisdom", "description": "What Well of Wisdom stores, what leaves your server, and how to delete it.", "section": "legal", "priority": "0.3" },
+    { "path": "terms", "title": "Terms of service: Well of Wisdom", "description": "Terms for using Well of Wisdom. AGPL-3.0, free to self-host. You own your course content.", "section": "legal", "priority": "0.3" },
+    { "path": "children", "title": "Children's data: Well of Wisdom", "description": "How children's data is handled in Well of Wisdom. Less data is better, and a parent or teacher is in charge.", "section": "legal", "priority": "0.3" }
+  ],
+
+  "facts": [
+    { "value": "AGPL-3.0", "label": "Open source, forever" },
+    { "value": "1", "label": "command to self-host" },
+    { "value": "0", "label": "ads or trackers on learner screens" },
+    { "value": "4", "label": "AI choices, including fully offline" }
+  ],
+
+  "pillars": [
+    {
+      "id": "studio", "numeral": "I", "title": "Course Studio",
+      "line": "Any topic becomes a full course, shaped around what the learner loves.",
+      "features": [
+        { "name": "AI course generation", "detail": "Topic, grade, lens and sources in; units, lessons, exercises and a project out in about a minute." },
+        { "name": "Lenses", "detail": "Teach fractions through sewing or physics through skateboarding. Every example and word problem follows the interest." },
+        { "name": "Grounded in your sources", "detail": "Paste a chapter or add links, and lessons stay close to what you gave it." },
+        { "name": "Worksheet import", "detail": "Paste any worksheet and each question becomes a graded exercise with a hint and an explanation." },
+        { "name": "Photo to worksheet", "detail": "Snap a printed page; a vision model reads it to text you correct before it becomes exercises." },
+        { "name": "Review before anyone sees it", "detail": "Every generated word is editable, and a course with a missing answer key cannot be published." },
+        { "name": "Reading level rewrite", "detail": "Rewrite any article up or down a reading level in one step." }
+      ]
+    },
+    {
+      "id": "paths", "numeral": "II", "title": "Learning paths",
+      "line": "Plan a unit, a term or a whole year, then generate each course when it is time.",
+      "features": [
+        { "name": "Plan Assistant", "detail": "Describe the subject, goals, timeframe and learners; get a milestone sequence to review." },
+        { "name": "Templates with no AI needed", "detail": "Algebra 1, US History, Biology, Intro to Python and Creative Writing, ready to use." },
+        { "name": "One path, many learners", "detail": "Each learner gets their own lens and instructions on the same path." },
+        { "name": "Calendar", "detail": "Sessions, deadlines, field trips and exams on one month grid with milestone dates." }
+      ]
+    },
+    {
+      "id": "lessons", "numeral": "III", "title": "Lessons that teach",
+      "line": "Real maths, real video, real projects, and help that nudges before it tells.",
+      "features": [
+        { "name": "Articles with real maths", "detail": "Typeset formulas that screen readers can read aloud, not images of equations." },
+        { "name": "Answers that understand kids", "detail": "Numeric answers accept 5/8, 1 3/4 and $3.50. Multiple choice and written self-checks too." },
+        { "name": "Video with questions", "detail": "YouTube, Vimeo, PeerTube or your own upload, with captions and questions at the right moment." },
+        { "name": "Audio lessons", "detail": "Narrated lessons with a transcript for every clip." },
+        { "name": "Projects and hand-ins", "detail": "Rubric-based projects the learner submits and the guide returns with feedback." },
+        { "name": "Hints and Why was I wrong?", "detail": "A nudge first, then an explanation that walks from the learner's mistake to the right idea." },
+        { "name": "Read aloud and print", "detail": "Every article reads aloud, and every lesson prints as a worksheet for screen-free days." }
+      ]
+    },
+    {
+      "id": "worlds", "numeral": "IV", "title": "Worlds to play",
+      "line": "The course becomes a place: a path to walk, a story to finish, a boss to beat.",
+      "features": [
+        { "name": "Four kinds of game", "detail": "Story, dungeon crawl, RPG party, or choose your own path. A wrong turn is a longer road, never a dead end." },
+        { "name": "Worlds from the classics", "detail": "Wonderland, Oz, Sherlock Holmes, Treasure Island and more, each tied to a real course." },
+        { "name": "Boss fights on real questions", "detail": "Bosses are beaten with correct answers, not button presses." },
+        { "name": "Path map and mastery stars", "detail": "Walk the course as a trail, with doors between units and stars for mastered lessons." },
+        { "name": "Dailies, weeklies and streaks", "detail": "Small goals, badges earned from real work, and loot with lore to collect." },
+        { "name": "Real-world rewards", "detail": "The guide sets rewards that matter at home or in class, unlocked by the learner's progress." },
+        { "name": "Voice and music", "detail": "Optional narrated scenes and a music loop per chapter, silent until the learner taps." }
+      ]
+    },
+    {
+      "id": "tutor", "numeral": "V", "title": "A tutor with your rules",
+      "line": "A Socratic tutor that asks before it answers, set per learner by the adult in charge.",
+      "features": [
+        { "name": "Three modes", "detail": "Hints only, guided, or full explanations, chosen for each learner." },
+        { "name": "The answer stays private", "detail": "In the strict modes the answer key is never sent to the AI model at all." },
+        { "name": "Every conversation visible", "detail": "Guides read every transcript from the tutor log." }
+      ]
+    },
+    {
+      "id": "memory", "numeral": "VI", "title": "Memory that lasts",
+      "line": "Review arrives right before a learner would forget, across every course.",
+      "features": [
+        { "name": "Spaced review", "detail": "Every graded answer is scheduled 1, 3 and 7 days out, then longer. Mistakes come back today." },
+        { "name": "One practice queue", "detail": "A single due-now list across all of a learner's courses." },
+        { "name": "Misconception spotting", "detail": "See which wrong answers several learners share, so you reteach the idea, not the question." },
+        { "name": "Live progress", "detail": "Lessons, accuracy and active days per learner, per course." }
+      ]
+    },
+    {
+      "id": "records", "numeral": "VII", "title": "Records that print",
+      "line": "Reports, portfolios and attendance built from real work, ready for whoever asks.",
+      "features": [
+        { "name": "Progress reports", "detail": "Stats from real work plus a narrative you edit, printable with signature lines." },
+        { "name": "Portfolios", "detail": "Work samples with the guide's own feedback for any date range." },
+        { "name": "Attendance", "detail": "Instruction days derived from work, editable per day, with a CSV export." },
+        { "name": "Assessments", "detail": "Test results and evaluations stored exactly as they were given." },
+        { "name": "Rubric grading", "detail": "AI drafts feedback on essays and projects; the guide edits and sends it." },
+        { "name": "Email digests", "detail": "Weekly summaries and next-day reminders for guides, and optional notes for learners." }
+      ]
+    },
+    {
+      "id": "groups", "numeral": "VIII", "title": "Built for groups",
+      "line": "One family, one class, or thirty families, with the right access for each adult.",
+      "features": [
+        { "name": "Roles", "detail": "Owner, guide, assistant who sees only assigned learners, and read-only observer." },
+        { "name": "No email for learners", "detail": "Learners sign in with a group code, a username and a PIN." },
+        { "name": "View as learner", "detail": "Walk any learner's screen without being able to change their work." },
+        { "name": "Workspace and library", "detail": "Nested notes pages and a resource library with table, board, calendar and gallery views." },
+        { "name": "Comfortable for every reader", "detail": "Dark mode, reading size, an easier-letters font, line spacing and themes." }
+      ]
+    },
+    {
+      "id": "open", "numeral": "IX", "title": "Open and yours",
+      "line": "Your server, your AI, your data, and courses that travel without a platform.",
+      "features": [
+        { "name": "Self-host in one command", "detail": "docker compose up -d starts the app and its database." },
+        { "name": "Any AI, or none", "detail": "Any OpenAI-compatible model, Claude, Gemini, or fully offline with Ollama. Without AI, templates, lessons, review and records still work." },
+        { "name": "Spend you can see", "detail": "Per-family AI cost tracking with monthly and daily caps." },
+        { "name": "Open courses", "detail": "Publish any course under an open licence with its own public page." },
+        { "name": "Portable everything", "detail": "Export any course as a file, import one from any instance by link, or export a whole family." },
+        { "name": "Made for research tools", "detail": "Plain-text courses, llms.txt, a public JSON API and a sitemap." },
+        { "name": "No ads, no trackers", "detail": "Nothing tracks what learners do, and self-hosted data never leaves your box unless you connect an AI service." }
+      ]
+    }
+  ],
+
+  "roadmap": [
+    { "name": "Interactive lesson types", "detail": "Ordering, matching, sorting, number lines, fraction models, diagrams to label and branching scenarios." },
+    { "name": "Speak your answer", "detail": "Push to talk for early readers, with the transcript shown before anything is graded." },
+    { "name": "Controller play", "detail": "Play the learner world with a game controller." },
+    { "name": "Language courses", "detail": "Vocabulary, listening, speaking and graded readers in a new language." },
+    { "name": "Desktop app", "detail": "A downloadable app that runs offline, and a Steam release." }
+  ],
+
+  "audiences": [
+    {
+      "slug": "for-homeschools", "label": "Families and homeschools", "short": "Families",
+      "eyebrow": "For families and homeschools",
+      "title": "A curriculum that bends to your child, not the other way round",
+      "lead": "Pick a subject, name what your child loves, and get a full course in minutes. Review every word, let them play it as a world, and keep records any reviewer will accept.",
+      "needs": [
+        { "title": "Their interests, every lesson", "body": "A lens turns horses, Minecraft or baking into the examples and word problems.", "pillar": "studio" },
+        { "title": "Filing without the dread", "body": "Attendance comes from real work, and portfolios and reports print when your state asks.", "pillar": "records" },
+        { "title": "Practice that sticks", "body": "Spaced review brings back last week's fractions before they fade.", "pillar": "memory" },
+        { "title": "Your data at home", "body": "Run it on a home server or a small cloud box. Learners need no email.", "pillar": "open" }
+      ],
+      "steps": ["Add your children and what they love", "Generate a course or start a year-long path", "Review it, then let them play", "Print the portfolio when it is due"],
+      "courseTag": "fractions"
+    },
+    {
+      "slug": "for-teachers", "label": "Classroom teachers", "short": "Teachers",
+      "eyebrow": "For classroom teachers",
+      "title": "Your lesson plan, turned into something your students want to finish",
+      "lead": "Generate a course from the sources you trust, keep every answer reviewable before students see it, and see who is stuck on what without grading a stack of paper.",
+      "needs": [
+        { "title": "Grounded in your materials", "body": "Paste a chapter or links. Lessons stay close to them, and nothing publishes until you approve it.", "pillar": "studio" },
+        { "title": "Differentiation without extra prep", "body": "One path, a lens per student: the same skill through sport, music or space.", "pillar": "paths" },
+        { "title": "See the misconception, not just the score", "body": "Shared wrong answers across the class show what to reteach tomorrow.", "pillar": "memory" },
+        { "title": "Feedback at the speed of the class", "body": "AI drafts rubric feedback on projects; you edit and send.", "pillar": "records" }
+      ],
+      "steps": ["Create a class group and add students", "Generate from your sources or import an open course", "Review and publish", "Watch progress and reteach what is shared"],
+      "courseTag": "grade"
+    },
+    {
+      "slug": "for-schools", "label": "Schools and districts", "short": "Schools",
+      "eyebrow": "For schools and districts",
+      "title": "AI-assisted courses on infrastructure you control",
+      "lead": "Run Well of Wisdom on school servers with the AI provider you approve, or fully offline. Student work stays in your database, access follows roles, and spending has a cap.",
+      "needs": [
+        { "title": "Student data stays in-house", "body": "Self-host on your own servers. Nothing leaves unless you connect an AI service, and the admin screen says so.", "pillar": "open" },
+        { "title": "Your AI policy, enforced", "body": "Choose the provider, run local models, set monthly and daily spend caps, and restrict tutor modes per learner.", "pillar": "tutor" },
+        { "title": "Access that matches the org chart", "body": "Owners, teachers, assistants who see only their students, and read-only observers.", "pillar": "groups" },
+        { "title": "Open, auditable code", "body": "AGPL-3.0 source you can review, a documented API, and no vendor lock-in.", "pillar": "open" }
+      ],
+      "steps": ["Pilot with one teacher on a single server", "Connect your approved AI provider or a local model", "Invite teachers, assistants and observers", "Share courses across classes as open packages"],
+      "courseTag": "science",
+      "note": "On the roadmap for schools: standards tags on lessons, CSV rostering, and lesson plan printouts."
+    },
+    {
+      "slug": "for-co-ops", "label": "Co-ops and microschools", "short": "Co-ops",
+      "eyebrow": "For co-ops and microschools",
+      "title": "One place for many families and the teachers they share",
+      "lead": "Build a course once and teach it to every family's children, while each learner's work, reports and records stay separate and private.",
+      "needs": [
+        { "title": "Tutors see only their students", "body": "Assistants get exactly the learners they teach, nothing more.", "pillar": "groups" },
+        { "title": "Courses shared, records separate", "body": "Everyone uses the same course; every family gets its own report.", "pillar": "records" },
+        { "title": "Local subjects Khan will never build", "body": "A river ecology field study, a farm curriculum, Latin: generate it grounded in your own notes.", "pillar": "studio" },
+        { "title": "A shared calendar", "body": "Sessions, field trips and deadlines on one grid, with reminders by email.", "pillar": "paths" }
+      ],
+      "steps": ["Create the co-op and invite guides", "Assign tutors to their learners", "Build or import the shared courses", "Families track their own children's progress"],
+      "courseTag": "field"
+    },
+    {
+      "slug": "for-tutors", "label": "Tutors and learning centers", "short": "Tutors",
+      "eyebrow": "For tutors and learning centers",
+      "title": "A course built around one student, before the session starts",
+      "lead": "Generate practice around a student's interests and exactly the skill they are missing, see where they slip between sessions, and send parents a report made from real work.",
+      "needs": [
+        { "title": "Personal in minutes", "body": "Name the gap and the interest; get targeted lessons and exercises to review.", "pillar": "studio" },
+        { "title": "Between-session practice", "body": "Spaced review keeps the student practising the right things on the right days.", "pillar": "memory" },
+        { "title": "A tutor that hints, not tells", "body": "The built-in tutor supports your teaching instead of doing the homework.", "pillar": "tutor" },
+        { "title": "Proof for parents", "body": "Progress reports and portfolios show exactly what improved.", "pillar": "records" }
+      ],
+      "steps": ["Add each student with their goals", "Generate targeted practice", "Assign review between sessions", "Share a progress report"],
+      "courseTag": "fractions"
+    },
+    {
+      "slug": "for-learners", "label": "Self-learners", "short": "Self-learners",
+      "eyebrow": "For self-learners",
+      "title": "Teach yourself anything, through what you already care about",
+      "lead": "Learn statistics through basketball or chemistry through cooking, with review that brings things back right before you forget and a tutor that asks before it answers.",
+      "needs": [
+        { "title": "Your interests, your pace", "body": "A lens turns a dry subject into your hobby.", "pillar": "studio" },
+        { "title": "Remember what you learn", "body": "Spaced review schedules itself across everything you study.", "pillar": "memory" },
+        { "title": "Help without spoilers", "body": "Choose hints only, and the tutor never reveals the answer.", "pillar": "tutor" },
+        { "title": "Open courses to start from", "body": "Browse free courses and import any of them.", "pillar": "open" }
+      ],
+      "steps": ["Start a group of one", "Pick a subject and a lens", "Play through it as a world", "Let review keep it fresh"],
+      "courseTag": "science"
+    },
+    {
+      "slug": "developers", "label": "Developers and IT", "short": "Developers",
+      "eyebrow": "For developers and IT",
+      "title": "An education platform you can read, run and extend",
+      "lead": "AGPL-3.0, Node and Postgres in one Docker image, with any OpenAI-compatible model, Claude, Gemini or Ollama behind a task-routed AI layer. Courses are portable JSON with a public API.",
+      "needs": [
+        { "title": "One command to run", "body": "docker compose up -d starts the app and Postgres. An optional profile adds Ollama.", "pillar": "open" },
+        { "title": "A trust boundary you can audit", "body": "Grading is server-side, answer keys never reach the browser, and every AI output passes a normalizer.", "pillar": "lessons" },
+        { "title": "Built to be consumed", "body": "A public course API, plain-text courses, llms.txt, a sitemap and a portable course format.", "pillar": "open" },
+        { "title": "Room to contribute", "body": "Hundreds of tests, documented architecture, and good first issues with file paths.", "pillar": "groups" }
+      ],
+      "steps": ["Clone the repository", "docker compose up -d", "Point it at your AI endpoint or Ollama", "Read the API docs and pick a good first issue"],
+      "courseTag": "science"
+    }
+  ]
+}

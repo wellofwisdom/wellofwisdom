@@ -172,31 +172,51 @@ a:hover { text-decoration: underline; }
   --pink: #f58fc2; --pink-bg: #2e1520; --pink-d: #ff9fce;
 }
 
-.shell { display: grid; grid-template-columns: 264px 1fr; min-height: 100vh; }
+.shell { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
 
 .sidebar {
   border-right: 1px solid var(--border); background: var(--panel);
   display: flex; flex-direction: column; padding: 20px 14px;
   position: sticky; top: 0; height: 100vh; overflow-y: auto;
 }
-.brand { display: flex; align-items: center; gap: 11px; padding: 2px 6px 4px; margin-bottom: 14px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 2px 6px 0; margin-bottom: 0; }
 .brand .nut {
-  width: 40px; height: 40px;
-  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
 }
 /* The brand mark (components/Logo.tsx). Never stretched, never squashed by a flex row. */
 .logo { display: inline-block; flex: none; object-fit: contain; vertical-align: middle; user-select: none; }
-.brandname { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; min-width: 0; }
-.brandname .sub {
-  display: block; font-size: 11px; font-weight: 500; color: var(--muted);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;
+.brandword {
+  font-family: "Cinzel", "Trajan Pro", Georgia, serif;
+  font-weight: 700; font-size: 15px; letter-spacing: 0.04em; line-height: 1;
+}
+.brandsub {
+  font-size: 11px; font-weight: 500; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
+  padding-left: 52px; margin-bottom: 10px;
 }
 
+.sidebar .nav { display: flex; flex-direction: column; gap: 4px; }
+
+/* Collapsible grouped sections */
+.navgrp { display: flex; flex-direction: column; }
+.grpbtn {
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+  font-size: 0.66rem; letter-spacing: 1.4px; text-transform: uppercase;
+  color: var(--muted); font-weight: 700; background: transparent; border: none;
+  padding: 10px 8px 6px; cursor: pointer; text-align: left; border-radius: 8px;
+}
+.grpbtn:hover { color: var(--text); background: var(--panel-2); }
+.grpbtn:focus-visible { box-shadow: var(--focus); }
+.grpcaret { display: inline-flex; transition: transform 0.15s; color: var(--muted); }
+.grpcaret.exp { transform: rotate(180deg); }
+.grpbody { display: flex; flex-direction: column; gap: 3px; padding-top: 2px; }
+
+/* Legacy .grp kept for compat */
 .grp {
   font-size: 0.66rem; letter-spacing: 1.4px; text-transform: uppercase;
   color: var(--muted); margin: 14px 12px 7px; font-weight: 700;
 }
-.sidebar .nav { display: flex; flex-direction: column; gap: 3px; }
 
 .navlink {
   display: flex; align-items: center; gap: 12px; color: var(--muted);
@@ -252,10 +272,13 @@ a:hover { text-decoration: underline; }
 .caret.exp { transform: rotate(180deg); }
 
 .sidebar .foot { margin-top: auto; padding-top: 10px; }
+.acctwrap { position: relative; border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; }
 .acct {
-  display: flex; align-items: center; gap: 11px; padding: 10px 8px 2px;
-  border-top: 1px solid var(--border); margin-top: 10px;
+  display: flex; align-items: center; gap: 11px; padding: 8px; width: 100%;
+  border: none; background: transparent; cursor: pointer; text-align: left;
+  border-radius: 10px;
 }
+.acct:hover { background: var(--panel-2); }
 .acct .av {
   width: 38px; height: 38px; border-radius: 50%;
   background: linear-gradient(135deg, var(--accent), var(--indigo, #4f6bed));
@@ -266,6 +289,20 @@ a:hover { text-decoration: underline; }
 .acct .who { min-width: 0; flex: 1; }
 .acct .nm { font-size: 0.86rem; font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .acct .em { font-size: 0.72rem; color: var(--muted); }
+.acctmenu {
+  position: absolute; bottom: calc(100% + 8px); left: 0; right: 0;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: var(--shadow-lg); padding: 6px; display: flex; flex-direction: column; gap: 2px; z-index: 5;
+}
+.acctitem {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px;
+  border: none; background: transparent; cursor: pointer; text-align: left; width: 100%;
+  font-size: 0.9rem; font-weight: 600; color: var(--muted);
+}
+.acctitem:hover { background: var(--panel-2); color: var(--text); }
+.acctitem.on { background: var(--accent-soft); color: var(--accent); }
+.acctitem .ic.small { width: 28px; height: 28px; border-radius: 8px; flex: 0 0 28px; }
+.acctsep { height: 1px; background: var(--border); margin: 4px 0; }
 
 .content { display: flex; flex-direction: column; min-width: 0; }
 .topbar {
@@ -538,7 +575,7 @@ a:hover { text-decoration: underline; }
 
 /* ---------- responsive ---------- */
 
-@media (max-width: 820px) {
+@media (max-width: 768px) {
   .shell { grid-template-columns: 1fr; }
   .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 60; width: 250px; transform: translateX(-105%); transition: transform 0.2s ease; }
   .sidebar.open { transform: translateX(0); box-shadow: 0 0 60px rgba(0, 0, 0, 0.4); }
@@ -931,6 +968,7 @@ summary::marker { color: var(--muted); }
   border-radius: 8px; border: none; background: transparent; cursor: pointer;
   font: inherit; color: inherit; font-size: 14px;
 }
+.palhead { font-size: 0.68rem; letter-spacing: 1.1px; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 10px 10px 4px; }
 .palitem.on { background: var(--accent-soft); }
 
 /* ---------- experience ---------- */

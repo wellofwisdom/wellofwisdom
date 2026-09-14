@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Monthly and daily spend caps. Uses ai_usage sums already kept per family.
-// Limits live in server_settings key ai (aiMonthlyCap, aiDailyCap). 0 or
-// absent means no limit. Check before enqueuing or calling AI, never inside
-// grading or learning paths that must stay fail-open.
+// Monthly and daily spend caps, plus a call cap for speech input. Uses
+// ai_usage sums already kept per family. Limits live in server_settings key ai
+// (aiMonthlyCap, aiDailyCap, aiSttDailyCap). 0 or absent means no limit. Check
+// before enqueuing or calling AI, never inside grading or learning paths that
+// must stay fail-open.
 const db = require("./db");
 const aiConfig = require("./aiConfig");
 
@@ -26,7 +27,34 @@ async function limits() {
   const cfg = await aiConfig.resolveConfig();
   const monthly = cfg && cfg.aiMonthlyCap ? Number(cfg.aiMonthlyCap) : 0;
   const daily = cfg && cfg.aiDailyCap ? Number(cfg.aiDailyCap) : 0;
-  return { monthly: monthly || 0, daily: daily || 0 };
+  const sttDaily = cfg && cfg.aiSttDailyCap ? Number(cfg.aiSttDailyCap) : 0;
+  return { monthly: monthly || 0, daily: daily || 0, sttDaily: sttDaily || 0 };
+}
+
+/** Speech input calls a family has made today, counted from the usage log. */
+async function sttCallsToday(familyId) {
+  if (!db.configured()) return 0;
+  const r = await db.query(
+    `select count(*)::int as n from ai_usage
+      where family_id = $1 and task = 'stt' and created_at >= date_trunc('day', now())`,
+    [familyId]
+  );
+  return Number((r.rows[0] && r.rows[0].n) || 0);
+}
+
+/**
+ * Speech input is cheap per call and easy to trigger by accident (a button
+ * held down, a class of thirty), so it gets its own daily call cap on top of
+ * the money caps. 0 means the money caps alone decide.
+ */
+async function checkStt(familyId) {
+  const general = await checkFamily(familyId);
+  const cap = Number(((await aiConfig.resolveConfig()) || {}).aiSttDailyCap || 0) || 0;
+  if (!general.ok) return { ...general, sttCap: cap };
+  if (!cap) return { ...general, sttCap: 0, sttUsed: 0 };
+  const used = await sttCallsToday(familyId);
+  if (used >= cap) return { ok: false, reason: "stt_daily_limit", sttCap: cap, sttUsed: used };
+  return { ok: true, sttCap: cap, sttUsed: used, monthly: general.monthly, daily: general.daily };
 }
 
 async function checkFamily(familyId) {
@@ -39,4 +67,4 @@ async function checkFamily(familyId) {
   return { ok: true, monthly: lim.monthly, daily: lim.daily, monthSpend: m, daySpend: d };
 }
 
-module.exports = { limits, checkFamily, monthSpend, daySpend };
+module.exports = { limits, checkFamily, checkStt, sttCallsToday, monthSpend, daySpend };

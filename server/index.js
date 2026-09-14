@@ -16,6 +16,7 @@ const { migrate } = require("./lib/migrate");
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+const HOST = String(process.env.HOST || "0.0.0.0").trim() || "0.0.0.0";
 
 app.disable("x-powered-by");
 
@@ -132,6 +133,7 @@ app.use("/api/assessments", require("./routes/assessments"));
 app.use("/api/waitlist", require("./routes/waitlist"));
 app.use("/api/community", require("./routes/community"));
 app.use("/api/narration", require("./routes/narration"));
+app.use("/api/stt", require("./routes/stt"));
 app.use("/api/ai", require("./routes/ai"));
 app.use("/api/music", require("./routes/music"));
 
@@ -214,7 +216,14 @@ app.get("/c/:slug", async (req, res, next) => {
 
 // Static marketing and legal pages get a server-rendered head so crawlers and
 // link unfurlers see a real title and description without running JavaScript.
-const STATIC_ROUTES = ["for-homeschools", "for-co-ops", "for-teachers", "self-host", "privacy", "terms", "children"];
+// Every page listed in server/lib/site.json (the gallery at /c renders its own).
+const STATIC_ROUTES = seo.SITE.pages.map((p) => p.path).filter(Boolean);
+// The home page head comes from site.json too, so the shell's generic tags are replaced.
+app.get("/", (req, res, next) => {
+  try {
+    sendShell(res, seo.injectHead(readShell(), seo.staticHead("", seo.origin(req))));
+  } catch (err) { next(err); }
+});
 for (const id of STATIC_ROUTES) {
   app.get(`/${id}`, (req, res, next) => {
     try {
@@ -273,8 +282,8 @@ async function boot() {
     }
   }
   if (require.main === module) {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Well of Wisdom listening on :${PORT} (db=${db.configured()}, ai=${ai.configured() ? "on" : "off"}, csp=${csp.mode()}, trustProxy=${JSON.stringify(app.get("trust proxy"))})`);
+    app.listen(PORT, HOST, () => {
+      console.log(`Well of Wisdom listening on ${HOST}:${PORT} (db=${db.configured()}, ai=${ai.configured() ? "on" : "off"}, csp=${csp.mode()}, trustProxy=${JSON.stringify(app.get("trust proxy"))})`);
     });
   }
 }

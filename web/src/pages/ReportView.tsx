@@ -14,6 +14,7 @@ interface ReportStats {
   activeDays: number;
   skillsReviewed: number;
   courses: { title: string; lens: string | null; lessons_done: number; lessons_total: number }[];
+  standardsCovered?: string[];
 }
 
 interface Report {
@@ -96,6 +97,15 @@ export default function ReportView({ reportId, onNavigate }: { reportId: number;
           <div className="rp-stat"><b>{s.activeDays}</b><span>active days</span></div>
           <div className="rp-stat"><b>{s.skillsReviewed}</b><span>skills reviewed</span></div>
         </div>
+
+        {s.standardsCovered && s.standardsCovered.length > 0 && (
+          <div className="rp-section">
+            <h2>Standards covered</h2>
+            <p className="muted small" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {s.standardsCovered.map((code) => <span key={code} className="tag"><span className="tagcode">{code}</span></span>)}
+            </p>
+          </div>
+        )}
 
         {s.courses.length > 0 && (
           <div className="rp-section">

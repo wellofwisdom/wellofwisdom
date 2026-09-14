@@ -3,7 +3,7 @@
 // (/c/<slug>). Read-only, no answer keys, and every course offers its portable
 // package so any other instance can import it.
 import { useEffect, useState } from "react";
-import Logo from "../components/Logo";
+import { SitePage, usePageTitle } from "../site/SiteChrome";
 import { api, niceError } from "../api";
 import { linkProps } from "../router";
 import { RichText } from "../lib/rich";
@@ -20,6 +20,7 @@ interface PublicMeta {
   author: string | null;
   publishedAt: string | null;
   trailerUploadId: number | null;
+  coverUrl?: string | null;
 }
 
 /** Gallery cards carry counts; the course page carries the actual units. */
@@ -29,19 +30,13 @@ interface PublicCard extends PublicMeta {
 }
 
 interface PublicItem { type: string; position: number; content: Record<string, unknown> }
-interface PublicLesson { title: string; summary: string | null; items: PublicItem[] }
+interface PublicLesson { title: string; summary: string | null; standards?: string[]; items: PublicItem[] }
 interface PublicUnit { title: string; lessons: PublicLesson[] }
 interface PublicCourseData extends PublicMeta { units: PublicUnit[] }
 
-function Banner() {
-  return (
-    <div className="publicbanner">
-      <a {...linkProps("c")} className="brand"><Logo size={28} /> Well of Wisdom</a>
-      <span className="grow" />
-      <a className="btn ghost" href="https://github.com/wellofwisdom/wellofwisdom"
-        target="_blank" rel="noopener noreferrer">Run your own</a>
-    </div>
-  );
+/** The public site's frame around the gallery and course pages. */
+function SiteFrame({ children }: { children: React.ReactNode }) {
+  return <SitePage><div className="publicwrap">{children}</div></SitePage>;
 }
 
 export function PublicGallery() {
@@ -54,36 +49,47 @@ export function PublicGallery() {
       .catch((e) => setError(niceError(e)));
   }, []);
 
+  usePageTitle("c");
   return (
-    <div className="publicwrap">
-      <Banner />
-      <main id="main">
-        <h1>Shared courses</h1>
-        <p className="muted">
-          Courses published from this instance. Every one is a free download you can import into your
-          own Well of Wisdom. No account, no platform in the middle.
-        </p>
-        {error && <div className="formerror" role="alert">{error}</div>}
-        {!courses && !error && <p className="muted small">Loading…</p>}
-        {courses && courses.length === 0 && (
-          <p className="muted">Nothing published yet. A guide can publish any course from its page.</p>
-        )}
-        <div className="publicgrid">
-          {(courses || []).map((c) => (
-            <a key={c.slug} className="publiccard" {...linkProps(`c/${c.slug}`)}>
-              <h2>{c.title}</h2>
-              {c.lens && <span className="tag">through {c.lens}</span>}
-              {c.gradeLevel != null && <span className="tag">Grade {c.gradeLevel}</span>}
-              <p className="muted small">{c.description}</p>
-              <div className="muted small">
-                {c.units} units · {c.lessons} lessons · {c.license}
-                {c.author ? ` · ${c.author}` : ""}
-              </div>
-            </a>
-          ))}
+    <SitePage>
+      <section className="s-night s-page-hero">
+        <div className="s-wrap">
+          <p className="s-crumbs"><a {...linkProps("dashboard")}>Home</a> / Open courses</p>
+          <p className="s-eyebrow" style={{ marginTop: 18 }}>Open courses</p>
+          <h1>Courses anyone can teach</h1>
+          <p className="s-lead">
+            Published under open licences. Read any course here, download its package, and import it into
+            your own Well of Wisdom. No account and no platform in the middle.
+          </p>
         </div>
-      </main>
-    </div>
+      </section>
+      <section className="s-section-tight">
+        <div className="s-wrap">
+          {error && <div className="s-form-error" role="alert">{error}</div>}
+          {!courses && !error && <p className="s-note">Loading courses</p>}
+          {courses && courses.length === 0 && (
+            <p className="s-note">Nothing published yet. A guide can publish any course from its page.</p>
+          )}
+          <div className="s-courses">
+            {(courses || []).map((c) => (
+              <a key={c.slug} className="s-course" {...linkProps(`c/${c.slug}`)}>
+                <div className="s-course-cover">
+                  {c.coverUrl ? <img src={c.coverUrl} alt="" loading="lazy" /> : <span>OPEN COURSE</span>}
+                </div>
+                <div className="s-course-body">
+                  <strong>{c.title}</strong>
+                  {c.description && <span style={{ color: "var(--s-ink-2)", fontSize: 15 }}>{c.description}</span>}
+                  <span className="s-course-meta">
+                    {c.gradeLevel != null ? `Grade ${c.gradeLevel} · ` : ""}{c.units} units · {c.lessons} lessons · {c.license}
+                    {c.author ? ` · ${c.author}` : ""}
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    </SitePage>
   );
 }
 
@@ -155,16 +161,13 @@ export function PublicCourse({ slug }: { slug: string }) {
 
   if (error) {
     return (
-      <div className="publicwrap">
-        <Banner />
-        <main id="main">
-          <h1>Course not found</h1>
-          <p className="muted">It may have been unpublished. <a {...linkProps("c")}>See what else is shared</a>.</p>
-        </main>
-      </div>
+      <SiteFrame>
+        <h1>Course not found</h1>
+        <p className="muted">It may have been unpublished. <a {...linkProps("c")}>See the open courses</a>.</p>
+      </SiteFrame>
     );
   }
-  if (!data) return <div className="publicwrap"><Banner /><main id="main"><p className="muted">Loading…</p></main></div>;
+  if (!data) return <SiteFrame><p className="muted">Loading the course</p></SiteFrame>;
 
   const exportUrl = `/api/public/courses/${encodeURIComponent(slug)}/export`;
   const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -181,10 +184,9 @@ export function PublicCourse({ slug }: { slug: string }) {
   };
 
   return (
-    <div className="publicwrap">
-      <Banner />
-      <main id="main">
-        <p className="muted small"><a {...linkProps("c")}>← Shared courses</a></p>
+    <SiteFrame>
+      <div>
+        <p className="muted small"><a {...linkProps("c")}>Open courses</a></p>
         <h1>{data.title}</h1>
         <div className="row wrap" style={{ gap: 6, marginBottom: 10 }}>
           {data.lens && <span className="tag">through {data.lens}</span>}
@@ -228,6 +230,7 @@ export function PublicCourse({ slug }: { slug: string }) {
               <div className="publiclesson" key={li}>
                 <h3>{l.title}</h3>
                 {l.summary && <p className="muted small">{l.summary}</p>}
+                {l.standards && l.standards.length > 0 && <p className="muted small">Standards: {l.standards.join(", ")}</p>}
                 {l.items.map((it, ii) => <ItemView item={it} key={ii} />)}
               </div>
             ))}
@@ -241,7 +244,7 @@ export function PublicCourse({ slug }: { slug: string }) {
             AGPL-3.0. This course is licensed {data.license}.
           </p>
         </footer>
-      </main>
-    </div>
+      </div>
+    </SiteFrame>
   );
 }

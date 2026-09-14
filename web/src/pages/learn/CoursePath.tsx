@@ -4,6 +4,7 @@
 // locked is dim. The path drives a traveling avatar that advances with progress.
 // Pure layout, no new API. Reuses the same LearnCourseTree the list used.
 import type { LearnCourseTree } from "../../types";
+import { useT } from "../../i18n";
 import MasteryStars from "./MasteryStars";
 
 type Node = { id: number; title: string; done: boolean; unitTitle: string; unitIdx: number; lessonIdx: number };
@@ -15,6 +16,7 @@ export default function CoursePath({
   course: LearnCourseTree;
   onNavigate: (route: string) => void;
 }) {
+  const { t } = useT();
   const flat: Node[] = [];
   course.units.forEach((u, ui) => {
     u.lessons.forEach((l, li) => {
@@ -26,8 +28,6 @@ export default function CoursePath({
   const firstTodo = flat.findIndex((n) => !n.done);
   const pct = course.progress.lessonsTotal ? course.progress.lessonsDone / course.progress.lessonsTotal : 0;
 
-  // Layout: vertical trail, alternating left/right nodes, SVG curve between.
-  // Positions are computed so the SVG can draw one path through all nodes.
   const W = 360;
   const H_PER_STEP = 96;
   const H = Math.max(220, flat.length * H_PER_STEP + 80);
@@ -39,14 +39,11 @@ export default function CoursePath({
     return { x, y, n };
   });
 
-  // Smooth path through points: cubic Bezier between successive nodes, with
-  // control points offset toward center so the line winds gently rather than zigzags hard.
   let d = `M ${points[0].x} ${points[0].y}`;
   for (let i = 1; i < points.length; i++) {
     const a = points[i - 1];
     const b = points[i];
     const mx = (a.x + b.x) / 2;
-    // Control points: pull toward center horizontally.
     const cp1x = (a.x + mx) / 2;
     const cp2x = (b.x + mx) / 2;
     const my = (a.y + b.y) / 2;
@@ -64,7 +61,7 @@ export default function CoursePath({
           <span style={{ width: `${Math.round(pct * 100)}%` }} />
         </div>
         <p className="muted small" style={{ textAlign: "center", marginTop: 6 }}>
-          {doneCount} of {flat.length} lessons done{pct === 1 ? ". You finished it! \uD83C\uDF89" : ""}
+          {t("path.lessonsDone", { done: String(doneCount), total: String(flat.length) })}{pct === 1 ? t("path.finished") : ""}
         </p>
       </div>
 
@@ -93,10 +90,12 @@ export default function CoursePath({
               <button
                 key={n.id}
                 type="button"
+                data-nav
+                data-say={isDone ? t("path.speakDone", { title: n.title }) : isNext ? t("path.speakNext", { title: n.title }) : t("path.speakLocked", { title: n.title })}
                 className={`pathnode${isDone ? " done" : ""}${isNext ? " next" : ""}${isLocked ? " locked" : ""}`}
                 style={{ left: x, top: y }}
                 onClick={() => onNavigate(`lesson/${n.id}`)}
-                aria-label={`${n.unitIdx + 1}.${n.lessonIdx + 1} ${n.title}${isDone ? " (done)" : isNext ? " (next up)" : " (locked until earlier lessons are done)"}`}
+                aria-label={`${n.unitIdx + 1}.${n.lessonIdx + 1} ${n.title}${isDone ? ` (${t("path.done")})` : isNext ? ` (${t("path.next")})` : ` (${t("path.locked")})`}`}
                 title={`${n.unitTitle} \u00B7 ${n.title}`}
               >
                 <span className="pathnode-dot" aria-hidden="true">
@@ -137,9 +136,9 @@ export default function CoursePath({
       </div>
 
       <div className="coursepath-legend muted small" aria-hidden="true">
-        <span className="pathlegend done">\u2713 done</span>
-        <span className="pathlegend next">\u25C6 next</span>
-        <span className="pathlegend locked">1 locked</span>
+        <span className="pathlegend done">{t("path.legendDone")}</span>
+        <span className="pathlegend next">{t("path.legendNext")}</span>
+        <span className="pathlegend locked">{t("path.legendLocked")}</span>
       </div>
     </div>
   );

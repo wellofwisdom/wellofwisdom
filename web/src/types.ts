@@ -14,6 +14,7 @@ export interface Me {
 }
 
 export interface Learner {
+  prefs?: Record<string,unknown>;
   id: number;
   name: string;
   username: string;
@@ -84,6 +85,7 @@ export interface CourseTree {
       id: number;
       title: string;
       summary: string | null;
+      standards?: string[];
       items: ItemNode[];
     }[];
   }[];

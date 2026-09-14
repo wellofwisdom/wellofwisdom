@@ -116,3 +116,37 @@ test("getPool throws under pglite", () => {
   delete process.env.DB_DRIVER;
   delete require.cache[require.resolve("./db")];
 });
+
+test("first run: under PGlite an empty database has no families and makes the first owner the instance admin", async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wow-pglite-first-"));
+  const prevDriver = process.env.DB_DRIVER;
+  const prevDataDir = process.env.DATA_DIR;
+  const prevUrl = process.env.DATABASE_URL;
+  process.env.DB_DRIVER = "pglite";
+  process.env.DATA_DIR = dir;
+  delete process.env.DATABASE_URL;
+  delete require.cache[require.resolve("./db")];
+  delete require.cache[require.resolve("./migrate")];
+  delete require.cache[require.resolve("./instanceAdmin")];
+  const db = require("./db");
+  const { migrate } = require("./migrate");
+  const ia = require("./instanceAdmin");
+  await migrate({ log() {} });
+  const before = await db.query("select count(*)::int as c from families");
+  assert.equal(before.rows[0].c, 0, "fresh PGlite has no families");
+  assert.equal(ia.decide({ role: "parent", guideRole: "owner", isDemo: false, email: "a@example.org", familyId: 1, firstRealFamilyId: null }, []), false, "nobody is admin before the first family exists");
+  const fam = await db.query("insert into families (name, join_code) values ($1,$2) returning id", ["First Family", "AAAAAA"]);
+  const familyId = fam.rows[0].id;
+  const user = await db.query("insert into users (family_id, role, name, email, password_hash) values ($1,'parent',$2,$3,$4) returning id", [familyId, "Alex", "a@example.org", "hash"]);
+  const userId = user.rows[0].id;
+  const isAdmin = await ia.isInstanceAdmin({ id: userId, role: "parent", guideRole: "owner" });
+  assert.equal(isAdmin, true, "the owner of the first real family is the instance admin under PGlite");
+  await db.close();
+  if (prevDriver != null) process.env.DB_DRIVER = prevDriver; else delete process.env.DB_DRIVER;
+  if (prevDataDir != null) process.env.DATA_DIR = prevDataDir; else delete process.env.DATA_DIR;
+  if (prevUrl != null) process.env.DATABASE_URL = prevUrl; else delete process.env.DATABASE_URL;
+  delete require.cache[require.resolve("./db")];
+  delete require.cache[require.resolve("./migrate")];
+  delete require.cache[require.resolve("./instanceAdmin")];
+  fs.rmSync(dir, { recursive: true, force: true });
+});

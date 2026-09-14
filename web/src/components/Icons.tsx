@@ -118,3 +118,74 @@ export const IconTrash = (p: SVGProps<SVGSVGElement>) => (
     <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
   </I>
 );
+export const IconGlobe = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+  </I>
+);
+export const IconMap = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z" />
+    <path d="M9 3v15M15 6v15M3 6v15" />
+  </I>
+);
+export const IconCalendar = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <rect x="3" y="4" width="18" height="17" rx="2" />
+    <path d="M16 2v4M8 2v4M3 10h18" />
+    <path d="M8 14h2M14 14h2M8 18h2M14 18h2" />
+  </I>
+);
+export const IconNotebook = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <path d="M6 3h9a2 2 0 0 1 2 2v16H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+    <path d="M8 7h8M8 11h8M8 15h5" />
+    <path d="M6 7V5a1 1 0 0 1 1-1" />
+  </I>
+);
+export const IconLibrary = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <path d="M4 19.5V5a2 2 0 0 1 2-2h2" />
+    <path d="M8 3h8a2 2 0 0 1 2 2v14.5" />
+    <path d="M8 19.5A2.5 2.5 0 0 0 10.5 22H20v-5" />
+    <path d="M12 7.5h5M12 11h5" />
+  </I>
+);
+export const IconWrench = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <path d="M14.5 6.5a3.5 3.5 0 0 1 3 3L8 19l-4 1 1-4z" />
+    <circle cx="8" cy="8" r="1" />
+  </I>
+);
+export const IconMessage = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H11l-4 3v-3.5A8.5 8.5 0 0 1 21 11.5z" />
+    <path d="M8 12h8M8 16h5" />
+  </I>
+);
+export const IconBarChart = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <path d="M3 21V7" />
+    <path d="M9 21V11" />
+    <path d="M15 21V3" />
+    <path d="M21 21V15" />
+  </I>
+);
+export const IconPalette = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <circle cx="12" cy="9" r="1.5" />
+    <circle cx="15.5" cy="11" r="1.2" />
+    <circle cx="14" cy="15" r="1.2" />
+    <circle cx="9" cy="14" r="1.2" />
+    <path d="M12 3a9 9 0 0 1 9 9" />
+  </I>
+);
+export const IconClipboardCheck = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <rect x="5" y="4" width="14" height="17" rx="2" />
+    <path d="M9 4.5V3h6v1.5" />
+    <path d="M9 14l2 2 4-4" />
+  </I>
+);

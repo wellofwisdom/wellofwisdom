@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { api, niceError } from "../../api";
 import { MathText } from "../../lib/rich";
 import { IconLogout } from "../../components/Icons";
+import { useT } from "../../i18n";
 
 interface ReviewItem {
   item_id: number;
@@ -25,6 +26,7 @@ export default function Practice({ onNavigate, onLogout }: {
   onNavigate: (hash: string) => void;
   onLogout: () => void;
 }) {
+  const { t } = useT();
   const [items, setItems] = useState<ReviewItem[] | null>(null);
   const [idx, setIdx] = useState(0);
   const [session, setSession] = useState({ done: 0, right: 0 });
@@ -44,23 +46,23 @@ export default function Practice({ onNavigate, onLogout }: {
   return (
     <div className="kid">
       <div className="kidtop">
-        <button className="btn ghost" type="button" onClick={() => onNavigate("")}>← Home</button>
+        <button className="btn ghost" type="button" onClick={() => onNavigate("")}>← {t("shell.home")}</button>
         <button className="iconbtn" onClick={onLogout} aria-label="Sign out" type="button"><IconLogout /></button>
       </div>
-      <div className="hi" style={{ fontSize: 26 }}>🔁 Practice</div>
+      <div className="hi" style={{ fontSize: 26 }}>🔁 {t("practice.title")}</div>
       <p className="sub">
         {items.length === 0
-          ? "Nothing due right now."
-          : `${items.length} exercise${items.length > 1 ? "s" : ""} ready. These came back at exactly the right time to stick.`}
+          ? t("practice.nothingDue")
+          : t("practice.introReady", { count: String(items.length), plural: items.length > 1 ? "s" : "" })}
       </p>
 
       {items.length === 0 && (
         <div className="kidcard">
           <div className="big" aria-hidden="true">🎉</div>
-          <h2 style={{ margin: "8px 0 6px" }}>All caught up!</h2>
-          <p className="muted">Everything you've learned is scheduled for later. Come back tomorrow. Or keep going in a course.</p>
+          <h2 style={{ margin: "8px 0 6px" }}>{t("practice.allCaughtUpTitle")}</h2>
+          <p className="muted">{t("practice.allCaughtUpHint")}</p>
           <div style={{ marginTop: 14 }}>
-            <button className="btn primary" type="button" onClick={() => onNavigate("")}>Back home</button>
+            <button className="btn primary" type="button" onClick={() => onNavigate("")}>{t("practice.backHome")}</button>
           </div>
         </div>
       )}
@@ -68,12 +70,12 @@ export default function Practice({ onNavigate, onLogout }: {
       {finished && items.length > 0 && (
         <div className="kidcard">
           <div className="big" aria-hidden="true">✅</div>
-          <h2 style={{ margin: "8px 0 6px" }}>Session done!</h2>
+          <h2 style={{ margin: "8px 0 6px" }}>{t("practice.sessionDoneTitle")}</h2>
           <p className="muted">
-            {session.right} of {session.done} right. The ones you missed will come back today: that's the system working.
+            {t("practice.sessionScore", { right: String(session.right), done: String(session.done) })}
           </p>
           <div style={{ marginTop: 14 }}>
-            <button className="btn primary" type="button" onClick={() => onNavigate("")}>Back home</button>
+            <button className="btn primary" type="button" onClick={() => onNavigate("")}>{t("practice.backHome")}</button>
           </div>
         </div>
       )}
@@ -98,6 +100,7 @@ function ReviewCard({ item, progress, onAnswered }: {
   progress: string;
   onAnswered: (right: boolean) => void;
 }) {
+  const { t } = useT();
   const c = item.content;
   const [picked, setPicked] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
@@ -141,7 +144,7 @@ function ReviewCard({ item, progress, onAnswered }: {
               </button>
             ))}
             <button className="btn primary" type="button" disabled={busy || !picked} onClick={check}>
-              {busy ? "Checking…" : "Check"}
+              {busy ? t("practice.checking") : t("practice.check")}
             </button>
           </div>
         )}
@@ -149,22 +152,22 @@ function ReviewCard({ item, progress, onAnswered }: {
         {!result && c.kind !== "mcq" && (
           <div className="row wrap" style={{ marginTop: 10 }}>
             <input className="input" style={{ maxWidth: 220 }} inputMode={c.kind === "numeric" ? "decimal" : "text"}
-              placeholder="Your answer" value={answer}
+              placeholder={t("practice.yourAnswerPlaceholder")} value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && answer && check()} />
             <button className="btn primary" type="button" disabled={busy || !answer.trim()} onClick={check}>
-              {busy ? "Checking…" : "Check"}
+              {busy ? t("practice.checking") : t("practice.check")}
             </button>
           </div>
         )}
 
         {result && (
           <div className={`feedback ${result.correct ? "good" : "bad"}`}>
-            <strong>{result.correct ? "✅ Correct!" : "❌ Not quite."}</strong>
+            <strong>{result.correct ? t("practice.correct") : t("practice.notQuite")}</strong>
             {result.reveal?.explanation && <p>{result.reveal.explanation}</p>}
             <div style={{ marginTop: 10 }}>
               <button className="btn primary" type="button" onClick={() => onAnswered(result.correct === true)}>
-                {item.reps > 0 ? "Next →" : "Got it →"}
+                {item.reps > 0 ? "Next →" : t("practice.gotIt")}
               </button>
             </div>
           </div>

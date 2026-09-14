@@ -82,51 +82,29 @@ function courseHead(meta, base) {
   ].filter(Boolean).join("\n    ");
 }
 
-/** Head for the marketing and legal pages. Used by the SPA's static seo shell too. */
-const STATIC_PAGES = {
-  "for-homeschools": {
-    title: "For homeschools - Well of Wisdom",
-    description: "A self-hosted curriculum that bends to what your child loves. Spaced review, printable portfolios, attendance your state will accept.",
-  },
-  "for-co-ops": {
-    title: "For co-ops - Well of Wisdom",
-    description: "One place for many families to learn together. Share courses once, keep each family's learners and reports separate.",
-  },
-  "for-teachers": {
-    title: "For teachers - Well of Wisdom",
-    description: "A classroom that still fits your grading book. Generate courses, review every word before learners see it, print the artifacts your school wants.",
-  },
-  "self-host": {
-    title: "Self-host Well of Wisdom - one command to run",
-    description: "Run Well of Wisdom on your own server. One command with Docker, bring any AI endpoint or use Ollama offline. Your data stays yours.",
-  },
-  privacy: {
-    title: "Privacy Policy - Well of Wisdom",
-    description: "How Well of Wisdom handles your data. Self-hosted means your data sits on your server. No tracking on learner paths.",
-  },
-  terms: {
-    title: "Terms of Service - Well of Wisdom",
-    description: "Terms for Well of Wisdom. AGPL-3.0, free to self-host. You own your course content.",
-  },
-  children: {
-    title: "Children's data - Well of Wisdom",
-    description: "How children's data is handled in Well of Wisdom. Less data is better. A parent is in charge.",
-  },
-};
+/** The public site's pages, features and audiences: one file, server/lib/site.json,
+ *  read here for heads, robots, the sitemap and llms.txt, and by the web app to
+ *  render the pages. Add a page there and every surface knows about it. */
+const SITE = require("./site.json");
+const STATIC_PAGES = Object.fromEntries(SITE.pages.filter((p) => p.path).map((p) => [p.path, p]));
 
 function staticHead(id, base) {
-  const meta = STATIC_PAGES[id];
+  const meta = id === "" ? SITE.pages.find((p) => p.path === "") : STATIC_PAGES[id];
   if (!meta) return "";
-  const url = `${base}/${id}`;
+  const url = id ? `${base}/${id}` : `${base}/`;
+  const image = `${base}/og.png`;
   return [
     `<title>${esc(meta.title)}</title>`,
     `<meta name="description" content="${esc(meta.description)}">`,
     `<link rel="canonical" href="${esc(url)}">`,
     `<meta property="og:type" content="website">`,
+    `<meta property="og:site_name" content="Well of Wisdom">`,
     `<meta property="og:title" content="${esc(meta.title)}">`,
     `<meta property="og:description" content="${esc(meta.description)}">`,
     `<meta property="og:url" content="${esc(url)}">`,
-    `<meta name="twitter:card" content="summary">`,
+    `<meta property="og:image" content="${esc(image)}">`,
+    `<meta property="og:image:width" content="1200">`,
+    `<meta property="og:image:height" content="630">`,
   ].join("\n    ");
 }
 
@@ -145,7 +123,7 @@ function injectHead(html, headBlock) {
   </head>`);
 }
 
-/** robots.txt, public course pages are crawlable, the app itself is not. */
+/** robots.txt: the public site and open courses are crawlable, the app is not. */
 function robotsTxt(base) {
   return [
     "User-agent: *",
@@ -153,13 +131,7 @@ function robotsTxt(base) {
     "Allow: /c/",
     "Allow: /api/public/",
     "Allow: /llms.txt",
-    "Allow: /for-homeschools",
-    "Allow: /for-co-ops",
-    "Allow: /for-teachers",
-    "Allow: /self-host",
-    "Allow: /privacy",
-    "Allow: /terms",
-    "Allow: /children",
+    ...SITE.pages.filter((p) => p.path).map((p) => `Allow: /${p.path}`),
     "Disallow: /api/",
     "Disallow: /join",
     "Disallow: /learners",
@@ -179,14 +151,10 @@ async function sitemapXml(base) {
     `select public_slug, published_at from courses
       where published_at is not null order by published_at desc limit 5000`
   ).catch(() => ({ rows: [] }));
-  const staticUrls = [
-    "for-homeschools", "for-co-ops", "for-teachers", "self-host",
-    "privacy", "terms", "children",
-  ].map((id) => `<url><loc>${esc(base)}/${id}</loc><changefreq>weekly</changefreq></url>`);
+  const pageUrls = SITE.pages.map((p) =>
+    `<url><loc>${esc(base)}/${esc(p.path)}</loc><changefreq>${p.section === "legal" ? "monthly" : "weekly"}</changefreq><priority>${esc(p.priority || "0.5")}</priority></url>`);
   const urls = [
-    `<url><loc>${esc(base)}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
-    `<url><loc>${esc(base)}/c</loc><changefreq>daily</changefreq></url>`,
-    ...staticUrls,
+    ...pageUrls,
     ...rows.map((r) =>
       `<url><loc>${esc(base)}/c/${esc(r.public_slug)}</loc>` +
       `<lastmod>${new Date(r.published_at).toISOString().slice(0, 10)}</lastmod></url>`),
@@ -196,32 +164,53 @@ async function sitemapXml(base) {
 }
 
 function llmsTxt(base) {
+  const link = (p) => `- [${p.title}](${base}/${p.path}): ${p.description}`;
+  const bySection = (s) => SITE.pages.filter((p) => p.section === s).map(link);
   return [
     "# Well of Wisdom",
     "",
-    "> Self-hosted, AI-first learning for homeschools, classrooms, co-ops, and self-learners.",
-    "> Generate courses through what learners love, with spaced repetition, gamified worlds, and state-ready portfolios.",
+    `> ${SITE.summary}`,
     "",
-    `- [Homepage](${base}/): what it is and how to run it`,
-    `- [For homeschools](${base}/for-homeschools)`,
-    `- [For co-ops](${base}/for-co-ops)`,
-    `- [For teachers](${base}/for-teachers)`,
-    `- [Self-host](${base}/self-host) (one command)`,
-    `- [Privacy](${base}/privacy)`,
-    `- [Terms](${base}/terms)`,
-    `- [Children's data](${base}/children)`,
-    `- [Shared courses gallery](${base}/c)`,
-    `- [Plain-text courses](${base}/c/<slug>.txt) (for research tools; answer keys stripped)`,
+    "## Product",
+    "",
+    ...bySection("home"),
+    ...bySection("product"),
+    "",
+    "## Who it is for",
+    "",
+    ...bySection("audience"),
+    "",
+    "## Features",
+    "",
+    ...SITE.pillars.flatMap((pl) => [
+      `### ${pl.title}`,
+      "",
+      pl.line,
+      "",
+      ...pl.features.map((ft) => `- ${ft.name}: ${ft.detail}`),
+      "",
+    ]),
+    "## On the roadmap",
+    "",
+    ...SITE.roadmap.map((r) => `- ${r.name}: ${r.detail}`),
+    "",
+    "## Machine-readable courses",
+    "",
+    `- [Open course gallery](${base}/c)`,
+    `- [Plain-text courses](${base}/c/<slug>.txt) (answer keys stripped)`,
     `- [Course packages](${base}/api/public/courses/<slug>/export) (portable JSON)`,
     `- [Public course list](${base}/api/public/courses) (JSON)`,
-    `- [Product story and roadmap](https://github.com/wellofwisdom/wellofwisdom/blob/main/docs/ROADMAP.md)`,
-    `- [Source](https://github.com/wellofwisdom/wellofwisdom) (AGPL-3.0)`,
-    "",
-    "## How to use the courses",
     "",
     "Each published course at /c/<slug> has a plain-text sibling at /c/<slug>.txt with answer keys stripped, and a .wow-course.json download at /api/public/courses/<slug>/export. Import the JSON in any running Well of Wisdom at Courses then Import, or paste the /c/ URL.",
+    "",
+    "## Legal",
+    "",
+    ...bySection("legal"),
+    "",
+    `- [Source code](${SITE.repo}) (AGPL-3.0)`,
+    `- [Roadmap](${SITE.repo}/blob/main/docs/ROADMAP.md)`,
     "",
   ].join("\n");
 }
 
-module.exports = { esc, origin, publishedMeta, courseHead, injectHead, robotsTxt, sitemapXml, llmsTxt, staticHead, STATIC_PAGES };
+module.exports = { esc, origin, publishedMeta, courseHead, injectHead, robotsTxt, sitemapXml, llmsTxt, staticHead, STATIC_PAGES, SITE };

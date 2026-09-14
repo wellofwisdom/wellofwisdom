@@ -8,11 +8,14 @@
 import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { RichText } from "../../lib/rich";
+import { useT } from "../../i18n";
+import { PushToTalk } from "../../components/PushToTalk";
 
 interface Msg { id?: number; role: "learner" | "tutor"; content: string; refused?: boolean }
 
 export default function TutorChat({ lessonId, itemId, onClose }:
   { lessonId?: number; itemId?: number; onClose: () => void }) {
+  const { t } = useT();
   const [threadId, setThreadId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [text, setText] = useState("");
@@ -70,14 +73,14 @@ export default function TutorChat({ lessonId, itemId, onClose }:
       <div className="tutorin">
         <div className="tutorhead">
           <span aria-hidden="true">🌰</span>
-          <h2>Stuck? Let's look at it together</h2>
-          <button className="btn ghost small-btn" type="button" onClick={onClose}>Close</button>
+          <h2>{t("tutor.title")}</h2>
+          <button className="btn ghost small-btn" type="button" onClick={onClose}>{t("tutor.close")}</button>
         </div>
 
         <div className="tutorlog">
           {messages.length === 0 && !error && (
             <div className="tutormsg tutor">
-              <RichText text={"Tell me what part is fuzzy. Even “I don't know where to start” is a fine place to start."} />
+              <RichText text={t("tutor.emptyInvite")} />
             </div>
           )}
           {messages.map((m, i) => (
@@ -85,7 +88,7 @@ export default function TutorChat({ lessonId, itemId, onClose }:
               {m.role === "tutor" ? <RichText text={m.content} /> : m.content}
             </div>
           ))}
-          {busy && <div className="tutormsg tutor thinking" aria-live="polite">thinking…</div>}
+          {busy && <div className="tutormsg tutor thinking" aria-live="polite">{t("tutor.thinking")}</div>}
           <div ref={endRef} />
         </div>
 
@@ -98,19 +101,22 @@ export default function TutorChat({ lessonId, itemId, onClose }:
             rows={2}
             value={text}
             maxLength={2000}
-            placeholder="What is confusing?"
+            placeholder={t("tutor.placeholder")}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
             }}
-            aria-label="Your message"
+            aria-label={t("tutor.yourMessageLabel")}
           />
+          {/* Talking to the tutor, not answering a question: the heard words are
+              appended so a follow up sentence does not wipe the last one. */}
+          <PushToTalk kind="text" label={t("tutor.talk")} onResult={(spoken) => setText((current) => (current.trim() ? `${current.trim()} ${spoken.text}` : spoken.text))} />
           <button className="btn primary" type="button" disabled={busy || !text.trim()} onClick={send}>
-            Ask
+            {t("tutor.ask")}
           </button>
         </div>
         <p className="hint">
-          Your guide can read everything here. That is on purpose.
+          {t("tutor.guideCanRead")}
         </p>
       </div>
     </div>

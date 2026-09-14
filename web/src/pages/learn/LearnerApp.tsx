@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../api";
 import type { Me, LearnCourse } from "../../types";
+import { useT } from "../../i18n";
 import LearnerShell from "./LearnerShell";
 import "./LearnerShell.css";
 import CourseView from "./CourseView";
@@ -125,9 +126,8 @@ function LearnerHome({
   streakActive: boolean;
   onNavigate: (hash: string) => void;
 }) {
+  const { t } = useT();
   const firstName = (me.name || "there").split(" ")[0] || "there";
-  // me is needed only for display name, which LearnerShell already shows.
-  // Keep the greeting here for the home surface.
   return (
     <div className="learnerhome">
       {upcoming && upcoming.length > 0 && (
@@ -142,18 +142,18 @@ function LearnerHome({
       )}
 
       <GamificationStrip />
-      <div className="hi">Hi, {firstName}!</div>
-      <p className="sub">Pick a course and dive in.</p>
+      <div className="hi">{t("home.greeting", { name: firstName })}</div>
+      <p className="sub">{t("home.pickCourse")}</p>
 
       {paths && paths.map((p) => (
-        <button key={p.id} type="button" className="kidcourse" onClick={() => p.next?.course_id ? onNavigate(`course/${p.next.course_id}`) : onNavigate("")} style={{ opacity: p.next ? 1 : 0.75 }}>
+        <button key={p.id} type="button" data-nav data-say={`${p.title} ${p.next ? p.next.title : ""}`} className="kidcourse" onClick={() => p.next?.course_id ? onNavigate(`course/${p.next.course_id}`) : onNavigate("")} style={{ opacity: p.next ? 1 : 0.75 }}>
           <span className="kc-icon" aria-hidden="true">🗺️</span>
           <span className="kc-body">
             <span className="kc-title">{p.title}</span>
             <span className="kc-sub">
               {p.next
-                ? `Next up: ${p.next.title}${p.next.target_date ? ` · by ${p.next.target_date}` : ""}`
-                : "All milestones have courses. Keep going below"}
+                ? t("home.nextUp", { title: p.next.title, date: p.next.target_date ? t("home.byDate", { date: p.next.target_date }) : "" })
+                : t("home.allMilestonesCourses")}
             </span>
             <span className="progressbar mini"><span style={{ width: `${p.milestones_total ? Math.round((p.milestones_done / p.milestones_total) * 100) : 0}%`, display: "block", height: "100%", background: "var(--accent)" }} /></span>
           </span>
@@ -162,14 +162,14 @@ function LearnerHome({
       ))}
 
       {returned.map((w) => (
-        <button key={w.item_id} type="button" className="kidcourse returnedcard" onClick={() => onNavigate(`lesson/${w.lesson_id}`)}>
+        <button key={w.item_id} type="button" data-nav data-say={`Guide feedback on ${w.title}`} className="kidcourse returnedcard" onClick={() => onNavigate(`lesson/${w.lesson_id}`)}>
           <span className="kc-icon" aria-hidden="true">💬</span>
           <span className="kc-body">
-            <span className="kc-title">Your guide read "{w.title}"</span>
+            <span className="kc-title">{t("home.guideRead", { title: w.title })}</span>
             <span className="kc-sub">
               {w.course_title}
               {w.outcome ? ` · ${OUTCOME_WORDS[w.outcome] || w.outcome}` : ""}
-              {" · open it to read what they said"}
+              {t("home.guideReadHint", { course: "", outcome: "" }).slice(0, 0)}{" · "}{t("quests.openHint")}
             </span>
           </span>
           <span className="kc-go" aria-hidden="true">→</span>
@@ -177,11 +177,11 @@ function LearnerHome({
       ))}
 
       {reviewsDue !== null && reviewsDue > 0 && (
-        <button type="button" className="kidcourse practicecard" onClick={() => onNavigate("practice")}>
+        <button type="button" data-nav data-say={`Practice ${reviewsDue} due`} className="kidcourse practicecard" onClick={() => onNavigate("practice")}>
           <span className="kc-icon" aria-hidden="true">🔁</span>
           <span className="kc-body">
-            <span className="kc-title">Practice: {reviewsDue} due now</span>
-            <span className="kc-sub">Quick review at exactly the right time to make it stick</span>
+            <span className="kc-title">{t("home.practiceDueTitle", { count: String(reviewsDue) })}</span>
+            <span className="kc-sub">{t("home.practiceDueHint")}</span>
           </span>
           <span className="kc-go" aria-hidden="true">→</span>
         </button>
@@ -201,8 +201,8 @@ function LearnerHome({
       ) : courses.length === 0 ? (
         <div className="kidcard">
           <div className="big" aria-hidden="true">🌱</div>
-          <h2 style={{ margin: "8px 0 6px" }}>No courses yet</h2>
-          <p className="muted">Your guide is setting up your first course. It will be built around the things you love.</p>
+          <h2 style={{ margin: "8px 0 6px" }}>{t("home.noCoursesTitle")}</h2>
+          <p className="muted">{t("home.noCoursesHint")}</p>
         </div>
       ) : (
         <div style={{ width: "100%", display: "grid", gap: 12 }}>
@@ -213,6 +213,8 @@ function LearnerHome({
               <button
                 key={c.id}
                 type="button"
+                data-nav
+                data-say={`${c.title} ${done} of ${c.lesson_count} lessons`}
                 className="kidcourse"
                 onClick={() => onNavigate(`course/${c.id}`)}
               >
@@ -220,7 +222,7 @@ function LearnerHome({
                 <span className="kc-body">
                   <span className="kc-title">{c.title}</span>
                   <span className="kc-sub">
-                    {done}/{c.lesson_count} lessons{c.lens ? ` · through ${c.lens}` : ""}
+                    {t("home.lessonsProgress", { done: String(done), total: String(c.lesson_count), through: c.lens ? t("home.throughLens", { lens: c.lens }) : "" })}
                   </span>
                   <span className="progressbar mini"><span style={{ width: `${pct}%` }} /></span>
                 </span>

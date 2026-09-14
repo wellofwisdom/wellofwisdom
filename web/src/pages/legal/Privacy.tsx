@@ -3,7 +3,7 @@ import { LegalChrome } from "./LegalLayout";
 
 export default function Privacy() {
   return (
-    <LegalChrome title="Privacy Policy" updated="13 September 2026">
+    <LegalChrome path="privacy" title="Privacy Policy" updated="13 September 2026">
       <p><strong>In short.</strong> Self-hosted means your data sits on your server. The hosted option, when it opens, keeps only what it needs to run your school.</p>
 
       <h2>What we collect</h2>

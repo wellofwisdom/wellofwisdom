@@ -4,6 +4,7 @@
 // via an ISO week key in localStorage, so Monday feels fresh without a
 // server job. Never a gate on learning, just a nudge.
 import { useState } from "react";
+import { useT } from "../../i18n";
 
 const STORAGE_KEY = "wow-weeklies-done";
 
@@ -37,6 +38,7 @@ interface Props {
 }
 
 export default function WeekliesBoard({ reviewsDue, lessonsDone, lessonsTotal, streakActive }: Props) {
+  const { t } = useT();
   const wk = weekKey();
   const [done, setDone] = useState<Record<string, boolean>>(() => {
     const stored = loadDone();
@@ -61,22 +63,22 @@ export default function WeekliesBoard({ reviewsDue, lessonsDone, lessonsTotal, s
   const items: { id: string; label: string; hint: string; icon: string; done: boolean }[] = [
     {
       id: `review-${wk}`,
-      label: "Weekly review",
-      hint: reviewsDue != null && reviewsDue > 0 ? `${reviewsDue} due` : "All caught up",
+      label: t("weeklies.weeklyReview"),
+      hint: reviewsDue != null && reviewsDue > 0 ? t("dailies.practiceDue", { count: String(reviewsDue) }) : t("dailies.allCaughtUp"),
       icon: "🔁",
       done: reviewsDue === 0 ? true : Boolean(done[`review-${wk}`]),
     },
     {
       id: `streak3-${wk}`,
-      label: "Three days this week",
-      hint: streakActive ? "On a roll" : "Three sessions to earn it",
+      label: t("weeklies.threeDays"),
+      hint: streakActive ? t("weeklies.onARoll") : t("weeklies.threeSessions"),
       icon: "🔥",
       done: Boolean(done[`streak3-${wk}`]),
     },
     {
       id: `progress-${wk}`,
-      label: "Make progress",
-      hint: lessonsTotal ? `${lessonsDone}/${lessonsTotal} lessons · ${progressPct}%` : "Keep going",
+      label: t("weeklies.makeProgress"),
+      hint: lessonsTotal ? t("weeklies.lessonsProgress", { done: String(lessonsDone), total: String(lessonsTotal), pct: String(progressPct) }) : t("weeklies.keepGoing"),
       icon: "🏆",
       done: Boolean(done[`progress-${wk}`]) || progressPct >= 100,
     },
@@ -87,16 +89,18 @@ export default function WeekliesBoard({ reviewsDue, lessonsDone, lessonsTotal, s
   return (
     <div className="weeklies" role="region" aria-label="Weekly quests">
       {lessonsTotal > 0 && (
-        <div className="weeklies-progress" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label="Weekly progress">
+        <div className="weeklies-progress" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label={t("weeklies.progressLabel")}>
           <span style={{ width: `${progressPct}%` }} />
         </div>
       )}
-      <h2 className="weeklies-title">This week{allDone ? " ✓" : ""}</h2>
+      <h2 className="weeklies-title">{t("weeklies.title")}{allDone ? t("weeklies.doneCheck") : ""}</h2>
       <div className="weeklies-grid">
         {items.map((it) => (
           <button
             key={it.id}
             type="button"
+            data-nav
+            data-say={`${it.label} ${it.hint}`}
             className={`weekly${it.done ? " done" : ""}`}
             onClick={() => toggle(it.id)}
             aria-pressed={it.done}

@@ -2,10 +2,16 @@
 // LearnerShell: the full-screen game frame that wraps every learner route.
 // Same routes, different frame. 100dvh, HUD pinned, cover bleed when present.
 // Degrades cleanly when no XP or art is available. No new API beyond /api/learn/hud.
-import { useEffect, useState } from "react";
+// Now with controller mode: gamepad and keyboard arrows share the spatial manager,
+// candidates are [data-nav], PadLegend appears when a pad connects.
+import { useCallback, useEffect, useState } from "react";
 import Logo from "../../components/Logo";
 import { api } from "../../api";
 import type { Me } from "../../types";
+import { useT } from "../../i18n";
+import { useGamepad } from "../../lib/gamepad";
+import { focusNext, focusFirst, speakFocused } from "../../lib/spatialNav";
+import PadLegend from "../../components/PadLegend";
 
 interface Hud {
   xp: number;
@@ -14,6 +20,7 @@ interface Hud {
 }
 
 const SOUND_KEY = "wow-learner-sound";
+const CONTROLLER_KEY = "wow-controller-mode";
 
 function getSoundPref(): boolean {
   try {
@@ -21,6 +28,22 @@ function getSoundPref(): boolean {
   } catch {
     return true;
   }
+}
+
+function getControllerPref(): boolean {
+  try {
+    return localStorage.getItem(CONTROLLER_KEY) === "on";
+  } catch {
+    return false;
+  }
+}
+
+function isTypingTarget(el: Element | null): boolean {
+  if (!el) return false;
+  const he = el as HTMLElement;
+  if (he.isContentEditable) return true;
+  if (he.closest?.('input, textarea, select, [contenteditable="true"], [role="dialog"]')) return true;
+  return false;
 }
 
 function XPRing({ xp }: { xp: number }) {
@@ -65,6 +88,8 @@ export default function LearnerShell({
   const [hud, setHud] = useState<Hud | null>(null);
   const [soundOn, setSoundOn] = useState<boolean>(() => getSoundPref());
   const [mapOpen, setMapOpen] = useState(false);
+  const [controllerMode, setControllerMode] = useState<boolean>(() => getControllerPref());
+  const { t } = useT();
 
   useEffect(() => {
     let live = true;
@@ -82,19 +107,132 @@ export default function LearnerShell({
     }
   }, [soundOn]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(CONTROLLER_KEY, controllerMode ? "on" : "off");
+    } catch {
+      /* ignore */
+    }
+  }, [controllerMode]);
+
+  const handleConnect = useCallback(() => {
+    setControllerMode(true);
+    try {
+      localStorage.setItem(CONTROLLER_KEY, "on");
+    } catch {
+      /* ignore */
+    }
+    setTimeout(() => focusFirst(), 80);
+  }, []);
+
+  const handleButtonDown = useCallback((index: number) => {
+    if (index === 0) {
+      const el = document.activeElement as HTMLElement | null;
+      if (el && el.hasAttribute("data-nav")) {
+        el.click();
+      } else {
+        focusFirst();
+      }
+      return;
+    }
+    if (index === 1) {
+      if (mapOpen) {
+        setMapOpen(false);
+        return;
+      }
+      if (window.history.length > 1) window.history.back();
+      else onNavigate("");
+      return;
+    }
+    if (index === 2) {
+      speakFocused();
+      return;
+    }
+    if (index === 9) {
+      setMapOpen((v) => !v);
+      return;
+    }
+    if (index === 12) { focusNext("up"); return; }
+    if (index === 13) { focusNext("down"); return; }
+    if (index === 14) { focusNext("left"); return; }
+    if (index === 15) { focusNext("right"); return; }
+  }, [mapOpen, onNavigate]);
+
+  const handleAxis = useCallback((index: number, value: number) => {
+    if (index === 0) {
+      if (value < 0) focusNext("left");
+      else if (value > 0) focusNext("right");
+    }
+    if (index === 1) {
+      if (value < 0) focusNext("up");
+      else if (value > 0) focusNext("down");
+    }
+  }, []);
+
+  const { connected } = useGamepad({
+    enabled: true,
+    onButtonDown: handleButtonDown,
+    onAxis: handleAxis,
+    onConnect: handleConnect,
+  });
+
+  useEffect(() => {
+    if (!controllerMode) return;
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as Element | null;
+      const typing = isTypingTarget(target);
+      if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        if (typing) return;
+        e.preventDefault();
+        if (e.key === "ArrowUp") focusNext("up");
+        else if (e.key === "ArrowDown") focusNext("down");
+        else if (e.key === "ArrowLeft") focusNext("left");
+        else if (e.key === "ArrowRight") focusNext("right");
+        return;
+      }
+      if (e.key === "Enter" || e.key === " ") {
+        if (typing) return;
+        const el = document.activeElement as HTMLElement | null;
+        if (el && el.hasAttribute("data-nav")) {
+          e.preventDefault();
+          el.click();
+        }
+        return;
+      }
+      if (e.key === "Escape") {
+        if (typing) return;
+        if (mapOpen) { e.preventDefault(); setMapOpen(false); }
+        else if (window.history.length > 1) window.history.back();
+        return;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [controllerMode, mapOpen]);
+
+  useEffect(() => {
+    if (!controllerMode) return;
+    const tmr = setTimeout(() => {
+      if (!document.activeElement || !document.activeElement.hasAttribute("data-nav")) {
+        focusFirst();
+      }
+    }, 120);
+    return () => clearTimeout(tmr);
+  }, [controllerMode]);
+
   const firstName = me.name.split(" ")[0];
   const streak = hud?.streak ?? null;
   const xp = hud?.xp ?? 0;
   const packCount = hud?.packCount ?? 0;
 
   return (
-    <div className="learnershell" data-cover={coverUrl ? "true" : "false"}>
+    <div className={`learnershell${controllerMode ? " controller-mode" : ""}`} data-cover={coverUrl ? "true" : "false"}>
       {coverUrl && (
         <div className="learnershell-bg" aria-hidden="true" style={{ backgroundImage: `url(${coverUrl})` }} />
       )}
       <header className="learnerhud" role="banner" aria-label="Your progress">
         <div className="hud-left">
-          <button className="hud-home" type="button" onClick={() => onNavigate("")} aria-label="Home">
+          <button className="hud-home" type="button" data-nav data-say={t("shell.home")} onClick={() => onNavigate("")} aria-label={t("shell.home")}>
             <Logo size={28} />
             <span className="hud-home-name">{firstName}</span>
           </button>
@@ -106,57 +244,74 @@ export default function LearnerShell({
         <div className="hud-right">
           <XPRing xp={xp} />
           {streak && streak.best > 0 && (
-            <span className={`hud-stat${streak.activeToday ? " hot" : ""}`} title={`${streak.current} day streak, best ${streak.best}`}>
+            <span className={`hud-stat${streak.activeToday ? " hot" : ""}`} title={t("shell.streakTitle", { current: String(streak.current), best: String(streak.best) })}>
               <span aria-hidden="true">{streak.current >= 3 ? "🔥" : "✨"}</span>
               <span className="hud-stat-num">{streak.current}</span>
             </span>
           )}
-          <span className="hud-stat hud-pack" title={`${packCount} items in your pack`}>
+          <span className="hud-stat hud-pack" title={t("shell.packTitle", { count: String(packCount) })}>
             <span aria-hidden="true">🎒</span>
             <span className="hud-stat-num">{packCount}</span>
           </span>
           <button
             className="hud-iconbtn"
             type="button"
-            aria-label={soundOn ? "Mute sounds" : "Unmute sounds"}
+            data-nav
+            data-say={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}
+            aria-label={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}
+            aria-pressed={controllerMode}
+            onClick={() => setControllerMode((v) => !v)}
+            title={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}
+          >
+            <span aria-hidden="true">🎮</span>
+          </button>
+          <button
+            className="hud-iconbtn"
+            type="button"
+            data-nav
+            data-say={soundOn ? t("shell.mute") : t("shell.soundOn")}
+            aria-label={soundOn ? t("shell.mute") : t("shell.soundOn")}
             aria-pressed={soundOn}
             onClick={() => setSoundOn((v) => !v)}
-            title={soundOn ? "Mute" : "Sound on"}
+            title={soundOn ? t("shell.mute") : t("shell.soundOn")}
           >
             <span aria-hidden="true">{soundOn ? "🔊" : "🔇"}</span>
           </button>
           <button
             className="hud-iconbtn hud-mapbtn"
             type="button"
-            aria-label={mapOpen ? "Close map" : "Open map"}
+            data-nav
+            data-say={mapOpen ? t("shell.mapClose") : t("shell.mapOpen")}
+            aria-label={mapOpen ? t("shell.mapClose") : t("shell.mapOpen")}
             aria-expanded={mapOpen}
             onClick={() => setMapOpen((v) => !v)}
-            title="Map"
+            title={t("shell.map")}
           >
             <span aria-hidden="true">🗺️</span>
-            <span className="hud-maplabel">Map</span>
+            <span className="hud-maplabel">{t("shell.map")}</span>
           </button>
-          <button className="hud-iconbtn" type="button" onClick={onLogout} aria-label="Sign out" title="Sign out">
+          <button className="hud-iconbtn" type="button" data-nav data-say={t("shell.signOut")} onClick={onLogout} aria-label={t("shell.signOut")} title={t("shell.signOut")}>
             <span aria-hidden="true">⎋</span>
           </button>
         </div>
       </header>
 
+      {connected && <PadLegend />}
       {mapOpen && (
-        <div className="hud-mapdrop" role="dialog" aria-label="Map">
+        <div className="hud-mapdrop" role="dialog" aria-label={t("shell.map")}>
           <div className="hud-mapdrop-head">
-            <strong>Where to next</strong>
-            <button className="btn ghost small-btn" type="button" onClick={() => setMapOpen(false)}>Close</button>
+            <strong>{t("shell.whereToNext")}</strong>
+            <button className="btn ghost small-btn" type="button" data-nav data-say={t("shell.mapClose")} onClick={() => setMapOpen(false)}>{t("shell.close")}</button>
           </div>
           <div className="hud-mapdrop-grid">
-            <button type="button" className="hud-mapcard" onClick={() => { setMapOpen(false); onNavigate(""); }}>
-              <span aria-hidden="true">🏠</span> Home
+            <button type="button" className="hud-mapcard" data-nav data-say={t("shell.goHome")} onClick={() => { setMapOpen(false); onNavigate(""); }}>
+              <span aria-hidden="true">🏠</span> {t("shell.goHome")}
             </button>
-            <button type="button" className="hud-mapcard" onClick={() => { setMapOpen(false); onNavigate("practice"); }}>
-              <span aria-hidden="true">🔁</span> Practice
+            <button type="button" className="hud-mapcard" data-nav data-say={t("shell.practice")} onClick={() => { setMapOpen(false); onNavigate("practice"); }}>
+              <span aria-hidden="true">🔁</span> {t("shell.practice")}
             </button>
           </div>
-          <p className="muted small" style={{ marginTop: 8 }}>The full map with your path and quests lands in the next slice. This is the pin it hangs from.</p>
+          <p className="muted small" style={{ marginTop: 8 }}>{t("shell.mapComingSoon")}</p>
         </div>
       )}
 

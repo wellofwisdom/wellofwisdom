@@ -3,6 +3,7 @@
 // LearnerApp already has: reviewsDue, upcoming, streak, and a simple
 // local done mark. No new API, no streak that shames, just nudges.
 import { useState } from "react";
+import { useT } from "../../i18n";
 
 const STORAGE_KEY = "wow-dailies-done";
 
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export default function DailiesBoard({ reviewsDue, upcomingCount, streakActive }: Props) {
+  const { t } = useT();
   const today = new Date().toISOString().slice(0, 10);
   const [done, setDone] = useState<Record<string, boolean>>(() => {
     const stored = loadDone();
@@ -50,22 +52,22 @@ export default function DailiesBoard({ reviewsDue, upcomingCount, streakActive }
   const items: { id: string; label: string; hint: string; icon: string; done: boolean }[] = [
     {
       id: `practice-${today}`,
-      label: "Practice",
-      hint: reviewsDue != null && reviewsDue > 0 ? `${reviewsDue} due` : "All caught up",
+      label: t("dailies.practice"),
+      hint: reviewsDue != null && reviewsDue > 0 ? t("dailies.practiceDue", { count: String(reviewsDue) }) : t("dailies.allCaughtUp"),
       icon: "🔁",
       done: reviewsDue === 0 ? true : Boolean(done[`practice-${today}`]),
     },
     {
       id: `streak-${today}`,
-      label: "Keep the streak warm",
-      hint: streakActive ? "Fire is lit" : "Do one lesson today",
+      label: t("dailies.keepStreak"),
+      hint: streakActive ? t("dailies.streakLit") : t("dailies.streakDoOne"),
       icon: "🔥",
       done: Boolean(done[`streak-${today}`]),
     },
     {
       id: `plan-${today}`,
-      label: "Check coming up",
-      hint: `${upcomingCount} in the next days`,
+      label: t("dailies.checkComingUp"),
+      hint: t("dailies.comingCount", { count: String(upcomingCount) }),
       icon: "🗓️",
       done: Boolean(done[`plan-${today}`]),
     },
@@ -73,12 +75,14 @@ export default function DailiesBoard({ reviewsDue, upcomingCount, streakActive }
 
   return (
     <div className="dailies" role="region" aria-label="Daily quests">
-      <h2 className="dailies-title">Today</h2>
+      <h2 className="dailies-title">{t("dailies.title")}</h2>
       <div className="dailies-grid">
         {items.map((it) => (
           <button
             key={it.id}
             type="button"
+            data-nav
+            data-say={`${it.label} ${it.hint}`}
             className={`daily${it.done ? " done" : ""}`}
             onClick={() => toggle(it.id)}
             aria-pressed={it.done}

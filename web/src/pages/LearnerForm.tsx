@@ -16,6 +16,7 @@ const INTEREST_SUGGESTIONS = [
 ];
 
 const READING_LEVELS = ["", "below grade", "at grade", "above grade"];
+const LANGS: { value: string; label: string }[] = [{ value: "en", label: "English" }, { value: "es", label: "Español" }];
 
 export default function LearnerForm({ learnerId, onSaved }:
   { learnerId: number | null; onSaved?: () => Promise<void> | void }) {
@@ -29,6 +30,7 @@ export default function LearnerForm({ learnerId, onSaved }:
   const [email, setEmail] = useState("");
   const [gradeLevel, setGradeLevel] = useState("");
   const [readingLevel, setReadingLevel] = useState("");
+  const [lang, setLang] = useState("en");
   // interests
   const [interests, setInterests] = useState<string[]>([]);
   // AI notes
@@ -50,6 +52,7 @@ export default function LearnerForm({ learnerId, onSaved }:
       setReadingLevel(l.reading_level || "");
       setInterests(l.interests || []);
       setAiNotes(l.ai_notes || "");
+      setLang((l.prefs as Record<string,unknown>)?.lang === "es" ? "es" : "en");
       setNotesSaved(Boolean(l.ai_notes));
     }).catch(() => {});
   }, [learnerId, editing, navigate]);
@@ -65,6 +68,7 @@ export default function LearnerForm({ learnerId, onSaved }:
         interests,
         aiNotes: aiNotes || null,
         email: email || null,
+        lang,
       };
       if (editing) {
         if (pin) body.pin = pin;
@@ -124,11 +128,19 @@ export default function LearnerForm({ learnerId, onSaved }:
                 </select>
               </div>
             </div>
-            <div style={{ maxWidth: 150 }}>
+            <div style={{ maxWidth: 130 }}>
               <div className="field">
                 <label>Reading level</label>
                 <select className="input" value={readingLevel} onChange={(e) => setReadingLevel(e.target.value)}>
                   {READING_LEVELS.map((r) => <option key={r} value={r}>{r || "Auto"}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ maxWidth: 120 }}>
+              <div className="field">
+                <label>Language</label>
+                <select className="input" value={lang} onChange={(e) => setLang(e.target.value)}>
+                  {LANGS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
             </div>

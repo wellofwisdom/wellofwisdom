@@ -1,7 +1,7 @@
 {
   "name": "wellofwisdom",
   "version": "0.0.1",
-  "description": "Self-hosted, AI-first learning platform for homeschoolers. A free, open-source Khan Academy alternative.",
+  "description": "Open-source, AI-first learning platform for families, classrooms, schools, co-ops and tutors. Courses shaped around what each learner loves, played as a world. Self-host in one command.",
   "license": "AGPL-3.0-or-later",
   "type": "commonjs",
   "main": "server/index.js",
@@ -11,8 +11,10 @@
     "dev:web": "npm --prefix web run dev",
     "build": "npm --prefix web run build",
     "test": "node --test",
+    "test:pglite": "node scripts/test-pglite.js",
     "check": "node scripts/check.js",
-    "validate-course": "node scripts/validate-course.js"
+    "validate-course": "node scripts/validate-course.js",
+    "build:sea": "node scripts/build-sea.js"
   },
   "engines": {
     "node": ">=20"
@@ -25,5 +27,8 @@
   },
   "optionalDependencies": {
     "@electric-sql/pglite": "^0.2.17"
+  },
+  "devDependencies": {
+    "postject": "^1.0.0-alpha.6"
   }
 }
