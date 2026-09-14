@@ -24,6 +24,14 @@ interface AiConfig {
   aiDailyCap?: number | null;
 }
 
+interface SttConfig {
+  sttBaseUrl?: string | null;
+  sttApiKey?: string | null;
+  sttModel?: string | null;
+  aiSttDailyCap?: number | null;
+  sttKeepRecordings?: boolean | null;
+}
+
 interface Spend {
   month: { calls: number; tokens_in: number; tokens_out: number; cost: string | null };
   byTask: { task: string; calls: number; cost: string | null }[];
@@ -55,6 +63,98 @@ function BarChart({ daily }: { daily: Spend["daily"] }) {
         );
       })}
     </div>
+  );
+}
+
+// Speech input, on its own save because it is its own endpoint: a family may
+// run the tutor on one provider and keep a small local Whisper box for the
+// children's voices. Off by default, and the recordings switch is off by
+// default too: a child's voice is not kept because nobody said no.
+function SpeechCard() {
+  const [stt, setStt] = useState<SttConfig | null>(null);
+  const [configured, setConfigured] = useState(false);
+  // The endpoint and key are the whole server's (lib/instanceAdmin.js). Only
+  // the person who runs the server sees this card, so a locked state is a
+  // safety net rather than the normal path.
+  const [locked, setLocked] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const load = () => {
+    api<{ configured: boolean; config: SttConfig }>("/api/stt/config")
+      .then((r) => { setLocked(false); setStt(r.config || {}); setConfigured(Boolean(r.configured)); })
+      .catch((e) => { setLocked((e as { status?: number }).status === 403); setStt({}); });
+  };
+  useEffect(() => { load(); }, []);
+
+  const set = (k: keyof SttConfig, v: string | boolean) => setStt((c) => ({ ...(c || {}), [k]: v } as SttConfig));
+
+  const save = async () => {
+    setBusy(true);
+    setMsg("");
+    try {
+      const r = await api<{ configured: boolean }>("/api/stt/config", {
+        method: "PUT",
+        body: {
+          sttBaseUrl: stt?.sttBaseUrl || "",
+          sttApiKey: stt?.sttApiKey || "",
+          sttModel: stt?.sttModel || "",
+          aiSttDailyCap: stt?.aiSttDailyCap ?? 0,
+          sttKeepRecordings: Boolean(stt?.sttKeepRecordings),
+        },
+      });
+      setConfigured(Boolean(r.configured));
+      setMsg("✓ Saved. The microphone appears in answer boxes and the tutor.");
+      load();
+    } catch (e) {
+      setMsg(niceError(e));
+    } finally { setBusy(false); }
+  };
+
+  if (stt === null) return <p className="muted small">Loading…</p>;
+  if (locked) {
+    return <p className="muted small">The speech endpoint and key are shared by every family on this server, so only the person who runs it can change them.</p>;
+  }
+
+  return (
+    <>
+      <Field label="Speech endpoint" hint="Any OpenAI-compatible /v1/audio/transcriptions. Groq: https://api.groq.com/openai/v1 · OpenAI: https://api.openai.com/v1 · your own faster-whisper: http://whisper:9000/v1. Empty turns speech off and hides the microphone.">
+        <input className="input" value={stt.sttBaseUrl || ""} onChange={(e) => set("sttBaseUrl", e.target.value)} placeholder="https://api.groq.com/openai/v1" />
+      </Field>
+      <div className="row" style={{ gap: 12 }}>
+        <div className="grow">
+          <Field label="Speech API key" hint="Leave empty when the endpoint is the same host as the AI base URL above: that key is reused. A key for one provider is never sent to another provider's host.">
+            <input className="input" type={isMasked(stt.sttApiKey || "") ? "text" : "password"} value={stt.sttApiKey || ""} onChange={(e) => set("sttApiKey", e.target.value)} placeholder={isMasked(stt.sttApiKey || "") ? "saved. Paste new to change" : "gsk_… or sk-…"} />
+          </Field>
+        </div>
+        <div className="grow">
+          <Field label="Speech model" hint="Groq: whisper-large-v3-turbo · OpenAI: whisper-1 · DeepInfra: openai/whisper-large-v3">
+            <input className="input" value={stt.sttModel || ""} onChange={(e) => set("sttModel", e.target.value)} placeholder="whisper-1" />
+          </Field>
+        </div>
+      </div>
+      <div className="row" style={{ gap: 12 }}>
+        <div className="grow">
+          <Field label="Transcriptions per family per day" hint="0 means the money caps alone decide. Speech is cheap per call and easy to hold down by accident.">
+            <input className="input" type="number" min="0" step="10" value={String(stt.aiSttDailyCap ?? "")} onChange={(e) => set("aiSttDailyCap", e.target.value as unknown as string)} placeholder="e.g. 200" />
+          </Field>
+        </div>
+        <div className="grow">
+          <Field label="Keep recordings" hint="Off: the audio exists only for the one request that transcribed it, nothing is written to disk. A family can override this for itself.">
+            <label className="row small" style={{ gap: 8, marginTop: 6 }}>
+              <input type="checkbox" checked={Boolean(stt.sttKeepRecordings)} onChange={(e) => set("sttKeepRecordings", e.target.checked)} />
+              Save each recording to the family's media library
+            </label>
+          </Field>
+        </div>
+      </div>
+      <div className="row">
+        <button className="btn" type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save speech settings"}</button>
+        <span className={`chip${configured ? " on" : ""}`}>{configured ? "speech input on" : "speech input off"}</span>
+        {msg && <span className="small">{msg}</span>}
+      </div>
+      <p className="hint">Voice answers are priced per minute by every provider, so speech calls show in the spend list with a call count and no invented cost.</p>
+    </>
   );
 }
 
@@ -163,6 +263,13 @@ export function AiVault() {
         <button className="btn primary" type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save AI settings"}</button>
         {msg && <span className="small">{msg}</span>}
       </div>
+
+      <details style={{ margin: "10px 0" }}>
+        <summary className="small" style={{ cursor: "pointer", color: "var(--accent)", fontWeight: 600 }}>Speech input (a learner talks instead of typing)</summary>
+        <div style={{ marginTop: 10 }}>
+          <SpeechCard />
+        </div>
+      </details>
 
       <Panel title="Spend" side="this family, real costs">
         {spend ? (

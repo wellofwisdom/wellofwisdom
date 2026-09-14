@@ -3,6 +3,7 @@
 // hints, explain-my-mistake, and completion. Focus mode. No nav chrome.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../api";
+import { triggerRumble } from "../../lib/gamepad";
 import type { ItemNode, LearnLesson, Submission } from "../../types";
 import { linkProps } from "../../router";
 import ArticleItem from "./items/ArticleItem";
@@ -10,7 +11,6 @@ import ExerciseItem from "./items/ExerciseItem";
 import VideoItem from "./items/VideoItem";
 import ProjectItem from "./items/ProjectItem";
 import AudioItem from "./items/AudioItem";
-
 
 export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   lessonId: number; onNavigate: (hash: string) => void; onLogout: () => void;
@@ -83,6 +83,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
     if (done && lesson && !completionLogged.current) {
       completionLogged.current = true;
       api(`/api/learn/lessons/${lesson.id}/complete`, { method: "POST" }).catch(() => {});
+      triggerRumble("complete");
     }
   }, [done, lesson]);
 

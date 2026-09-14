@@ -5,6 +5,8 @@
 // file next to this one, not editing a long if-chain.
 import { useState } from "react";
 import { api, niceError } from "../../../api";
+import { PushToTalk } from "../../../components/PushToTalk";
+import { triggerRumble } from "../../../lib/gamepad";
 import type { ItemNode } from "../../../types";
 import { MathText } from "../../../lib/rich";
 import TutorChat from "../TutorChat";
@@ -62,6 +64,7 @@ export default function ExerciseItem({ item, solved, onSolved, qKey, qIdx, quest
       setResult(d);
       setRevealed(d);
       onSolved(qKey, d.correct);
+      if (d.correct === true) triggerRumble("hit");
       if (d.correct === false && rewind && anchor !== null) rewind(anchor, false);
     } catch (e) {
       setErr(niceError(e));
@@ -113,6 +116,7 @@ export default function ExerciseItem({ item, solved, onSolved, qKey, qIdx, quest
           <div className="row">
             {c.hint && !hint && <button className="btn ghost" type="button" onClick={() => setHint(c.hint)}>Hint</button>}
             <button className="btn ghost" type="button" onClick={() => setTutorOpen(true)}>Ask for help</button>
+            <PushToTalk kind="mcq" choiceCount={choices.length} onResult={(spoken) => { if (spoken.choiceIndex !== null) setPicked(choices[spoken.choiceIndex].id); }} />
             <button className="btn primary" type="button" disabled={busy || !picked} onClick={() => submit(picked!)}>{busy ? "Checking..." : "Check"}</button>
           </div>
         </div>
@@ -122,6 +126,7 @@ export default function ExerciseItem({ item, solved, onSolved, qKey, qIdx, quest
           <input className="input" style={{ maxWidth: 220 }} inputMode="decimal" placeholder="Your answer" value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyDown={(e) => e.key === "Enter" && answer && submit()} />
           {c.hint && !hint && <button className="btn ghost" type="button" onClick={() => setHint(c.hint)}>Hint</button>}
           <button className="btn ghost" type="button" onClick={() => setTutorOpen(true)}>Ask for help</button>
+          <PushToTalk kind="numeric" onResult={(spoken) => setAnswer(spoken.text)} />
           <button className="btn primary" type="button" disabled={busy || !answer.trim()} onClick={() => submit()}>{busy ? "Checking..." : "Check"}</button>
         </div>
       )}
@@ -130,6 +135,7 @@ export default function ExerciseItem({ item, solved, onSolved, qKey, qIdx, quest
           <textarea className="input" rows={3} placeholder="Write your answer in your own words..." value={answer} onChange={(e) => setAnswer(e.target.value)} />
           <div className="row" style={{ marginTop: 8 }}>
             <button className="btn primary" type="button" disabled={!answer.trim()} onClick={() => setRevealed({ correct: null, reveal: { kind: "text", explanation: null, hint: null, answer: c.answer } })}>Show model answer</button>
+            <PushToTalk kind="text" onResult={(spoken) => setAnswer((current) => (current.trim() ? `${current.trim()} ${spoken.text}` : spoken.text))} />
           </div>
         </div>
       )}

@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { VideoPlayer } from "../../components/VideoUI";
+import { triggerRumble } from "../../lib/gamepad";
 import { RichText, MathText } from "../../lib/rich";
 import NarratorButton from "../../components/NarratorButton";
 import ChapterMusic from "../../components/ChapterMusic";
@@ -112,6 +113,7 @@ export default function WorldView({ adventureId, onNavigate }:
       );
       setOpen(null);
       setCelebrate({ xp: r.xpGained || 0, rewards: (r.earnedRewards || []).map((x) => x.title) });
+      triggerRumble("complete");
       await load();
     } catch (e) {
       setError(niceError(e));
@@ -142,7 +144,7 @@ export default function WorldView({ adventureId, onNavigate }:
         style={data.adventure.cover_url ? { backgroundImage: `url(${data.adventure.cover_url})` } : undefined}
       >
         <div className="worldheroin">
-          <button className="btn ghost small-btn" type="button" onClick={() => onNavigate("home")}>← Back</button>
+          <button className="btn ghost small-btn" type="button" data-nav data-say="Back" onClick={() => onNavigate("home")}>← Back</button>
           <h1>{world.title || "Your adventure"}</h1>
           {world.tagline && <p className="tagline">{world.tagline}</p>}
           <div className="worldstats">
@@ -307,6 +309,8 @@ function Chapter({ chapter, characters, onOpen }: {
           <button
             key={e.id}
             type="button"
+            data-nav
+            data-say={`${e.title} ${e.kind}${e.state === "locked" ? " locked" : e.state === "won" ? " cleared" : ""}`}
             className={`enccard ${e.state}`}
             style={{ transitionDelay: shown ? `${Math.min(i, 5) * 60}ms` : undefined }}
             onClick={() => e.state !== "locked" && onOpen(e)}
@@ -442,8 +446,10 @@ function BossFight({ encounter, onWin, onClose }: {
           rewards: (r.earnedRewards || []).map((x) => x.title),
           videoUploadId: r.videoUploadId ?? null,
         });
+        triggerRumble("complete");
         return;
       }
+      if (r.correct) triggerRumble("hit");
       setStreak(r.streak);
       setNeed(r.need);
       setVerdict(r.correct ? "Correct!" : r.brokeBy === "timeout" ? "Out of time. Streak reset." : "Not quite. Streak reset.");
