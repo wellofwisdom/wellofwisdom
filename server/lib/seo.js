@@ -82,6 +82,54 @@ function courseHead(meta, base) {
   ].filter(Boolean).join("\n    ");
 }
 
+/** Head for the marketing and legal pages. Used by the SPA's static seo shell too. */
+const STATIC_PAGES = {
+  "for-homeschools": {
+    title: "For homeschools - Well of Wisdom",
+    description: "A self-hosted curriculum that bends to what your child loves. Spaced review, printable portfolios, attendance your state will accept.",
+  },
+  "for-co-ops": {
+    title: "For co-ops - Well of Wisdom",
+    description: "One place for many families to learn together. Share courses once, keep each family's learners and reports separate.",
+  },
+  "for-teachers": {
+    title: "For teachers - Well of Wisdom",
+    description: "A classroom that still fits your grading book. Generate courses, review every word before learners see it, print the artifacts your school wants.",
+  },
+  "self-host": {
+    title: "Self-host Well of Wisdom - one command to run",
+    description: "Run Well of Wisdom on your own server. One command with Docker, bring any AI endpoint or use Ollama offline. Your data stays yours.",
+  },
+  privacy: {
+    title: "Privacy Policy - Well of Wisdom",
+    description: "How Well of Wisdom handles your data. Self-hosted means your data sits on your server. No tracking on learner paths.",
+  },
+  terms: {
+    title: "Terms of Service - Well of Wisdom",
+    description: "Terms for Well of Wisdom. AGPL-3.0, free to self-host. You own your course content.",
+  },
+  children: {
+    title: "Children's data - Well of Wisdom",
+    description: "How children's data is handled in Well of Wisdom. Less data is better. A parent is in charge.",
+  },
+};
+
+function staticHead(id, base) {
+  const meta = STATIC_PAGES[id];
+  if (!meta) return "";
+  const url = `${base}/${id}`;
+  return [
+    `<title>${esc(meta.title)}</title>`,
+    `<meta name="description" content="${esc(meta.description)}">`,
+    `<link rel="canonical" href="${esc(url)}">`,
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:title" content="${esc(meta.title)}">`,
+    `<meta property="og:description" content="${esc(meta.description)}">`,
+    `<meta property="og:url" content="${esc(url)}">`,
+    `<meta name="twitter:card" content="summary">`,
+  ].join("\n    ");
+}
+
 /** Replace the shell's <title> with real metadata. */
 function injectHead(html, headBlock) {
   // Drop the shell's generic tags first: shipping two descriptions or two
@@ -105,6 +153,13 @@ function robotsTxt(base) {
     "Allow: /c/",
     "Allow: /api/public/",
     "Allow: /llms.txt",
+    "Allow: /for-homeschools",
+    "Allow: /for-co-ops",
+    "Allow: /for-teachers",
+    "Allow: /self-host",
+    "Allow: /privacy",
+    "Allow: /terms",
+    "Allow: /children",
     "Disallow: /api/",
     "Disallow: /join",
     "Disallow: /learners",
@@ -124,9 +179,14 @@ async function sitemapXml(base) {
     `select public_slug, published_at from courses
       where published_at is not null order by published_at desc limit 5000`
   ).catch(() => ({ rows: [] }));
+  const staticUrls = [
+    "for-homeschools", "for-co-ops", "for-teachers", "self-host",
+    "privacy", "terms", "children",
+  ].map((id) => `<url><loc>${esc(base)}/${id}</loc><changefreq>weekly</changefreq></url>`);
   const urls = [
     `<url><loc>${esc(base)}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
     `<url><loc>${esc(base)}/c</loc><changefreq>daily</changefreq></url>`,
+    ...staticUrls,
     ...rows.map((r) =>
       `<url><loc>${esc(base)}/c/${esc(r.public_slug)}</loc>` +
       `<lastmod>${new Date(r.published_at).toISOString().slice(0, 10)}</lastmod></url>`),
@@ -143,6 +203,13 @@ function llmsTxt(base) {
     "> Generate courses through what learners love, with spaced repetition, gamified worlds, and state-ready portfolios.",
     "",
     `- [Homepage](${base}/): what it is and how to run it`,
+    `- [For homeschools](${base}/for-homeschools)`,
+    `- [For co-ops](${base}/for-co-ops)`,
+    `- [For teachers](${base}/for-teachers)`,
+    `- [Self-host](${base}/self-host) (one command)`,
+    `- [Privacy](${base}/privacy)`,
+    `- [Terms](${base}/terms)`,
+    `- [Children's data](${base}/children)`,
     `- [Shared courses gallery](${base}/c)`,
     `- [Plain-text courses](${base}/c/<slug>.txt) (for research tools; answer keys stripped)`,
     `- [Course packages](${base}/api/public/courses/<slug>/export) (portable JSON)`,
@@ -157,4 +224,4 @@ function llmsTxt(base) {
   ].join("\n");
 }
 
-module.exports = { esc, origin, publishedMeta, courseHead, injectHead, robotsTxt, sitemapXml, llmsTxt };
+module.exports = { esc, origin, publishedMeta, courseHead, injectHead, robotsTxt, sitemapXml, llmsTxt, staticHead, STATIC_PAGES };

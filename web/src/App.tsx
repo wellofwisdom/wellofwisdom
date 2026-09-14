@@ -34,6 +34,15 @@ import Join from "./pages/Join";
 import NotFound from "./pages/NotFound";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
 
+// Public marketing and legal pages: one block, as the packet asks.
+import Homeschools from "./pages/for/Homeschools";
+import Coops from "./pages/for/Coops";
+import Teachers from "./pages/for/Teachers";
+import SelfHost from "./pages/for/SelfHost";
+import Privacy from "./pages/legal/Privacy";
+import Terms from "./pages/legal/Terms";
+import Children from "./pages/legal/Children";
+
 function currentRoute(): string {
   return routeFromLocation();
 }
@@ -104,6 +113,19 @@ export default function App() {
     go("dashboard");
     refresh();
   }, [refresh]);
+
+  // Public marketing and legal pages: reachable logged out, with no /api/me
+  // wait. One block so every new public page only touches this section.
+  const publicMap: Record<string, React.ReactElement> = {
+    "for-homeschools": <Homeschools />,
+    "for-co-ops": <Coops />,
+    "for-teachers": <Teachers />,
+    "self-host": <SelfHost />,
+    privacy: <Privacy />,
+    terms: <Terms />,
+    children: <Children />,
+  };
+  if (publicMap[route]) return publicMap[route];
 
   // Public course pages answer before anything else. No session required, and
   // no /api/me round trip, so a crawler or a logged-out visitor sees content.
