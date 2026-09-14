@@ -97,6 +97,8 @@ export default function WeekliesBoard({ reviewsDue, lessonsDone, lessonsTotal, s
           <button
             key={it.id}
             type="button"
+            data-nav
+            data-say={`${it.label} ${it.hint}`}
             className={`weekly${it.done ? " done" : ""}`}
             onClick={() => toggle(it.id)}
             aria-pressed={it.done}

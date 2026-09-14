@@ -10,6 +10,7 @@ import { VideoPlayer } from "../../components/VideoUI";
 import { AudioPlayer } from "../../components/AudioPlayer";
 import { PushToTalk } from "../../components/PushToTalk";
 import TutorChat from "./TutorChat";
+import { triggerRumble } from "../../lib/gamepad";
 
 interface AttemptResponse {
   correct: boolean | null;
@@ -87,6 +88,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
     if (done && lesson && !completionLogged.current) {
       completionLogged.current = true;
       api(`/api/learn/lessons/${lesson.id}/complete`, { method: "POST" }).catch(() => {});
+      triggerRumble("complete");
     }
   }, [done, lesson]);
 
@@ -426,6 +428,7 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question, rewind }: 
       setResult(d);
       setRevealed(d);
       onSolved(qKey, d.correct);
+      if (d.correct === true) triggerRumble("hit");
       // Wrong, and we know where the answer lives: move the play head there so
       // the next thing they do is watch it, not guess again. Quietly, without
       // starting playback: they are reading the verdict.

@@ -79,6 +79,8 @@ export default function DailiesBoard({ reviewsDue, upcomingCount, streakActive }
           <button
             key={it.id}
             type="button"
+            data-nav
+            data-say={`${it.label} ${it.hint}`}
             className={`daily${it.done ? " done" : ""}`}
             onClick={() => toggle(it.id)}
             aria-pressed={it.done}

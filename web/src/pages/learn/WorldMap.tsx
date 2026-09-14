@@ -105,6 +105,8 @@ export default function WorldMap({
               <button
                 key={e.id}
                 type="button"
+                data-nav
+                data-say={`${e.title}${isWon ? " cleared" : isLocked ? " locked" : isNext ? " next" : ""}`}
                 className={`wmapnode${isWon ? " won" : ""}${isNext ? " next" : ""}${isLocked ? " locked" : ""}`}
                 style={{ left: x, top: y }}
                 onClick={() => e.state !== "locked" && onOpen(e as EncounterForMap)}
