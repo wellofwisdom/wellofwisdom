@@ -89,7 +89,7 @@ router.get("/jobs/:id", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
   try {
     const { rows } = await db.query(
-      `select c.id, c.title, c.topic, c.lens, c.grade_level, c.status, c.description, c.created_at,
+      `select c.id, c.title, c.topic, c.lens, c.grade_level, c.status, c.description, c.created_at, c.cover_url,
               u.name as learner_name,
               (select count(*) from units un where un.course_id = c.id)::int as unit_count,
               (select count(*) from lessons l join units un on un.id = l.unit_id where un.course_id = c.id)::int as lesson_count,

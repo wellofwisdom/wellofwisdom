@@ -2,6 +2,7 @@
 // Logged-out site: marketing that converts plus the sign in forms. Never a
 // wall of paragraphs, per AGENTS.md. Every claim gets a proof tile or a CTA.
 import { useEffect, useRef, useState } from "react";
+import Logo from "../components/Logo";
 import { api, niceError } from "../api";
 import { PillTabs } from "../components/ui";
 import { GoogleButton, GoogleOneTap } from "../components/GoogleAuth";
@@ -83,7 +84,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
       {googleClientId && <GoogleOneTap clientId={googleClientId} onAuthed={onAuthed} delay={true} />}
       <header className="mnav">
         <a className="mbrand" {...linkProps("dashboard")}>
-          <span className="mnut" aria-hidden="true">🌰</span> Well of Wisdom
+          <Logo size={36} className="mnut" /> Well of Wisdom
         </a>
         <nav className="mnavlinks" aria-label="Site">
           <a href="#features">Features</a>
@@ -127,7 +128,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
               </button>
             </div>
             {error && <div className="formerror" role="alert">{error}</div>}
-            {googleClientId ? (
+            {googleClientId && (
               <div className="mheroAuth" aria-label="Sign up">
                 <GoogleButton
                   clientId={googleClientId}
@@ -142,26 +143,10 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
                   <span />
                 </div>
                 <div className="mheroAuthRow">
-                  {demoAvailable !== false && (
-                    <button className="btn big" type="button" disabled={demoBusy} onClick={tryDemo}>
-                      {demoBusy ? "Opening demo…" : "Try the demo"}
-                    </button>
-                  )}
                   <button className="btn big" type="button" onClick={() => { setTimeout(() => document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }), 30); }}>
                     Create with email
                   </button>
                 </div>
-              </div>
-            ) : (
-              <div className="mctaRow">
-                {demoAvailable !== false && (
-                  <button className="btn primary big" type="button" disabled={demoBusy} onClick={tryDemo}>
-                    {demoBusy ? "Opening demo…" : "Try the demo - no email needed"}
-                  </button>
-                )}
-                <button className="btn big" type="button" onClick={() => { setTimeout(() => document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }), 30); }}>
-                  Create your group
-                </button>
               </div>
             )}
             <p className="mtrust">
@@ -555,7 +540,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
       <footer className="mfoot">
         <div className="mfootMain">
           <div className="mfootBrand">
-            <span className="mfootLogo" aria-hidden="true">🌰</span>
+            <Logo size={24} className="mfootLogo" />
             <strong>Well of Wisdom</strong>
             <span className="mfootTag">AGPL-3.0 · open source</span>
           </div>

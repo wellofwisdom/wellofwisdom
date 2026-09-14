@@ -79,6 +79,7 @@ function courseMeta(c) {
     license: c.license || DEFAULT_LICENSE,
     author: c.author_name || null,
     publishedAt: c.published_at,
+    coverUrl: c.cover_url || null,
     // A trailer is only playable publicly if the upload itself is public;
     // the publish flow marks it so when the guide sets one.
     trailerUploadId: c.trailer_upload_id ? Number(c.trailer_upload_id) : null,

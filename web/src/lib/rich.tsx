@@ -2,8 +2,29 @@
 // RichText: our markdown-lite: paragraphs, ## headings, **bold**, *italic*,
 // "- " bullets, "- [ ]" checklists, "> [!note]/[!tip]/[!warn]" callouts,
 // and $...$ LaTeX via KaTeX. The only grammar lessons/notes may use.
-import { Fragment, type ReactNode } from "react";
-import katex from "katex";
+import { Fragment, type ReactNode, useEffect, useState } from "react";
+
+let katexModule: typeof import("katex") | null = null;
+let katexCssLoaded = false;
+
+function ensureKatex(): Promise<typeof import("katex")> {
+  if (katexModule) return Promise.resolve(katexModule);
+  return Promise.all([
+    import("katex"),
+    // CSS is imported dynamically so the landing bundle never contains it
+    // @ts-expect-error css side effect, no types
+    import("katex/dist/katex.min.css"),
+  ]).then(([mod]) => {
+    katexModule = (mod as unknown as { default: typeof import("katex") }).default || (mod as unknown as typeof import("katex"));
+    katexCssLoaded = true;
+    void katexCssLoaded;
+    return katexModule!;
+  });
+}
+
+function hasMathToken(text: string): boolean {
+  return /\$[^$]+\$/.test(text);
+}
 
 function inline(text: string, keyPrefix: string): ReactNode[] {
   const parts: ReactNode[] = [];
@@ -19,24 +40,19 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
       parts.push(<strong key={key}>{tok.slice(2, -2)}</strong>);
     } else if (tok.startsWith("$")) {
       const tex = tok.slice(1, -1);
-      let html = "";
-      try {
-        // "htmlAndMathml" emits the visual HTML AND a MathML annotation. With
-        // output "html" a screen reader receives nothing at all: KaTeX marks
-        // its visual spans aria-hidden, so a blind learner met silence where
-        // the maths was. MathML is what assistive tech actually reads.
-        html = katex.renderToString(tex, { throwOnError: false, output: "htmlAndMathml" });
-      } catch {
-        // This string goes into innerHTML, so the raw token must be escaped:
-        // the text is a guide's or a model's, and "$<img onerror=...>$" is a
-        // perfectly good token to the regex above.
-        html = tok.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      if (katexModule) {
+        let html = "";
+        try {
+          html = katexModule.renderToString(tex, { throwOnError: false, output: "htmlAndMathml" });
+        } catch {
+          html = tok.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+        parts.push(<span key={key} dangerouslySetInnerHTML={{ __html: html }} />);
+      } else {
+        // KaTeX not yet loaded: render escaped text, effect will re-render
+        const html = tok.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        parts.push(<span key={key} dangerouslySetInnerHTML={{ __html: html }} />);
       }
-      // Deliberately NO aria-label here. An aria-label on the wrapper would
-      // override the MathML and make a screen reader announce raw TeX
-      // ("backslash frac one two") instead of "one half". The MathML KaTeX
-      // emits carries proper semantics; let it speak.
-      parts.push(<span key={key} dangerouslySetInnerHTML={{ __html: html }} />);
     } else {
       parts.push(<em key={key}>{tok.slice(1, -1)}</em>);
     }
@@ -46,6 +62,20 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
   return parts;
 }
 
+function useKatex(text: string) {
+  const [ready, setReady] = useState(() => Boolean(katexModule) || !hasMathToken(text));
+  useEffect(() => {
+    if (katexModule || !hasMathToken(text)) return;
+    let cancelled = false;
+    ensureKatex().then(() => {
+      if (!cancelled) setReady(true);
+    });
+    return () => { cancelled = true; };
+  }, [text]);
+  void ready;
+  return ready;
+}
+
 const CALLOUTS: Record<string, { icon: string; cls: string }> = {
   note: { icon: "📝", cls: "co-note" },
   tip: { icon: "💡", cls: "co-tip" },
@@ -53,6 +83,7 @@ const CALLOUTS: Record<string, { icon: string; cls: string }> = {
 };
 
 export function RichText({ text }: { text: string }) {
+  useKatex(text);
   const paragraphs = String(text || "")
     .replace(/\r\n/g, "\n")
     .split(/\n\s*\n/)
@@ -63,7 +94,6 @@ export function RichText({ text }: { text: string }) {
       {paragraphs.map((p, pi) => {
         const lines = p.split("\n").map((l) => l.trim());
 
-        // callout block: > [!type] first line, "> " continuation lines
         const co = lines[0] && lines[0].match(/^>\s*!?(note|tip|warn)\s*:?\s*(.*)$/i);
         if (co) {
           const meta = CALLOUTS[co[1].toLowerCase()] || CALLOUTS.note;
@@ -80,21 +110,19 @@ export function RichText({ text }: { text: string }) {
           );
         }
 
-        // heading block: every line starts with ##
         if (lines.every((l) => l.startsWith("## "))) {
           return <h3 key={pi} className="rhead">{lines.map((l) => l.slice(3)).join(" ")}</h3>;
         }
 
-        // checklist block
-        if (lines.every((l) => /^-\s\[[ xX]\]/.test(l))) {
+        if (lines.every((l) => /^-s\[[ xX]\]/.test(l))) {
           return (
             <ul key={pi} className="checklist">
               {lines.map((l, li) => {
-                const checked = /^-\s\[[xX]\]/.test(l);
+                const checked = /^-s\[[xX]\]/.test(l);
                 return (
                   <li key={li} className={checked ? "checked" : ""}>
                     <span className="ck" aria-hidden="true">{checked ? "☑" : "☐"}</span>{" "}
-                    {inline(l.replace(/^-\s\[[ xX]\]\s?/, ""), `${pi}-${li}`)}
+                    {inline(l.replace(/^-s\[[ xX]\]\s?/, ""), `${pi}-${li}`)}
                   </li>
                 );
               })}
@@ -117,7 +145,7 @@ export function RichText({ text }: { text: string }) {
   );
 }
 
-// Plain text with math only (for prompts).
 export function MathText({ text }: { text: string }) {
+  useKatex(text);
   return <>{inline(String(text || ""), "m")}</>;
 }
