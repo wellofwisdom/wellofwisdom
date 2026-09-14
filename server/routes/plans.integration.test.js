@@ -23,7 +23,7 @@ async function signup(a, tag) {
 describe("plans integration", () => {
   before(ctx.setup); after(ctx.teardown);
   it("plans list is family scoped", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app();
     const famA = await signup(a, "PA"); const famB = await signup(a, "PB");
     const r = await http(a, "/api/plans", { cookie: famA.jar, body: { title: "My plan", subject: "Math", startDate: "2026-09-01", endDate: "2026-10-01", sessionsPerWeek: 3, minutesPerSession: 30, learners: [], milestones: [{ title: "m1" }, { title: "m2" }, { title: "m3" }] } });

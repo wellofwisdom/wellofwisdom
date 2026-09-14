@@ -26,7 +26,7 @@ async function signup(a, tag) {
 describe("family integration", () => {
   before(ctx.setup); after(ctx.teardown);
   it("family scoping: other family data absent", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");
     const famA = await signup(a, "scopingA"); const famB = await signup(a, "scopingB");
     await http(a, "/api/family/learners", { cookie: famA.jar, body: { name: `kidA_${Date.now()}`, username: `kidA_${Date.now()}`, pin: "1234" } });
@@ -43,7 +43,7 @@ describe("family integration", () => {
     }
   });
   it("observer may GET but not POST", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app();
     const fam = await signup(a, "observer");
     const inv = await http(a, "/api/guides/invites", { cookie: fam.jar, body: { role: "observer" } });
@@ -57,7 +57,7 @@ describe("family integration", () => {
     assert.equal(post.status, 403, `observer POST should be 403 got ${post.status}: ${post.text}`);
   });
   it("assistant sees only assigned learners", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");
     const fam = await signup(a, "assist");
     const k1name = `k1_${Date.now()}`; const k2name = `k2_${Date.now()}`;

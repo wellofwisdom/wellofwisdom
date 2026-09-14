@@ -24,7 +24,7 @@ async function signup(a, tag) {
 describe("uploads integration", () => {
   before(ctx.setup); after(ctx.teardown);
   it("uploads list is family scoped", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");
     const famA = await signup(a, "Au"); const famB = await signup(a, "Bu");
     const insA = await db.query("insert into uploads (family_id, kind, mime, bytes, storage_key, original_name, title, created_by) values ($1,'image','image/png',123,$2,'a.png','A image',$3) returning id", [famA.familyId, `${famA.familyId}/test-a.png`, famA.familyId]);

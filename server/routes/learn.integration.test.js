@@ -36,7 +36,7 @@ async function seedCourse(db, familyId) {
 describe("learn integration", () => {
   before(ctx.setup); after(ctx.teardown);
   it("attempt graded server-side and answer never in learner tree", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");
     const fam = await signup(a, "graded");
     const uniq = `k_${Date.now()}`;
@@ -60,7 +60,7 @@ describe("learn integration", () => {
     assert.equal(at2.status, 200); assert.equal(at2.json.correct, false);
   });
   it("learner cannot see another family course", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");
     const famA = await signup(a, "famA"); const famB = await signup(a, "famB");
     const ka = `ka_${Date.now()}`; const kb = `kb_${Date.now()}`;

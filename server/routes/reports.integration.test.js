@@ -23,7 +23,7 @@ async function signup(a, tag) {
 describe("reports integration", () => {
   before(ctx.setup); after(ctx.teardown);
   it("reports are family scoped and need activity", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");
     const famA = await signup(a, "RA"); const famB = await signup(a, "RB");
     const ra = await http(a, "/api/family/learners", { cookie: famA.jar, body: { name: "KidA", username: `kida_${Date.now()}`, pin: "1234" } }); assert.equal(ra.status, 201);

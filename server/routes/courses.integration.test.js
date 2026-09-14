@@ -25,7 +25,7 @@ async function signup(a, tag) {
 describe("courses integration", () => {
   before(ctx.setup); after(ctx.teardown);
   it("export round-trips through import, family scoped", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");
     const famA = await signup(a, "A"); const famB = await signup(a, "B");
     const c = await db.query("insert into courses (family_id, title, topic, status) values ($1,$2,$3,'draft') returning id", [famA.familyId, "Seed Course", "fractions"]);

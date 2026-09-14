@@ -37,7 +37,7 @@ describe("auth integration", () => {
   after(ctx.teardown);
 
   it("signup creates family and session, login succeeds", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set (auth signup)"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set (auth signup)"); return; }
     const a = await app();
     const email = `a_${Date.now()}@example.com`;
     const r1 = await http(a, "/api/auth/signup", { body: { familyName: "Test Family", name: "Alex", email, password: "s3cur3Pass" } });
@@ -56,7 +56,7 @@ describe("auth integration", () => {
   });
 
   it("login is rate limited per IP", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set (rate limit)"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set (rate limit)"); return; }
     const a = await app();
     let lastStatus = null;
     for (let i = 0; i < 12; i++) {
@@ -67,7 +67,7 @@ describe("auth integration", () => {
   });
 
   it("learner login by family join code plus PIN", async () => {
-    if (ctx.skip) { console.log("# skip: DATABASE_URL not set (learner login)"); return; }
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set (learner login)"); return; }
     const a = await app();
     const uniq = Date.now().toString(36);
     const email = `parent_${uniq}@example.com`;
