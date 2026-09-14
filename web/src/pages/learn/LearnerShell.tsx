@@ -39,12 +39,9 @@ function getControllerPref(): boolean {
 
 function isTypingTarget(el: Element | null): boolean {
   if (!el) return false;
-  const tag = el.tagName;
-  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
-  if ((el as HTMLElement).isContentEditable) return true;
-  const closest = (el as HTMLElement).closest?.('[contenteditable="true"], input, textarea, select, [role="dialog"]');
-  if (closest && closest !== el) return true;
-  if (el.closest?.('[role="dialog"]')) return true;
+  const he = el as HTMLElement;
+  if (he.isContentEditable) return true;
+  if (he.closest?.('input, textarea, select, [contenteditable="true"], [role="dialog"]')) return true;
   return false;
 }
 
