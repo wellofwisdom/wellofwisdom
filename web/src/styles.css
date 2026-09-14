@@ -1534,3 +1534,6 @@ code.k {
   width: 100%; max-height: 260px; border-radius: 12px; background: #000;
   display: block; border: 1px solid var(--border);
 }
+/* Companion line: tiny flavor text under chapter heads, crew speaks when present. */
+.companionline{margin:6px 0 0 0;font-style:italic;opacity:.92}
+
