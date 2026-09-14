@@ -257,6 +257,9 @@ async function boot() {
     ai.setUsageLogger(require("./lib/aiusage").logUsage);
     require("./lib/jobs").startJobs();
     require("./lib/digest").startDigestSchedule();
+    if (process.env.DEMO_MODE === "true" || process.env.DEMO_MODE === "1") {
+      require("./routes/demo").backfillDemoFamilies().catch(() => {});
+    }
   }
   if (require.main === module) {
     app.listen(PORT, "0.0.0.0", () => {
