@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { VideoPlayer } from "../../components/VideoUI";
+import { triggerRumble } from "../../lib/gamepad";
 import { RichText, MathText } from "../../lib/rich";
 import NarratorButton from "../../components/NarratorButton";
 import ChapterMusic from "../../components/ChapterMusic";
@@ -112,6 +113,7 @@ export default function WorldView({ adventureId, onNavigate }:
       );
       setOpen(null);
       setCelebrate({ xp: r.xpGained || 0, rewards: (r.earnedRewards || []).map((x) => x.title) });
+      triggerRumble("complete");
       await load();
     } catch (e) {
       setError(niceError(e));
@@ -444,8 +446,10 @@ function BossFight({ encounter, onWin, onClose }: {
           rewards: (r.earnedRewards || []).map((x) => x.title),
           videoUploadId: r.videoUploadId ?? null,
         });
+        triggerRumble("complete");
         return;
       }
+      if (r.correct) triggerRumble("hit");
       setStreak(r.streak);
       setNeed(r.need);
       setVerdict(r.correct ? "Correct!" : r.brokeBy === "timeout" ? "Out of time. Streak reset." : "Not quite. Streak reset.");
