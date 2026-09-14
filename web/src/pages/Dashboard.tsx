@@ -24,11 +24,9 @@ export default function Dashboard({
 }) {
   const user = me.user!;
   const learners = me.learners || [];
-  const hasBg = localStorage.getItem("wow-theme-bg") !== null;
   const [courses, setCourses] = useState<CourseSummary[] | null>(null);
-  // Work waiting to be read is the one thing on this page that is somebody
-  // else's turn, so it earns a stat rather than a nav item nobody clicks.
   const [waiting, setWaiting] = useState<number | null>(null);
+  const [reportsCount, setReportsCount] = useState<number | null>(null);
 
   useEffect(() => {
     api<{ courses: CourseSummary[] }>("/api/courses")
@@ -37,29 +35,53 @@ export default function Dashboard({
     api<{ submissions: { status: string }[] }>("/api/work")
       .then((d) => setWaiting(d.submissions.filter((s) => s.status === "submitted").length))
       .catch(() => setWaiting(0));
+    api<{ reports: unknown[] }>("/api/reports")
+      .then((d) => setReportsCount(d.reports.length))
+      .catch(() => setReportsCount(0));
   }, []);
 
   const published = courses?.filter((c) => c.status === "published").length ?? 0;
   const primaryLearner = learners[0] || null;
+  const hasPublished = published > 0;
+  const hasProgress = (reportsCount ?? 0) > 0 || (courses?.some((c) => c.status === "published") ?? false);
 
-  const steps: { label: string; done: boolean; go?: () => void }[] = [
-    { label: "Create your group", done: true },
+  const steps: { label: string; done: boolean; go?: () => void; inline?: React.ReactNode }[] = [
     {
-      label: `Add a learner${learners.length ? " (you did! 🎉)" : ""}`,
+      label: `Add a learner${learners.length ? " (you did!)" : ""}`,
       done: learners.length > 0,
       go: () => onNavigate("learners"),
     },
     {
-      label: "Pick a look (background + dark mode)",
-      done: hasBg,
-      go: () => onNavigate("settings"),
+      label: `Generate or import a course${(courses?.length ?? 0) > 0 ? " (you did!)" : ""}`,
+      done: (courses?.length ?? 0) > 0,
+      go: () => onNavigate("studio"),
     },
     {
-      label: "Generate your first course with AI",
-      done: (courses?.length ?? 0) > 0,
+      label: `Publish it${hasPublished ? " (you did!)" : ""}`,
+      done: hasPublished,
       go: () => onNavigate("courses"),
     },
+    {
+      label: `Open it as the learner${primaryLearner ? "" : " (add a learner first)"}`,
+      done: false,
+      go: primaryLearner ? () => startPreview(primaryLearner.id, primaryLearner.name) : undefined,
+      inline: primaryLearner ? (
+        <button className="btn ghost" type="button" onClick={() => startPreview(primaryLearner.id, primaryLearner.name)}>
+          Open as {primaryLearner.name}
+        </button>
+      ) : undefined,
+    },
+    {
+      label: "Read the first progress report",
+      done: (reportsCount ?? 0) > 0,
+      go: () => onNavigate("records"),
+    },
   ];
+
+  // Step 4 is action-only: done when learner has viewed a published course.
+  // For now it stays open until they use it; progress step catches the loop.
+  void hasProgress;
+
   const doneCount = steps.filter((s) => s.done).length;
 
   return (
@@ -104,9 +126,9 @@ export default function Dashboard({
             <div key={s.label} className={`checkitem${s.done ? " done" : ""}`}>
               <span className="dot">{s.done && <IconCheck width={12} height={12} />}</span>
               <span className="t">{s.label}</span>
-              {!s.done && s.go && (
+              {s.inline ? s.inline : (!s.done && s.go && (
                 <button className="btn ghost" type="button" onClick={s.go}>Do it</button>
-              )}
+              ))}
             </div>
           ))}
         </div>

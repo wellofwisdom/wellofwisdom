@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Guide console shell: sidebar matching the Trinacle design language:
-// colored icon chips, collapsible submenus, hover lift, active accent bar.
+// colored icon chips, collapsible sections, hover lift, active accent bar.
 import { useEffect, useState, type ReactNode } from "react";
 import Logo from "./Logo";
 import type { CourseSummary, Me } from "../types";
@@ -10,6 +10,8 @@ import DemoBanner from "./DemoBanner";
 import {
   IconHome, IconUsers, IconBook, IconClipboard, IconSettings,
   IconSun, IconMoon, IconMenu, IconX, IconLogout, IconSparkle,
+  IconGlobe, IconMap, IconCalendar, IconNotebook, IconLibrary,
+  IconWrench, IconMessage, IconBarChart, IconClipboardCheck,
 } from "./Icons";
 
 const TITLES: Record<string, string> = {
@@ -31,7 +33,6 @@ const TITLES: Record<string, string> = {
   settings: "Settings",
 };
 
-// chip color per item. The Trinacle rainbow
 const CHIPS: Record<string, string> = {
   dashboard: "c-green",
   studio: "c-violet",
@@ -50,6 +51,43 @@ const CHIPS: Record<string, string> = {
   settings: "c-slate",
 };
 
+type GroupId = "teach" | "learners" | "records" | "workspace";
+
+const GROUP_OF: Record<string, GroupId> = {
+  studio: "teach",
+  courses: "teach",
+  community: "teach",
+  plans: "teach",
+  learners: "learners",
+  work: "learners",
+  tutor: "learners",
+  records: "records",
+  attendance: "records",
+  calendar: "records",
+  notes: "workspace",
+  library: "workspace",
+};
+
+const GROUP_LABELS: Record<GroupId, string> = {
+  teach: "Teach",
+  learners: "Learners",
+  records: "Records",
+  workspace: "Workspace",
+};
+
+const STORAGE_KEY = "wow-sidebar-open";
+
+function loadOpen(): Record<GroupId, boolean> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Record<string, boolean>;
+      if (parsed && typeof parsed === "object") return parsed as Record<GroupId, boolean>;
+    }
+  } catch { /* ignore */ }
+  return { teach: true, learners: true, records: true, workspace: true };
+}
+
 export default function Shell({
   me,
   route,
@@ -66,7 +104,8 @@ export default function Shell({
   children: ReactNode;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(route === "experience");
+  const [open, setOpen] = useState<Record<GroupId, boolean>>(() => loadOpen());
+  const [accountOpen, setAccountOpen] = useState(false);
   const [dark, setDark] = useState(isDark());
 
   useEffect(() => {
@@ -80,6 +119,17 @@ export default function Shell({
     };
   }, []);
 
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(open)); } catch { /* ignore */ }
+  }, [open]);
+
+  useEffect(() => {
+    const g = GROUP_OF[route];
+    if (g && !open[g]) setOpen((prev) => ({ ...prev, [g]: true }));
+  }, [route]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { setAccountOpen(false); }, [route]);
+
   const toggleTheme = () => {
     const next = dark ? "light" : "dark";
     setMode(next);
@@ -91,6 +141,8 @@ export default function Shell({
     onNavigate(id);
     setDrawerOpen(false);
   };
+
+  const toggleGroup = (g: GroupId) => setOpen((prev) => ({ ...prev, [g]: !prev[g] }));
 
   const Item = ({ id, label, icon, sub = false }: { id: string; label: string; icon: ReactNode; sub?: boolean }) => (
     <button
@@ -104,16 +156,36 @@ export default function Shell({
     </button>
   );
 
+  const Group = ({ id, children: groupChildren }: { id: GroupId; children: ReactNode }) => {
+    const isOpen = open[id];
+    const containsActive = Object.entries(GROUP_OF).some(([r, g]) => g === id && r === route);
+    const show = isOpen || containsActive;
+    return (
+      <div className="navgrp">
+        <button
+          type="button"
+          className="grpbtn"
+          onClick={() => toggleGroup(id)}
+          aria-expanded={show}
+          aria-controls={`grp-${id}`}
+        >
+          <span>{GROUP_LABELS[id]}</span>
+          <span className={`grpcaret${show ? " exp" : ""}`} aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+          </span>
+        </button>
+        {show && <div id={`grp-${id}`} className="grpbody">{groupChildren}</div>}
+      </div>
+    );
+  };
+
   return (
     <div className="shell">
       {drawerOpen && <div className="scrim" onClick={() => setDrawerOpen(false)} />}
       <aside className={`sidebar${drawerOpen ? " open" : ""}`}>
         <div className="brand">
-          <span className="nut"><Logo size={38} /></span>
-          <span className="brandname">
-            Well of Wisdom
-            <span className="sub">{me.familyName}</span>
-          </span>
+          <span className="nut"><Logo size={34} /></span>
+          <span className="brandword" aria-label="Well of Wisdom">Well of Wisdom</span>
           <button
             className="iconbtn hamburger"
             style={{ marginLeft: "auto" }}
@@ -124,58 +196,79 @@ export default function Shell({
             <IconX />
           </button>
         </div>
+        <div className="brandsub">{me.familyName}</div>
 
         <nav className="nav" aria-label="Main">
-          <div className="grp">Learn</div>
-          <Item id="dashboard" label="Dashboard" icon={<IconHome />} />
-          <Item id="studio" label="Course Studio" icon={<IconSparkle />} />
-          <Item id="courses" label="Courses" icon={<IconBook />} />
-          <Item id="community" label="Community" icon={<span style={{ fontSize: 15 }}>🌍</span>} />
-        </nav>
+          <button
+            type="button"
+            className={`navlink${route === "dashboard" ? " on" : ""}`}
+            onClick={() => go("dashboard")}
+            aria-current={route === "dashboard" ? "page" : undefined}
+          >
+            <span className={`ic ${CHIPS.dashboard}`} aria-hidden="true"><IconHome /></span>
+            Dashboard
+          </button>
 
-        <nav className="nav" aria-label="Manage">
-          <div className="grp">Manage</div>
-          <Item id="learners" label="Learners" icon={<IconUsers />} />
-          <Item id="plans" label="Learning Paths" icon={<span style={{ fontSize: 15 }}>🗺️</span>} />
-          <Item id="calendar" label="Calendar" icon={<span style={{ fontSize: 15 }}>🗓️</span>} />
-          <Item id="notes" label="Workspace" icon={<span style={{ fontSize: 15 }}>🗒️</span>} />
-          <Item id="library" label="Library" icon={<span style={{ fontSize: 15 }}>📚</span>} />
-          <Item id="records" label="Progress" icon={<IconClipboard />} />
-          <Item id="work" label="Submitted Work" icon={<span style={{ fontSize: 15 }}>🛠️</span>} />
-          <Item id="attendance" label="Attendance" icon={<span style={{ fontSize: 15 }}>🗓️</span>} />
-          <Item id="tutor" label="Tutor" icon={<span style={{ fontSize: 15 }}>🌰</span>} />
+          <Group id="teach">
+            <Item id="studio" label="Course Studio" icon={<IconSparkle />} />
+            <Item id="courses" label="Courses" icon={<IconBook />} />
+            <Item id="community" label="Open courses" icon={<IconGlobe />} />
+            <Item id="plans" label="Learning paths" icon={<IconMap />} />
+          </Group>
+
+          <Group id="learners">
+            <Item id="learners" label="Learners" icon={<IconUsers />} />
+            <Item id="work" label="Submitted work" icon={<IconWrench />} />
+            <Item id="tutor" label="Tutor log" icon={<IconMessage />} />
+          </Group>
+
+          <Group id="records">
+            <Item id="records" label="Progress" icon={<IconBarChart />} />
+            <Item id="attendance" label="Attendance" icon={<IconClipboardCheck />} />
+            <Item id="calendar" label="Calendar" icon={<IconCalendar />} />
+          </Group>
+
+          <Group id="workspace">
+            <Item id="notes" label="Workspace" icon={<IconNotebook />} />
+            <Item id="library" label="Library" icon={<IconLibrary />} />
+          </Group>
         </nav>
 
         <div className="foot">
-          <nav className="nav" aria-label="Preferences">
+          <div className="acctwrap">
             <button
               type="button"
-              className={`navlink${route === "settings" ? " on" : ""}`}
-              onClick={() => { go("settings"); setSettingsOpen(!settingsOpen); }}
-              aria-expanded={settingsOpen}
+              className="acct"
+              onClick={() => setAccountOpen((v) => !v)}
+              aria-expanded={accountOpen}
+              aria-haspopup="menu"
             >
-              <span className={`ic ${CHIPS.settings}`} aria-hidden="true"><IconSettings /></span>
-              Settings
-              <span className={`caret${settingsOpen ? " exp" : ""}`} aria-hidden="true">
+              <span className="av" aria-hidden="true">{me.name.slice(0, 1).toUpperCase()}</span>
+              <span className="who">
+                <span className="nm">{me.name}</span>
+                <span className="em">Guide</span>
+              </span>
+              <span className={`caret${accountOpen ? " exp" : ""}`} aria-hidden="true">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
               </span>
             </button>
-            {settingsOpen && (
-              <div className="navsub">
-                <Item id="experience" label="Experience" icon={<span style={{ fontSize: 14 }}>🎨</span>} sub />
+            {accountOpen && (
+              <div className="acctmenu" role="menu">
+                <button type="button" role="menuitem" className={`acctitem${route === "settings" ? " on" : ""}`} onClick={() => go("settings")}>
+                  <span className={`ic ${CHIPS.settings} small`} aria-hidden="true"><IconSettings /></span>
+                  Settings
+                </button>
+                <button type="button" role="menuitem" className={`acctitem${route === "experience" ? " on" : ""}`} onClick={() => go("experience")}>
+                  <span className="ic c-rose small" aria-hidden="true"><IconClipboard /></span>
+                  Experience
+                </button>
+                <div className="acctsep" />
+                <button type="button" role="menuitem" className="acctitem" onClick={onLogout}>
+                  <span className="ic c-slate small" aria-hidden="true"><IconLogout /></span>
+                  Sign out
+                </button>
               </div>
             )}
-          </nav>
-
-          <div className="acct">
-            <span className="av" aria-hidden="true">{me.name.slice(0, 1).toUpperCase()}</span>
-            <span className="who">
-              <span className="nm">{me.name}</span>
-              <span className="em">Guide</span>
-            </span>
-            <button className="iconbtn ch" onClick={onLogout} aria-label="Sign out" title="Sign out" type="button">
-              <IconLogout />
-            </button>
           </div>
         </div>
       </aside>
