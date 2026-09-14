@@ -3,6 +3,7 @@
 // (/c/<slug>). Read-only, no answer keys, and every course offers its portable
 // package so any other instance can import it.
 import { useEffect, useState } from "react";
+import Logo from "../components/Logo";
 import { api, niceError } from "../api";
 import { linkProps } from "../router";
 import { RichText } from "../lib/rich";
@@ -35,7 +36,7 @@ interface PublicCourseData extends PublicMeta { units: PublicUnit[] }
 function Banner() {
   return (
     <div className="publicbanner">
-      <a {...linkProps("c")} className="brand">🌰 Well of Wisdom</a>
+      <a {...linkProps("c")} className="brand"><Logo size={28} /> Well of Wisdom</a>
       <span className="grow" />
       <a className="btn ghost" href="https://github.com/wellofwisdom/wellofwisdom"
         target="_blank" rel="noopener noreferrer">Run your own</a>

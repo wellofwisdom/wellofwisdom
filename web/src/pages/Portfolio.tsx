@@ -8,6 +8,7 @@
 //
 // Print is the deliverable. Anything interactive is marked noprint.
 import { useEffect, useState } from "react";
+import Logo from "../components/Logo";
 import { api, niceError } from "../api";
 import { Panel } from "../components/ui";
 import { RichText } from "../lib/rich";
@@ -104,7 +105,7 @@ export default function Portfolio({ learnerId, onNavigate }: {
 
       <div className="reportpage">
         <div className="rp-head">
-          <div className="rp-nut" aria-hidden="true">🌰</div>
+          <div className="rp-nut"><Logo size={48} /></div>
           <h1>Portfolio of Work</h1>
           <p className="rp-sub">
             {data.learner.name}

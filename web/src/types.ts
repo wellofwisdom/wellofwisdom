@@ -9,6 +9,8 @@ export interface Me {
   prefs: Record<string, unknown>;
   gradeLevel: number | null;
   interests: string[];
+  /** May change settings shared by the whole server (AI, email, media, waitlist). */
+  instanceAdmin?: boolean;
 }
 
 export interface Learner {
@@ -47,6 +49,7 @@ export interface CourseSummary {
   status: "draft" | "published" | "archived";
   description: string | null;
   learner_name: string | null;
+  cover_url: string | null;
   unit_count: number;
   lesson_count: number;
   exercise_count: number;
@@ -68,6 +71,7 @@ export interface CourseTree {
   grade_level: number | null;
   status: "draft" | "published" | "archived";
   description: string | null;
+  cover_url: string | null;
   learner_id: number | null;
   learner_name: string | null;
   public_slug: string | null;
