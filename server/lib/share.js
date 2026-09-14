@@ -12,6 +12,7 @@
 //   packageItem(), what another instance downloads to teach from. Answers
 //                   included only when the publisher opted in.
 const db = require("./db");
+const standards = require("./standards");
 
 const LICENSES = ["CC-BY-4.0", "CC-BY-SA-4.0", "CC0-1.0", "all-rights-reserved"];
 const DEFAULT_LICENSE = "CC-BY-4.0";
@@ -121,7 +122,7 @@ function coursePackage(tree) {
       lessons: (u.lessons || []).map((l) => ({
         title: l.title,
         summary: l.summary,
-        standards: (l.standards || null) ? require("./standards").normalizeStandards(l.standards) : undefined,
+        standards: (l.standards || null) ? standards.normalizeStandards(l.standards) : undefined,
         items: (l.items || []).map((i) => packageItem(i, withAnswers)),
       })),
     })),

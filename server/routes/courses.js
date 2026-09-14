@@ -9,6 +9,7 @@ const jobs = require("../lib/jobs");
 const ai = require("../lib/ai");
 const { safeFetch } = require("../lib/safefetch");
 const { safeSourceUrl, htmlToText } = require("../lib/grade");
+const standards = require("../lib/standards");
 
 const router = express.Router();
 router.use(auth.parentOnly);
@@ -663,7 +664,7 @@ router.patch("/lessons/:lessonId", async (req, res, next) => {
     }
     if (summary !== undefined) add("summary", String(summary || "").slice(0, 500) || null);
     if (standards !== undefined) {
-      const normalized = require("../lib/standards").normalizeStandards(standards);
+      const normalized = standards.normalizeStandards(standards);
       add("standards", normalized);
     }
     if (!sets.length) return bad(res, "nothing_to_update");

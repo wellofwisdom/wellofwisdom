@@ -85,6 +85,7 @@ export interface CourseTree {
       id: number;
       title: string;
       summary: string | null;
+      standards?: string[];
       items: ItemNode[];
     }[];
   }[];
