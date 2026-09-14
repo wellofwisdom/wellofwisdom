@@ -178,3 +178,31 @@ test("both routes that make a course live refuse one with unanswered questions",
   const pubBody = routeSrc.slice(pubAt, routeSrc.indexOf("\n});", pubAt));
   assert.match(pubBody, /unansweredIn\([\s\S]*answers_missing[\s\S]*status = 'published'/, "publishing to /c/ checks before it goes live");
 });
+
+test("audio: only an upload or a local /media/ URL is kept, and a missing transcript is its own problem", () => {
+  // Accepted: transcript alone (browser-speech fallback), or transcript + upload, or transcript + local media.
+  assert.equal(cg.itemProblem({ type: "audio", content: { title: "Listen", transcript: "hello" } }), null);
+  assert.equal(cg.itemProblem({ type: "audio", content: { transcript: "hello", uploadId: 7 } }), null);
+  assert.equal(cg.itemProblem({ type: "audio", content: { transcript: "hello", audioUrl: "/media/12" } }), null);
+  assert.equal(cg.itemProblem({ type: "audio", content: { transcript: "hello", audioUrl: "/media/12/captions.vtt" } }), null);
+  // Rejected: no transcript, or only transcript blank, or audio from a third party smuggled in a package.
+  assert.equal(cg.itemProblem({ type: "audio", content: { title: "Listen" } }), "audio_source_required");
+  assert.equal(cg.itemProblem({ type: "audio", content: { transcript: "  ", uploadId: 9 } }), "audio_transcript_required");
+  assert.equal(cg.itemProblem({ type: "audio", content: { transcript: "hello", audioUrl: "https://evil.example/file.mp3" } }), "audio_source_required");
+  assert.equal(cg.itemProblem({ type: "audio", content: { transcript: "hello", url: "https://cdn.example/a.mp3" } }), "audio_source_required");
+  // Normalizer drops a remote URL, keeps only local.
+  assert.equal(cg.normalizeItem({ type: "audio", content: { transcript: "hello", audioUrl: "https://evil.example/file.mp3" } }).content.audioUrl, undefined);
+  assert.equal(cg.normalizeItem({ type: "audio", content: { transcript: "hello", audioUrl: "/media/12" } }).content.audioUrl, "/media/12");
+});
+
+test("audio: a missing transcript does not count as a missing answer key", () => {
+  const withTranscript = [{ type: "audio", content: { transcript: "hello" } }];
+  const withoutTranscript = [{ type: "audio", content: { transcript: "   " } }];
+  const typed = withTranscript.map((i) => cg.normalizeItem(i));
+  // missingAnswers is about answer keys, not transcripts. An audio transcript gap
+  // is reported as audio_transcript_required, not answers_missing.
+  assert.equal(cg.missingAnswers(withTranscript), 0);
+  assert.equal(cg.missingAnswers(typed), 0);
+  assert.equal(cg.missingAnswers(withoutTranscript), 0);
+  assert.equal(cg.missingAnswers([{ type: "audio", content: {} }]), 0);
+});

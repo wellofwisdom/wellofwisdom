@@ -190,20 +190,28 @@ function normalizeVideo(content) {
   return v;
 }
 
+function isLocalMediaUrl(s) {
+  if (typeof s !== "string") return false;
+  const t = s.trim();
+  // Only same-origin /media/:id URLs. No third-party fetches from a learner
+  // request, and no https URL that a package could smuggle in.
+  return /^\/media\/\d+(?:\/captions\.vtt)?(?:\?.*)?$/.test(t);
+}
+
 function normalizeAudio(content) {
   const title = clean(content.title, 300) || "Listen";
   const transcript = str(content.transcript, 8000) || clean(content.text, 8000) || str(content.body, 8000) || "";
   const uploadId = Number(content.uploadId);
   const hasUpload = Number.isInteger(uploadId) && uploadId > 0;
-  // audioUrl is a kie.ai generated URL or an external URL already vetted at write time.
-  const audioUrl = typeof content.audioUrl === "string" && /^https:\/\//.test(content.audioUrl.trim()) ? content.audioUrl.trim().slice(0, 2000) : null;
-  const url = typeof content.url === "string" && /^https:\/\//.test(content.url.trim()) ? content.url.trim().slice(0, 2000) : null;
-  const finalUrl = audioUrl || url || null;
+  const localUrl = isLocalMediaUrl(content.audioUrl) ? content.audioUrl.trim().slice(0, 500) : null;
+  const altUrl = isLocalMediaUrl(content.url) ? content.url.trim().slice(0, 500) : null;
+  const finalUrl = localUrl || altUrl || null;
+  // No remote host: either a family upload (uploadId) or a local /media/ URL.
+  // The player keeps a transcript path, so offline is still usable.
   if (!hasUpload && !finalUrl && !transcript) return null;
   const out = { title, transcript: transcript.slice(0, 8000) };
   if (hasUpload) out.uploadId = uploadId;
   if (finalUrl) out.audioUrl = finalUrl;
-  // Keep short even without a file yet: the player falls back to browser speech.
   return out;
 }
 
@@ -281,6 +289,12 @@ function itemProblem(item) {
   }
 
   if (item.type === "audio") {
+    const rawAudioUrl = typeof c.audioUrl === "string" ? c.audioUrl.trim() : "";
+    const rawUrl = typeof c.url === "string" ? c.url.trim() : "";
+    // Any provided URL that is not local /media/ is rejected, so an imported
+    // package cannot smuggle a third-party fetch onto a learner path.
+    if (rawAudioUrl && !isLocalMediaUrl(rawAudioUrl)) return "audio_source_required";
+    if (rawUrl && !isLocalMediaUrl(rawUrl)) return "audio_source_required";
     const a = normalizeAudio(c);
     if (!a) return "audio_source_required";
     if (!a.transcript || !a.transcript.trim()) return "audio_transcript_required";
@@ -327,10 +341,7 @@ function missingAnswers(items) {
       else n += keyed(c.choices, c.answer) ? 0 : 1;
     } else if (i.type === "video" && Array.isArray(c.questions)) {
       for (const q of c.questions) n += q && keyed(q.choices, q.answer) ? 0 : 1;
-    } else if (i.type === "audio") {
-      // No graded question, just needs transcript for accessibility.
-      if (!c.transcript || !String(c.transcript).trim()) n += 1;
-    }
+    } // audio has no answer key; a missing transcript is audio_transcript_required, not missingAnswers
   }
   return n;
 }
