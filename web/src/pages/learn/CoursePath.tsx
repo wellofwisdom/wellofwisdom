@@ -93,6 +93,8 @@ export default function CoursePath({
               <button
                 key={n.id}
                 type="button"
+                data-nav
+                data-say={`${n.title}${isDone ? " done" : isNext ? " next up" : " locked"}`}
                 className={`pathnode${isDone ? " done" : ""}${isNext ? " next" : ""}${isLocked ? " locked" : ""}`}
                 style={{ left: x, top: y }}
                 onClick={() => onNavigate(`lesson/${n.id}`)}
