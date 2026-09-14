@@ -89,7 +89,7 @@ router.get("/learners", async (req, res, next) => {
 
 router.post("/learners", auth.requirePerm("create_learner"), async (req, res, next) => {
   try {
-    const { name, username, pin, gradeLevel, interests, readingLevel, aiNotes, email } = req.body || {};
+    const { name, username, pin, gradeLevel, interests, readingLevel, aiNotes, email, lang } = req.body || {};
     if (!String(name || "").trim()) return bad(res, "name_required");
     const uname = String(username || "").trim().toLowerCase();
     if (!/^[a-z0-9_.-]{2,24}$/.test(uname)) return bad(res, "username_invalid");
@@ -103,9 +103,10 @@ router.post("/learners", auth.requirePerm("create_learner"), async (req, res, ne
     );
     if (exists.rowCount > 0) return bad(res, "username_taken", 409);
 
+    const prefsLang = learners.normalizeLang(lang);
     const { rows } = await db.query(
-      `insert into users (family_id, role, name, username, pin_hash, grade_level, interests, reading_level, ai_notes, email)
-       values ($1, 'learner', $2, $3, $4, $5, $6, $7, $8, $9) returning ${LEARNER_FIELDS}`,
+      `insert into users (family_id, role, name, username, pin_hash, grade_level, interests, reading_level, ai_notes, email, prefs)
+       values ($1, 'learner', $2, $3, $4, $5, $6, $7, $8, $9, $10) returning ${LEARNER_FIELDS}`,
       [
         req.user.familyId,
         String(name).trim().slice(0, 80),
@@ -116,6 +117,7 @@ router.post("/learners", auth.requirePerm("create_learner"), async (req, res, ne
         readingLevel ? String(readingLevel).slice(0, 20) : null,
         aiNotes ? String(aiNotes).slice(0, 2000) : null,
         email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(email)) ? String(email).toLowerCase() : null,
+        JSON.stringify({ lang: prefsLang }),
       ]
     );
     res.status(201).json({ learner: learners.shape(rows[0]) });
@@ -128,7 +130,7 @@ router.patch("/learners/:id", auth.requirePerm("edit_learner"), async (req, res,
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) return bad(res, "id_invalid");
-    const { name, pin, gradeLevel, interests, readingLevel, aiNotes, email } = req.body || {};
+    const { name, pin, gradeLevel, interests, readingLevel, aiNotes, email, lang } = req.body || {};
 
     const sets = [];
     const params = [req.user.familyId, id];
@@ -161,6 +163,11 @@ router.patch("/learners/:id", auth.requirePerm("edit_learner"), async (req, res,
     if (email !== undefined) {
       if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(email))) return bad(res, "email_invalid");
       add("email", email ? String(email).toLowerCase() : null);
+    }
+    if (lang !== undefined) {
+      const prefsLang = learners.normalizeLang(lang);
+      params.push(prefsLang);
+      sets.push(`prefs = coalesce(prefs, '{}'::jsonb) || jsonb_build_object('lang', $${params.length}::text)`);
     }
     if (!sets.length) return bad(res, "nothing_to_update");
 

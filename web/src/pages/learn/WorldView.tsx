@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { VideoPlayer } from "../../components/VideoUI";
+import { useT } from "../../i18n";
 import { triggerRumble } from "../../lib/gamepad";
 import { RichText, MathText } from "../../lib/rich";
 import NarratorButton from "../../components/NarratorButton";
@@ -74,6 +75,7 @@ const RARITY_ORDER = ["common", "uncommon", "rare", "epic", "legendary"];
 
 export default function WorldView({ adventureId, onNavigate }:
   { adventureId: number; onNavigate: (route: string) => void }) {
+  const { t } = useT();
   const [data, setData] = useState<WorldPayload | null>(null);
   const [loot, setLoot] = useState<LootRow[]>([]);
   const [rewards, setRewards] = useState<RewardRow[]>([]);
@@ -123,7 +125,7 @@ export default function WorldView({ adventureId, onNavigate }:
   }
 
   if (error && !data) return <div className="formerror" role="alert">{error}</div>;
-  if (!data) return <p className="muted">Opening the world…</p>;
+  if (!data) return <p className="muted">{t("world.openingWorld")}</p>;
 
   const world = data.adventure.world || {};
   const chapters = world.chapters || [];
@@ -162,19 +164,19 @@ export default function WorldView({ adventureId, onNavigate }:
 
       {data.encounters.length === 0 && (
         <p className="muted" style={{ marginTop: 16 }}>
-          This world has no encounters yet. Ask your guide to build it out.
+          {t("world.noEncounters")}
         </p>
       )}
 
       <WorldMap chapters={byChapter.map((c) => ({ ...c, encounters: c.encounters.map((e) => ({ id: e.id, kind: e.kind, title: e.title, state: e.state as any, lockedReason: e.lockedReason })) }))} onOpen={(e) => { const full = data.encounters.find((x) => x.id === e.id); if (full) setOpen(full); }} />
       <details className="world-fallback" style={{ marginTop: 14 }}>
-        <summary className="muted small" style={{ cursor: "pointer" }}>Show chapters</summary>
+        <summary className="muted small" style={{ cursor: "pointer" }}>{t("world.showChapters")}</summary>
         <Journey chapters={byChapter} characters={data.characters} onOpen={setOpen} />
       </details>
 
       {loot.length > 0 && (
         <section className="worldpanel">
-          <h2>Your pack</h2>
+          <h2>{t("world.yourPack")}</h2>
           <div className="lootstrip">
             {[...loot]
               .sort((a, b) => RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity))
@@ -191,7 +193,7 @@ export default function WorldView({ adventureId, onNavigate }:
 
       {rewards.length > 0 && (
         <section className="worldpanel">
-          <h2>Real rewards</h2>
+          <h2>{t("world.realRewards")}</h2>
           <div className="rewardgrid">
             {rewards.map((r) => {
               const pct = r.cost_xp ? Math.min(100, Math.round((data.adventure.xp / r.cost_xp) * 100)) : 100;
@@ -200,18 +202,18 @@ export default function WorldView({ adventureId, onNavigate }:
                   <div className="rewardtop">
                     <span className="rewardtitle">{r.title}</span>
                     <span className={`rewardstatus ${r.status}`}>
-                      {r.status === "granted" ? "yours 🎉" : r.status === "earned" ? "earned!" : `${pct}%`}
+                      {r.status === "granted" ? t("world.yours") : r.status === "earned" ? t("world.earned") : `${pct}%`}
                     </span>
                   </div>
                   {r.description && <p className="muted small">{r.description}</p>}
                   {r.status === "available" && r.cost_xp && (
                     <>
                       <div className="rewardbar"><span style={{ width: `${pct}%` }} /></div>
-                      <p className="muted small">{Math.max(0, r.cost_xp - data.adventure.xp)} XP to go</p>
+                      <p className="muted small">{t("world.xpToGo", { count: String(Math.max(0, r.cost_xp - data.adventure.xp)) })}</p>
                     </>
                   )}
                   {r.status === "earned" && (
-                    <p className="muted small">Ask your guide to hand this over.</p>
+                    <p className="muted small">{t("world.askGuideHandOver")}</p>
                   )}
                 </div>
               );
@@ -251,12 +253,12 @@ export default function WorldView({ adventureId, onNavigate }:
         <div className="celebrate" role="status" onClick={() => setCelebrate(null)}>
           <div className="celebratein">
             <div className="celeicon" aria-hidden="true">🎉</div>
-            <h2>Cleared!</h2>
+            <h2>{t("world.cleared")}</h2>
             <p>+{celebrate.xp} XP</p>
             {celebrate.rewards.map((t) => (
               <p key={t} className="celereward">🏆 You earned: <b>{t}</b></p>
             ))}
-            <button className="btn primary" type="button" onClick={() => setCelebrate(null)}>Onward</button>
+            <button className="btn primary" type="button" onClick={() => setCelebrate(null)}>{t("world.onward")}</button>
           </div>
         </div>
       )}
@@ -343,6 +345,7 @@ function EncounterDialog({ encounter, busy, onClose, onTakeOn, onFaceBoss }: {
 }) {
   const won = encounter.state === "won";
   const boss = isBoss(encounter.kind);
+  const { t: et } = useT();
   const choices = Array.isArray(encounter.choices) ? encounter.choices : [];
   return (
     <div className="encmodal" role="dialog" aria-modal="true" aria-label={encounter.title}>
@@ -350,7 +353,7 @@ function EncounterDialog({ encounter, busy, onClose, onTakeOn, onFaceBoss }: {
         <div className="encmodalhead">
           <span aria-hidden="true">{KIND_ICON[encounter.kind] || "✨"}</span>
           <h2>{encounter.title}</h2>
-          <button className="btn ghost small-btn" type="button" onClick={onClose}>Close</button>
+          <button className="btn ghost small-btn" type="button" onClick={onClose}>{et("shell.close")}</button>
         </div>
 
         {encounter.art_url && <img className="encart" src={encounter.art_url} alt={`Scene from ${encounter.title}`} />}
@@ -365,17 +368,15 @@ function EncounterDialog({ encounter, busy, onClose, onTakeOn, onFaceBoss }: {
         )}
 
         {won ? (
-          <p className="muted">You have already cleared this one.</p>
+          <p className="muted">{et("world.encounterWon")}</p>
         ) : boss ? (
           <>
             <p className="muted">
-              This one is a fight. Answer a run of questions correctly in a row,
-              against the clock, with no hints. Miss one and the streak starts over,
-              but you never lose your place.
+              {et("world.bossBlurb")}
             </p>
             <button className="btn primary big" type="button"
               onClick={() => onFaceBoss(encounter)}>
-              {encounter.kind === "boss" ? "Face the boss" : "Take on the guardian"}
+              {encounter.kind === "boss" ? et("world.faceBoss") : et("world.takeOnGuardian")}
             </button>
           </>
         ) : choices.length > 0 ? (
@@ -427,6 +428,7 @@ function BossFight({ encounter, onWin, onClose }: {
   const [verdict, setVerdict] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const { t: bt } = useT();
   const [victory, setVictory] = useState<{ xp: number; rewards: string[]; videoUploadId: number | null } | null>(null);
   const submitting = useRef(false);
 
@@ -452,7 +454,7 @@ function BossFight({ encounter, onWin, onClose }: {
       if (r.correct) triggerRumble("hit");
       setStreak(r.streak);
       setNeed(r.need);
-      setVerdict(r.correct ? "Correct!" : r.brokeBy === "timeout" ? "Out of time. Streak reset." : "Not quite. Streak reset.");
+      setVerdict(r.correct ? bt("world.correct") : r.brokeBy === "timeout" ? bt("world.outOfTime") : bt("world.notQuite"));
       setQ(r.question || null);
       setTyped("");
       if (r.timeLimitSec) { setLimit(r.timeLimitSec); setLeft(r.timeLimitSec); }
@@ -502,7 +504,7 @@ function BossFight({ encounter, onWin, onClose }: {
       <div className="encmodal" role="dialog" aria-modal="true" aria-label="Boss defeated">
         <div className="encmodalin">
           <div className="celeicon" aria-hidden="true">👑</div>
-          <h2>{encounter.kind === "boss" ? "Boss defeated!" : "Guardian beaten!"}</h2>
+          <h2>{encounter.kind === "boss" ? bt("world.bossDefeated") : bt("world.guardianBeaten")}</h2>
           <p role="status">+{victory.xp} XP</p>
           {victory.rewards.map((t) => (
             <p key={t} className="celereward">🏆 You earned: <b>{t}</b></p>
@@ -510,7 +512,7 @@ function BossFight({ encounter, onWin, onClose }: {
           {victory.videoUploadId && (
             <VideoPlayer content={{ uploadId: victory.videoUploadId, title: `${encounter.title} victory` }} />
           )}
-          <button className="btn primary big" type="button" onClick={onWin}>Onward</button>
+          <button className="btn primary big" type="button" onClick={onWin}>{bt("world.onward")}</button>
         </div>
       </div>
     );
@@ -522,10 +524,10 @@ function BossFight({ encounter, onWin, onClose }: {
         <div className="encmodalhead">
           <span aria-hidden="true">👑</span>
           <h2>{encounter.title}</h2>
-          <button className="btn ghost small-btn" type="button" onClick={onClose}>Give up</button>
+          <button className="btn ghost small-btn" type="button" onClick={onClose}>{bt("world.giveUp")}</button>
         </div>
 
-        <p className="muted small">Answer {need} in a row, no hints. A miss just resets the streak.</p>
+        <p className="muted small">{bt("world.bossFightHint", { need: String(need) })}</p>
 
         <StaminaBar value={Math.max(0, need - streak)} max={need} />
         <div className="bossbar" role="img" aria-label={`${streak} of ${need} in a row`}>
@@ -553,14 +555,14 @@ function BossFight({ encounter, onWin, onClose }: {
             ) : (
               <form className="bossnumform" onSubmit={(e) => { e.preventDefault(); if (typed.trim()) submit(typed); }}>
                 <input className="input" value={typed} inputMode="decimal" disabled={busy}
-                  onChange={(e) => setTyped(e.target.value)} placeholder="Your answer"
-                  aria-label="Your answer" autoFocus />
-                <button className="btn primary" type="submit" disabled={busy || !typed.trim()}>Answer</button>
+                  onChange={(e) => setTyped(e.target.value)} placeholder={bt("world.yourAnswer")}
+                  aria-label={bt("world.yourAnswer")} autoFocus />
+                <button className="btn primary" type="submit" disabled={busy || !typed.trim()}>{bt("world.answer")}</button>
               </form>
             )}
           </div>
         ) : (
-          <p className="muted">Summoning the boss…</p>
+          <p className="muted">{bt("world.summoning")}</p>
         )}
       </div>
     </div>
@@ -576,6 +578,7 @@ function CrewPanel({ adventureId, characters, onChanged }:
   const [bio, setBio] = useState("");
   const [role, setRole] = useState("ally");
   const [busy, setBusy] = useState(false);
+  const { t: ct } = useT();
   const [msg, setMsg] = useState("");
 
   async function add() {
@@ -586,7 +589,7 @@ function CrewPanel({ adventureId, characters, onChanged }:
         method: "POST", body: { name, bio: bio || null, role },
       });
       setName(""); setBio(""); setAdding(false);
-      setMsg("Sent to your guide. It joins the world once they say yes.");
+      setMsg(ct("world.sentToGuide"));
       onChanged();
     } catch (e) {
       setMsg(niceError(e));
@@ -598,39 +601,39 @@ function CrewPanel({ adventureId, characters, onChanged }:
   return (
     <section className="worldpanel">
       <div className="row" style={{ alignItems: "baseline" }}>
-        <h2 className="grow">The crew</h2>
+        <h2 className="grow">{ct("world.crewTitle")}</h2>
         {!adding && (
-          <button className="btn" type="button" onClick={() => setAdding(true)}>✍️ Invent a character</button>
+          <button className="btn" type="button" onClick={() => setAdding(true)}>✍️ {ct("world.inventCharacter")}</button>
         )}
       </div>
 
       {adding && (
         <div className="card" style={{ marginTop: 10 }}>
           <div className="field">
-            <label htmlFor="ch-name">Who are they?</label>
+            <label htmlFor="ch-name">{ct("world.whoAreThey")}</label>
             <input id="ch-name" className="input" value={name} maxLength={80}
-              onChange={(e) => setName(e.target.value)} placeholder="Mimsy the Borogove" />
+              onChange={(e) => setName(e.target.value)} placeholder={ct("world.whoPlaceholder")} />
           </div>
           <div className="field">
-            <label htmlFor="ch-role">What are they to you?</label>
+            <label htmlFor="ch-role">{ct("world.whatAreThey")}</label>
             <select id="ch-role" className="input" value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="ally">An ally</option>
-              <option value="mentor">A mentor</option>
-              <option value="rival">A rival</option>
-              <option value="creature">A creature</option>
+              <option value="ally">{ct("world.ally")}</option>
+              <option value="mentor">{ct("world.mentor")}</option>
+              <option value="rival">{ct("world.rival")}</option>
+              <option value="creature">{ct("world.creature")}</option>
             </select>
           </div>
           <div className="field">
-            <label htmlFor="ch-bio">Tell us about them</label>
+            <label htmlFor="ch-bio">{ct("world.tellAboutThem")}</label>
             <textarea id="ch-bio" className="input" rows={3} value={bio} maxLength={2000}
               onChange={(e) => setBio(e.target.value)}
-              placeholder="Where they came from, what they carry, what they are afraid of…" />
+              placeholder={ct("world.bioPlaceholder")} />
           </div>
           <div className="row">
-            <button className="btn" type="button" onClick={() => setAdding(false)}>Cancel</button>
+            <button className="btn" type="button" onClick={() => setAdding(false)}>{ct("world.cancel")}</button>
             <div className="grow" />
             <button className="btn primary" type="button" disabled={busy || !name.trim()} onClick={add}>
-              {busy ? "Sending…" : "Add to the world"}
+              {busy ? ct("world.sending") : ct("world.addToWorld")}
             </button>
           </div>
         </div>
@@ -646,10 +649,10 @@ function CrewPanel({ adventureId, characters, onChanged }:
               : <div className="crewblank" aria-hidden="true">{c.name.slice(0, 1).toUpperCase()}</div>}
             <div className="crewname">{c.name}</div>
             <div className="muted small">{c.role}</div>
-            {!c.approved && <div className="pendingtag">waiting for your guide</div>}
+            {!c.approved && <div className="pendingtag">{ct("world.waitingGuide")}</div>}
           </div>
         ))}
-        {characters.length === 0 && <p className="muted small">No crew yet. Invent someone.</p>}
+        {characters.length === 0 && <p className="muted small">{ct("world.noCrewYet")}</p>}
       </div>
     </section>
   );

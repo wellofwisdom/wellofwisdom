@@ -3,6 +3,7 @@
 // encounters grid with a winding SVG trail and node buttons. Same data
 // (chapters + encounters + progress) as Journey, different frame.
 // Chapters become full-bleed regions; parallax hero already handled by cover.
+import { useT } from "../../i18n";
 interface EncounterForMap {
   id: number;
   kind: string;
@@ -31,12 +32,13 @@ export default function WorldMap({
   chapters: ChapterForMap[];
   onOpen: (e: EncounterForMap) => void;
 }) {
+  const { t } = useT();
   const flat: (EncounterForMap & { chapterIdx: number })[] = [];
   chapters.forEach((ch) => {
     ch.encounters.forEach((e) => flat.push({ ...e, chapterIdx: ch.index }));
   });
   if (flat.length === 0) {
-    return <p className="muted small">No encounters yet. Ask your guide to build the path.</p>;
+    return <p className="muted small">{t("world.noEncountersForMap")}</p>;
   }
 
   const W = 360;
@@ -70,7 +72,7 @@ export default function WorldMap({
   return (
     <div className="worldmap" role="region" aria-label="World map">
       <div className="worldmap-head muted small" aria-hidden="true">
-        <span>{done} of {flat.length} cleared</span>
+        <span>{t("worldmap.cleared", { done: String(done), total: String(flat.length) })}</span>
         <span className="grow" />
         <span className="worldmap-dot" />
       </div>
