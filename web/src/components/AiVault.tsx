@@ -73,13 +73,17 @@ function BarChart({ daily }: { daily: Spend["daily"] }) {
 function SpeechCard() {
   const [stt, setStt] = useState<SttConfig | null>(null);
   const [configured, setConfigured] = useState(false);
+  // The endpoint and key are the whole server's (lib/instanceAdmin.js). Only
+  // the person who runs the server sees this card, so a locked state is a
+  // safety net rather than the normal path.
+  const [locked, setLocked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
   const load = () => {
     api<{ configured: boolean; config: SttConfig }>("/api/stt/config")
-      .then((r) => { setStt(r.config || {}); setConfigured(Boolean(r.configured)); })
-      .catch(() => setStt({}));
+      .then((r) => { setLocked(false); setStt(r.config || {}); setConfigured(Boolean(r.configured)); })
+      .catch((e) => { setLocked((e as { status?: number }).status === 403); setStt({}); });
   };
   useEffect(() => { load(); }, []);
 
@@ -108,6 +112,9 @@ function SpeechCard() {
   };
 
   if (stt === null) return <p className="muted small">Loading…</p>;
+  if (locked) {
+    return <p className="muted small">The speech endpoint and key are shared by every family on this server, so only the person who runs it can change them.</p>;
+  }
 
   return (
     <>

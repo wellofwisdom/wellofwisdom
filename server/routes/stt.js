@@ -23,6 +23,7 @@ const aiLimits = require("../lib/aiLimits");
 const speech = require("../lib/speech");
 const store = require("../lib/uploads");
 const sttProvider = require("../lib/providers/stt-openai");
+const { requireInstanceAdmin } = require("../lib/instanceAdmin");
 
 const router = express.Router();
 
@@ -157,8 +158,10 @@ router.get("/status", auth.authRequired, async (req, res, next) => {
   }
 });
 
-/** The guide's vault card: the settings, with the key masked like every other. */
-router.get("/config", auth.parentOnly, async (req, res, next) => {
+// The speech endpoint and key are the whole server's, not one family's: a
+// family guide could otherwise point every family's recordings at a box of
+// their own. Same guard as the AI vault in routes/ai.js.
+router.get("/config", requireInstanceAdmin, async (req, res, next) => {
   try {
     const cfg = (await aiConfig.resolveConfig()) || {};
     const st = await sttProvider.status();
@@ -176,7 +179,8 @@ router.get("/config", auth.parentOnly, async (req, res, next) => {
     next(err);
   }
 });
-router.put("/config", auth.parentOnly, async (req, res, next) => {
+
+router.put("/config", requireInstanceAdmin, async (req, res, next) => {
   try {
     const b = req.body || {};
     const fields = {};

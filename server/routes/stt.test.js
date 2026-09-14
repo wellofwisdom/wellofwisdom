@@ -12,7 +12,7 @@ const aiConfig = require("../lib/aiConfig");
 const aiLimits = require("../lib/aiLimits");
 const sttRoute = require("./stt");
 
-const ENV_KEYS = ["STT_BASE_URL", "STT_API_KEY", "STT_MODEL", "STT_KEEP_RECORDINGS", "STT_DAILY_CAP"];
+const ENV_KEYS = ["STT_BASE_URL", "STT_API_KEY", "STT_MODEL", "STT_KEEP_RECORDINGS", "STT_DAILY_CAP", "INSTANCE_ADMIN_EMAILS"];
 
 function withEnv(vars) {
   const prev = {};
@@ -236,20 +236,97 @@ test("recordings are off unless the family or the instance turns them on", async
   }
 });
 
-test("the vault card is guide only, and the key comes back masked", async () => {
+// The speech endpoint and key are the whole server's, so the guard is the
+// instance admin's, not any guide's (see lib/instanceAdmin.js). These tests
+// drive the real guard with stubbed database rows.
+//
+// scripts/check.js requires every file in server/lib and server/routes in one
+// process, and db.test.js swaps the db module in the require cache while it
+// runs. The guard holds the instance it was loaded with, so the stub has to
+// patch that same object. Captured once here, at load time, for that reason.
+const dbAtLoad = require("../lib/db");
+
+function stubAdminRows(row) {
+  const real = { configured: dbAtLoad.configured, query: dbAtLoad.query };
+  dbAtLoad.configured = () => true;
+  dbAtLoad.query = async (sql, params) => {
+    void params;
+    if (/from users/.test(sql)) return { rows: row ? [row] : [] };
+    return { rows: [] };
+  };
+  return () => { dbAtLoad.configured = real.configured; dbAtLoad.query = real.query; };
+}
+
+const OWNER_ROW = { email: "owner@example.test", family_id: 3, is_demo: false, first_real_family_id: 3 };
+
+test("speech settings are the instance admin's, not every guide's", async () => {
   const restore = withEnv({ STT_BASE_URL: "https://stt.example.test/v1", STT_API_KEY: "fake-stt-key-1234" });
+  const anonApp = serve(null);
   const learnerApp = serve(LEARNER);
   const guideApp = serve(PARENT);
   try {
-    const denied = await fetch(`${learnerApp.base}/api/stt/config`);
-    assert.equal(denied.status, 403);
-    const allowed = await (await fetch(`${guideApp.base}/api/stt/config`)).json();
+    // No session, a learner, and a guide who is not the admin of this server.
+    assert.equal((await fetch(`${anonApp.base}/api/stt/config`)).status, 401);
+    assert.equal((await fetch(`${learnerApp.base}/api/stt/config`)).status, 403);
+    assert.equal((await fetch(`${guideApp.base}/api/stt/config`)).status, 403);
+    const refused = await fetch(`${guideApp.base}/api/stt/config`, {
+      method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ sttModel: "nope" }),
+    });
+    assert.equal(refused.status, 403);
+    assert.equal((await refused.json()).error, "instance_admin_only");
+    // The refusal happens before the database is consulted at all.
+    assert.equal(dbAtLoad.configured(), false);
+  } finally {
+    await anonApp.close();
+    await learnerApp.close();
+    await guideApp.close();
+    restore();
+  }
+});
+
+test("the owner of the first real family on a self-host reads the vault, masked", async () => {
+  const restore = withEnv({ STT_BASE_URL: "https://stt.example.test/v1", STT_API_KEY: "fake-stt-key-1234" });
+  const guideApp = serve(PARENT);
+  const restoreDb = stubAdminRows(OWNER_ROW);
+  try {
+    const res = await fetch(`${guideApp.base}/api/stt/config`);
+    assert.equal(res.status, 200);
+    const allowed = await res.json();
     assert.equal(allowed.configured, true);
     assert.equal(allowed.config.sttBaseUrl, "https://stt.example.test/v1");
     assert.match(allowed.config.sttApiKey, /^•••••/);
-    assert.ok(!JSON.stringify(allowed).includes("fake-stt-key-1234"));
+    assert.ok(!JSON.stringify(allowed).includes("fake-stt-key-1234"), "the key never comes back in full");
   } finally {
-    await learnerApp.close();
+    restoreDb();
+    await guideApp.close();
+    restore();
+  }
+});
+
+test("INSTANCE_ADMIN_EMAILS decides when it is set, and a demo family never administers", async () => {
+  const restore = withEnv({ STT_BASE_URL: "https://stt.example.test/v1", INSTANCE_ADMIN_EMAILS: "someone.else@example.test" });
+  const guideApp = serve(PARENT);
+  try {
+    const restoreDb = stubAdminRows(OWNER_ROW);
+    try {
+      assert.equal((await fetch(`${guideApp.base}/api/stt/config`)).status, 403, "not on the list, not the admin");
+    } finally {
+      restoreDb();
+    }
+    process.env.INSTANCE_ADMIN_EMAILS = "owner@example.test";
+    const restoreDb2 = stubAdminRows(OWNER_ROW);
+    try {
+      assert.equal((await fetch(`${guideApp.base}/api/stt/config`)).status, 200, "on the list, so the admin");
+    } finally {
+      restoreDb2();
+    }
+    const restoreDb3 = stubAdminRows({ ...OWNER_ROW, is_demo: true });
+    try {
+      assert.equal((await fetch(`${guideApp.base}/api/stt/config`)).status, 403, "a demo family is never the admin");
+    } finally {
+      restoreDb3();
+    }
+  } finally {
     await guideApp.close();
     restore();
   }

@@ -92,6 +92,8 @@ test("every server-wide settings route carries the guard", () => {
   guarded("media.js", "get", "/config");
   guarded("media.js", "put", "/config");
   guarded("waitlist.js", "get", "/");
+  guarded("stt.js", "get", "/config");
+  guarded("stt.js", "put", "/config");
 });
 
 test("no route writes server_settings without the guard in the same handler file", () => {
