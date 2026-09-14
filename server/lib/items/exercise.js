@@ -34,7 +34,7 @@ function normalize(content) {
     if (answer) ex.answer = answer;
   } else if (kind === "numeric") {
     if (hasValue(content.answer)) {
-      const n = Number(String(content.answer).replace(/[^0-9.\-]/g, ""));
+      const n = parseNumeric(content.answer);
       if (!Number.isFinite(n)) return null;
       ex.answer = n;
     }
@@ -65,7 +65,7 @@ function problem(content) {
     return mapChoices(content.choices, content.answer).answer ? null : "answer_invalid";
   }
   if (kind === "numeric") {
-    const n = Number(String(content.answer ?? "").replace(/[^0-9.\-]/g, ""));
+    const n = parseNumeric(content.answer);
     return String(content.answer ?? "").trim() && Number.isFinite(n) ? null : "answer_required";
   }
   return str(content.answer, 2000) ? null : "answer_required";
@@ -88,7 +88,7 @@ function grade(item, learnerAnswer) {
     }
     case "numeric": {
       if (keyless) return null;
-      const expected = Number(item.answer);
+      const expected = parseNumeric(item.answer);
       const given = parseNumeric(learnerAnswer);
       if (!Number.isFinite(expected) || !Number.isFinite(given)) return false;
       const tol = Math.max(Math.abs(expected) * 0.005, 0.01);
