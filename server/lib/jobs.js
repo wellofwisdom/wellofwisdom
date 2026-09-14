@@ -121,6 +121,42 @@ const HANDLERS = {
       throw err;
     }
   },
+  voice: async (job) => {
+    const p = job.payload || {};
+    const media = require("./media");
+    const r = await media.generateSpeech({
+      text: String(p.text || "").slice(0, 4000),
+      voice: p.voice || null,
+      purpose: p.purpose || "voice-line",
+      refType: p.refType || "adventure",
+      refId: p.refId || null,
+      familyId: job.family_id,
+      userId: p.created_by || null,
+    });
+    if (p.encounterId) {
+      await db.query("update adventure_encounters set audio_url = $2 where id = $1 and adventure_id = $3", [Number(p.encounterId), r.url, Number(p.adventureId || 0)]).catch(() => {});
+    }
+    return r;
+  },
+  music: async (job) => {
+    const p = job.payload || {};
+    const media = require("./media");
+    const r = await media.generateMusic({
+      prompt: String(p.prompt || "").slice(0, 2000),
+      duration: p.duration || 25,
+      purpose: p.purpose || "music-loop",
+      refType: p.refType || "adventure",
+      refId: p.refId || null,
+      familyId: job.family_id,
+      userId: p.created_by || null,
+    });
+    if (p.encounterId) {
+      await db.query("update adventure_encounters set music_url = $2 where id = $1 and adventure_id = $3", [Number(p.encounterId), r.url, Number(p.adventureId || 0)]).catch(() => {});
+    } else if (p.adventureId) {
+      await db.query("update adventures set cover_url = coalesce(cover_url, $2) where id = $1", [Number(p.adventureId), r.url]).catch(() => {});
+    }
+    return r;
+  },
 };
 
 async function enqueue(familyId, type, payload, createdBy) {

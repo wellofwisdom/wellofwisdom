@@ -14,6 +14,11 @@ test("grading: mcq right, wrong, and invalid answers", () => {
 test("grading: numeric with tolerance, currency, fractions, mixed numbers", () => {
   const ex = { kind: "numeric", answer: 3.5 };
   assert.equal(gradeExercise(ex, "3.5"), true);
+  // fraction keys parse the same as learner answers
+  assert.equal(gradeExercise({ kind: "numeric", answer: "2/3" }, "0.6666"), true);
+  assert.equal(gradeExercise({ kind: "numeric", answer: "2/3" }, "2/3"), true);
+  assert.equal(gradeExercise({ kind: "numeric", answer: "1/2" }, "0.5"), true);
+  assert.equal(gradeExercise({ kind: "numeric", answer: "3/2" }, "1 1/2"), true);
   assert.equal(gradeExercise(ex, "$3.50"), true);
   assert.equal(gradeExercise(ex, "3.51"), true); // within 0.5%
   assert.equal(gradeExercise(ex, "4"), false);

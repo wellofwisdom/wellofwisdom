@@ -7,6 +7,7 @@ import type { ItemNode, LearnLesson, Submission } from "../../types";
 import { RichText, MathText } from "../../lib/rich";
 import { linkProps } from "../../router";
 import { VideoPlayer } from "../../components/VideoUI";
+import { AudioPlayer } from "../../components/AudioPlayer";
 import TutorChat from "./TutorChat";
 
 interface AttemptResponse {
@@ -212,6 +213,9 @@ function LessonItem({ item, solved, onSolved, submission, onSubmission }: {
   }
   if (item.type === "video") {
     return <VideoItem item={item} solved={solved} onSolved={onSolved} />;
+  }
+  if (item.type === "audio") {
+    return <AudioPlayer content={item.content as any} />;
   }
   return <ExerciseItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} question={null} />;
 }
