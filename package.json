@@ -18,6 +18,8 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1131.0",
+    "archiver": "^8.0.0",
     "express": "^4.19.2",
     "pg": "^8.12.0"
   }

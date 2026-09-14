@@ -15,6 +15,57 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
+// Whole-family export: streams a zip (owner only). The zip contains
+// family.json plus one .wow-course.json per course plus uploads by id.
+// Placed before the learners routes so /export is not captured as an id.
+router.get("/export", async (req, res, next) => {
+  try {
+    if (!perm.can(req.user, "manage_family")) return bad(res, "not_allowed", 403);
+    const exporter = require("../lib/export");
+    const storage = require("../lib/storage");
+    const archiver = require("archiver");
+    const familyData = await exporter.collectFamily(req.user.familyId);
+    const courseIds = await exporter.listCourseIds(req.user.familyId);
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename="wellofwisdom-family-${req.user.familyId}.zip"`);
+
+    const archive = archiver("zip", { zlib: { level: 9 } });
+    archive.on("error", (err) => next(err));
+    archive.pipe(res);
+
+    // family.json
+    archive.append(JSON.stringify(familyData, null, 2), { name: "family.json" });
+
+    // Each course as .wow-course.json
+    for (const cid of courseIds) {
+      const payload = await exporter.courseExportPayload(cid, req.user.familyId);
+      if (payload) archive.append(JSON.stringify(payload, null, 2), { name: `courses/${cid}.wow-course.json` });
+    }
+
+    // Uploads by id (bytes from storage)
+    for (const up of familyData.uploads || []) {
+      const buf = await storage.getBuffer(up.storage_key);
+      if (buf) {
+        const ext = String(up.mime || "").includes("png") ? "png"
+          : String(up.mime || "").includes("jpeg") || String(up.mime || "").includes("jpg") ? "jpg"
+          : String(up.mime || "").includes("webp") ? "webp"
+          : String(up.mime || "").includes("gif") ? "gif"
+          : String(up.mime || "").includes("mp4") ? "mp4"
+          : String(up.mime || "").includes("webm") ? "webm"
+          : String(up.mime || "").includes("wav") ? "wav"
+          : String(up.mime || "").includes("mpeg") ? "mp3"
+          : "bin";
+        archive.append(buf, { name: `uploads/${up.id}.${ext}` });
+      }
+    }
+
+    await archive.finalize();
+  } catch (err) {
+    next(err);
+  }
+});
+
 const LEARNER_FIELDS = learners.FIELDS;
 
 router.get("/learners", async (req, res, next) => {
