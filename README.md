@@ -53,7 +53,7 @@ last step before launch.
   Capture: the learner home in a seeded demo, the world map open, a due review
   and a boss node both visible. 1440x900, no browser chrome.
   Save as web/public/shot-world-map.png, then replace this comment with:
-  ![The learner's world map](web/public/shot-world-map.png)
+  <img src="web/public/shot-world-map.png" alt="The learner's world map" width="760">
 -->
 
 <!--
@@ -61,7 +61,7 @@ last step before launch.
   Capture: a generated course open in Studio, units and lessons on the left, one
   lesson's items on the right, a lens showing in the header.
   Save as web/public/shot-studio.png, then replace this comment with:
-  ![The Course Studio](web/public/shot-studio.png)
+  <img src="web/public/shot-studio.png" alt="The Course Studio" width="760">
 -->
 
 <!--
@@ -69,7 +69,7 @@ last step before launch.
   Capture: a generated quarterly report open in the print view with the signature
   lines showing, then use the browser print preview for a clean page.
   Save as web/public/shot-report.png, then replace this comment with:
-  ![A printed quarterly report](web/public/shot-report.png)
+  <img src="web/public/shot-report.png" alt="A printed quarterly report" width="760">
 -->
 
 *Screenshots are being captured. Want to help? The steps are in the comments above.*
