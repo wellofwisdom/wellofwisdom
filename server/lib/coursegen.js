@@ -4,7 +4,7 @@
 // checked before it ever becomes a course.
 const db = require("./db");
 const ai = require("./ai");
-const { youtubeId } = require("./grade");
+const { youtubeId, parseNumeric } = require("./grade");
 const { fileVideoUrl, peerTubeHostId } = require("./video");
 const { stripTags } = require("./text");
 
@@ -133,7 +133,7 @@ function normalizeExercise(content) {
     if (answer) ex.answer = answer;
   } else if (kind === "numeric") {
     if (hasValue(content.answer)) {
-      const n = Number(String(content.answer).replace(/[^0-9.\-]/g, ""));
+      const n = parseNumeric(content.answer);
       if (!Number.isFinite(n)) return null;
       ex.answer = n;
     }
