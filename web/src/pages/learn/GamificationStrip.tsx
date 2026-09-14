@@ -2,6 +2,7 @@
 // Gamification strip on the learner's home: streak flame + badge shelf.
 // Earned badges glow; locked ones show as silhouettes with a teaser.
 import { useEffect, useState } from "react";
+import { useT } from "../../i18n";
 import { api } from "../../api";
 
 interface Badge {
@@ -19,6 +20,7 @@ interface Gamification {
 }
 
 export default function GamificationStrip() {
+  const { t } = useT();
   const [data, setData] = useState<Gamification | null>(null);
 
   useEffect(() => {
@@ -41,8 +43,8 @@ export default function GamificationStrip() {
         <div className={`gamstreak${streak.activeToday ? " hot" : ""}`}>
           <span className="gs-flame" aria-hidden="true">{streak.current >= 7 ? "🔥" : streak.current >= 3 ? "🔥" : "✨"}</span>
           <div>
-            <div className="gs-count">{streak.current}-day streak</div>
-            <div className="gs-best">Best: {streak.best} days</div>
+            <div className="gs-count">{t("gamstrip.streakCount", { count: String(streak.current) })}</div>
+            <div className="gs-best">{t("gamstrip.best", { best: String(streak.best) })}</div>
           </div>
         </div>
       )}
@@ -55,7 +57,7 @@ export default function GamificationStrip() {
             </span>
           ))}
           {locked.slice(0, 4).map((b) => (
-            <span key={b.id} className="gambadge locked" title={`${b.description}: not yet earned`}>
+            <span key={b.id} className="gambadge locked" title={t("gamstrip.notYetEarned", { desc: b.description })}>
               <span className="gb-icon" aria-hidden="true">{b.icon}</span>
               <span className="gb-label">{b.label}</span>
             </span>

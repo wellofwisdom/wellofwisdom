@@ -2,6 +2,8 @@
 // Spatial focus manager: d-pad or left stick moves focus to the nearest
 // [data-nav] candidate in that direction using rectangle geometry.
 // Keyboard arrows use the same path so it is testable without hardware.
+import { speakWithLang, currentLang } from "../i18n";
+
 export type Dir = "up" | "down" | "left" | "right";
 
 export interface Rect {
@@ -127,12 +129,8 @@ export function speakFocused(): void {
   if (existing) {
     try { existing(msg); return; } catch { /* fall through */ }
   }
-  if (typeof speechSynthesis === "undefined") return;
   try {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(msg.slice(0, 600));
-    u.rate = 1;
-    speechSynthesis.speak(u);
+    speakWithLang(msg.slice(0, 600), currentLang());
   } catch {
     /* ignore */
   }
