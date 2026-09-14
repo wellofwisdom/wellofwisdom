@@ -33,6 +33,7 @@ import Attendance from "./pages/Attendance";
 import Portfolio from "./pages/Portfolio";
 import Join from "./pages/Join";
 import NotFound from "./pages/NotFound";
+import RosterImport from "./pages/RosterImport";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
 import { I18nContext, normalizeLang, tKey } from "./i18n";
 
@@ -183,7 +184,7 @@ export default function App() {
   const learnerEditMatch = route.match(/^learners\/(\d+)$/);
   const learnerNew = route === "learners/new";
   const knownRoutes = new Set([
-    "learners", "studio", "courses", "community", "experience", "records", "tutor", "work", "attendance",
+    "learners", "roster-import", "studio", "courses", "community", "experience", "records", "tutor", "work", "attendance",
     "plans", "notes", "library", "calendar", "plans/new", "settings", "dashboard",
   ]);
   const known = knownRoutes.has(route) || Boolean(portfolioMatch || detailMatch || planMatch || reportMatch || learnerEditMatch || learnerNew);
@@ -196,6 +197,7 @@ export default function App() {
     {previewing && <PreviewBar name={previewing.name} />}
     <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : portfolioMatch ? "attendance" : learnerEditMatch || learnerNew ? "learners" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
     <Suspense fallback={<Fallback />}>
+      {route === "roster-import" && <RosterImport />}
       {route === "learners" && <Learners me={me!} />}
       {(learnerNew || learnerEditMatch) && (
         // key forces a remount between learners, so switching from an edit
