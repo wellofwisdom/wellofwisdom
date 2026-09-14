@@ -17,9 +17,6 @@ export function LegalChrome({ title, updated, children }: { title: string; updat
         <div className="panel" style={{ marginTop: 18, lineHeight: 1.65 }}>
           {children}
         </div>
-        <p className="muted small" style={{ marginTop: 18 }}>
-          Questions? Open an issue on <a href="https://github.com/wellofwisdom/wellofwisdom" target="_blank" rel="noopener noreferrer">GitHub</a>.
-        </p>
       </main>
     </div>
   );

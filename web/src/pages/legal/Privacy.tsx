@@ -16,30 +16,31 @@ export default function Privacy() {
       </ul>
 
       <h2>What leaves your box</h2>
-      <p>Nothing, unless you tell it to.</p>
+      <p>On self-host, nothing leaves your server unless you configure it:</p>
       <ul>
         <li><strong>AI.</strong> When you set <code className="k">AI_BASE_URL</code> and <code className="k">AI_API_KEY</code>, prompts go to that provider. With no endpoint, generation and tutoring stay off and the rest of the app keeps working. Offline with Ollama keeps everything local.</li>
         <li><strong>Google sign in.</strong> When <code className="k">GOOGLE_CLIENT_ID</code> is set, a credential goes to Google to verify it. Without it, sign in is email only.</li>
         <li><strong>Links you paste.</strong> Course sources and import URLs are fetched from the server to check them. Private and loopback addresses are refused.</li>
       </ul>
+      <p>On <strong>wellofwisdom.app</strong> itself (the hosted service), data is sent as needed to run the service: prompts to its configured AI provider, media jobs to kie.ai, email through SparkPost, traffic through Cloudflare, and Google when you use Google sign in.</p>
       <p>There are no third party trackers on learner paths, no ads, and no sale of data.</p>
 
       <h2>How we store and protect it</h2>
       <ul>
-        <li>Passwords are hashed with bcrypt. Sessions are HTTP only cookies.</li>
+        <li>Passwords and learner PINs are hashed with scrypt (Node crypto.scrypt). Sessions are HTTP only cookies.</li>
         <li>Data lives in Postgres on your server, or on the hosted server you choose.</li>
         <li>Uploads live on the volume you mount as <code className="k">UPLOAD_DIR</code>.</li>
-        <li>Backups are your responsibility on self-host. On hosted, backups are daily and restorable on request.</li>
+        <li>Backups are your responsibility on self-host. On hosted, backups are planned as daily and restorable on request [placeholder: Kevin to confirm schedule and restore process].</li>
       </ul>
 
       <h2>Retention and deletion</h2>
-      <p>A parent can delete a learner, a course, a report, or the whole family from Settings. Deleting the family removes all of its rows. A hosted account can be closed by email, and data is removed within 30 days. The waitlist email can be removed on request.</p>
+      <p>A parent can delete a learner, a course, or a report. A hosted account can be closed by email, and data is removed within 30 days [placeholder: Kevin to confirm retention period]. The waitlist email can be removed on request.</p>
 
       <h2>Cookies</h2>
       <p>One session cookie keeps you signed in. No analytics cookies.</p>
 
       <h2>Contact</h2>
-      <p>For privacy questions or deletion requests, use the contact on the site or open a GitHub issue. We answer on a best effort basis.</p>
+      <p>For privacy questions or deletion requests, email privacy@wellofwisdom.app [placeholder: Kevin to confirm private contact address]. We answer on a best effort basis.</p>
     </LegalChrome>
   );
 }
