@@ -35,11 +35,10 @@ import Join from "./pages/Join";
 import NotFound from "./pages/NotFound";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
 
-// Public marketing and legal pages: one block, as the packet asks.
-import Homeschools from "./pages/for/Homeschools";
-import Coops from "./pages/for/Coops";
-import Teachers from "./pages/for/Teachers";
-import SelfHost from "./pages/for/SelfHost";
+// Public site pages. Which pages exist is decided by server/lib/site.json, so
+// the sitemap, robots.txt, llms.txt and these routes can never disagree.
+import { FeaturesPage, AudiencePage, SelfHostPage } from "./site/Pages";
+import { SITE } from "./site/data";
 import Privacy from "./pages/legal/Privacy";
 import Terms from "./pages/legal/Terms";
 import Children from "./pages/legal/Children";
@@ -122,13 +121,12 @@ export default function App() {
   // Public marketing and legal pages: reachable logged out, with no /api/me
   // wait. One block so every new public page only touches this section.
   const publicMap: Record<string, React.ReactElement> = {
-    "for-homeschools": <Homeschools />,
-    "for-co-ops": <Coops />,
-    "for-teachers": <Teachers />,
-    "self-host": <SelfHost />,
+    features: <FeaturesPage />,
+    "self-host": <SelfHostPage />,
     privacy: <Privacy />,
     terms: <Terms />,
     children: <Children />,
+    ...Object.fromEntries(SITE.audiences.map((a) => [a.slug, <AudiencePage key={a.slug} slug={a.slug} />])),
   };
   if (publicMap[route]) return publicMap[route];
 

@@ -3,7 +3,7 @@ import { LegalChrome } from "./LegalLayout";
 
 export default function Terms() {
   return (
-    <LegalChrome title="Terms of Service" updated="13 September 2026">
+    <LegalChrome path="terms" title="Terms of Service" updated="13 September 2026">
       <h2>The short version</h2>
       <p>Well of Wisdom is open source under <strong>AGPL-3.0</strong>. Run it yourself for free, forever. Hosted service adds convenience, not a different license.</p>
 
