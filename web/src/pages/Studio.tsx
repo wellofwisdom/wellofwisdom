@@ -27,6 +27,7 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
   // Step 4: grounding
   const [notes, setNotes] = useState("");
   const [srcTitle, setSrcTitle] = useState("");
+  const [openPublish, setOpenPublish] = useState(false);
   const [srcUrl, setSrcUrl] = useState("");
   const [sources, setSources] = useState<{ type: "text" | "url"; title: string; text?: string; url?: string }[]>([]);
   // generate
@@ -77,6 +78,7 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
           learnerId: learnerId ?? null,
           gradeLevel: gradeLevel ? Number(gradeLevel) : null,
           notes: null,
+          openPublish: learnerId == null ? Boolean(openPublish) : false,
           sources: sources.map((s) => ({ type: s.type, title: s.title, text: s.text, url: s.url })),
         },
       });
@@ -267,6 +269,12 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
                 setSrcUrl(""); setSrcTitle("");
               }}>＋ Add link</button>
           </div>
+          {learnerId == null && (
+            <label className="row small" style={{ gap: 8, marginTop: 10 }}>
+              <input type="checkbox" checked={openPublish} onChange={(e) => setOpenPublish(e.target.checked)} />
+              Will be published openly (no learner attached, public content may use any provider)
+            </label>
+          )}
         </div>
       </section>
 

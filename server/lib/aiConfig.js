@@ -3,7 +3,8 @@
 // Stored in server_settings rows (key = ai) with env fallback, same shape as
 // mail.js and media.js: the DB wins when present, env wins on a raw clone.
 // Keys: aiProvider (ai/provider), vision, voice, music, speech input (stt),
-// limits, pricing. Never store raw secrets bare in GET: return them masked.
+// limits, pricing, plus the provider vault ("aiProviders") and per-task
+// routing ("aiRoutes"). Never store raw secrets bare in GET: return them masked.
 const db = require("./db");
 
 const SECRET_FIELDS = ["aiApiKey", "kieKey", "openaiKey", "anthropicKey", "googleKey", "sttApiKey"];
@@ -14,7 +15,53 @@ function mask(cfg) {
   if (!cfg) return null;
   const out = { ...cfg };
   for (const f of SECRET_FIELDS) if (out[f]) out[f] = "•••••" + String(out[f]).slice(-4);
+  if (Array.isArray(out.aiProviders)) {
+    out.aiProviders = out.aiProviders.map((p) => {
+      const q = { ...p };
+      if (q.apiKey) q.apiKey = "•••••" + String(q.apiKey).slice(-4);
+      return q;
+    });
+  }
   return out;
+}
+
+const TASK_KEYS = ["course-gen", "lesson-content", "exercise-gen", "lens", "tutor", "hint", "grading", "rubric", "translate", "stt"];
+const PROVIDER_KINDS = new Set(["openai-compatible", "openai", "anthropic", "gemini"]);
+
+function cloneProviders(raw) {
+  if (!Array.isArray(raw)) return [];
+  const out = [];
+  const seen = new Set();
+  for (const p of raw) {
+    if (!p || typeof p !== "object") continue;
+    const id = String(p.id || p.name || "").trim().slice(0, 80);
+    if (!id || seen.has(id)) continue;
+    const name = String(p.name || id).trim().slice(0, 120);
+    const kind = String(p.kind || p.provider || "openai-compatible").trim().toLowerCase();
+    if (!PROVIDER_KINDS.has(kind)) continue;
+    const baseUrl = String(p.baseUrl || p.base_url || p.url || "").trim().slice(0, 500);
+    const apiKey = typeof p.apiKey === "string" ? p.apiKey.slice(0, 500) : "";
+    const trainsOnData = Boolean(p.trainsOnData ?? p.trains_on_data);
+    const models = Array.isArray(p.models) ? p.models.map((m) => String(m).trim().slice(0, 120)).filter(Boolean).slice(0, 20) : [];
+    seen.add(id);
+    out.push({ id, name, kind, baseUrl, apiKey, trainsOnData, models });
+  }
+  return out;
+}
+
+function cloneRoutes(raw, providers) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const ids = new Set((providers || []).map((p) => p.id));
+  const out = {};
+  for (const k of TASK_KEYS) {
+    const r = raw[k];
+    if (!r || typeof r !== "object" || Array.isArray(r)) continue;
+    const providerId = String(r.providerId || r.provider || "").trim().slice(0, 80);
+    if (!providerId || !ids.has(providerId)) continue;
+    const model = String(r.model || "").trim().slice(0, 120);
+    out[k] = { providerId, model: model || null };
+  }
+  return Object.keys(out).length ? out : null;
 }
 
 function fromEnv() {
@@ -68,6 +115,12 @@ async function resolveConfig() {
     const stored = row.rows[0] && row.rows[0].value;
     if (stored) cfg = { ...(cfg || {}), ...stored, _fromDb: true };
   }
+  if (cfg && Array.isArray(cfg.aiProviders)) cfg.aiProviders = cloneProviders(cfg.aiProviders);
+  if (cfg && cfg.aiRoutes && typeof cfg.aiRoutes === "object") {
+    const cleaned = cloneRoutes(cfg.aiRoutes, cfg.aiProviders || []);
+    if (cleaned) cfg.aiRoutes = cleaned;
+    else delete cfg.aiRoutes;
+  }
   cache = { at: Date.now(), config: cfg };
   return cfg;
 }
@@ -78,14 +131,12 @@ function invalidateCache() {
 
 async function status() {
   const cfg = await resolveConfig();
-  const hasAi = Boolean(cfg && (cfg.aiBaseUrl || cfg.aiApiKey || cfg.aiModelPro || cfg.aiModelFlash));
+  const hasAi = Boolean(cfg && (cfg.aiBaseUrl || cfg.aiApiKey || cfg.aiModelPro || cfg.aiModelFlash || (Array.isArray(cfg.aiProviders) && cfg.aiProviders.length)));
   const hasVision = Boolean(cfg && cfg.aiVisionModel);
   const hasKie = Boolean(cfg && (cfg.kieKey || String(process.env.KIE_API_KEY || "").trim()));
   const hasVoice = Boolean(cfg && cfg.googleTtsOnKie);
   const hasMusic = Boolean(cfg && cfg.sunoMusicOnKie);
-  // Speech input needs an endpoint to post to, not just a key: a key alone
-  // would show a microphone that fails on the first press.
-  const hasStt = Boolean(cfg && cfg.sttBaseUrl);
+  const hasStt = Boolean(cfg && (cfg.sttBaseUrl || (cfg.aiRoutes && cfg.aiRoutes.stt)));
   return {
     configured: hasAi || hasKie,
     hasAi,
@@ -102,7 +153,7 @@ async function status() {
 /**
  * Save speech-input settings into the same vault row the rest of the AI
  * settings live in, so a guide has one place for keys and no second save
- * button to hunt for. A masked secret (the ••••• form a GET returns) means
+ * button to hunt for. A masked secret (the bullet form a GET returns) means
  * "unchanged"; an empty string clears the field and falls back to env.
  */
 async function saveStt(fields) {
@@ -125,4 +176,7 @@ async function saveStt(fields) {
   return { ok: true };
 }
 
-module.exports = { resolveConfig, invalidateCache, status, mask, saveStt, SECRET_FIELDS };
+module.exports = {
+  resolveConfig, invalidateCache, status, mask, saveStt, SECRET_FIELDS,
+  TASK_KEYS, PROVIDER_KINDS, cloneProviders, cloneRoutes, maskProviders: cloneProviders,
+};

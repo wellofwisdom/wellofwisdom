@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Task-routed AI layer. Point AI_BASE_URL at ANY provider:
 // OpenAI-compatible (DeepSeek, OpenAI, Ollama, ...) OR Claude (Anthropic) OR Gemini (Google).
-// All features degrade gracefully when no endpoint is configured.
+// Per-task routing: the vault stores named providers (kind, base URL, key,
+// models, trainsOnData) and aiRoutes maps each task to a provider and model.
+// The single-provider fields (AI_BASE_URL etc) become the default provider, so
+// existing installs keep working. Learner-data calls never reach a trains-on-data
+// provider; they fall back to the default with a warning.
 const { fetchT } = require("./http");
 
 // Which model class each task uses. "pro" = quality (course generation),
@@ -15,12 +19,23 @@ const DEFAULT_ROUTES = {
   tutor: "flash",
   hint: "flash",
   grading: "flash",
-  // Reading a whole piece of work against a rubric is a quality job, not a
-  // quick one, so it sits on the pro tier. Override with AI_ROUTES if your
-  // instance runs one model.
   rubric: "pro",
   translate: "flash",
+  stt: "flash",
 };
+
+// Tasks that touch learner data and must not use a trains-on-data provider.
+const LEARNER_DATA_TASKS = new Set(["tutor", "hint", "grading", "rubric"]);
+
+// Return true for messages that include a learner's personal data (name, notes,
+// interests, or per-learner prompt baggage). Only used to expand the rule
+// beyond the fixed task set.
+function promptHasLearnerData(messages) {
+  const hay = (Array.isArray(messages) ? messages : []).map((m) => String((m && m.content) || "")).join("\n").toLowerCase();
+  if (hay.includes("their guide asked you to remember") || hay.includes("they love:")) return true;
+  if (hay.includes("learner interests") || hay.includes("remembered learner notes")) return true;
+  return false;
+}
 
 function routes() {
   if (!process.env.AI_ROUTES) return DEFAULT_ROUTES;
@@ -38,9 +53,9 @@ function resolveRoute(task) {
 }
 
 // ---- provider detection ----
-// AI_PROVIDER=anthropic|gemini|openai is explicit. Otherwise auto-detect from base URL.
 function provider() {
   const explicit = String(process.env.AI_PROVIDER || "").trim().toLowerCase();
+  if (explicit === "anthropic" || explicit === "claude") return "anthropic";
   if (explicit === "anthropic" || explicit === "claude") return "anthropic";
   if (explicit === "gemini" || explicit === "google") return "gemini";
   if (explicit === "openai" || explicit === "openai-compatible" || explicit === "openai_compatible") return "openai";
@@ -69,6 +84,7 @@ function configured() {
   if (cachedAiConfig) {
     const c = cachedAiConfig;
     if (c.aiProvider === "anthropic" || c.aiProvider === "gemini") return Boolean((c.aiApiKey || "").trim());
+    if (Array.isArray(c.aiProviders) && c.aiProviders.length) return true;
     if (c.aiBaseUrl) return true;
     if (c.aiApiKey && (c.aiProvider === "openai" || !c.aiProvider)) return true;
   }
@@ -83,6 +99,7 @@ function configuredFromVault(cfg) {
   if (!cfg) return configured();
   const prov = String(cfg.aiProvider || "").trim().toLowerCase();
   if (prov === "anthropic" || prov === "gemini") return Boolean((cfg.aiApiKey || "").trim());
+  if (Array.isArray(cfg.aiProviders) && cfg.aiProviders.length) return true;
   const base = String(cfg.aiBaseUrl || "").trim();
   if (base) return true;
   if ((cfg.aiApiKey || "").trim()) return true;
@@ -114,28 +131,91 @@ async function refreshVault() {
 }
 
 // Injected at boot to avoid a circular import (db <- aiusage -> nothing <- ai).
-// Signature: usageLogger({familyId, task, model, tokensIn, tokensOut, note})
 let usageLogger = null;
 function setUsageLogger(fn) {
   usageLogger = fn;
 }
 
-function logUsageTokens({ familyId, task, model, tokensIn, tokensOut, note }) {
+function logUsageTokens({ familyId, task, model, tokensIn, tokensOut, note, providerId }) {
   if (!usageLogger) return;
   try {
-    usageLogger({ familyId, task, model, tokensIn, tokensOut, note });
+    usageLogger({ familyId, task, model, tokensIn, tokensOut, note, providerId });
   } catch {
     /* accounting never breaks AI */
   }
 }
 
-/**
- * Send a chat completion for a task.
- * @param {string} task - one of the keys in DEFAULT_ROUTES
- * @param {Array<{role:string,content:string}>} messages
- * @param {{json?:boolean, maxTokens?:number, temperature?:number, usage?:{familyId:number,note:string}}} [opts]
- * @returns {Promise<{content:string, usage:object|null, model:string|null}>}
- */
+function effectiveProviderEntry(cfg, providerId) {
+  if (!cfg || !Array.isArray(cfg.aiProviders) || !cfg.aiProviders.length) return null;
+  return cfg.aiProviders.find((p) => p.id === providerId) || null;
+}
+
+function defaultProviderFromVault(vault) {
+  if (!vault) return { provider: provider(), baseUrl: process.env.AI_BASE_URL || "", apiKey: process.env.AI_API_KEY || "", modelPro: process.env.AI_MODEL_PRO || "", modelFlash: process.env.AI_MODEL_FLASH || "", vision: process.env.AI_VISION_MODEL || "" };
+  return {
+    provider: vault.aiProvider || provider(),
+    baseUrl: vault.aiBaseUrl || process.env.AI_BASE_URL || "",
+    apiKey: vault.aiApiKey || process.env.AI_API_KEY || "",
+    modelPro: vault.aiModelPro || process.env.AI_MODEL_PRO || "",
+    modelFlash: vault.aiModelFlash || process.env.AI_MODEL_FLASH || "",
+    vision: vault.aiVisionModel || process.env.AI_VISION_MODEL || "",
+  };
+}
+
+function vaultAsProviderEntry(vaultDefault, id) {
+  return {
+    id,
+    name: "Default",
+    kind: vaultDefault.provider || "openai",
+    baseUrl: vaultDefault.baseUrl,
+    apiKey: vaultDefault.apiKey,
+    trainsOnData: false,
+    models: [vaultDefault.modelPro, vaultDefault.modelFlash].filter(Boolean),
+  };
+}
+
+function resolveEffectiveEntry({ vault, task, messages, opts }) {
+  const vaultDefault = defaultProviderFromVault(vault);
+  const routes = vault && vault.aiRoutes && typeof vault.aiRoutes === "object" ? vault.aiRoutes : null;
+  const mapped = routes && routes[task] ? routes[task] : null;
+  const isLearnerData = LEARNER_DATA_TASKS.has(task) || promptHasLearnerData(messages) || Boolean(opts && opts.learnerData);
+  const isCourseGen = task === "course-gen";
+  const publicContent = Boolean(opts && opts.publicContent);
+
+  let entry = null;
+  let modelOverride = null;
+  let fallbackWarning = null;
+
+  if (mapped) {
+    const found = effectiveProviderEntry(vault, mapped.providerId);
+    if (found) {
+      entry = found;
+      modelOverride = mapped.model || null;
+    }
+  }
+
+  if (!entry) {
+    entry = vaultAsProviderEntry(vaultDefault, "__default");
+    return { entry, modelOverride, vaultDefault, fallbackWarning, isLearnerData };
+  }
+
+  const wouldBreakRule = (() => {
+    if (!entry.trainsOnData) return false;
+    if (isLearnerData) return true;
+    if (isCourseGen && !publicContent) return true;
+    return false;
+  })();
+
+  if (wouldBreakRule) {
+    fallbackWarning = `ai_learner_data_fallback: task ${task} requested provider ${entry.id} which trains on data; fell back to default`;
+    try { console.warn(fallbackWarning); } catch {}
+    entry = vaultAsProviderEntry(vaultDefault, "__default");
+    modelOverride = null;
+  }
+
+  return { entry, modelOverride, vaultDefault, fallbackWarning, isLearnerData };
+}
+
 async function effectiveConfig() {
   const vault = await aiConfigSnapshot();
   if (!vault) return { provider: provider(), baseUrl: process.env.AI_BASE_URL || "", apiKey: process.env.AI_API_KEY || "", modelPro: process.env.AI_MODEL_PRO || "", modelFlash: process.env.AI_MODEL_FLASH || "", vision: process.env.AI_VISION_MODEL || "" };
@@ -157,13 +237,44 @@ function vaultConfigured(cfg) {
 }
 
 async function chat(task, messages, opts = {}) {
-  const cfg = await effectiveConfig();
+  const vault = await aiConfigSnapshot();
+  const vaultDefault = defaultProviderFromVault(vault);
+  const routed = resolveEffectiveEntry({ vault, task, messages, opts });
+  const entry = routed.entry;
+  const modelOverride = routed.modelOverride;
+
+  const cfg = (() => {
+    const kind = String(entry.kind || vaultDefault.provider || "openai").toLowerCase();
+    const providerName = kind === "anthropic" || kind === "claude" ? "anthropic" : kind === "gemini" || kind === "google" ? "gemini" : "openai";
+    if (entry.id === "__default") {
+      return {
+        provider: vaultDefault.provider || providerName,
+        baseUrl: vaultDefault.baseUrl,
+        apiKey: vaultDefault.apiKey,
+        modelPro: vaultDefault.modelPro,
+        modelFlash: vaultDefault.modelFlash,
+        vision: vaultDefault.vision,
+        providerId: entry.id,
+        fallbackWarning: routed.fallbackWarning,
+      };
+    }
+    return {
+      provider: providerName,
+      baseUrl: entry.baseUrl || vaultDefault.baseUrl || "",
+      apiKey: entry.apiKey || "",
+      modelPro: vaultDefault.modelPro,
+      modelFlash: vaultDefault.modelFlash,
+      vision: vaultDefault.vision,
+      providerId: entry.id,
+      fallbackWarning: routed.fallbackWarning,
+    };
+  })();
+
   if (!vaultConfigured(cfg)) {
-    const err = new Error("ai_not_configured: set AI settings in Settings  vault or AI_BASE_URL / AI_PROVIDER + AI_API_KEY. See .env.example");
+    const err = new Error("ai_not_configured: set AI settings in Settings vault or AI_BASE_URL / AI_PROVIDER + AI_API_KEY. See .env.example");
     err.code = "ai_not_configured";
     throw err;
   }
-  // Enforce spend limits before burning tokens
   if (opts.usage && opts.usage.familyId) {
     try {
       const lim = require("./aiLimits");
@@ -178,16 +289,17 @@ async function chat(task, messages, opts = {}) {
   const tm = resolveRoute(task);
   const wantPro = tm.tier === "pro";
   const vaultModel = wantPro ? (cfg.modelPro || "") : (cfg.modelFlash || "");
-  const effModel = vaultModel || tm.model || null;
+  const effModel = modelOverride || vaultModel || tm.model || null;
   if (!effModel) {
     const err = new Error(`ai_no_model: task "${task}" resolved to tier with no model. Set models in the AI vault or AI_MODEL_PRO/AI_MODEL_FLASH`);
     err.code = "ai_no_model";
     throw err;
   }
   const p = String(cfg.provider || provider()).toLowerCase();
-  if (p === "anthropic" || p === "claude") return chatViaAnthropic(task, messages, opts, effModel, cfg);
-  if (p === "gemini" || p === "google") return chatViaGemini(task, messages, opts, effModel, cfg);
-  return chatViaOpenAI(task, messages, opts, effModel, cfg);
+  const callOpts = { ...opts, providerId: cfg.providerId };
+  if (p === "anthropic" || p === "claude") return chatViaAnthropic(task, messages, callOpts, effModel, cfg);
+  if (p === "gemini" || p === "google") return chatViaGemini(task, messages, callOpts, effModel, cfg);
+  return chatViaOpenAI(task, messages, callOpts, effModel, cfg);
 }
 
 async function chatViaGemini(task, messages, opts, model, cfg) {
@@ -217,6 +329,7 @@ async function chatViaGemini(task, messages, opts, model, cfg) {
       tokensIn: out.usage.prompt_tokens,
       tokensOut: out.usage.completion_tokens,
       note: opts.usage && opts.usage.note,
+      providerId: opts.providerId,
     });
   }
   return out;
@@ -249,6 +362,7 @@ async function chatViaAnthropic(task, messages, opts, model, cfg) {
       tokensIn: out.usage.prompt_tokens,
       tokensOut: out.usage.completion_tokens,
       note: opts.usage && opts.usage.note,
+      providerId: opts.providerId,
     });
   }
   return out;
@@ -281,6 +395,7 @@ async function chatViaOpenAI(task, messages, opts, model, cfg) {
       tokensIn: data.usage.prompt_tokens,
       tokensOut: data.usage.completion_tokens,
       note: opts.usage && opts.usage.note,
+      providerId: opts.providerId,
     });
   }
   return {
@@ -348,4 +463,7 @@ function tryParse(text) {
   return undefined;
 }
 
-module.exports = { chat, chatJson, resolveRoute, configured, health, setUsageLogger, provider, refreshVault, configuredFromVault };
+module.exports = {
+  chat, chatJson, resolveRoute, configured, health, setUsageLogger, provider, refreshVault, configuredFromVault,
+  DEFAULT_ROUTES, LEARNER_DATA_TASKS, promptHasLearnerData, resolveEffectiveEntry,
+};

@@ -453,7 +453,7 @@ async function generateCourse(spec, userId, familyId) {
       { role: "system", content: GEN_SYSTEM },
       { role: "user", content: buildUserPrompt(spec, sourcesText) },
     ],
-    { maxTokens: 8000, temperature: 0.7, usage: { familyId, note: `course: ${spec.topic}` } }
+    { maxTokens: 8000, temperature: 0.7, usage: { familyId, note: `course: ${spec.topic}` }, publicContent: Boolean(spec.openPublish) }
   );
 
   const course = normalizeCourse(out.json);
