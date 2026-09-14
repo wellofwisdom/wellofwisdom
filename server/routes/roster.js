@@ -69,6 +69,7 @@ router.post("/preview", auth.requirePerm("create_learner"), async (req, res, nex
 
 // POST /api/roster/import { csv: string } -> { created: [...{name, username, pin}], failed: [...] }
 router.post("/import", auth.requirePerm("create_learner"), async (req, res, next) => {
+  let client;
   try {
     const limit = auth.loginLimit(`${req.ip || "unknown"}:roster-import`, { max: 10, windowMs: 15 * 60 * 1000 });
     if (!limit.ok) return res.status(429).json({ error: "too_many_attempts", retryAfterSec: limit.retryAfterSec });
@@ -81,11 +82,10 @@ router.post("/import", auth.requirePerm("create_learner"), async (req, res, next
       return res.json({ created: [], failed: v.rows.filter((r) => !r.valid).map((r) => ({ index: r.index, errors: r.errors })) });
     }
 
-    const learners = require("../lib/learners");
-
-    await db.query("BEGIN");
+    client = await db.getPool().connect();
+    await client.query("BEGIN");
     try {
-      const existing = await db.query(
+      const existing = await client.query(
         "select username from users where family_id = $1 and role = 'learner' for update",
         [req.user.familyId]
       );
@@ -105,11 +105,11 @@ router.post("/import", auth.requirePerm("create_learner"), async (req, res, next
           username = String(username).toLowerCase();
         }
         if (taken.has(username)) {
-          await db.query("ROLLBACK");
+          await client.query("ROLLBACK");
           return bad(res, "username_taken", 409);
         }
         if (!/^[a-z0-9_.-]{2,24}$/.test(username)) {
-          await db.query("ROLLBACK");
+          await client.query("ROLLBACK");
           return bad(res, "username_invalid");
         }
         taken.add(username);
@@ -118,7 +118,7 @@ router.post("/import", auth.requirePerm("create_learner"), async (req, res, next
         const grade = row.grade != null ? row.grade : null;
         const interests = Array.isArray(row.interests) ? row.interests : [];
         const email = row.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(row.email)) ? String(row.email).toLowerCase() : null;
-        const ins = await db.query(
+        const ins = await client.query(
           `insert into users (family_id, role, name, username, pin_hash, grade_level, interests, email)
            values ($1,'learner',$2,$3,$4,$5,$6,$7) returning id, name, username`,
           [req.user.familyId, String(row.name).slice(0, 80), username, pinHash, grade, interests, email]
@@ -126,15 +126,17 @@ router.post("/import", auth.requirePerm("create_learner"), async (req, res, next
         const inserted = ins.rows[0];
         created.push({ id: Number(inserted.id), name: inserted.name, username: inserted.username, pin });
       }
-      await db.query("COMMIT");
+      await client.query("COMMIT");
       const failed = v.rows.filter((r) => !r.valid).map((r) => ({ index: r.index, errors: r.errors }));
       res.json({ created, failed, capExceeded: v.capExceeded });
     } catch (e) {
-      await db.query("ROLLBACK").catch(() => {});
+      await client.query("ROLLBACK").catch(() => {});
       throw e;
     }
   } catch (err) {
     next(err);
+  } finally {
+    if (client) client.release();
   }
 });
 
