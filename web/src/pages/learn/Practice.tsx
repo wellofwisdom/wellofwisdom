@@ -72,10 +72,10 @@ export default function Practice({ onNavigate, onLogout }: {
           <div className="big" aria-hidden="true">✅</div>
           <h2 style={{ margin: "8px 0 6px" }}>{t("practice.sessionDoneTitle")}</h2>
           <p className="muted">
-            {session.right} of {session.done} right. The ones you missed will come back today: that's the system working.
+            {t("practice.sessionScore", { right: String(session.right), done: String(session.done) })}
           </p>
           <div style={{ marginTop: 14 }}>
-            <button className="btn primary" type="button" onClick={() => onNavigate("")}>Back home</button>
+            <button className="btn primary" type="button" onClick={() => onNavigate("")}>{t("practice.backHome")}</button>
           </div>
         </div>
       )}
@@ -144,7 +144,7 @@ function ReviewCard({ item, progress, onAnswered }: {
               </button>
             ))}
             <button className="btn primary" type="button" disabled={busy || !picked} onClick={check}>
-              {busy ? "Checking…" : "Check"}
+              {busy ? t("practice.checking") : t("practice.check")}
             </button>
           </div>
         )}
@@ -156,7 +156,7 @@ function ReviewCard({ item, progress, onAnswered }: {
               onChange={(e) => setAnswer(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && answer && check()} />
             <button className="btn primary" type="button" disabled={busy || !answer.trim()} onClick={check}>
-              {busy ? "Checking…" : "Check"}
+              {busy ? t("practice.checking") : t("practice.check")}
             </button>
           </div>
         )}

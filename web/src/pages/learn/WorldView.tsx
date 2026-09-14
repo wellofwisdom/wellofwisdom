@@ -389,7 +389,7 @@ function EncounterDialog({ encounter, busy, onClose, onTakeOn, onFaceBoss }: {
         ) : (
           <button className="btn primary big" type="button" disabled={busy}
             onClick={() => onTakeOn(encounter)}>
-            {busy ? "…" : "Take it on"}
+            {busy ? "…" : et("world.takeItOn")}
           </button>
         )}
       </div>
