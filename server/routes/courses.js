@@ -9,6 +9,7 @@ const jobs = require("../lib/jobs");
 const ai = require("../lib/ai");
 const { safeFetch } = require("../lib/safefetch");
 const { safeSourceUrl, htmlToText } = require("../lib/grade");
+const standards = require("../lib/standards");
 
 const router = express.Router();
 router.use(auth.parentOnly);
@@ -118,7 +119,7 @@ async function courseTree(courseId, familyId) {
     [courseId]
   );
   const lessons = await db.query(
-    `select l.id, l.unit_id, l.title, l.summary, l.position
+    `select l.id, l.unit_id, l.title, l.summary, l.position, coalesce(l.standards,'{}') as standards
        from lessons l join units un on un.id = l.unit_id
       where un.course_id = $1 order by l.position, l.id`,
     [courseId]
@@ -268,6 +269,7 @@ router.get("/:id/export", async (req, res, next) => {
         lessons: u.lessons.map((l) => ({
           title: l.title,
           summary: l.summary,
+          standards: l.standards || [],
           items: l.items.map((i) => ({ type: i.type, content: i.content })),
         })),
       })),
@@ -649,7 +651,7 @@ router.post("/lessons/:lessonId/items", async (req, res, next) => {
 
 router.patch("/lessons/:lessonId", async (req, res, next) => {
   try {
-    const { title, summary } = req.body || {};
+    const { title, summary, standards } = req.body || {};
     const sets = [];
     const params = [req.user.familyId, Number(req.params.lessonId)];
     const add = (col, val) => {
@@ -661,6 +663,10 @@ router.patch("/lessons/:lessonId", async (req, res, next) => {
       add("title", String(title).trim().slice(0, 200));
     }
     if (summary !== undefined) add("summary", String(summary || "").slice(0, 500) || null);
+    if (standards !== undefined) {
+      const normalized = standards.normalizeStandards(standards);
+      add("standards", normalized);
+    }
     if (!sets.length) return bad(res, "nothing_to_update");
     const { rowCount } = await db.query(
       `update lessons l set ${sets.join(", ")}
