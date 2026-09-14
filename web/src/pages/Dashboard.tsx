@@ -5,6 +5,7 @@ import { api } from "../api";
 import type { CourseSummary, MeResponse } from "../types";
 import { Panel, StatBar } from "../components/ui";
 import { IconCheck } from "../components/Icons";
+import { startPreview } from "../components/PreviewBar";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -39,6 +40,7 @@ export default function Dashboard({
   }, []);
 
   const published = courses?.filter((c) => c.status === "published").length ?? 0;
+  const primaryLearner = learners[0] || null;
 
   const steps: { label: string; done: boolean; go?: () => void }[] = [
     { label: "Create your group", done: true },
@@ -64,6 +66,22 @@ export default function Dashboard({
     <>
       <h2 style={{ marginBottom: 4 }}>{greeting()}, {user.name.split(" ")[0]} 👋</h2>
       <p className="muted" style={{ marginBottom: 18 }}>{user.familyName} · guide console</p>
+
+      {primaryLearner && (
+        <div style={{ marginBottom: 16 }}>
+          <button
+            className="btn primary big"
+            type="button"
+            onClick={() => startPreview(primaryLearner.id, primaryLearner.name)}
+            title="See the app exactly as your learner sees it. The banner at the top explains how to get back."
+          >
+            Play as {primaryLearner.name}
+          </button>
+          <span className="hint" style={{ marginLeft: 10 }}>
+            Step into the learner world. The banner shows how to get back.
+          </span>
+        </div>
+      )}
 
       <StatBar
         stats={[
