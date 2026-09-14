@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import Logo from "./components/Logo";
 import { api, getPreviewLearner } from "./api";
 import type { MeResponse } from "./types";
@@ -9,20 +9,20 @@ import Dashboard from "./pages/Dashboard";
 import Learners from "./pages/Learners";
 import LearnerForm from "./pages/LearnerForm";
 import Courses from "./pages/Courses";
-import CourseDetail from "./pages/CourseDetail";
+const CourseDetail = lazy(() => import("./pages/CourseDetail"));
 import Progress from "./pages/Progress";
 import Plans from "./pages/Plans";
-import Notes from "./pages/Notes";
+const Notes = lazy(() => import("./pages/Notes"));
 import Community from "./pages/Community";
-import Library from "./pages/Library";
+const Library = lazy(() => import("./pages/Library"));
 import Calendar from "./pages/Calendar";
 import ReportView from "./pages/ReportView";
-import PlanWizard from "./pages/PlanWizard";
+const PlanWizard = lazy(() => import("./pages/PlanWizard"));
 import PlanDetail from "./pages/PlanDetail";
-import Settings from "./pages/Settings";
-import Studio from "./pages/Studio";
+const Settings = lazy(() => import("./pages/Settings"));
+const Studio = lazy(() => import("./pages/Studio"));
 import Experience from "./pages/Experience";
-import LearnerApp from "./pages/learn/LearnerApp";
+const LearnerApp = lazy(() => import("./pages/learn/LearnerApp"));
 import PrintLesson from "./pages/PrintLesson";
 import type { CourseSummary } from "./types";
 import { go, routeFromLocation, ROUTE_EVENT } from "./router";
@@ -34,6 +34,10 @@ import Portfolio from "./pages/Portfolio";
 import Join from "./pages/Join";
 import NotFound from "./pages/NotFound";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
+
+function Fallback() {
+  return <div className="skel" style={{ width: "100%", height: 120 }} />;
+}
 
 function currentRoute(): string {
   return routeFromLocation();
@@ -139,7 +143,7 @@ export default function App() {
     return (
       <>
         {previewing && <PreviewBar name={previewing.name} />}
-        <LearnerApp me={user} route={learnerRoute} onNavigate={navigate} onLogout={logout} />
+        <Suspense fallback={<Fallback />}><LearnerApp me={user} route={learnerRoute} onNavigate={navigate} onLogout={logout} /></Suspense>
       </>
     );
   }
@@ -167,6 +171,7 @@ export default function App() {
         made world-builder saves fail with preview_read_only and no explanation. */}
     {previewing && <PreviewBar name={previewing.name} />}
     <Shell me={user} route={detailMatch ? "courses" : planMatch ? "plans" : portfolioMatch ? "attendance" : learnerEditMatch || learnerNew ? "learners" : route} onNavigate={navigate} onLogout={logout} courses={courses}>
+    <Suspense fallback={<Fallback />}>
       {route === "learners" && <Learners me={me!} />}
       {(learnerNew || learnerEditMatch) && (
         // key forces a remount between learners, so switching from an edit
@@ -197,6 +202,7 @@ export default function App() {
       {route === "settings" && <Settings me={me!} />}
       {route === "dashboard" && <Dashboard me={me!} onNavigate={navigate} />}
       {!known && <NotFound path={route} />}
+    </Suspense>
     </Shell>
     </>
   );

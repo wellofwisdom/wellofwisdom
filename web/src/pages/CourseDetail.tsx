@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Parent course detail: review the AI's work, edit items, publish for learners.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import type { CourseTree, ItemNode, Learner, MeResponse } from "../types";
 import { Panel, Modal, Field } from "../components/ui";
@@ -286,14 +286,14 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [advOpen, setAdvOpen] = useState(false);
 
-  const load = () =>
+  const load = useCallback(() =>
     api<{ course: CourseTree; missingAnswers?: number }>(`/api/courses/${courseId}`)
       .then((d) => { setCourse(d.course); setMissing(d.missingAnswers || 0); setError(""); })
-      .catch((e) => setError(niceError(e)));
+      .catch((e) => setError(niceError(e))), [courseId]);
 
   useEffect(() => {
     load();
-  }, [courseId]);
+  }, [load]);
 
   async function patch(body: Record<string, unknown>) {
     try {

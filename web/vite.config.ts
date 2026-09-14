@@ -6,5 +6,5 @@ export default defineConfig({
   server: {
     proxy: { "/api": "http://localhost:3000" },
   },
-  build: { outDir: "dist", sourcemap: false },
+  build: { outDir: "dist", sourcemap: false, chunkSizeWarningLimit: 600 },
 });
