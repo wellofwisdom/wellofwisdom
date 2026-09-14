@@ -145,6 +145,43 @@ async function seedDemoCourses(familyId, guideId) {
   }
 }
 
+/**
+ * One package item as the row lesson_items stores: { type, content }.
+ * normalizeItem returns the whole normalized item, not just its content. Until
+ * 2026-09-14 the importer stored that whole object in the content column, so
+ * every demo lesson item was wrapped one level deep ({ type, content: {...} }):
+ * learners saw empty questions, public course pages showed nothing, and the
+ * activity seed found no exercises to answer.
+ */
+function demoItemRow(item, coursegen) {
+  if (!item || typeof item !== "object") return null;
+  const type = String(item.type || "article");
+  const content = item.content && typeof item.content === "object" ? item.content : {};
+  if (coursegen && coursegen.normalizeItem) {
+    let n = null;
+    try { n = coursegen.normalizeItem({ type, content }); } catch { n = null; }
+    return n && n.type && n.content ? { type: n.type, content: n.content } : null;
+  }
+  return ["article", "exercise", "video", "project", "audio"].includes(type) ? { type, content } : null;
+}
+
+/** Repair rows the old importer wrapped, in demo families only. Idempotent: a
+ *  row is touched only while its content still has the item shape. */
+async function unwrapDemoItems() {
+  const r = await db.query(
+    `update lesson_items i
+        set content = i.content->'content'
+       from lessons l, units un, courses c, families f
+      where l.id = i.lesson_id and un.id = l.unit_id and c.id = un.course_id and f.id = c.family_id
+        and f.is_demo = true
+        and jsonb_typeof(i.content) = 'object'
+        and i.content ? 'type' and i.content ? 'content'
+        and jsonb_typeof(i.content->'content') = 'object'
+        and i.content->>'type' = i.type`
+  );
+  return r.rowCount || 0;
+}
+
 async function importCourse(familyId, guideId, pkg, coursegen) {
   const title = String(pkg.title || "Demo Course").slice(0, 200);
   const topic = String(pkg.topic || title).slice(0, 200);
@@ -173,14 +210,9 @@ async function importCourse(familyId, guideId, pkg, coursegen) {
       );
       const lessonId = lr.rows[0].id;
       for (let ii = 0; ii < (les.items || []).length; ii++) {
-        const it = les.items[ii];
-        let type = String(it.type || "article");
-        if (!["article", "exercise", "video", "project"].includes(type)) type = "article";
-        let content = it.content || {};
-        if (coursegen && coursegen.normalizeItem) {
-          try { content = coursegen.normalizeItem({ type, content }); } catch { content = it.content || {}; }
-        }
-        await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,$2,$3,$4)", [lessonId, type, ii, content]);
+        const row = demoItemRow(les.items[ii], coursegen);
+        if (!row) continue;
+        await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,$2,$3,$4)", [lessonId, row.type, ii, row.content]);
       }
     }
   }
@@ -386,6 +418,9 @@ async function trySeedDemoActivity(familyId) {
 async function backfillDemoFamilies() {
   try {
     if (!db.configured()) return;
+    // Before seeding activity: the seed needs real exercise content to answer.
+    const fixed = await unwrapDemoItems().catch(() => 0);
+    if (fixed) console.log(`[demo] unwrapped ${fixed} demo lesson items stored by the old importer`);
     const fams = await db.query("select id from families where is_demo = true");
     for (const row of fams.rows) {
       try {
@@ -560,3 +595,5 @@ router.post("/login", async (req, res, next) => {
 module.exports = router;
 module.exports.backfillDemoFamilies = backfillDemoFamilies;
 module.exports.seedDemoActivity = seedDemoActivity;
+module.exports.demoItemRow = demoItemRow;
+module.exports.unwrapDemoItems = unwrapDemoItems;

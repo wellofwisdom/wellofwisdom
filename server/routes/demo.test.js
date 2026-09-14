@@ -115,3 +115,39 @@ test("demo families are backfilled on server boot when DEMO_MODE is on", () => {
   assert.match(index, /DEMO_MODE/, "server boot must gate the backfill on DEMO_MODE");
   assert.match(index, /backfillDemoFamilies/, "server boot must call backfillDemoFamilies");
 });
+
+// 2026-09-14: the importer stored normalizeItem's whole { type, content }
+// object in the content column, so every demo item was wrapped one level deep.
+test("a demo package item becomes a row whose content is the content, not the item", () => {
+  const demo = require("./demo");
+  const coursegen = require("../lib/coursegen");
+  const row = demo.demoItemRow({
+    type: "exercise",
+    content: { prompt: "Which is larger: 7/10 or 4/10?", kind: "mcq", choices: [{ id: "c1", text: "7/10" }, { id: "c2", text: "4/10" }], answer: "c1", hint: "Compare numerators." },
+  }, coursegen);
+  assert.equal(row.type, "exercise");
+  assert.equal(row.content.kind, "mcq");
+  assert.equal(row.content.prompt, "Which is larger: 7/10 or 4/10?");
+  assert.equal(row.content.type, undefined, "content must not carry the item's type");
+  assert.equal(row.content.content, undefined, "content must not be wrapped");
+});
+
+test("an item the normalizer rejects is skipped, not stored empty", () => {
+  const demo = require("./demo");
+  const coursegen = require("../lib/coursegen");
+  assert.equal(demo.demoItemRow({ type: "article", content: {} }, coursegen), null);
+  assert.equal(demo.demoItemRow(null, coursegen), null);
+});
+
+test("the repair only touches demo families and only rows that still have the wrapped shape", () => {
+  assert.match(demoSrc, /f\.is_demo = true/);
+  assert.match(demoSrc, /i\.content \? 'type' and i\.content \? 'content'/);
+  assert.match(demoSrc, /i\.content->>'type' = i\.type/);
+  // It runs before the activity seed, which needs the unwrapped exercises.
+  assert.ok(demoSrc.indexOf("unwrapDemoItems().catch") < demoSrc.indexOf("await seedDemoActivity(row.id)"));
+});
+
+test("every seeded package item goes through demoItemRow", () => {
+  assert.ok(!/normalizeItem\(\{ type, content \}\); \} catch \{ content = it\.content/.test(demoSrc), "the old wrapping assignment is gone");
+  assert.match(demoSrc, /const row = demoItemRow\(les\.items\[ii\], coursegen\);/);
+});
