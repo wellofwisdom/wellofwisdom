@@ -40,6 +40,20 @@ async function computeStats(familyId, learnerId, fromISO, toISO) {
        (select count(*) from review_schedule where learner_id = $1 and updated_at between $2 and $3 and reps > 0)::int as skills_reviewed`,
     [learnerId, from, to]
   );
+  // Standards covered by lessons completed in the period
+  let standardsCovered = [];
+  try {
+    const st = await db.query(
+      `select distinct unnest(l.standards) as code
+         from lesson_completions lc
+         join lessons l on l.id = lc.lesson_id
+         join units un on un.id = l.unit_id
+         join courses c on c.id = un.course_id
+        where lc.learner_id =  and lc.completed_at between  and  and c.family_id =  and l.standards is not null`,
+      [learnerId, from, to, familyId]
+    );
+    standardsCovered = (st.rows || []).map((r) => r.code).filter(Boolean);
+  } catch {}
   const courses = await db.query(
     `select c.title, c.lens,
             (select count(*) from lesson_completions lc where lc.course_id = c.id and lc.learner_id = $1 and lc.completed_at between $2 and $3)::int as lessons_done,
@@ -52,6 +66,9 @@ async function computeStats(familyId, learnerId, fromISO, toISO) {
     [learnerId, from, to, familyId]
   );
   const t = totals.rows[0];
+  if (standardsCovered.length) {
+    try { standardsCovered = require("../lib/standards").normalizeStandards(standardsCovered); } catch {}
+  }
   return {
     period: { from: fromISO, to: toISO },
     lessonsCompleted: t.lessons_completed,
@@ -61,6 +78,7 @@ async function computeStats(familyId, learnerId, fromISO, toISO) {
     activeDays: t.active_days,
     skillsReviewed: t.skills_reviewed,
     courses: courses.rows,
+    standardsCovered,
   };
 }
 
