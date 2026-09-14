@@ -364,6 +364,11 @@ function normalizeCourse(raw) {
       const lesson = { title: lessonTitle, items };
       const summary = str(l.summary, 500);
       if (summary) lesson.summary = summary;
+      const standardsRaw = l.standards;
+      if (standardsRaw != null) {
+        const normalized = require("./standards").normalizeStandards(standardsRaw);
+        if (normalized.length) lesson.standards = normalized;
+      }
       lessons.push(lesson);
     }
     if (unitTitle && lessons.length) units.push({ title: unitTitle, lessons: lessons.slice(0, MAX_LESSONS) });
@@ -407,9 +412,10 @@ async function persistCourse(course, spec, userId, familyId) {
       counts.units++;
       let lessonPos = 0;
       for (const l of u.lessons) {
+        const standardsArr = l.standards ? require("./standards").normalizeStandards(l.standards) : [];
         const ln = await client.query(
-          "insert into lessons (unit_id, title, summary, position) values ($1,$2,$3,$4) returning id",
-          [un.rows[0].id, l.title, l.summary || null, lessonPos++]
+          "insert into lessons (unit_id, title, summary, standards, position) values ($1,$2,$3,$4,$5) returning id",
+          [un.rows[0].id, l.title, l.summary || null, standardsArr, lessonPos++]
         );
         counts.lessons++;
         let itemPos = 0;
