@@ -231,6 +231,29 @@ test("seo: robots keeps the app private and the shared courses crawlable", () =>
   assert.match(txt, /Sitemap: https:\/\/wellofwisdom\.app\/sitemap\.xml/);
 });
 
+
+test("publicCourse and courseText include lesson standards, still strip answers", () => {
+  const lesson = {
+    title: "Adding fractions",
+    summary: "Find common denominators.",
+    standards: ["CCSS.MATH.CONTENT.4.NF.A.1"],
+    items: [exercise],
+  };
+  const tree = {
+    title: "Fractions", topic: "fractions", lens: null,
+    grade_level: 4, description: "d", public_slug: "frac", license: "CC-BY-4.0",
+    author_name: null, published_at: new Date(),
+    units: [{ title: "U1", lessons: [lesson] }],
+  };
+  const pub = share.publicCourse(tree);
+  assert.deepEqual(pub.units[0].lessons[0].standards, ["CCSS.MATH.CONTENT.4.NF.A.1"]);
+  const json = JSON.stringify(pub);
+  assert.doesNotMatch(json, /"answer"/, "publicCourse with standards must still strip answers");
+  const txt = share.courseText(tree);
+  assert.match(txt, /Standards: CCSS.MATH.CONTENT.4.NF.A.1/);
+  assert.doesNotMatch(txt, /Common denominator/, "courseText with standards must still strip explanations");
+});
+
 test("importTarget: every link a guide might paste becomes the JSON behind it", () => {
   const t = share.importTarget;
   assert.equal(t("https://a.org/c/fractions-1"), "https://a.org/api/public/courses/fractions-1/export");

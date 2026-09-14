@@ -6,6 +6,7 @@ const auth = require("../lib/auth");
 const db = require("../lib/db");
 const ai = require("../lib/ai");
 const perm = require("../lib/perm");
+const standards = require("../lib/standards");
 const { assignedLearners } = require("../lib/preview");
 
 const router = express.Router();
@@ -40,6 +41,16 @@ async function computeStats(familyId, learnerId, fromISO, toISO) {
        (select count(*) from review_schedule where learner_id = $1 and updated_at between $2 and $3 and reps > 0)::int as skills_reviewed`,
     [learnerId, from, to]
   );
+  const st = await db.query(
+    `select distinct unnest(l.standards) as code
+       from lesson_completions lc
+       join lessons l on l.id = lc.lesson_id
+       join units un on un.id = l.unit_id
+       join courses c on c.id = un.course_id
+      where lc.learner_id = $1 and lc.completed_at between $2 and $3 and c.family_id = $4 and l.standards is not null`,
+    [learnerId, from, to, familyId]
+  );
+  let standardsCovered = (st.rows || []).map((r) => r.code).filter(Boolean);
   const courses = await db.query(
     `select c.title, c.lens,
             (select count(*) from lesson_completions lc where lc.course_id = c.id and lc.learner_id = $1 and lc.completed_at between $2 and $3)::int as lessons_done,
@@ -52,6 +63,7 @@ async function computeStats(familyId, learnerId, fromISO, toISO) {
     [learnerId, from, to, familyId]
   );
   const t = totals.rows[0];
+  if (standardsCovered.length) standardsCovered = standards.normalizeStandards(standardsCovered);
   return {
     period: { from: fromISO, to: toISO },
     lessonsCompleted: t.lessons_completed,
@@ -61,6 +73,7 @@ async function computeStats(familyId, learnerId, fromISO, toISO) {
     activeDays: t.active_days,
     skillsReviewed: t.skills_reviewed,
     courses: courses.rows,
+    standardsCovered,
   };
 }
 
