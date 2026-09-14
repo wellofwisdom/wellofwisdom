@@ -22,9 +22,13 @@ the product is identical; only plumbing differs.
    through helpers that enforce it. Multi-tenant from the first table, not
    retrofitted. (Consider Postgres row-level security once the schema settles.)
 3. **Storage behind an adapter** (`lib/storage.js`): `local` writes to the data
-   volume, `s3` talks to any S3-compatible endpoint (R2/MinIO/AWS). Callers never
-   know which. Presigned-URL lesson from ops: store durable references, never
-   expiring URLs.
+   volume (`UPLOAD_DIR`), `s3` talks to any S3-compatible endpoint via the AWS
+   SDK v3 S3 client (R2, MinIO, AWS). Selected by `STORAGE_DRIVER`. Same
+   interface: `put`, `get` (stream with range), `getBuffer`, `delete`,
+   `exists`. Callers never know which. Whole-family export (`GET
+   /api/family/export`, owner only) streams a zip with `family.json`, every
+   course as `.wow-course.json`, and uploads by id. The zip re-imports its
+   courses on any instance.
 4. **Long work runs as jobs, not HTTP handlers.** Course generation takes
    minutes. A `job` table is the queue (Postgres-backed by default; BullMQ
    adapter in cloud). A role selector in the entrypoint boots a process as

@@ -42,3 +42,6 @@
 /* stamina: thin bar above boss pips, opt-in feel */
 .staminabar{height:6px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border);overflow:hidden;margin-bottom:8px}
 .staminabar-fill{display:block;height:100%;background:var(--accent);transition:width .35s ease}
+.worldmap-legend{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:6px 0 8px}
+.worldmap-legend-item{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border);font-size:11px}
+

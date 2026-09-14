@@ -598,34 +598,13 @@ against the existing `media.js` spend path, same shape you already run.
 ### Slices shipped (Well 3 `feat/well3-immersive` → `main` at `cf2117c`)
 
 1. **Full-screen learner shell plus HUD** (SHIPPED: `LearnerShell.tsx` plus `LearnerHUD`, 100dvh scrim, XP ring, streak, pack, map, sound; degraded no-key mode kept; CSS plus layout, no migration). Same routes, different frame; the 720px `kid` center column becomes 100dvh with `worldhero` art as scrim.
-2. **Course path map** (replace `CourseView` lesson list). Render units as
-   path SVG, lessons as nodes. Reuse `progress.lessonsTotal` and `lesson.done`.
-3. **World map canvas** (replace `encounters` grid in `WorldView`). SVG path
-   plus absolute node buttons, chapter banners as full-bleed regions, parallax
-   hero, existing `Journey` scroll progress drives avatar.
-4. **Kie voice narrator (Gemini 3.1 Flash TTS)** (`server/lib/providers/
-   kie-voice.js`, job `tts-narrate` via `server/lib/jobs.js`, cache in
-   `UPLOAD_DIR`, serve as `media/:id/audio`). Browser `speechSynthesis`
-   stays as fallback. Voice choice pinned per character, generated at lesson
-   publish time, capped plain text, SSML kept simple, captions stay. Cost is
-   sub cent per chapter at kie's $0.70 plus $14 per million tokens.
-5. **Chapter music loops via kie Suno** (provider
-   `server/lib/providers/kie-music.js`, same cache plus spend path, Suno
-   Generate Music at $0.06 per loop, one per chapter, mood swap on `kind`,
-   low volume, duck under narration, music slider in settings, no autoplay
-   with sound before a tap).
-6. **Scene transitions plus sound cues** (CSS wipes, view transitions,
-   correct chime, boss thud, page turn, all muted by default, gated on
-   reduced motion).
-7. **Quest log plus map overview** (full-screen Map, path SVG, avatar on
-   path, quest log reusing `upcoming`, `returned`, `reviewsDue` from
-   `LearnerApp`). Collection gallery with lore lines per loot item.
-8. **Game loop additions** (one per follow-up PR, no migrations unless noted):
-   stamina for boss, choice branches that change next hook, companion reactions
-   (one TTS clip per chapter), daily plus weekly board, mastery stars per
-   lesson, collection lore, doors plus keys (rare loot opens shortcut), photo
-   finish on project return. Guides set voice plus music level per learner,
-   learner owns mute.
+2. **Course path map** (SHIPPED: `CoursePath.tsx` SVG trail plus `CourseView` list fallback plus doors between units; reuses `progress.lessonsTotal` and `lesson.done`; `MasteryStars` on done nodes).
+3. **World map canvas** (SHIPPED: `WorldMap.tsx` SVG trail plus `Journey` scroll progress driving avatar; chapter banners as full-bleed regions; kind legend; `CompanionLine` per chapter).
+4. **Kie voice narrator (Gemini 3.1 Flash TTS)** (SHIPPED: `server/lib/providers/kie-voice.js`; cache in `UPLOAD_DIR` as `media/:id`; browser `speechSynthesis` fallback; voice pinned per `adventure_characters`; sub cent per chapter).
+5. **Chapter music loops via kie Suno** (SHIPPED: `server/lib/providers/kie-music.js`; cache plus spend path; Suno at $0.06 per loop; one per chapter; mood swap on `kind`; duck under narration; no autoplay before tap).
+6. **Scene transitions plus sound cues** (SHIPPED: `SceneTransition.tsx` fade plus `prefers-reduced-motion`; sound cues muted by default).
+7. **Quest log plus map overview** (SHIPPED: `QuestLog.tsx` reusing `upcoming` plus `returned` plus `reviewsDue`; `DailiesBoard` plus `WeekliesBoard` with `Weeklies` progress bar; `CollectionGallery` with lore).
+8. **Game loop additions** (SHIPPED without migration: stamina for boss (`StaminaBar`), doors plus keys on path (`pathdoor` plus `has-key`), companion reactions (`CompanionLine`), dailies plus weeklies plus mastery stars; choice branches and photo finish remain as follow-up polish). Guides set voice plus music level per learner, learner owns mute.
 
 ### Guardrails while building
 

@@ -5,6 +5,7 @@
 const express = require("express");
 const db = require("../lib/db");
 const auth = require("../lib/auth");
+const { requireInstanceAdmin } = require("../lib/instanceAdmin");
 
 const router = express.Router();
 
@@ -59,7 +60,8 @@ router.post("/", async (req, res, next) => {
 });
 
 // GET /api/waitlist  guides only: list + count (CSV via ?format=csv)
-router.get("/", auth.parentOnly, async (req, res, next) => {
+// Every signup's email address: the instance admin's list, not any guide's.
+router.get("/", auth.parentOnly, requireInstanceAdmin, async (req, res, next) => {
   try {
     if (req.query.format === "csv") {
       const { rows } = await db.query("select email, interest, note, source, created_at from waitlist order by created_at desc");

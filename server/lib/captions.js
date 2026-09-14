@@ -34,9 +34,8 @@ function tooLargeForStt(bytes) {
 // marks the row 'failed' if this throws; here we only write a success.
 async function generate({ uploadId, familyId }) {
   const db = require("./db");
-  const store = require("./uploads");
+  const storage = require("./storage");
   const media = require("./media");
-  const fsp = require("node:fs/promises");
 
   const { rows } = await db.query(
     `select id, family_id, kind, mime, bytes, storage_key, original_name, captions_lang
@@ -48,9 +47,7 @@ async function generate({ uploadId, familyId }) {
   if (up.kind !== "video" && up.kind !== "audio") throw new Error("not_media");
   if (tooLargeForStt(up.bytes)) throw new Error(`too_large_for_stt_${CAPTION_MAX_MB}mb`);
 
-  const abs = store.resolveKey(up.storage_key);
-  if (!abs) throw new Error("file_missing");
-  const buffer = await fsp.readFile(abs).catch(() => null);
+  const buffer = await storage.getBuffer(up.storage_key);
   if (!buffer) throw new Error("file_missing");
 
   const raw = await media.transcribe({

@@ -74,6 +74,13 @@ export default function WorldMap({
         <span className="grow" />
         <span className="worldmap-dot" />
       </div>
+      <div className="worldmap-legend muted small" aria-hidden="true">
+        {Object.entries(KIND_ICON).map(([k, icon]) => {
+          const n = flat.filter((x) => x.kind === k).length;
+          if (!n) return null;
+          return <span key={k} className="worldmap-legend-item">{icon} {n}</span>;
+        })}
+      </div>
       <div className="worldmap-stage">
         <svg className="worldmap-svg" viewBox={`0 0 ${W} ${H}`} width={W} height={H} aria-hidden="true" preserveAspectRatio="xMidYMin meet">
           <path className="worldmap-track" d={d} fill="none" stroke="var(--border)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />

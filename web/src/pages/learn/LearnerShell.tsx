@@ -5,6 +5,7 @@
 // Now with controller mode: gamepad and keyboard arrows share the spatial manager,
 // candidates are [data-nav], PadLegend appears when a pad connects.
 import { useCallback, useEffect, useState } from "react";
+import Logo from "../../components/Logo";
 import { api } from "../../api";
 import type { Me } from "../../types";
 import { useGamepad } from "../../lib/gamepad";
@@ -34,6 +35,17 @@ function getControllerPref(): boolean {
   } catch {
     return false;
   }
+}
+
+function isTypingTarget(el: Element | null): boolean {
+  if (!el) return false;
+  const tag = el.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+  if ((el as HTMLElement).isContentEditable) return true;
+  const closest = (el as HTMLElement).closest?.('[contenteditable="true"], input, textarea, select, [role="dialog"]');
+  if (closest && closest !== el) return true;
+  if (el.closest?.('[role="dialog"]')) return true;
+  return false;
 }
 
 function XPRing({ xp }: { xp: number }) {
@@ -168,25 +180,31 @@ export default function LearnerShell({
   useEffect(() => {
     if (!controllerMode) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp") { e.preventDefault(); focusNext("up"); }
-      else if (e.key === "ArrowDown") { e.preventDefault(); focusNext("down"); }
-      else if (e.key === "ArrowLeft") { e.preventDefault(); focusNext("left"); }
-      else if (e.key === "ArrowRight") { e.preventDefault(); focusNext("right"); }
-      else if (e.key === "Enter" || e.key === " ") {
+      const target = e.target as Element | null;
+      const typing = isTypingTarget(target);
+      if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        if (typing) return;
+        e.preventDefault();
+        if (e.key === "ArrowUp") focusNext("up");
+        else if (e.key === "ArrowDown") focusNext("down");
+        else if (e.key === "ArrowLeft") focusNext("left");
+        else if (e.key === "ArrowRight") focusNext("right");
+        return;
+      }
+      if (e.key === "Enter" || e.key === " ") {
+        if (typing) return;
         const el = document.activeElement as HTMLElement | null;
         if (el && el.hasAttribute("data-nav")) {
           e.preventDefault();
           el.click();
         }
-      } else if (e.key === "Escape") {
+        return;
+      }
+      if (e.key === "Escape") {
+        if (typing) return;
         if (mapOpen) { e.preventDefault(); setMapOpen(false); }
         else if (window.history.length > 1) window.history.back();
-      } else if (e.key.toLowerCase() === "x" && e.ctrlKey === false && e.metaKey === false) {
-        // X key as spoken alias when in controller mode (for testing without pad)
-        if ((e.target as HTMLElement)?.tagName === "INPUT" || (e.target as HTMLElement)?.tagName === "TEXTAREA") return;
-        // Do not hijack normal typing; only when no input is focused
-        // We do not auto speak on x alone; keep X read via gamepad button 2.
-        // Keyboard alternative: hold x is not needed.
+        return;
       }
     };
     window.addEventListener("keydown", onKey);
@@ -216,7 +234,7 @@ export default function LearnerShell({
       <header className="learnerhud" role="banner" aria-label="Your progress">
         <div className="hud-left">
           <button className="hud-home" type="button" data-nav data-say="Home" onClick={() => onNavigate("")} aria-label="Home">
-            <span aria-hidden="true">🌰</span>
+            <Logo size={28} />
             <span className="hud-home-name">{firstName}</span>
           </button>
           <span className="hud-family chip" title={me.familyName}>{me.familyName}</span>
