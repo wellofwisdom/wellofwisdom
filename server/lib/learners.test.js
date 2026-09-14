@@ -18,6 +18,7 @@ test("shape: leaves every other field untouched", () => {
     id: "7", name: "Wren", username: "wren", grade_level: 9,
     interests: ["drawing"], reading_level: "at grade",
     ai_notes: "likes short lessons", email: "wren@example.com",
+    prefs: { lang: "es" },
     created_at: "2026-08-01T00:00:00.000Z",
   };
   assert.deepEqual(learners.shape(row), { ...row, id: 7 });

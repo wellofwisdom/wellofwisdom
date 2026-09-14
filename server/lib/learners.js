@@ -9,12 +9,22 @@
 //  2. Endpoints picking their own column lists. /api/me used to omit ai_notes
 //     and email, so the profile form loaded them blank and saving wrote that
 //     blank back over real data.
-const FIELDS = "id, name, username, grade_level, interests, reading_level, ai_notes, email, tutor_mode, created_at";
+const FIELDS = "id, name, username, grade_level, interests, reading_level, ai_notes, email, tutor_mode, prefs, created_at";
+
+function normalizeLang(raw) {
+  const s = String(raw || "").trim().toLowerCase();
+  if (s === "es" || s === "es-es" || s === "spanish" || s === "espanol" || s === "español") return "es";
+  return "en";
+}
 
 /** Normalize one learner row for the API. */
 function shape(row) {
   if (!row) return null;
-  return { ...row, id: Number(row.id) };
+  const out = { ...row, id: Number(row.id) };
+  if (!out.prefs || typeof out.prefs !== "object") out.prefs = {};
+  if (!out.prefs.lang) out.prefs = { ...out.prefs, lang: "en" };
+  else out.prefs = { ...out.prefs, lang: normalizeLang(out.prefs.lang) };
+  return out;
 }
 
 /** Every learner in a family, in the order they were added. Pass `visibleIds`
@@ -35,4 +45,4 @@ async function listForFamily(db, familyId, visibleIds) {
   return rows.map(shape);
 }
 
-module.exports = { FIELDS, shape, listForFamily };
+module.exports = { FIELDS, shape, listForFamily, normalizeLang };

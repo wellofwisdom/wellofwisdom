@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { initTheme } from "./theme";
 import { migrateLegacyHash } from "./router";
+import "@fontsource/cinzel/700.css";
 import "./styles.css";
 
 initTheme();

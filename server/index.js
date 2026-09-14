@@ -16,6 +16,7 @@ const { migrate } = require("./lib/migrate");
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+const HOST = String(process.env.HOST || "0.0.0.0").trim() || "0.0.0.0";
 
 app.disable("x-powered-by");
 
@@ -282,8 +283,8 @@ async function boot() {
     }
   }
   if (require.main === module) {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Well of Wisdom listening on :${PORT} (db=${db.configured()}, ai=${ai.configured() ? "on" : "off"}, csp=${csp.mode()}, trustProxy=${JSON.stringify(app.get("trust proxy"))})`);
+    app.listen(PORT, HOST, () => {
+      console.log(`Well of Wisdom listening on ${HOST}:${PORT} (db=${db.configured()}, ai=${ai.configured() ? "on" : "off"}, csp=${csp.mode()}, trustProxy=${JSON.stringify(app.get("trust proxy"))})`);
     });
   }
 }

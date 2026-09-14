@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import type { ItemNode } from "../../../types";
 import { RichText } from "../../../lib/rich";
+import { speakWithLang, currentLang } from "../../../i18n";
 
 function ReadAloud({ text }: { text: string }) {
   const [speaking, setSpeaking] = useState(false);
@@ -24,13 +25,9 @@ function ReadAloud({ text }: { text: string }) {
       .trim()
       .slice(0, 5000);
     if (!speakable) return;
-    const u = new SpeechSynthesisUtterance(speakable);
-    u.rate = 1;
-    u.onend = () => setSpeaking(false);
-    u.onerror = () => setSpeaking(false);
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-    setSpeaking(true);
+    const lang = currentLang();
+    const ok = speakWithLang(speakable, lang, { onend: () => setSpeaking(false), onerror: () => setSpeaking(false) });
+    if (ok) setSpeaking(true);
   }
   return (
     <button className="btn ghost small-btn" type="button" onClick={toggle} aria-label={speaking ? "Stop reading aloud" : "Read this aloud"} title={speaking ? "Stop" : "Listen"}>

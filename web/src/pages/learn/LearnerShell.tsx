@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import Logo from "../../components/Logo";
 import { api } from "../../api";
 import type { Me } from "../../types";
+import { useT } from "../../i18n";
 import { useGamepad } from "../../lib/gamepad";
 import { focusNext, focusFirst, speakFocused } from "../../lib/spatialNav";
 import PadLegend from "../../components/PadLegend";
@@ -88,6 +89,7 @@ export default function LearnerShell({
   const [soundOn, setSoundOn] = useState<boolean>(() => getSoundPref());
   const [mapOpen, setMapOpen] = useState(false);
   const [controllerMode, setControllerMode] = useState<boolean>(() => getControllerPref());
+  const { t } = useT();
 
   useEffect(() => {
     let live = true;
@@ -210,12 +212,12 @@ export default function LearnerShell({
 
   useEffect(() => {
     if (!controllerMode) return;
-    const t = setTimeout(() => {
+    const tmr = setTimeout(() => {
       if (!document.activeElement || !document.activeElement.hasAttribute("data-nav")) {
         focusFirst();
       }
     }, 120);
-    return () => clearTimeout(t);
+    return () => clearTimeout(tmr);
   }, [controllerMode]);
 
   const firstName = me.name.split(" ")[0];
@@ -230,7 +232,7 @@ export default function LearnerShell({
       )}
       <header className="learnerhud" role="banner" aria-label="Your progress">
         <div className="hud-left">
-          <button className="hud-home" type="button" data-nav data-say="Home" onClick={() => onNavigate("")} aria-label="Home">
+          <button className="hud-home" type="button" data-nav data-say={t("shell.home")} onClick={() => onNavigate("")} aria-label={t("shell.home")}>
             <Logo size={28} />
             <span className="hud-home-name">{firstName}</span>
           </button>
@@ -242,12 +244,12 @@ export default function LearnerShell({
         <div className="hud-right">
           <XPRing xp={xp} />
           {streak && streak.best > 0 && (
-            <span className={`hud-stat${streak.activeToday ? " hot" : ""}`} title={`${streak.current} day streak, best ${streak.best}`}>
+            <span className={`hud-stat${streak.activeToday ? " hot" : ""}`} title={t("shell.streakTitle", { current: String(streak.current), best: String(streak.best) })}>
               <span aria-hidden="true">{streak.current >= 3 ? "🔥" : "✨"}</span>
               <span className="hud-stat-num">{streak.current}</span>
             </span>
           )}
-          <span className="hud-stat hud-pack" title={`${packCount} items in your pack`}>
+          <span className="hud-stat hud-pack" title={t("shell.packTitle", { count: String(packCount) })}>
             <span aria-hidden="true">🎒</span>
             <span className="hud-stat-num">{packCount}</span>
           </span>
@@ -255,11 +257,11 @@ export default function LearnerShell({
             className="hud-iconbtn"
             type="button"
             data-nav
-            data-say={controllerMode ? "Controller mode on" : "Controller mode off"}
-            aria-label={controllerMode ? "Controller mode on" : "Controller mode off"}
+            data-say={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}
+            aria-label={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}
             aria-pressed={controllerMode}
             onClick={() => setControllerMode((v) => !v)}
-            title={controllerMode ? "Controller mode on" : "Controller mode off"}
+            title={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}
           >
             <span aria-hidden="true">🎮</span>
           </button>
@@ -267,11 +269,11 @@ export default function LearnerShell({
             className="hud-iconbtn"
             type="button"
             data-nav
-            data-say={soundOn ? "Mute sounds" : "Unmute sounds"}
-            aria-label={soundOn ? "Mute sounds" : "Unmute sounds"}
+            data-say={soundOn ? t("shell.mute") : t("shell.soundOn")}
+            aria-label={soundOn ? t("shell.mute") : t("shell.soundOn")}
             aria-pressed={soundOn}
             onClick={() => setSoundOn((v) => !v)}
-            title={soundOn ? "Mute" : "Sound on"}
+            title={soundOn ? t("shell.mute") : t("shell.soundOn")}
           >
             <span aria-hidden="true">{soundOn ? "🔊" : "🔇"}</span>
           </button>
@@ -279,16 +281,16 @@ export default function LearnerShell({
             className="hud-iconbtn hud-mapbtn"
             type="button"
             data-nav
-            data-say={mapOpen ? "Close map" : "Open map"}
-            aria-label={mapOpen ? "Close map" : "Open map"}
+            data-say={mapOpen ? t("shell.mapClose") : t("shell.mapOpen")}
+            aria-label={mapOpen ? t("shell.mapClose") : t("shell.mapOpen")}
             aria-expanded={mapOpen}
             onClick={() => setMapOpen((v) => !v)}
-            title="Map"
+            title={t("shell.map")}
           >
             <span aria-hidden="true">🗺️</span>
-            <span className="hud-maplabel">Map</span>
+            <span className="hud-maplabel">{t("shell.map")}</span>
           </button>
-          <button className="hud-iconbtn" type="button" data-nav data-say="Sign out" onClick={onLogout} aria-label="Sign out" title="Sign out">
+          <button className="hud-iconbtn" type="button" data-nav data-say={t("shell.signOut")} onClick={onLogout} aria-label={t("shell.signOut")} title={t("shell.signOut")}>
             <span aria-hidden="true">⎋</span>
           </button>
         </div>
@@ -296,20 +298,20 @@ export default function LearnerShell({
 
       {connected && <PadLegend />}
       {mapOpen && (
-        <div className="hud-mapdrop" role="dialog" aria-label="Map">
+        <div className="hud-mapdrop" role="dialog" aria-label={t("shell.map")}>
           <div className="hud-mapdrop-head">
-            <strong>Where to next</strong>
-            <button className="btn ghost small-btn" type="button" data-nav data-say="Close map" onClick={() => setMapOpen(false)}>Close</button>
+            <strong>{t("shell.whereToNext")}</strong>
+            <button className="btn ghost small-btn" type="button" data-nav data-say={t("shell.mapClose")} onClick={() => setMapOpen(false)}>{t("shell.close")}</button>
           </div>
           <div className="hud-mapdrop-grid">
-            <button type="button" className="hud-mapcard" data-nav data-say="Go home" onClick={() => { setMapOpen(false); onNavigate(""); }}>
-              <span aria-hidden="true">🏠</span> Home
+            <button type="button" className="hud-mapcard" data-nav data-say={t("shell.goHome")} onClick={() => { setMapOpen(false); onNavigate(""); }}>
+              <span aria-hidden="true">🏠</span> {t("shell.goHome")}
             </button>
-            <button type="button" className="hud-mapcard" data-nav data-say="Practice" onClick={() => { setMapOpen(false); onNavigate("practice"); }}>
-              <span aria-hidden="true">🔁</span> Practice
+            <button type="button" className="hud-mapcard" data-nav data-say={t("shell.practice")} onClick={() => { setMapOpen(false); onNavigate("practice"); }}>
+              <span aria-hidden="true">🔁</span> {t("shell.practice")}
             </button>
           </div>
-          <p className="muted small" style={{ marginTop: 8 }}>The full map with your path and quests lands in the next slice. This is the pin it hangs from.</p>
+          <p className="muted small" style={{ marginTop: 8 }}>{t("shell.mapComingSoon")}</p>
         </div>
       )}
 

@@ -12,6 +12,7 @@
 //   packageItem(), what another instance downloads to teach from. Answers
 //                   included only when the publisher opted in.
 const db = require("./db");
+const standards = require("./standards");
 
 const LICENSES = ["CC-BY-4.0", "CC-BY-SA-4.0", "CC0-1.0", "all-rights-reserved"];
 const DEFAULT_LICENSE = "CC-BY-4.0";
@@ -95,6 +96,7 @@ function publicCourse(tree) {
       lessons: (u.lessons || []).map((l) => ({
         title: l.title,
         summary: l.summary,
+        standards: (l.standards || []).slice(0, 12),
         items: (l.items || []).map(publicItem),
       })),
     })),
@@ -120,6 +122,7 @@ function coursePackage(tree) {
       lessons: (u.lessons || []).map((l) => ({
         title: l.title,
         summary: l.summary,
+        standards: (l.standards || null) ? standards.normalizeStandards(l.standards) : undefined,
         items: (l.items || []).map((i) => packageItem(i, withAnswers)),
       })),
     })),
@@ -171,6 +174,7 @@ function courseText(tree, opts = {}) {
       push();
       push(`Lesson ${ui + 1}.${li + 1}  ${l.title}`);
       if (l.summary) push(l.summary);
+      if (l.standards && l.standards.length) push(`Standards: ${l.standards.join(", ")}`);
       (l.items || []).forEach((it) => {
         const c = it.content || {};
         push();

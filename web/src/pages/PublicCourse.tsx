@@ -30,7 +30,7 @@ interface PublicCard extends PublicMeta {
 }
 
 interface PublicItem { type: string; position: number; content: Record<string, unknown> }
-interface PublicLesson { title: string; summary: string | null; items: PublicItem[] }
+interface PublicLesson { title: string; summary: string | null; standards?: string[]; items: PublicItem[] }
 interface PublicUnit { title: string; lessons: PublicLesson[] }
 interface PublicCourseData extends PublicMeta { units: PublicUnit[] }
 
@@ -230,6 +230,7 @@ export function PublicCourse({ slug }: { slug: string }) {
               <div className="publiclesson" key={li}>
                 <h3>{l.title}</h3>
                 {l.summary && <p className="muted small">{l.summary}</p>}
+                {l.standards && l.standards.length > 0 && <p className="muted small">Standards: {l.standards.join(", ")}</p>}
                 {l.items.map((it, ii) => <ItemView item={it} key={ii} />)}
               </div>
             ))}
