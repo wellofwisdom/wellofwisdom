@@ -103,7 +103,9 @@ app.get("/api/me", async (req, res) => {
   if (!me) return res.json({ user: null });
   if (me.role !== "parent") return res.json({ user: me });
   const rows = await learners.listForFamily(db, me.familyId).catch(() => []);
-  res.json({ user: me, learners: rows });
+  // The UI hides server-wide settings from everyone else; the routes enforce it.
+  const instanceAdmin = await require("./lib/instanceAdmin").forRequest(req);
+  res.json({ user: { ...me, instanceAdmin }, learners: rows });
 });
 
 app.use("/api/demo", require("./routes/demo"));

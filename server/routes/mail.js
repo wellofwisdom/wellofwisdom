@@ -5,6 +5,7 @@ const auth = require("../lib/auth");
 const db = require("../lib/db");
 const mail = require("../lib/mail");
 const digest = require("../lib/digest");
+const { requireInstanceAdmin } = require("../lib/instanceAdmin");
 
 const router = express.Router();
 router.use(auth.parentOnly);
@@ -34,7 +35,8 @@ function maskSecrets(cfg) {
   return out;
 }
 
-router.get("/config", async (req, res, next) => {
+// The provider and its key serve every family on the server: instance admin only.
+router.get("/config", requireInstanceAdmin, async (req, res, next) => {
   try {
     const cfg = await mail.resolveConfig();
     const envFallback = {
@@ -49,7 +51,7 @@ router.get("/config", async (req, res, next) => {
   }
 });
 
-router.put("/config", async (req, res, next) => {
+router.put("/config", requireInstanceAdmin, async (req, res, next) => {
   try {
     const body = req.body || {};
     const provider = body.provider;
@@ -140,7 +142,9 @@ router.put("/prefs", async (req, res, next) => {
   }
 });
 
-router.post("/test", async (req, res, next) => {
+// A test send goes to any address the caller types, from this server's domain,
+// so it is the admin's tool, not a relay for anyone with a guide account.
+router.post("/test", requireInstanceAdmin, async (req, res, next) => {
   try {
     const to = String((req.body && req.body.to) || "").trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return bad(res, "email_invalid");

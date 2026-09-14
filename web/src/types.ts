@@ -9,6 +9,8 @@ export interface Me {
   prefs: Record<string, unknown>;
   gradeLevel: number | null;
   interests: string[];
+  /** May change settings shared by the whole server (AI, email, media, waitlist). */
+  instanceAdmin?: boolean;
 }
 
 export interface Learner {
