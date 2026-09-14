@@ -29,13 +29,16 @@ describe("family integration", () => {
     if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");
     const famA = await signup(a, "scopingA"); const famB = await signup(a, "scopingB");
-    await http(a, "/api/family/learners", { cookie: famA.jar, body: { name: `kidA_${Date.now()}`, username: `kidA_${Date.now()}`, pin: "1234" } });
-    const kidB = `kidB_${Date.now()}`;
-    await http(a, "/api/family/learners", { cookie: famB.jar, body: { name: kidB, username: kidB, pin: "1234" } });
+    const kidA = `kida_${Date.now()}`;
+    const resA = await http(a, "/api/family/learners", { cookie: famA.jar, body: { name: kidA, username: kidA, pin: "1234" } });
+    assert.equal(resA.status, 201, `kidA create should be 201 got ${resA.status}: ${resA.text}`);
+    const kidB = `kidb_${Date.now()}`;
+    const resB = await http(a, "/api/family/learners", { cookie: famB.jar, body: { name: kidB, username: kidB, pin: "1234" } });
+    assert.equal(resB.status, 201, `kidB create should be 201 got ${resB.status}: ${resB.text}`);
     const cA = await db.query("insert into courses (family_id, title, topic, status, created_by) values ($1,$2,$3,'draft',$4) returning id", [famA.familyId, "Course A", "math", famA.userId]);
     const courseA = Number(cA.rows[0].id);
     const listB = await http(a, "/api/family/learners", { method: "GET", cookie: famB.jar });
-    assert.equal(listB.status, 200); assert.ok(listB.json.learners.some((l) => l.username === kidB));
+    assert.equal(listB.status, 200); assert.ok(listB.json.learners.some((l) => l.username === kidB.toLowerCase()));
     const coursesB = await http(a, "/api/courses", { method: "GET", cookie: famB.jar });
     assert.equal(coursesB.status, 200); assert.ok(!coursesB.json.courses.some((c) => Number(c.id) === courseA));
     for (const p of ["/api/reports", "/api/plans", "/api/events", "/api/resources"]) {
