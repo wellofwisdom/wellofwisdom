@@ -274,8 +274,11 @@ test("speech settings are the instance admin's, not every guide's", async () => 
     });
     assert.equal(refused.status, 403);
     assert.equal((await refused.json()).error, "instance_admin_only");
-    // The refusal happens before the database is consulted at all.
-    assert.equal(dbAtLoad.configured(), false);
+    // The refusal happens before the database is consulted at all. Under
+    // pg without DATABASE_URL the database is not configured; under PGlite
+    // it always is. The test is driver-aware so test:pglite passes.
+    const wantConfigured = dbAtLoad.driver() === "pglite";
+    assert.equal(dbAtLoad.configured(), wantConfigured);
   } finally {
     await anonApp.close();
     await learnerApp.close();
