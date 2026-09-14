@@ -78,7 +78,7 @@ describe("auth integration", () => {
     const r2 = await http(a, "/api/family/learners", { cookie: pj, body: { name: "Kid One", username: uname, pin: "1234" } });
     assert.equal(r2.status, 201, r2.text);
     const db = require("../lib/db");
-    const { rows } = await db.query("select join_code from families where id = (select family_id from users where email = $1)", [email]);
+    const { rows } = await db.query("select join_code from families where id = (select family_id from users where email = $1)", [email.toLowerCase()]);
     const joinCode = rows[0].join_code;
     const r3 = await http(a, "/api/auth/learner-login", { body: { joinCode, username: uname, pin: "1234" } });
     assert.equal(r3.status, 200, r3.text);

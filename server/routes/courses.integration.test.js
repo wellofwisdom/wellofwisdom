@@ -20,7 +20,7 @@ async function signup(a, tag) {
   const email = `course_${tag}_${Date.now()}@example.com`;
   const r = await http(a, "/api/auth/signup", { body: { familyName: `Fam ${tag}`, name: "Parent", email, password: "s3cur3Pass" } });
   assert.equal(r.status, 200, r.text); const db = require("../lib/db");
-  const row = await db.query("select id, family_id from users where email=$1", [email]);
+  const row = await db.query("select id, family_id from users where email=$1", [email.toLowerCase()]);
   assert.ok(row.rows[0], `signup row missing for ${email}: ${r.text}`);
   return { jar: jar(r), userId: Number(row.rows[0].id), familyId: Number(row.rows[0].family_id) };
 }
