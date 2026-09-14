@@ -134,6 +134,7 @@ app.use("/api/waitlist", require("./routes/waitlist"));
 app.use("/api/community", require("./routes/community"));
 app.use("/api/narration", require("./routes/narration"));
 app.use("/api/stt", require("./routes/stt"));
+app.use("/api/tokens", require("./routes/tokens"));
 app.use("/api/ai", require("./routes/ai"));
 app.use("/api/music", require("./routes/music"));
 

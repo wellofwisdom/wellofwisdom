@@ -421,6 +421,72 @@ function MediaPanel() {
   );
 }
 
+function TokensPanel() {
+  const [tokens, setTokens] = useState<{ id: number; name: string; scopes: string[]; createdAt: string; lastUsedAt: string | null; revokedAt: string | null }[] | null>(null);
+  const [name, setName] = useState("");
+  const [scopes, setScopes] = useState<string[]>(["read"]);
+  const [newToken, setNewToken] = useState<string | null>(null);
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const ALL_SCOPES = ["read", "courses:write", "learners:read", "progress:read"] as const;
+
+  const load = useCallback(() => {
+    api<{ tokens: typeof tokens }>("/api/tokens").then((d) => setTokens(d.tokens as never)).catch(() => setTokens([]));
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  async function create() {
+    setBusy(true); setMsg("");
+    try {
+      const r = await api<{ token: string }>("/api/tokens", { method: "POST", body: { name, scopes } });
+      setNewToken(r.token);
+      setName("");
+      load();
+    } catch (e) { setMsg(niceError(e)); }
+    finally { setBusy(false); }
+  }
+
+  async function revoke(id: number) {
+    setBusy(true); setMsg("");
+    try { await api(`/api/tokens/${id}`, { method: "DELETE" }); load(); }
+    catch (e) { setMsg(niceError(e)); }
+    finally { setBusy(false); }
+  }
+
+  if (tokens === null) return <p className="muted small">Loading…</p>;
+  return (
+    <>
+      {newToken && (
+        <div style={{ background: "var(--card)", border: "1px solid var(--good)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+          <p style={{ margin: 0, fontWeight: 600 }}>Copy this token now. It will not be shown again.</p>
+          <code style={{ display: "block", margin: "8px 0", padding: 8, background: "var(--bg)", borderRadius: 6, wordBreak: "break-all", fontSize: 13 }}>{newToken}</code>
+          <button className="btn" type="button" onClick={() => { navigator.clipboard?.writeText(newToken); setMsg("Copied"); }}>Copy</button>
+          <button className="btn ghost" type="button" style={{ marginLeft: 8 }} onClick={() => setNewToken(null)}>Dismiss</button>
+        </div>
+      )}
+      <div className="row wrap" style={{ gap: 8, marginBottom: 8 }}>
+        <input className="input" style={{ maxWidth: 220 }} value={name} onChange={(e) => setName(e.target.value)} placeholder="Token name (e.g. Claude Desktop)" aria-label="Token name" />
+        <span className="small muted" style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+          {ALL_SCOPES.map((s) => (
+            <label key={s} style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
+              <input type="checkbox" checked={scopes.includes(s)} onChange={(e) => setScopes((prev) => e.target.checked ? [...prev, s] : prev.filter((x) => x !== s))} /> {s}
+            </label>
+          ))}
+        </span>
+        <button className="btn primary" type="button" disabled={busy || !name.trim() || !scopes.length} onClick={create}>{busy ? "Creating…" : "Create token"}</button>
+      </div>
+      {tokens.length === 0 ? <p className="muted small">No tokens yet.</p> : tokens.map((t) => (
+        <div key={t.id} className="checkitem">
+          <span className="t"><strong>{t.name}</strong> <span className="muted small">· {t.scopes.join(", ")} · {new Date(t.createdAt).toLocaleDateString()}</span>{t.lastUsedAt && <span className="muted small"> · last used {new Date(t.lastUsedAt).toLocaleDateString()}</span>}{t.revokedAt && <span className="muted small"> · revoked</span>}</span>
+          {!t.revokedAt && <button className="btn ghost" type="button" disabled={busy} onClick={() => revoke(t.id)}>Revoke</button>}
+        </div>
+      ))}
+      {msg && <p className="small" style={{ marginTop: 8 }}>{msg}</p>}
+      <p className="hint" style={{ marginTop: 8 }}>Tokens start with <code>wow_</code> and act as you, limited to the scopes you pick. Use <code>Authorization: Bearer wow_...</code>. See docs/MCP.md for Claude Desktop setup.</p>
+    </>
+  );
+}
+
 function WaitlistPanel() {
   const [rows, setRows] = useState<{ email: string; interest: string; note: string | null; source: string | null; created_at: string }[] | null>(null);
   useEffect(() => {
@@ -515,6 +581,10 @@ export default function Settings({ me }: { me: MeResponse }) {
           <p className="muted">The AI provider, email provider and media keys are shared by every family on this server, so only the person who runs it can change them.</p>
         </Panel>
       )}
+
+      <Panel title="API tokens" side="for MCP and integrations">
+        <TokensPanel />
+      </Panel>
 
       <Panel title="Export your data" side="your family's zip">
         <p className="hint" style={{ marginTop: 0 }}>
