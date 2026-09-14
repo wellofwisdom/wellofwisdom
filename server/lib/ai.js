@@ -56,7 +56,6 @@ function resolveRoute(task) {
 function provider() {
   const explicit = String(process.env.AI_PROVIDER || "").trim().toLowerCase();
   if (explicit === "anthropic" || explicit === "claude") return "anthropic";
-  if (explicit === "anthropic" || explicit === "claude") return "anthropic";
   if (explicit === "gemini" || explicit === "google") return "gemini";
   if (explicit === "openai" || explicit === "openai-compatible" || explicit === "openai_compatible") return "openai";
   const base = String(process.env.AI_BASE_URL || "").toLowerCase();

@@ -127,3 +127,34 @@ test("aiConfig env fallback still provides default provider via fromEnv", async 
   delete process.env.AI_API_KEY;
   aiConfig.invalidateCache();
 });
+
+test("learner data never leaves via a trains-on-data provider (acceptance shape)", () => {
+  const vault = {
+    aiBaseUrl: "https://default.example/v1",
+    aiApiKey: "sk-default",
+    aiModelPro: "model-pro",
+    aiModelFlash: "model-flash",
+    aiProviders: [
+      { id: "cheap", name: "Cheap public generation", kind: "openai-compatible", baseUrl: "https://cheap.example/v1", apiKey: "sk-cheap-9999", trainsOnData: true, models: ["cheap-model"] },
+      { id: "safe", name: "No-training provider", kind: "openai-compatible", baseUrl: "https://safe.example/v1", apiKey: "sk-safe-1111", trainsOnData: false, models: ["safe-model"] },
+    ],
+    aiRoutes: { "course-gen": { providerId: "cheap", model: "cheap-model" }, tutor: { providerId: "cheap", model: null }, hint: { providerId: "cheap", model: null }, grading: { providerId: "cheap", model: null }, rubric: { providerId: "cheap", model: null } },
+  };
+  const aiMod = require("./ai");
+  // open course generation may use cheap
+  assert.equal(aiMod.resolveEffectiveEntry({ vault, task: "course-gen", messages: [], opts: { publicContent: true } }).entry.id, "cheap");
+  // every learner-data task must fall back
+  for (const task of ["tutor", "hint", "grading", "rubric"]) {
+    const r = aiMod.resolveEffectiveEntry({ vault, task, messages: [], opts: {} });
+    assert.equal(r.entry.id, "__default", task + " should fall back");
+  }
+  // private course-gen also falls back
+  assert.equal(aiMod.resolveEffectiveEntry({ vault, task: "course-gen", messages: [], opts: { publicContent: false } }).entry.id, "__default");
+  // masking never leaks raw keys
+  const aiConfig = require("./aiConfig");
+  const masked = aiConfig.mask(vault);
+  assert.ok(!JSON.stringify(masked).includes("sk-cheap-9999"));
+  assert.ok(!JSON.stringify(masked).includes("sk-safe-1111"));
+});
+
+
