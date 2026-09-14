@@ -16,22 +16,14 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
-// Strip answers/explanations/hints from item content before it reaches a learner.
+// Strip answers/explanations/hints before a learner sees the item.
+// One dispatch so a new type never means editing an allowlist in three places.
 function learnerItem(item) {
-  const c = item.content || {};
-  if (item.type === "exercise") {
-    const out = { prompt: c.prompt, kind: c.kind };
-    if (c.choices) out.choices = c.choices;
-    return { id: item.id, type: item.type, position: item.position, content: out };
+  const reg = require("../lib/items").forType(item.type);
+  if (reg && typeof reg.strip === "function") {
+    return { id: item.id, type: item.type, position: item.position, content: reg.strip(item.content || {}) };
   }
-  if (item.type === "video") {
-    const out = { youtubeId: c.youtubeId, uploadId: c.uploadId, title: c.title, note: c.note };
-    // atSec is not an answer, it is where to rewind to when they miss, so it
-    // crosses to the learner along with the prompt and the choices.
-    if (c.questions) out.questions = c.questions.map((q) => ({ prompt: q.prompt, choices: q.choices, atSec: q.atSec }));
-    return { id: item.id, type: item.type, position: item.position, content: out };
-  }
-  return { id: item.id, type: item.type, position: item.position, content: c };
+  return { id: item.id, type: item.type, position: item.position, content: item.content || {} };
 }
 
 /** What a learner may see of their own submission. Feedback appears only after
