@@ -3,9 +3,10 @@
 // leaking across files.
 // Each test file gets its own isolated Postgres schema, migrations run inside
 // it, and the schema is dropped when the file finishes. Reads
-// TEST_DATABASE_URL (never plain DATABASE_URL) so the job queue and digest
-// timers on server/index.js never start when the harness is skipped, and the
-// suite exits even when some other code has installed intervals.
+// TEST_DATABASE_URL (never rely on plain DATABASE_URL). On setup the harness
+// mirrors TEST_DATABASE_URL into DATABASE_URL so server/index.js sees the DB
+// at import time, and every query (boot migrations included) runs with
+// search_path set to the throwaway schema.
 const fs = require("node:fs");
 const path = require("node:path");
 const { Pool } = require("pg");
@@ -61,10 +62,17 @@ function prepare(testFile) {
   const schema = baseSkip ? null : randomSchema(testFile);
   let appPool = null;
   let setupFailed = false;
+  let savedDatabaseUrl = null;
 
   async function setup() {
     if (baseSkip) return;
     activeCount++;
+
+    // Make DATABASE_URL visible to server/lib/db at require time, before the
+    // first import of server/index.js (which calls migrate() during boot).
+    savedDatabaseUrl = process.env.DATABASE_URL;
+    process.env.DATABASE_URL = testUrl();
+
     try {
       const hp = getHarnessPool();
       await hp.query(`create schema if not exists "${schema}"`);
@@ -81,10 +89,19 @@ function prepare(testFile) {
       try { if (harnessPool) { await harnessPool.end(); harnessPool = null; } } catch {}
       return;
     }
+
     schemaName = schema;
+
+    // App pool that every server/lib/db query will run through. search_path is
+    // set per-checkout so pooling is safe.
     appPool = new Pool({ connectionString: testUrl(), max: 6 });
-    try { delete require.cache[require.resolve("../lib/db")]; } catch {}
+
+    // Fresh server/lib/db wired to our pool, before any server route imports it.
+    for (const k of Object.keys(require.cache)) {
+      if (k.includes("server\\lib\\db") || k.includes("server/lib/db")) delete require.cache[k];
+    }
     const db = require("../lib/db");
+
     async function query(sql, params) {
       const conn = await appPool.connect();
       try {
@@ -94,6 +111,7 @@ function prepare(testFile) {
         conn.release();
       }
     }
+
     db.query = query;
     db.getPool = () => appPool;
     db.configured = () => true;
@@ -103,6 +121,13 @@ function prepare(testFile) {
     };
     db.__testPool = appPool;
     db.__testSchema = schema;
+
+    // Flush any server modules that captured a previous db handle so they
+    // pick up the rewired instance. Tests import server/index.js lazily via
+    // the `app()` helper after setup(), so this is sufficient.
+    for (const k of Object.keys(require.cache)) {
+      if (k.includes("server\\routes") || k.includes("server/index")) delete require.cache[k];
+    }
   }
 
   async function teardown() {
@@ -123,11 +148,17 @@ function prepare(testFile) {
         try { delete db.__testPool; } catch {}
         try { delete db.__testSchema; } catch {}
       }
-      try { delete require.cache[require.resolve("../lib/db")]; } catch {}
+      for (const k of Object.keys(require.cache)) {
+        if (k.includes("server\\lib\\db") || k.includes("server/lib/db")) delete require.cache[k];
+      }
       await getHarnessPool().query(`drop schema if exists "${schema}" cascade`);
     } catch {}
     schemaName = null;
     activeCount--;
+    // Restore DATABASE_URL so offline skips still work in later suites/processes.
+    if (savedDatabaseUrl === undefined || savedDatabaseUrl === null) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = savedDatabaseUrl;
+
     if (activeCount <= 0 && harnessPool) {
       try { await harnessPool.end(); } catch {}
       harnessPool = null;
