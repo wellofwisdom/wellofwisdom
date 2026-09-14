@@ -11,11 +11,68 @@ Catch any subject through what your child loves. Your server, your data.
 [![Node](https://img.shields.io/badge/node-%3E%3D20-green)](package.json)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-**Try the demo: [wellofwisdom.app](https://wellofwisdom.app) (no email, no invite). Or [self-host in one command](#quick-start).**
+**Try the demo: [wellofwisdom.app](https://wellofwisdom.app) (no email, no invite). Or [self-host in 30 seconds](#self-host-in-30-seconds).**
 
 ![Well of Wisdom marketing and Course Studio preview](web/public/og.png)
 
+<!--
+  GIF SLOT. A 30 second loop goes here and it is the highest value asset on this
+  page: coders star a repo with a picture, and educators buy on the child's
+  screen. Exact recording steps for Kevin:
+
+  1. `npm run dev` plus `npm --prefix web run dev`, then open the demo family and
+     log in as the learner in Chrome at 1440x900, zoom 100 percent.
+  2. Hide the bookmarks bar (Ctrl+Shift+B) so the frame is only the app.
+  3. Record with ScreenToGif (free, Windows) at 12 fps over the app window, or
+     press Win+G for the Game Bar and convert after.
+  4. Capture this, in one take, no audio:
+     a. the learner home, HUD and stamina bar visible
+     b. two path nodes walked, so the travel animation shows
+     c. one lesson opened, one answer right and one wrong
+     d. one boss beaten: the streak, the hit, the win screen
+     e. the lesson completion screen, then stop.
+  5. Trim to 25 or 30 seconds. No dead frames at the start.
+  6. Save as web/public/demo.gif under 8 MB. An mp4 is sharper and smaller: save
+     web/public/demo.mp4 and use
+     <video src="web/public/demo.mp4" autoplay loop muted playsinline width="760"></video>
+  7. Delete this comment and the placeholder line under it.
+-->
+*A 30 second GIF of a learner walking the path and beating a boss goes in this spot. Steps are in the comment above and in [the launch checklist](docs/LAUNCH-CHECKLIST.md).*
+
 </div>
+
+---
+
+## See it
+
+Three pictures of the real product. The slots below are ready; the files are the
+last step before launch.
+
+<!--
+  SCREENSHOT SLOT 1: the learner's world map.
+  Capture: the learner home in a seeded demo, the world map open, a due review
+  and a boss node both visible. 1440x900, no browser chrome.
+  Save as web/public/shot-world-map.png, then replace this comment with:
+  ![The learner's world map](web/public/shot-world-map.png)
+-->
+
+<!--
+  SCREENSHOT SLOT 2: the Course Studio.
+  Capture: a generated course open in Studio, units and lessons on the left, one
+  lesson's items on the right, a lens showing in the header.
+  Save as web/public/shot-studio.png, then replace this comment with:
+  ![The Course Studio](web/public/shot-studio.png)
+-->
+
+<!--
+  SCREENSHOT SLOT 3: a printed report.
+  Capture: a generated quarterly report open in the print view with the signature
+  lines showing, then use the browser print preview for a clean page.
+  Save as web/public/shot-report.png, then replace this comment with:
+  ![A printed quarterly report](web/public/shot-report.png)
+-->
+
+*Screenshots are being captured. Want to help? The steps are in the comments above.*
 
 ---
 
@@ -87,7 +144,7 @@ Self-hosted in one Docker command. Works with any OpenAI-compatible AI,
 ever leaves your server if you don't want it to. AGPL-3.0. No accounts on our
 servers, no tracking, no ads.
 
-## Quick start
+## Self-host in 30 seconds
 
 ```bash
 git clone https://github.com/wellofwisdom/wellofwisdom.git
@@ -95,7 +152,12 @@ cd wellofwisdom
 docker compose up -d
 ```
 
-Open `http://localhost:3000`. That's it: app plus database, one command.
+Open `http://localhost:3000`. The app and the database come up together. The
+first account you create is the family owner, and nothing is created on our
+servers, because there are none.
+
+No AI key is needed for that command. Courses you generate need one; templates,
+lessons, review, progress, reports, calendar and email all work without.
 
 Latest image: `ghcr.io/wellofwisdom/wellofwisdom:latest` (and `v0.1.0`), so `docker pull` works once the release workflow has published it.
 
@@ -130,11 +192,18 @@ all still work.
 | Spaced review built in | ❌ | plugin | ❌ | ✅ |
 | Kid-safe AI tutor | paid add-on | ❌ | ❌ | ✅ |
 | Year-long curriculum planning | ❌ | manual | ❌ | ✅ |
-| Printable progress reports | ❌ | ✅ | ❌ | ✅ |
-| Email digests & reminders | ❌ | ✅ | ❌ | ✅ |
+| Reports built to print and sign | partial | ✅ | ❌ | ✅ |
+| Configurable email digests | partial | ✅ | ❌ | ✅ |
 | Course portability (export/import) | ❌ | ✅ | ❌ | ✅ |
 | Works with fully local AI | ❌ | ❌ | n/a | ✅ |
 | License | content CC BY-NC-SA | GPL-3.0 | MIT | **AGPL-3.0** |
+
+Two cells say "partial" on purpose. Khan Academy does email a weekly progress
+reminder to linked parent accounts, and its on-screen reports can be printed from
+the browser. Here, a report is built to be printed and signed, and the digest is
+per family: you choose the learners, the day, and the off switch. Kolibri is MIT
+licensed, which is why it appears above. The licence row means the platform
+itself; Khan Academy's own content carries its own terms.
 
 ## Roadmap
 
@@ -148,17 +217,37 @@ all still work.
 - [x] Workspace (Notion-style) + resource library (4 views)
 - [x] Essay/project grading with rubrics (AI drafts feedback, a guide sends it back)
 - [x] Photo → worksheet (snap the page, vision reads it to text you can correct)
+- [x] Community course library, browsable and one tap to import, in the app
 - [ ] Audio overviews (podcast-style unit summaries)
-- [ ] Community template gallery (contributed curricula)
 - [ ] Co-op mode: multiple guides, shared learners
 
 Full detail in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+## Docs
+
+| Doc | What is in it |
+|---|---|
+| [docs/API.md](docs/API.md) | Every route under `/api`: method, guard, body, response. Generated from the routes. |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the pieces fit, the trust boundary, and the five scale rules. |
+| [docs/PEDAGOGY.md](docs/PEDAGOGY.md) | The research behind spaced review, self-explanation and tutor strictness, with citations. |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Deploy checks, scratch database testing, backups, DNS. No secrets. |
+| [docs/COMMUNITY-COURSES.md](docs/COMMUNITY-COURSES.md) | The course package format and how to contribute one. |
+| [docs/LEARNING-PATHS.md](docs/LEARNING-PATHS.md) | Writing a year plan, with and without AI. |
+| [docs/DESIGN.md](docs/DESIGN.md) | The two spaces, the accessibility bar, and the design system. |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | What is done, what is next, and why in that order. |
+| [CHANGELOG.md](CHANGELOG.md) | What shipped, by day, in plain language. |
+| [docs/LAUNCH-CHECKLIST.md](docs/LAUNCH-CHECKLIST.md) | The launch runbook, with owners. |
 
 ## Contributing
 
 We'd love your help, especially guides (parents, teachers, tutors) and
 developers. See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev setup (Node 20,
 `npm install`, `npm test`). Adding a curriculum template is one JSON file.
+
+New to the project? [`docs/issues/`](docs/issues) holds twenty scoped tasks, each
+with the file paths to touch and the checks that prove it works. Take one and
+say so on the issue.
+
 Be kind; read the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License & name
