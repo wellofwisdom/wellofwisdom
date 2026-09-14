@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Adventure UI: theme picker dialog (guide) + adventures panel on a course.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { Modal, Field, Panel } from "./ui";
 import type { Job, MeResponse } from "../types";
-import WorldBuilder from "./WorldBuilder";
+import { lazy, Suspense } from "react";
+const WorldBuilder = lazy(() => import("./WorldBuilder"));
 
 interface ThemeRow {
   id: string;
@@ -95,12 +96,12 @@ export function AdventuresPanel({ courseId, onChanged }:
   { courseId: number; onChanged: () => void }) {
   const [adventures, setAdventures] = useState<{ id: number; world: { title: string; tagline: string }; learner_name: string | null }[] | null>(null);
 
-  const load = () =>
+  const load = useCallback(() =>
     api<{ adventures: typeof adventures }>(`/api/media/adventures/for-course/${courseId}`)
       .then((d) => setAdventures(d.adventures))
-      .catch(() => setAdventures([]));
+      .catch(() => setAdventures([])), [courseId]);
 
-  useEffect(() => { load(); }, [courseId]);
+  useEffect(() => { load(); }, [load]);
 
   if (!adventures || adventures.length === 0) return null;
   return (
@@ -137,7 +138,7 @@ export function WorldBuilders({ courseId, learners }:
   return (
     <>
       {adventures.map((a) => (
-        <WorldBuilder key={a.id} adventureId={a.id} learners={learners} />
+        <Suspense key={a.id} fallback={<div className="skel" style={{ height: 80 }} />}><WorldBuilder adventureId={a.id} learners={learners} /></Suspense>
       ))}
     </>
   );

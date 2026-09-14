@@ -59,23 +59,22 @@ export default function Portfolio({ learnerId, onNavigate }: {
   learnerId: number;
   onNavigate: (h: string) => void;
 }) {
-  const params = new URLSearchParams(window.location.search);
-  const [from, setFrom] = useState(params.get("from") || "");
-  const [to, setTo] = useState(params.get("to") || "");
+  const [from, setFrom] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    const f = p.get("from");
+    if (f) return f;
+    const back = new Date();
+    back.setFullYear(back.getFullYear() - 1);
+    return back.toISOString().slice(0, 10);
+  });
+  const [to, setTo] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    const t = p.get("to");
+    if (t) return t;
+    return new Date().toISOString().slice(0, 10);
+  });
   const [data, setData] = useState<PortfolioData | null>(null);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!from || !to) {
-      // A year back to today is the shape of a filing period, and it is a
-      // better first answer than an empty page with two date boxes.
-      const now = new Date();
-      const back = new Date(now);
-      back.setFullYear(back.getFullYear() - 1);
-      setFrom(back.toISOString().slice(0, 10));
-      setTo(now.toISOString().slice(0, 10));
-    }
-  }, []);
 
   useEffect(() => {
     if (!from || !to) return;

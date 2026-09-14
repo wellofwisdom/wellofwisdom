@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Settings: family + join code, appearance (mode + backgrounds), AI status.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import type { HealthResponse, MeResponse } from "../types";
 import { Panel, Field } from "../components/ui";
@@ -331,13 +331,13 @@ function MediaPanel() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const load = () => {
+  const load = useCallback(() => {
     api<MediaStatus>("/api/media/status").then(setStatus).catch(() => setStatus(null));
     api<typeof cfg & { config: Record<string, string> } & typeof models>("/api/media/config")
       .then((d) => { setCfg(d.config || {}); setModels(d); })
       .catch(() => setCfg({}));
-  };
-  useEffect(() => { load(); }, []);
+  }, []);
+  useEffect(() => { load(); }, [load]);
 
   const set = (k: string, v: string) => setCfg((c) => ({ ...(c || {}), [k]: v }));
 
