@@ -132,6 +132,7 @@ app.use("/api/assessments", require("./routes/assessments"));
 app.use("/api/waitlist", require("./routes/waitlist"));
 app.use("/api/community", require("./routes/community"));
 app.use("/api/narration", require("./routes/narration"));
+app.use("/api/roster", require("./routes/roster"));
 app.use("/api/stt", require("./routes/stt"));
 app.use("/api/ai", require("./routes/ai"));
 app.use("/api/music", require("./routes/music"));
