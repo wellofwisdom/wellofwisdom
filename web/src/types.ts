@@ -14,6 +14,7 @@ export interface Me {
 }
 
 export interface Learner {
+  prefs?: Record<string,unknown>;
   id: number;
   name: string;
   username: string;

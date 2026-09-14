@@ -2,6 +2,7 @@
 // The learner's Adventure banner: world, XP, crew, unlockable chapters,
 // cover art. Chapters unlock as lessons complete; bosses mark the arcs.
 import { useEffect, useState } from "react";
+import { useT } from "../../i18n";
 import { api } from "../../api";
 
 interface World {
@@ -26,6 +27,7 @@ export default function AdventureBanner({ courseId, lessonsDone, lessonsTotal, o
   lessonsTotal: number;
   onNavigate?: (route: string) => void;
 }) {
+  const { t } = useT();
   const [adv, setAdv] = useState<Adventure | null | undefined>(undefined);
 
   useEffect(() => {
@@ -51,14 +53,14 @@ export default function AdventureBanner({ courseId, lessonsDone, lessonsTotal, o
         <div className="row wrap" style={{ marginBottom: 4 }}>
           <h2 style={{ fontSize: 22, margin: 0 }}>⚔️ {w.title}</h2>
           <span className="grow" />
-          <span className="adv-xp">{adv.xp} XP</span>
+          <span className="adv-xp">{adv.xp}{t("adventure.xpSuffix")}</span>
         </div>
         <p className="adv-tag">{w.tagline}</p>
 
         {onNavigate && (
           <button className="btn primary" type="button" style={{ marginBottom: 10 }}
             onClick={() => onNavigate(`world/${adv.id}`)}>
-            🗺️ Enter the world
+            🗺️ {t("adventure.enterWorld")}
           </button>
         )}
 
@@ -70,8 +72,8 @@ export default function AdventureBanner({ courseId, lessonsDone, lessonsTotal, o
                 <div key={i} className={`adv-chapter${open ? " open" : ""}${c.boss ? " boss" : ""}`}>
                   <span className="adv-ch-num">{c.boss ? "☠️" : i + 1}</span>
                   <div className="grow" style={{ minWidth: 0 }}>
-                    <div className="adv-ch-title">{open ? c.title : "???"}</div>
-                    <div className="adv-ch-hook">{open ? c.hook : "Complete more lessons to uncover this chapter…"}</div>
+                    <div className="adv-ch-title">{open ? c.title : t("adventure.lockedTitle")}</div>
+                    <div className="adv-ch-hook">{open ? c.hook : t("adventure.chapterLocked")}</div>
                   </div>
                 </div>
               );

@@ -34,6 +34,7 @@ import Portfolio from "./pages/Portfolio";
 import Join from "./pages/Join";
 import NotFound from "./pages/NotFound";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
+import { I18nContext, normalizeLang, tKey } from "./i18n";
 
 // Public site pages. Which pages exist is decided by server/lib/site.json, so
 // the sitemap, robots.txt, llms.txt and these routes can never disagree.
@@ -160,11 +161,14 @@ export default function App() {
       return <PrintLesson lessonId={Number(route.split("/")[2])} role="learner" />;
     }
     const learnerRoute = route === "dashboard" ? "" : route;
+    const lang = normalizeLang((user.prefs as Record<string, unknown>)?.lang);
+    const ctx = { lang, t: (k: any, vars?: any) => tKey(lang, k, vars) } as { lang: typeof lang; t: (k: any, vars?: any) => string };
+    if (typeof document !== "undefined") { try { document.documentElement.lang = lang; } catch {} }
     return (
-      <>
+      <I18nContext.Provider value={ctx}>
         {previewing && <PreviewBar name={previewing.name} />}
         <Suspense fallback={<Fallback />}><LearnerApp me={user} route={learnerRoute} onNavigate={navigate} onLogout={logout} /></Suspense>
-      </>
+      </I18nContext.Provider>
     );
   }
 
