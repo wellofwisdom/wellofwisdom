@@ -1,7 +1,7 @@
 {
   "name": "wellofwisdom",
   "version": "0.0.1",
-  "description": "Self-hosted, AI-first learning platform for homeschoolers. A free, open-source Khan Academy alternative.",
+  "description": "Open-source, AI-first learning platform for families, classrooms, schools, co-ops and tutors. Courses shaped around what each learner loves, played as a world. Self-host in one command.",
   "license": "AGPL-3.0-or-later",
   "type": "commonjs",
   "main": "server/index.js",

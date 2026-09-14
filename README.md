@@ -4,9 +4,9 @@
 
 # Well of Wisdom
 
-**Self-hosted, AI-first learning for homeschools, classrooms, and co-ops.**
+**Open-source, AI-first learning for families, classrooms, schools, co-ops and tutors.**
 
-Catch any subject through what your child loves. Your server, your data.
+Every learner drinks from their own well: courses shaped around what they love, played as a world, with review and records built in. Your server, your data.
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![CI](https://github.com/wellofwisdom/wellofwisdom/actions/workflows/ci.yml/badge.svg)](https://github.com/wellofwisdom/wellofwisdom/actions/workflows/ci.yml)

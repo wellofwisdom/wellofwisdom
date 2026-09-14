@@ -3,7 +3,7 @@ import { LegalChrome } from "./LegalLayout";
 
 export default function Children() {
   return (
-    <LegalChrome title="Children's data" updated="13 September 2026">
+    <LegalChrome path="children" title="Children's data" updated="13 September 2026">
       <p><strong>Plain English.</strong> Well of Wisdom is built for children. A parent is in charge, and less data is better.</p>
 
       <h2>What we store about a child</h2>
