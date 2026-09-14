@@ -516,6 +516,17 @@ export default function Settings({ me }: { me: MeResponse }) {
         </Panel>
       )}
 
+      <Panel title="Export your data" side="your family's zip">
+        <p className="hint" style={{ marginTop: 0 }}>
+          Download everything your family created: learners, plans, events, notes, resources, reports,
+          attendance, assessments, badges, tutor threads, plus every course as a .wow-course.json file and all
+          uploads. The zip re-imports its courses on any Well of Wisdom instance.
+        </p>
+        <a className="btn primary" href="/api/family/export" download>
+          Download family export (.zip)
+        </a>
+      </Panel>
+
       <Panel title="System" side="this server">
         <div className="checkitem">
           <span className={`dot${dbOk ? " done" : ""}`} style={{ borderColor: dbOk ? "var(--good)" : "var(--border)" }} />

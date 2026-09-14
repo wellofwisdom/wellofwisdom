@@ -5,7 +5,7 @@
 const express = require("express");
 const db = require("../lib/db");
 const auth = require("../lib/auth");
-const store = require("../lib/uploads");
+const storage = require("../lib/storage");
 
 const router = express.Router();
 
@@ -69,7 +69,7 @@ router.post("/loop", auth.parentOnly, async (req, res, next) => {
     const r = await generateMusicLoop({ chapter: { title: chapter, hook: "" }, mood, durationSec: 12 });
     const buf = r.buffer || (r.url ? await (async () => { const { fetchT } = require("../http"); const rr = await fetchT(r.url, {}, { timeoutMs: 30000, retries: 1 }); return Buffer.from(await rr.arrayBuffer()); })() : null);
     if (!buf) return bad(res, "music_no_audio", 503);
-    const saved = await store.save(req.user.familyId, "audio/mpeg", buf);
+    const saved = await storage.put(req.user.familyId, "audio/mpeg", buf);
     const { rows } = await db.query(
       `insert into uploads (family_id, kind, mime, bytes, storage_key, original_name, title, created_by) values ($1,'audio','audio/mpeg',$2,$3,$4,$5,$6) returning id`,
       [req.user.familyId, saved.bytes, saved.key, `music-${hash}.mp3`, `${chapter} music`, req.user.id]
