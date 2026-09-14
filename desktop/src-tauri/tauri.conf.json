@@ -4,7 +4,6 @@
   "identifier": "app.wellofwisdom.desktop",
   "build": {
     "beforeDevCommand": "",
-    "devUrl": "http://localhost:3000",
     "beforeBuildCommand": "",
     "frontendDist": "../src"
   },
@@ -40,11 +39,6 @@
     },
     "macOS": {
       "icon": "icons/icon.png"
-    }
-  },
-  "plugins": {
-    "shell": {
-      "open": true
     }
   }
 }

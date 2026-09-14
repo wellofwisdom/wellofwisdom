@@ -4,6 +4,8 @@
 // window, and shuts the sidecar down on exit. Single-instance, menu with
 // Open data folder and Quit, navy icon at every size Tauri needs.
 
+use std::io::{Read, Write};
+use std::net::TcpStream;
 use std::net::TcpListener;
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
@@ -11,6 +13,9 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use tauri::Manager;
+
+#[cfg(windows)]
+use std::os::windows::process::CommandExt as WinCommandExt;
 
 fn find_free_port() -> u16 {
     TcpListener::bind("127.0.0.1:0")
@@ -51,37 +56,54 @@ fn wellofwisdom_exe() -> Option<PathBuf> {
     None
 }
 
+fn apply_windows_creation_flags(cmd: &mut Command) {
+    #[cfg(windows)]
+    {
+        cmd.creation_flags(0x08000000);
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = cmd;
+    }
+}
+
 fn start_sidecar(port: u16, data_dir: &PathBuf) -> std::io::Result<Child> {
     std::fs::create_dir_all(data_dir).ok();
 
     // Prefer the single executable if present, else node server/index.js for development.
     if let Some(exe) = wellofwisdom_exe() {
-        return Command::new(exe)
-            .env("PORT", port.to_string())
-            .env("DB_DRIVER", "pglite")
-            .env("DATA_DIR", data_dir)
-            .stdin(Stdio::null())
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .spawn();
+        let mut cmd = Command::new(exe);
+        cmd.env("PORT", port.to_string());
+        cmd.env("HOST", "127.0.0.1");
+        cmd.env("DB_DRIVER", "pglite");
+        cmd.env("DATA_DIR", data_dir);
+        cmd.stdin(Stdio::null());
+        cmd.stdout(Stdio::inherit());
+        cmd.stderr(Stdio::inherit());
+        apply_windows_creation_flags(&mut cmd);
+        return cmd.spawn();
     }
 
-    // Development: run node server/index.js from the repo root (two levels up from desktop/src-tauri).
-    let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("..");
-    let server_js = repo_root.join("server").join("index.js");
-    if server_js.exists() {
-        return Command::new("node")
-            .arg(&server_js)
-            .env("PORT", port.to_string())
-            .env("DB_DRIVER", "pglite")
-            .env("DATA_DIR", data_dir)
-            .current_dir(&repo_root)
-            .stdin(Stdio::null())
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .spawn();
+    // Development: run node server/index.js from the repo root, only in debug.
+    if cfg!(debug_assertions) {
+        let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..");
+        let server_js = repo_root.join("server").join("index.js");
+        if server_js.exists() {
+            let mut cmd = Command::new("node");
+            cmd.arg(&server_js);
+            cmd.env("PORT", port.to_string());
+            cmd.env("HOST", "127.0.0.1");
+            cmd.env("DB_DRIVER", "pglite");
+            cmd.env("DATA_DIR", data_dir);
+            cmd.current_dir(&repo_root);
+            cmd.stdin(Stdio::null());
+            cmd.stdout(Stdio::inherit());
+            cmd.stderr(Stdio::inherit());
+            apply_windows_creation_flags(&mut cmd);
+            return cmd.spawn();
+        }
     }
 
     Err(std::io::Error::new(
@@ -91,30 +113,23 @@ fn start_sidecar(port: u16, data_dir: &PathBuf) -> std::io::Result<Child> {
 }
 
 fn wait_for_health(port: u16) -> bool {
-    let url = format!("http://127.0.0.1:{port}/api/health");
+    // Plain HTTP/1.1 GET over TcpStream, no curl. Check for " 200 " in status line.
     for _ in 0..120 {
-        if let Ok(resp) = std::net::TcpStream::connect(format!("127.0.0.1:{port}")) {
-            drop(resp);
-            // Try HTTP GET
-            if let Ok(body) = std::process::Command::new("curl")
-                .arg("-s")
-                .arg("-o")
-                .arg(if cfg!(windows) { "NUL" } else { "/dev/null" })
-                .arg("-w")
-                .arg("%{http_code}")
-                .arg(&url)
-                .output()
-            {
-                let code = String::from_utf8_lossy(&body.stdout).trim().to_string();
-                if code == "200" {
-                    return true;
+        if let Ok(mut stream) = TcpStream::connect(format!("127.0.0.1:{port}")) {
+            let req = format!(
+                "GET /api/health HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nConnection: close\r\n\r\n"
+            );
+            if stream.write_all(req.as_bytes()).is_ok() {
+                let _ = stream.set_read_timeout(Some(Duration::from_secs(2)));
+                let mut buf = [0u8; 2048];
+                if let Ok(n) = stream.read(&mut buf) {
+                    let head = String::from_utf8_lossy(&buf[..n]);
+                    let first_line = head.lines().next().unwrap_or("");
+                    if first_line.contains(" 200 ") {
+                        return true;
+                    }
                 }
             }
-            // Fallback: raw TCP success means the server is listening; give it a moment.
-            std::thread::sleep(Duration::from_millis(250));
-            // Try again with a simple HTTP check via ureq-less approach: just check TCP again.
-            // If we got here the port is open, so consider it ready after a short wait.
-            // The real HTTP check above already handles the happy path.
         }
         std::thread::sleep(Duration::from_millis(500));
     }
@@ -132,8 +147,7 @@ pub fn run() {
     let sidecar: Arc<Mutex<Option<Child>>> = Arc::new(Mutex::new(None));
     let sidecar_clone = sidecar.clone();
 
-    tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             if let Some(w) = app.get_webview_window("main") {
@@ -204,22 +218,15 @@ pub fn run() {
 
             Ok(())
         })
-        .on_window_event({
-            let sidecar = sidecar.clone();
-            move |_win, event| {
-                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                    // Give sidecar a chance to shut down; if it does not, kill it.
-                    if let Some(mut child) = sidecar.lock().unwrap().take() {
-                        let _ = child.kill();
-                        let _ = child.wait();
-                    }
-                    api.prevent_close();
-                    // Actually close after cleanup
-                    std::process::exit(0);
-                }
+        .build(tauri::generate_context!())
+        .expect("error while building tauri app");
+
+    app.run(move |_handle, event| {
+        if let tauri::RunEvent::Exit = event {
+            if let Some(mut child) = sidecar.lock().unwrap().take() {
+                let _ = child.kill();
+                let _ = child.wait();
             }
-        })
-        .invoke_handler(tauri::generate_handler![open_data_folder])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri app");
+        }
+    });
 }
