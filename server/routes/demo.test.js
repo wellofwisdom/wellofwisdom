@@ -86,16 +86,21 @@ test("the activity seed touches the tables the packet names", () => {
 });
 
 test("the activity seed is idempotent via two guards", () => {
-  // Guard 1: sentinel in server_settings so a second call in the same boot is a no-op.
-  // Guard 2: existing attempt count check so a re-run against data is also a no-op.
-  assert.match(demoSrc, /demo_activity_seeded/, "seed must use a sentinel key per family");
+  // Guard 1: marker on the family (families.prefs.demoSeeded) so a second
+  // call in the same boot is a no-op. server_settings is instance-admin only
+  // after PR #21, so a demo route that writes it fails the check.
+  assert.match(demoSrc, /demoSeeded/, "seed must use families.prefs.demoSeeded as the sentinel per family");
+  assert.match(demoSrc, /families\.prefs/, "sentinel must live on the family, not in server_settings");
   const body = demoSrc.match(/async function trySeedDemoActivity[\s\S]*?\n\}/);
   assert.ok(body);
   assert.match(body[0], /existing/, "seed must bail when attempts already exist");
-  // Both createDemoFamily and ensureSharedFamily must call it, and the boot
-  // backfill must cover families that predate the seed.
   assert.match(demoSrc, /createDemoFamily[\s\S]*?seedDemoActivity/, "createDemoFamily must seed activity");
   assert.match(demoSrc, /backfillDemoFamilies/, "a boot backfill for existing demo families must exist");
+  // No live code may call server_settings from the demo route. Strip line
+  // comments first, then assert zero matches. Using a single-line regex avoids
+  // any need for embedded newlines.
+  const stripped = demoSrc.replace(/^\s*\/\/.*$/gm, "");
+  assert.equal((stripped.match(/server_settings/g) || []).length, 0, "demo route code must not touch server_settings; the marker is families.prefs.demoSeeded");
 });
 
 test("Dashboard exposes Play as the learner as the first action", () => {

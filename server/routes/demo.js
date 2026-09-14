@@ -190,16 +190,17 @@ async function importCourse(familyId, guideId, pkg, coursegen) {
 // ---- rich activity seed ----
 // Each demo family gets a learner who has already done real work: the thing the
 // packet asks for so the demo never says "Nothing here yet". Idempotent via a
-// sentinel row in server_settings plus an attempt-count check.
+// marker on the family (families.prefs.demoSeeded) plus an attempt-count check.
+// The marker lives on the family so it survives the PR #21 rule that
+// server_settings is instance-admin only. Every route that writes
+// server_settings outside that allowlist fails the check.
 
 async function seedDemoActivity(familyId) {
   if (!familyId) return;
   try {
-    const s = await db.query(
-      "select value from server_settings where key = $1",
-      [`demo_activity_seeded:${familyId}`]
-    ).catch(() => ({ rows: [] }));
-    if (s.rows && s.rows[0]) return;
+    const r = await db.query("select prefs from families where id = $1", [familyId]).catch(() => ({ rows: [] }));
+    const prefs = r.rows && r.rows[0] && r.rows[0].prefs;
+    if (prefs && prefs.demoSeeded) return;
   } catch {}
 
   const seeded = await trySeedDemoActivity(familyId);
@@ -207,8 +208,8 @@ async function seedDemoActivity(familyId) {
 
   try {
     await db.query(
-      "insert into server_settings (key, value) values ($1,$2) on conflict (key) do update set value = $2",
-      [`demo_activity_seeded:${familyId}`, JSON.stringify({ at: new Date().toISOString() })]
+      "update families set prefs = coalesce(prefs, '{}'::jsonb) || jsonb_build_object('demoSeeded', true, 'demoSeededAt', $2::text) where id = $1",
+      [familyId, new Date().toISOString()]
     );
   } catch {}
 }
@@ -380,7 +381,8 @@ async function trySeedDemoActivity(familyId) {
 }
 
 // Backfill helper for server boot: ensure every existing demo family has activity
-// even if it was created before this seed existed.
+// even if it was created before this seed existed. The marker lives on the
+// family (families.prefs.demoSeeded), not in server_settings.
 async function backfillDemoFamilies() {
   try {
     if (!db.configured()) return;
