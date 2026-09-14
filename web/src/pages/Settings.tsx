@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Settings: family + join code, appearance (mode + backgrounds), AI status.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import type { HealthResponse, MeResponse } from "../types";
 import { Panel, Field } from "../components/ui";
@@ -53,7 +53,7 @@ function explainSkip(reason?: string) {
   return (reason && SKIP_REASON[reason]) || reason || "not sent";
 }
 
-function EmailPanel() {
+function EmailPanel({ admin }: { admin: boolean }) {
   const [status, setStatus] = useState<MailStatus | null>(null);
   const [prefs, setPrefs] = useState<MailPrefs | null>(null);
   const [emailInput, setEmailInput] = useState("");
@@ -138,13 +138,13 @@ function EmailPanel() {
             : "Email not set up yet. Pick a provider below (or an admin can set env vars)."}
         </span>
       </div>
-      <ProviderForm onSaved={load} />
+      {admin && <ProviderForm onSaved={load} />}
       {status.configured && (
         <>
           <div className="row" style={{ margin: "10px 0" }}>
             <input className="input grow" value={emailInput} onChange={(e) => setEmailInput(e.target.value)}
               placeholder="you@example.com" aria-label="Digest email address" />
-            <button className="btn" type="button" disabled={busy || !emailInput.includes("@")} onClick={testSend}>Send test</button>
+            {admin && <button className="btn" type="button" disabled={busy || !emailInput.includes("@")} onClick={testSend}>Send test</button>}
           </div>
           <div className="row wrap">
             <button className="btn primary" type="button" disabled={busy || !emailInput.includes("@")}
@@ -331,13 +331,13 @@ function MediaPanel() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const load = () => {
+  const load = useCallback(() => {
     api<MediaStatus>("/api/media/status").then(setStatus).catch(() => setStatus(null));
     api<typeof cfg & { config: Record<string, string> } & typeof models>("/api/media/config")
       .then((d) => { setCfg(d.config || {}); setModels(d); })
       .catch(() => setCfg({}));
-  };
-  useEffect(() => { load(); }, []);
+  }, []);
+  useEffect(() => { load(); }, [load]);
 
   const set = (k: string, v: string) => setCfg((c) => ({ ...(c || {}), [k]: v }));
 
@@ -443,6 +443,7 @@ function WaitlistPanel() {
 
 export default function Settings({ me }: { me: MeResponse }) {
   const user = me.user!;
+  const admin = Boolean(user.instanceAdmin);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -487,23 +488,33 @@ export default function Settings({ me }: { me: MeResponse }) {
         <a className="btn primary" {...linkProps("experience")}>🎨 Open Experience</a>
       </Panel>
 
-      <Panel title="AI media: images & videos" side="course covers, adventures, cutscenes">
-        <MediaPanel />
-      </Panel>
+      {admin && (
+        <Panel title="AI media: images & videos" side="course covers, adventures, cutscenes">
+          <MediaPanel />
+        </Panel>
+      )}
 
       <GuidesPanel learners={(me.learners || []).map((l) => ({ id: l.id, name: l.name }))} />
 
       <Panel title="Email & weekly digest" side="notifications">
-        <EmailPanel />
+        <EmailPanel admin={admin} />
       </Panel>
 
-      <Panel title="AI: provider, models, keys & voice & music" side="one vault, every API">
-        <AiVault />
-      </Panel>
+      {admin ? (
+        <>
+          <Panel title="AI: provider, models, keys & voice & music" side="one vault, every API">
+            <AiVault />
+          </Panel>
 
-      <Panel title="Waitlist" side="hosted signups">
-        <WaitlistPanel />
-      </Panel>
+          <Panel title="Waitlist" side="hosted signups">
+            <WaitlistPanel />
+          </Panel>
+        </>
+      ) : (
+        <Panel title="Server settings" side="AI, email, media">
+          <p className="muted">The AI provider, email provider and media keys are shared by every family on this server, so only the person who runs it can change them.</p>
+        </Panel>
+      )}
 
       <Panel title="Export your data" side="your family's zip">
         <p className="hint" style={{ marginTop: 0 }}>

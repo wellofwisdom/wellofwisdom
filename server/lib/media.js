@@ -18,6 +18,15 @@ const VIDEO_MODELS = [
   { id: "veo-3-1", label: "Veo 3.1 (kie.ai)" },
 ];
 
+// Voice + music for the Wonderland pilot. kie.ai exposes these as jobs too.
+// Keep the IDs overridable: providers turn over fast.
+const AUDIO_MODELS = [
+  { id: "elevenlabs/text-to-speech", label: "ElevenLabs TTS (kie.ai)", provider: "kie", kind: "speech" },
+  { id: "suno/v4", label: "Suno music (kie.ai)", provider: "kie", kind: "music" },
+];
+const TTS_MODEL = process.env.TTS_MODEL || "elevenlabs/text-to-speech";
+const MUSIC_MODEL = process.env.MUSIC_MODEL || "suno/v4";
+
 let cache = { at: 0, config: null };
 
 function fromEnv() {
@@ -75,11 +84,15 @@ async function status() {
   const canImage = Boolean(cfg && ((cfg.imageProvider === "kie" && cfg.kieKey) || (cfg.imageProvider === "openai" && cfg.openaiKey)));
   const canVideo = Boolean(cfg && cfg.videoProvider === "kie" && cfg.kieKey);
   const canCaption = Boolean(cfg && cfg.kieKey);
+  const canVoice = Boolean(cfg && cfg.kieKey);
+  const canMusic = Boolean(cfg && cfg.kieKey);
   return {
-    configured: canImage || canVideo || canCaption,
+    configured: canImage || canVideo || canCaption || canVoice || canMusic,
     canImage,
     canVideo,
     canCaption,
+    canVoice,
+    canMusic,
     imageProvider: cfg ? cfg.imageProvider : null,
     videoProvider: cfg ? cfg.videoProvider : null,
     source: cfg && cfg._fromDb ? "settings" : "env",
@@ -219,6 +232,60 @@ async function generateVideo({ prompt, duration, resolution, purpose, refType, r
   return { url };
 }
 
+// ---------- voice + music (Wonderland pilot) ----------
+
+async function generateSpeech({ text, voice, purpose, refType, refId, familyId, userId }) {
+  const cfg = await resolveConfig();
+  if (!cfg || !cfg.kieKey) throw new Error("voice_not_configured");
+  const clean = String(text || "").trim().slice(0, 4000);
+  if (!clean) throw new Error("voice_empty_text");
+  const model = String(voice || "").trim() || TTS_MODEL;
+  // Providers differ on field names. Pass both so the job validates
+  // regardless of which ElevenLabs flavour kie fronts.
+  const taskId = await kieCreateTask(cfg.kieKey, model, {
+    text: clean,
+    voice: voice || undefined,
+    voice_id: voice || undefined,
+  });
+  const r = await kiePollTask(cfg.kieKey, taskId, 4 * 60 * 1000);
+  const url = r.urls && r.urls[0];
+  if (!url) throw new Error(`voice_no_url: ${JSON.stringify(r).slice(0, 200)}`);
+  if (db.configured()) {
+    await db.query(
+      `insert into media_assets (family_id, kind, purpose, ref_type, ref_id, url, provider, model, prompt, created_by)
+       values ($1,'audio',$2,$3,$4,$5,'kie',$6,$7,$8)`,
+      [familyId || null, purpose || "voice-line", refType || "adventure", refId || null, url,
+        model, clean.slice(0, 1000), userId || null]
+    ).catch(() => {});
+  }
+  return { url };
+}
+
+async function generateMusic({ prompt, duration, purpose, refType, refId, familyId, userId }) {
+  const cfg = await resolveConfig();
+  if (!cfg || !cfg.kieKey) throw new Error("music_not_configured");
+  const clean = String(prompt || "").trim().slice(0, 2000);
+  if (!clean) throw new Error("music_empty_prompt");
+  const model = MUSIC_MODEL;
+  const taskId = await kieCreateTask(cfg.kieKey, model, {
+    prompt: clean,
+    duration: Math.min(90, Math.max(10, Number(duration) || 25)),
+    instrumental: true,
+  });
+  const r = await kiePollTask(cfg.kieKey, taskId, 6 * 60 * 1000);
+  const url = r.urls && r.urls[0];
+  if (!url) throw new Error(`music_no_url: ${JSON.stringify(r).slice(0, 200)}`);
+  if (db.configured()) {
+    await db.query(
+      `insert into media_assets (family_id, kind, purpose, ref_type, ref_id, url, provider, model, prompt, created_by)
+       values ($1,'audio',$2,$3,$4,$5,'kie',$6,$7,$8)`,
+      [familyId || null, purpose || "music-loop", refType || "adventure", refId || null, url,
+        model, clean.slice(0, 1000), userId || null]
+    ).catch(() => {});
+  }
+  return { url };
+}
+
 // ---------- transcription (auto-captions) ----------
 
 // Push a local file to kie's temporary store (auto-deleted after 3 days) and
@@ -336,6 +403,6 @@ async function transcribe({ buffer, filename, mime, language }) {
 }
 
 module.exports = {
-  generateImage, generateVideo, transcribe, status, resolveConfig, invalidateCache,
-  resultUrls, wordsToVtt, secToTs, transcriptFrom, IMAGE_MODELS, VIDEO_MODELS,
+  generateImage, generateVideo, generateSpeech, generateMusic, transcribe, status, resolveConfig, invalidateCache,
+  resultUrls, wordsToVtt, secToTs, transcriptFrom, IMAGE_MODELS, VIDEO_MODELS, AUDIO_MODELS,
 };

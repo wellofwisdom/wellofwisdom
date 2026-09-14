@@ -10,6 +10,7 @@ const db = require("../lib/db");
 const aiConfig = require("../lib/aiConfig");
 const aiLimits = require("../lib/aiLimits");
 const aiusage = require("../lib/aiusage");
+const { requireInstanceAdmin } = require("../lib/instanceAdmin");
 
 const router = express.Router();
 router.use(auth.parentOnly);
@@ -32,7 +33,8 @@ router.get("/status", async (_req, res, next) => {
   try { res.json(await aiConfig.status()); } catch (err) { next(err); }
 });
 
-router.get("/config", async (_req, res, next) => {
+// The vault is the whole server's, not one family's: see lib/instanceAdmin.js.
+router.get("/config", requireInstanceAdmin, async (_req, res, next) => {
   try {
     const cfg = await aiConfig.resolveConfig();
     res.json({
@@ -43,7 +45,7 @@ router.get("/config", async (_req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.put("/config", async (req, res, next) => {
+router.put("/config", requireInstanceAdmin, async (req, res, next) => {
   try {
     const b = req.body || {};
     const cfg = {};
@@ -128,7 +130,7 @@ router.get("/spend", async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.put("/limits", async (req, res, next) => {
+router.put("/limits", requireInstanceAdmin, async (req, res, next) => {
   try {
     const b = req.body || {};
     const monthly = b.aiMonthlyCap != null ? Number(b.aiMonthlyCap) : null;

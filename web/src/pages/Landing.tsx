@@ -2,6 +2,7 @@
 // Logged-out site: marketing that converts plus the sign in forms. Never a
 // wall of paragraphs, per AGENTS.md. Every claim gets a proof tile or a CTA.
 import { useEffect, useRef, useState } from "react";
+import Logo from "../components/Logo";
 import { api, niceError } from "../api";
 import { PillTabs } from "../components/ui";
 import { GoogleButton, GoogleOneTap } from "../components/GoogleAuth";
@@ -80,10 +81,10 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
 
   return (
     <div className="marketing">
-      {googleClientId && <GoogleOneTap clientId={googleClientId} onAuthed={onAuthed} />}
+      {googleClientId && <GoogleOneTap clientId={googleClientId} onAuthed={onAuthed} delay={true} />}
       <header className="mnav">
         <a className="mbrand" {...linkProps("dashboard")}>
-          <span className="mnut" aria-hidden="true">🌰</span> Well of Wisdom
+          <Logo size={36} className="mnut" /> Well of Wisdom
         </a>
         <nav className="mnavlinks" aria-label="Site">
           <a href="#features">Features</a>
@@ -127,7 +128,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
               </button>
             </div>
             {error && <div className="formerror" role="alert">{error}</div>}
-            {googleClientId ? (
+            {googleClientId && (
               <div className="mheroAuth" aria-label="Sign up">
                 <GoogleButton
                   clientId={googleClientId}
@@ -142,36 +143,20 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
                   <span />
                 </div>
                 <div className="mheroAuthRow">
-                  {demoAvailable !== false && (
-                    <button className="btn big" type="button" disabled={demoBusy} onClick={tryDemo}>
-                      {demoBusy ? "Opening demo…" : "Try the demo"}
-                    </button>
-                  )}
                   <button className="btn big" type="button" onClick={() => { setTimeout(() => document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }), 30); }}>
                     Create with email
                   </button>
                 </div>
               </div>
-            ) : (
-              <div className="mctaRow">
-                {demoAvailable !== false && (
-                  <button className="btn primary big" type="button" disabled={demoBusy} onClick={tryDemo}>
-                    {demoBusy ? "Opening demo…" : "Try the demo - no email needed"}
-                  </button>
-                )}
-                <button className="btn big" type="button" onClick={() => { setTimeout(() => document.getElementById("auth")?.scrollIntoView({ behavior: "smooth" }), 30); }}>
-                  Create your group
-                </button>
-              </div>
             )}
             <p className="mtrust">
               Open source - your server, your data - works fully offline with Ollama - one command to run: <code className="k">docker compose up -d</code>
             </p>
-            <div className="mkwds" aria-label="Popular searches">
-              <span className="kwd">homeschool curriculum generator</span>
-              <span className="kwd">AI course creator</span>
-              <span className="kwd">self hosted LMS</span>
-              <span className="kwd">Khan Academy alternative</span>
+            <div className="mkwds" aria-label="Browse by use case">
+              <a className="kwd" {...linkProps("for-homeschools")}>For homeschools</a>
+              <a className="kwd" {...linkProps("for-co-ops")}>For co-ops</a>
+              <a className="kwd" {...linkProps("for-teachers")}>For teachers</a>
+              <a className="kwd" {...linkProps("self-host")}>Self-host</a>
             </div>
           </div>
           <div className="mheroCard" aria-hidden="true">
@@ -199,21 +184,21 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
         </div>
       </section>
 
-      <section className="msocial" aria-label="Trusted by">
+      <section className="msocial" aria-label="At a glance">
         <div className="msocialInner">
-          <span className="msocialEyebrow">Trusted by</span>
+          <span className="msocialEyebrow">At a glance</span>
           <div className="msocialGrid">
             <div className="msocialCard">
-              <span className="msocialQuote">"Finally a place where my 9-year-old's dinosaur obsession teaches fractions."</span>
-              <span className="msocialBy">Homeschool pilot family</span>
+              <span className="msocialQuote">Free and open source.</span>
+              <span className="msocialBy">AGPL-3.0 · Your data stays yours</span>
             </div>
             <div className="msocialCard">
-              <span className="msocialQuote">"Portfolios that actually print. Attendance my reviewer accepted."</span>
-              <span className="msocialBy">Co-op guide, 6 learners</span>
+              <span className="msocialQuote">One command to run.</span>
+              <span className="msocialBy"><code className="k">docker compose up -d</code></span>
             </div>
             <div className="msocialStats">
-              <div className="msocialStat"><strong>AGPL-3.0</strong><span>Open source</span></div>
-              <div className="msocialStat"><strong>100%</strong><span>Your data stays yours</span></div>
+              <div className="msocialStat"><strong>Portable</strong><span><code className="k">.wow-course</code></span></div>
+              <div className="msocialStat"><strong>Offline</strong><span>With Ollama</span></div>
             </div>
           </div>
         </div>
@@ -394,7 +379,8 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
           </div>
           <div className="mcard price hi">
             <h3>Managed hosting</h3>
-            <p className="mprice">Coming soon · join the waitlist</p>
+            <p className="mprice">From $9 per family / month · co-op pricing on request</p>
+            <p className="hint small" style={{ marginBottom: 8 }}>Managed hosting when it opens. Self-host stays free, forever.</p>
             <ul>
               <li>We run the server, you run the school</li>
               <li>Bring your own AI key, or included generation to a clear cap</li>
@@ -437,6 +423,11 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
             <p>Any course exports as <code className="k">.wow-course.json</code>. Any instance imports it from a file or a pasted /c/ link. No platform in the middle.</p>
           </div>
         </div>
+        <div className="mctaRow" style={{ justifyContent: "center", marginTop: 18 }}>
+          <a className="btn" {...linkProps("c")}>Download a sample course</a>
+          <a className="btn ghost" href="#faq">Print sample report in your app</a>
+        </div>
+        <p className="hint small" style={{ textAlign: "center", marginTop: 10 }}>Any shared course at <a {...linkProps("c")}>/c</a> downloads as <code className="k">.wow-course.json</code>. Reports print from Progress in your own instance.</p>
       </section>
 
       <section id="faq" className="msection">
@@ -549,14 +540,16 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
       <footer className="mfoot">
         <div className="mfootMain">
           <div className="mfootBrand">
-            <span className="mfootLogo" aria-hidden="true">🌰</span>
+            <Logo size={24} className="mfootLogo" />
             <strong>Well of Wisdom</strong>
             <span className="mfootTag">AGPL-3.0 · open source</span>
           </div>
           <nav className="mfootLinks" aria-label="Footer">
-            <a href="https://github.com/wellofwisdom/wellofwisdom" target="_blank" rel="noreferrer">GitHub</a>
+            <a {...linkProps("privacy")}>Privacy</a>
+            <a {...linkProps("terms")}>Terms</a>
+            <a {...linkProps("children")}>Children</a>
             <a href="/c">Shared courses</a>
-            <a href="#pricing">Self-host</a>
+            <a {...linkProps("self-host")}>Self-host</a>
             <a href="/api/health">Health</a>
             <a href="https://github.com/wellofwisdom/wellofwisdom/blob/main/docs/ROADMAP.md" target="_blank" rel="noreferrer">Roadmap</a>
           </nav>
@@ -636,6 +629,7 @@ function SignUp({ busy, inviteRequired, onSubmit }: { busy: boolean; inviteRequi
       <button className="btn primary big" style={{ width: "100%" }} disabled={busy} type="submit">
         {busy ? "Creating…" : "Create family"}
       </button>
+      <p className="hint small" style={{ marginTop: 10, textAlign: "center" }}>By creating an account you agree to our <a {...linkProps("terms")}>Terms</a> and <a {...linkProps("privacy")}>Privacy Policy</a>. See also <a {...linkProps("children")}>how we handle children data</a>.</p>
     </form>
   );
 }

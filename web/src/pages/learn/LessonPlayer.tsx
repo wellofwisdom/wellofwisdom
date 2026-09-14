@@ -7,6 +7,7 @@ import type { ItemNode, LearnLesson, Submission } from "../../types";
 import { RichText, MathText } from "../../lib/rich";
 import { linkProps } from "../../router";
 import { VideoPlayer } from "../../components/VideoUI";
+import { AudioPlayer } from "../../components/AudioPlayer";
 import TutorChat from "./TutorChat";
 
 interface AttemptResponse {
@@ -25,7 +26,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   const [nextLesson, setNextLesson] = useState<{ id: number; title: string } | null>(null);
   const completionLogged = useRef(false);
 
-  const load = () =>
+  const load = useCallback(() =>
     api<{ lesson: LearnLesson; solved: Record<string, boolean>; submissions: Record<string, Submission> }>(`/api/learn/lessons/${lessonId}`)
       .then((d) => {
         setLesson(d.lesson);
@@ -42,11 +43,11 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
           })
           .catch(() => {});
       })
-      .catch(() => setError("Could not load this lesson."));
+      .catch(() => setError("Could not load this lesson.")), [lessonId]);
 
   useEffect(() => {
     load();
-  }, [lessonId]);
+  }, [load]);
 
   const onSolved = (key: string, correct: boolean | null) => {
     setSolved((prev) => {
@@ -213,6 +214,9 @@ function LessonItem({ item, solved, onSolved, submission, onSubmission }: {
   if (item.type === "video") {
     return <VideoItem item={item} solved={solved} onSolved={onSolved} />;
   }
+  if (item.type === "audio") {
+    return <AudioPlayer content={item.content as any} />;
+  }
   return <ExerciseItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} question={null} />;
 }
 
@@ -235,7 +239,7 @@ function ProjectItem({ item, submission, onSubmission }: {
 
   useEffect(() => {
     if (submission) setText(submission.body);
-  }, [submission?.item_id, submission?.status]);
+  }, [submission]);
 
   // The response is on screen now, so it is no longer news on the home page.
   // Fire and forget: in "view as learner" preview this POST is refused (preview
@@ -243,7 +247,7 @@ function ProjectItem({ item, submission, onSubmission }: {
   const fresh = Boolean(submission && submission.feedback && submission.unseen);
   useEffect(() => {
     if (fresh) api(`/api/learn/submissions/${item.id}/seen`, { method: "POST" }).catch(() => {});
-  }, [fresh, item.id]);
+  }, [fresh, item.id, submission]);
 
   async function save(submit: boolean) {
     setBusy(true);

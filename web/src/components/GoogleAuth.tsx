@@ -122,49 +122,76 @@ export function GoogleButton({
   );
 }
 
-// One Tap nudge on the marketing landing. Mount once, at most once per page load,
-// and only when Google is actually configured.
+// One Tap nudge on the marketing landing. Mount once, at most once per page
+// load, and only when Google is actually configured. When delay is true the
+// prompt waits for scroll or three seconds so it never covers the hero.
 export function GoogleOneTap({
   clientId,
   onAuthed,
+  delay = false,
 }: {
   clientId: string;
   onAuthed: () => void;
+  delay?: boolean;
 }) {
   useEffect(() => {
     let cancelled = false;
     const cid = String(clientId || "").trim();
     if (!cid || typeof window === "undefined") return;
-    // Do not nudge someone already mid-form or on a small screen (the popup clips).
     if (window.innerWidth < 680) return;
 
-    loadGis()
-      .then(() => {
-        if (cancelled || !window.google) return;
-        window.google.accounts.id.initialize({
-          client_id: cid,
-          callback: async (resp: { credential?: string }) => {
-            const credential = String(resp?.credential || "");
-            if (!credential) return;
-            try {
-              await api("/api/auth/google", { method: "POST", body: { credential } });
-              onAuthed();
-            } catch {
-              // One Tap failures are silent: the button remains as fallback.
-            }
-          },
-          auto_select: false,
-          itp_support: true,
-        } as never);
-        window.google.accounts.id.prompt((n) => {
-          // Nothing to do. The prompt is informational only.
-          void n;
-        });
-      })
-      .catch(() => {});
+    function show() {
+      if (cancelled || !window.google) return;
+      loadGis()
+        .then(() => {
+          if (cancelled || !window.google) return;
+          window.google.accounts.id.initialize({
+            client_id: cid,
+            callback: async (resp: { credential?: string }) => {
+              const credential = String(resp?.credential || "");
+              if (!credential) return;
+              try {
+                await api("/api/auth/google", { method: "POST", body: { credential } });
+                onAuthed();
+              } catch {
+                // One Tap failures are silent: the button remains as fallback.
+              }
+            },
+            auto_select: false,
+            itp_support: true,
+          } as never);
+          window.google.accounts.id.prompt((n) => {
+            void n;
+          });
+        })
+        .catch(() => {});
+    }
 
-    return () => { cancelled = true; try { window.google?.accounts.id.cancel(); } catch {} };
-  }, [clientId, onAuthed]);
+    if (!delay) {
+      show();
+      return () => { cancelled = true; try { window.google?.accounts.id.cancel(); } catch {} };
+    }
+
+    let fired = false;
+    function fireOnce() {
+      if (fired) return;
+      fired = true;
+      cleanup();
+      show();
+    }
+    function cleanup() {
+      window.removeEventListener("scroll", fireOnce);
+      window.removeEventListener("wheel", fireOnce);
+      window.removeEventListener("touchmove", fireOnce);
+      if (timer) clearTimeout(timer);
+    }
+    window.addEventListener("scroll", fireOnce, { once: true, passive: true });
+    window.addEventListener("wheel", fireOnce, { once: true, passive: true });
+    window.addEventListener("touchmove", fireOnce, { once: true, passive: true });
+    const timer = setTimeout(fireOnce, 3000);
+
+    return () => { cancelled = true; cleanup(); try { window.google?.accounts.id.cancel(); } catch {} };
+  }, [clientId, delay, onAuthed]);
 
   return null;
 }

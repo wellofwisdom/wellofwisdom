@@ -6,7 +6,13 @@ labels: ""
 assignees: ""
 ---
 
-This file is not an issue template. It is a hidden checklist for maintainers to track the dozen `good first issue` tickets that make a repo feel alive at launch.
+This file is not an issue template. It is a hidden checklist for maintainers to track the first `good first issue` tickets that make a repo feel alive at launch.
+
+That first set is done, and the next set is written and waiting: twenty scoped
+tasks with file paths and acceptance criteria live in
+[`docs/issues/`](../../docs/issues/). Paste them into GitHub as issues, one file
+per issue, and label each one `good first issue`. Keep that folder as the source
+of truth, so a draft can be edited and re-pasted without archaeology.
 
 File real issues with the `good first issue` label for each row below. One row per issue, one PR per issue.
 

@@ -3,6 +3,7 @@
 // Same routes, different frame. 100dvh, HUD pinned, cover bleed when present.
 // Degrades cleanly when no XP or art is available. No new API beyond /api/learn/hud.
 import { useEffect, useState } from "react";
+import Logo from "../../components/Logo";
 import { api } from "../../api";
 import type { Me } from "../../types";
 
@@ -94,7 +95,7 @@ export default function LearnerShell({
       <header className="learnerhud" role="banner" aria-label="Your progress">
         <div className="hud-left">
           <button className="hud-home" type="button" onClick={() => onNavigate("")} aria-label="Home">
-            <span aria-hidden="true">🌰</span>
+            <Logo size={28} />
             <span className="hud-home-name">{firstName}</span>
           </button>
           <span className="hud-family chip" title={me.familyName}>{me.familyName}</span>

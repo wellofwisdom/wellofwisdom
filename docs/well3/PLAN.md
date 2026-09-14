@@ -63,5 +63,11 @@ Each PR looks for one small nearby UX lift while it is in the area: a pressed sc
 - Fix (5f93e2a): dailies now reads live streak from /api/learn/gamification, no more hardcoded false.
 - Mastery (b2ed6ef): path nodes show MasteryStars on done lessons, with star CSS in CoursePath.css.
 - Weeklies (463a84b): WeekliesBoard on learner home (weekly review, three-day streak, make progress), with weekly ISO key in localStorage, plus door arch flourish in CoursePath.css.
-- Merge (67f5b3c): main 8210d49 (kie voice + music docs) merged. Branch is current and pushed.
-- Check + tests + web build still green. Branch diff from main is 39 files, about 2700 lines, no migrations, degraded mode kept.
+- Companion (25ed8b0): CompanionLine per chapter (deterministic crew line, no TTS cost) plus Dailies/Weeklies setState-in-render fix (no effect loop).
+- Doors (a9bab53): decorative doors between course units on the trail, unlocked icon when prior unit done.
+- Polish (13391fc): brighter doors, companion styles, dash fix.
+- Weeklies progress (6126ca4): thin progress bar above weeklies.
+- World map legend (cac7b9b): kind counts above world trail.
+- ROADMAP close (9cdf001): immersive slices 2-8 marked SHIPPED in docs/ROADMAP.md.
+- Merge (79787a7): origin/main cc361b7 (Community filters) merged. Branch is current and pushed.
+- Check + tests + web build still green. Branch at 9cdf001, no migrations, degraded mode kept.
