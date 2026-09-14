@@ -156,12 +156,12 @@ export default function Shell({
     </button>
   );
 
-  const Group = ({ id, children: groupChildren }: { id: GroupId; children: ReactNode }) => {
+  function renderGroup(id: GroupId, groupChildren: ReactNode) {
     const isOpen = open[id];
     const containsActive = Object.entries(GROUP_OF).some(([r, g]) => g === id && r === route);
     const show = isOpen || containsActive;
     return (
-      <div className="navgrp">
+      <div key={id} className="navgrp">
         <button
           type="button"
           className="grpbtn"
@@ -174,10 +174,10 @@ export default function Shell({
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
           </span>
         </button>
-        {show && <div id={`grp-${id}`} className="grpbody">{groupChildren}</div>}
+        {show ? <div id={`grp-${id}`} className="grpbody">{groupChildren}</div> : null}
       </div>
     );
-  };
+  }
 
   return (
     <div className="shell">
@@ -209,29 +209,34 @@ export default function Shell({
             Dashboard
           </button>
 
-          <Group id="teach">
+          {renderGroup("teach", (
+            <>
             <Item id="studio" label="Course Studio" icon={<IconSparkle />} />
             <Item id="courses" label="Courses" icon={<IconBook />} />
             <Item id="community" label="Open courses" icon={<IconGlobe />} />
             <Item id="plans" label="Learning paths" icon={<IconMap />} />
-          </Group>
-
-          <Group id="learners">
+            </>
+          ))}
+          {renderGroup("learners", (
+            <>
             <Item id="learners" label="Learners" icon={<IconUsers />} />
             <Item id="work" label="Submitted work" icon={<IconWrench />} />
             <Item id="tutor" label="Tutor log" icon={<IconMessage />} />
-          </Group>
-
-          <Group id="records">
+            </>
+          ))}
+          {renderGroup("records", (
+            <>
             <Item id="records" label="Progress" icon={<IconBarChart />} />
             <Item id="attendance" label="Attendance" icon={<IconClipboardCheck />} />
             <Item id="calendar" label="Calendar" icon={<IconCalendar />} />
-          </Group>
-
-          <Group id="workspace">
+            </>
+          ))}
+          {renderGroup("workspace", (
+            <>
             <Item id="notes" label="Workspace" icon={<IconNotebook />} />
             <Item id="library" label="Library" icon={<IconLibrary />} />
-          </Group>
+            </>
+          ))}
         </nav>
 
         <div className="foot">

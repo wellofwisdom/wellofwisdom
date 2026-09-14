@@ -25,6 +25,8 @@ export default function Dashboard({
   const user = me.user!;
   const learners = me.learners || [];
   const [courses, setCourses] = useState<CourseSummary[] | null>(null);
+  // Work waiting to be read is the one thing on this page that is somebody
+  // else's turn, so it earns a stat rather than a nav item nobody clicks.
   const [waiting, setWaiting] = useState<number | null>(null);
   const [reportsCount, setReportsCount] = useState<number | null>(null);
 
@@ -43,7 +45,6 @@ export default function Dashboard({
   const published = courses?.filter((c) => c.status === "published").length ?? 0;
   const primaryLearner = learners[0] || null;
   const hasPublished = published > 0;
-  const hasProgress = (reportsCount ?? 0) > 0 || (courses?.some((c) => c.status === "published") ?? false);
 
   const steps: { label: string; done: boolean; go?: () => void; inline?: React.ReactNode }[] = [
     {
@@ -77,10 +78,6 @@ export default function Dashboard({
       go: () => onNavigate("records"),
     },
   ];
-
-  // Step 4 is action-only: done when learner has viewed a published course.
-  // For now it stays open until they use it; progress step catches the loop.
-  void hasProgress;
 
   const doneCount = steps.filter((s) => s.done).length;
 
