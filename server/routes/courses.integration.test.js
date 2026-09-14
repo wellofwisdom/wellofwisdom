@@ -20,7 +20,9 @@ async function signup(a, tag) {
   const email = `course_${tag}_${Date.now()}@example.com`;
   const r = await http(a, "/api/auth/signup", { body: { familyName: `Fam ${tag}`, name: "Parent", email, password: "s3cur3Pass" } });
   assert.equal(r.status, 200, r.text); const db = require("../lib/db");
-  const row = await db.query("select family_id from users where email=$1", [email]); return { jar: jar(r), familyId: Number(row.rows[0].family_id) };
+  const row = await db.query("select id, family_id from users where email=$1", [email]);
+  assert.ok(row.rows[0], `signup row missing for ${email}: ${r.text}`);
+  return { jar: jar(r), userId: Number(row.rows[0].id), familyId: Number(row.rows[0].family_id) };
 }
 describe("courses integration", () => {
   before(ctx.setup); after(ctx.teardown);
@@ -28,7 +30,7 @@ describe("courses integration", () => {
     if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");
     const famA = await signup(a, "A"); const famB = await signup(a, "B");
-    const c = await db.query("insert into courses (family_id, title, topic, status) values ($1,$2,$3,'draft') returning id", [famA.familyId, "Seed Course", "fractions"]);
+    const c = await db.query("insert into courses (family_id, title, topic, status, created_by) values ($1,$2,$3,'draft',$4) returning id", [famA.familyId, "Seed Course", "fractions", famA.userId]);
     const courseId = Number(c.rows[0].id);
     const un = await db.query("insert into units (course_id, title, position) values ($1,$2,0) returning id", [courseId, "Unit 1"]);
     const uid = Number(un.rows[0].id);

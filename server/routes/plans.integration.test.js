@@ -18,7 +18,7 @@ async function http(a, path, opts = {}) {
 function jar(r) { return r.setCookie.map((c) => c.split(";")[0]).join("; "); }
 async function signup(a, tag) {
   const email = `plan_${tag}_${Date.now()}@example.com`; const r = await http(a, "/api/auth/signup", { body: { familyName: `Fam ${tag}`, name: "Parent", email, password: "s3cur3Pass" } });
-  assert.equal(r.status, 200, r.text); const db = require("../lib/db"); const row = await db.query("select family_id from users where email=$1", [email]); return { jar: jar(r), familyId: Number(row.rows[0].family_id) };
+  assert.equal(r.status, 200, r.text); const db = require("../lib/db"); const row = await db.query("select id, family_id from users where email=$1", [email]); assert.ok(row.rows[0], `signup row missing for ${email}: ${r.text}`); return { jar: jar(r), familyId: Number(row.rows[0].family_id) };
 }
 describe("plans integration", () => {
   before(ctx.setup); after(ctx.teardown);

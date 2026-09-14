@@ -32,7 +32,7 @@ describe("family integration", () => {
     await http(a, "/api/family/learners", { cookie: famA.jar, body: { name: `kidA_${Date.now()}`, username: `kidA_${Date.now()}`, pin: "1234" } });
     const kidB = `kidB_${Date.now()}`;
     await http(a, "/api/family/learners", { cookie: famB.jar, body: { name: kidB, username: kidB, pin: "1234" } });
-    const cA = await db.query("insert into courses (family_id, title, topic, status) values ($1,$2,$3,'draft') returning id", [famA.familyId, "Course A", "math"]);
+    const cA = await db.query("insert into courses (family_id, title, topic, status, created_by) values ($1,$2,$3,'draft',$4) returning id", [famA.familyId, "Course A", "math", famA.userId]);
     const courseA = Number(cA.rows[0].id);
     const listB = await http(a, "/api/family/learners", { method: "GET", cookie: famB.jar });
     assert.equal(listB.status, 200); assert.ok(listB.json.learners.some((l) => l.username === kidB));
