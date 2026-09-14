@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { RichText } from "../../lib/rich";
+import { PushToTalk } from "../../components/PushToTalk";
 
 interface Msg { id?: number; role: "learner" | "tutor"; content: string; refused?: boolean }
 
@@ -105,6 +106,9 @@ export default function TutorChat({ lessonId, itemId, onClose }:
             }}
             aria-label="Your message"
           />
+          {/* Talking to the tutor, not answering a question: the heard words are
+              appended so a follow up sentence does not wipe the last one. */}
+          <PushToTalk kind="text" label="Talk" onResult={(spoken) => setText((current) => (current.trim() ? `${current.trim()} ${spoken.text}` : spoken.text))} />
           <button className="btn primary" type="button" disabled={busy || !text.trim()} onClick={send}>
             Ask
           </button>

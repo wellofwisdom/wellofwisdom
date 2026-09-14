@@ -7,6 +7,7 @@ import type { ItemNode, LearnLesson, Submission } from "../../types";
 import { RichText, MathText } from "../../lib/rich";
 import { linkProps } from "../../router";
 import { VideoPlayer } from "../../components/VideoUI";
+import { PushToTalk } from "../../components/PushToTalk";
 import TutorChat from "./TutorChat";
 
 interface AttemptResponse {
@@ -487,6 +488,10 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question, rewind }: 
           <div className="row">
             {c.hint && !hint && <button className="btn ghost" type="button" onClick={() => setHint(c.hint)}>💡 Hint</button>}
             <button className="btn ghost" type="button" onClick={() => setTutorOpen(true)}>🌰 Ask for help</button>
+            {/* Multiple choice is the one answer a spoken "B" can fill, so the
+                transcript picks the choice and the learner still presses Check. */}
+            <PushToTalk kind="mcq" choiceCount={choices.length}
+              onResult={(spoken) => { if (spoken.choiceIndex !== null) setPicked(choices[spoken.choiceIndex].id); }} />
             <button className="btn primary" type="button" disabled={busy || !picked} onClick={() => submit(picked!)}>
               {busy ? "Checking…" : "Check"}
             </button>
@@ -507,6 +512,9 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question, rewind }: 
           />
           {c.hint && !hint && <button className="btn ghost" type="button" onClick={() => setHint(c.hint)}>💡 Hint</button>}
           <button className="btn ghost" type="button" onClick={() => setTutorOpen(true)}>🌰 Ask for help</button>
+          {/* "Three quarters" has to arrive as 3/4, which is the normalizer's
+              job on the server; the learner confirms before it is graded. */}
+          <PushToTalk kind="numeric" onResult={(spoken) => setAnswer(spoken.text)} />
           <button className="btn primary" type="button" disabled={busy || !answer.trim()} onClick={() => submit()}>
             {busy ? "Checking…" : "Check"}
           </button>
@@ -526,6 +534,9 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question, rewind }: 
             <button className="btn primary" type="button" disabled={!answer.trim()} onClick={() => setRevealed({ correct: null, reveal: { kind: "text", explanation: null, hint: null, answer: c.answer } })}>
               Show model answer
             </button>
+            {/* A long answer is easier to say than to type. The words land in
+                the box, and the model answer is still shown for self checking. */}
+            <PushToTalk kind="text" onResult={(spoken) => setAnswer((current) => (current.trim() ? `${current.trim()} ${spoken.text}` : spoken.text))} />
           </div>
         </div>
       )}
