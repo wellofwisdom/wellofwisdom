@@ -43,21 +43,11 @@ async function uniqueSlug(title, courseId) {
 /** Strip answer keys for the public browse page. Allowlist, not blocklist
  *  a new field on an exercise must be opted in, never leak by default. */
 function publicItem(item) {
+  const reg = require("./items").forType(item.type);
+  if (reg && typeof reg.strip === "function") {
+    return { type: item.type, position: item.position, content: reg.strip(item.content || {}) };
+  }
   const c = (item && item.content) || {};
-  if (item.type === "exercise") {
-    const out = { prompt: c.prompt, kind: c.kind };
-    if (c.choices) out.choices = c.choices;
-    return { type: item.type, position: item.position, content: out };
-  }
-  if (item.type === "video") {
-    const out = {
-      youtubeId: c.youtubeId, uploadId: c.uploadId, vimeoId: c.vimeoId,
-      fileUrl: c.fileUrl, peertubeHost: c.peertubeHost, peertubeId: c.peertubeId,
-      title: c.title, note: c.note,
-    };
-    if (c.questions) out.questions = c.questions.map((q) => ({ prompt: q.prompt, choices: q.choices }));
-    return { type: item.type, position: item.position, content: out };
-  }
   // Articles and projects are the teaching material. That is what sharing is for.
   return { type: item.type, position: item.position, content: c };
 }
