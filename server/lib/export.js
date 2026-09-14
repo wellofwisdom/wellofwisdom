@@ -64,7 +64,7 @@ async function collectFamily(familyId) {
     [fid]
   ).catch(() => ({ rows: [] }));
 
-  return {
+  const sanitized = {
     family,
     guides: guidesRes.rows,
     learners: learnersRes.rows,
@@ -85,6 +85,24 @@ async function collectFamily(familyId) {
     reviewSchedule: reviewRes.rows,
     uploads: uploadsRes.rows,
   };
+  // Strip any credential fields that should never appear in an export.
+  // The select statements already avoid them, but this is belt and braces
+  // in case a future column addition leaks a hash.
+  function stripHashes(obj) {
+    if (!obj || typeof obj !== "object") return;
+    if (Array.isArray(obj)) { obj.forEach(stripHashes); return; }
+    delete obj.password_hash;
+    delete obj.passwordHash;
+    delete obj.pin_hash;
+    delete obj.pinHash;
+    delete obj.token_hash;
+    delete obj.tokenHash;
+    delete obj.google_sub;
+    // Recurse into nested values
+    for (const v of Object.values(obj)) stripHashes(v);
+  }
+  stripHashes(sanitized);
+  return sanitized;
 }
 
 // Build one course export payload (same shape as GET /api/courses/:id/export).

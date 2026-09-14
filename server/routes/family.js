@@ -18,6 +18,8 @@ function bad(res, msg, code = 400) {
 // Whole-family export: streams a zip (owner only). The zip contains
 // family.json plus one .wow-course.json per course plus uploads by id.
 // Placed before the learners routes so /export is not captured as an id.
+// Each upload is appended as a read stream so a 500 MB video never sits
+// entirely in memory.
 router.get("/export", async (req, res, next) => {
   try {
     if (!perm.can(req.user, "manage_family")) return bad(res, "not_allowed", 403);
@@ -43,20 +45,25 @@ router.get("/export", async (req, res, next) => {
       if (payload) archive.append(JSON.stringify(payload, null, 2), { name: `courses/${cid}.wow-course.json` });
     }
 
-    // Uploads by id (bytes from storage)
+    function extFor(mime) {
+      const m = String(mime || "").toLowerCase();
+      if (m.includes("png")) return "png";
+      if (m.includes("jpeg") || m.includes("jpg")) return "jpg";
+      if (m.includes("webp")) return "webp";
+      if (m.includes("gif")) return "gif";
+      if (m.includes("mp4")) return "mp4";
+      if (m.includes("webm")) return "webm";
+      if (m.includes("wav")) return "wav";
+      if (m.includes("mpeg")) return "mp3";
+      return "bin";
+    }
+
+    // Uploads by id: stream each file into the archive so we never hold a
+    // full video in memory. archiver handles backpressure from the Node stream.
     for (const up of familyData.uploads || []) {
-      const buf = await storage.getBuffer(up.storage_key);
-      if (buf) {
-        const ext = String(up.mime || "").includes("png") ? "png"
-          : String(up.mime || "").includes("jpeg") || String(up.mime || "").includes("jpg") ? "jpg"
-          : String(up.mime || "").includes("webp") ? "webp"
-          : String(up.mime || "").includes("gif") ? "gif"
-          : String(up.mime || "").includes("mp4") ? "mp4"
-          : String(up.mime || "").includes("webm") ? "webm"
-          : String(up.mime || "").includes("wav") ? "wav"
-          : String(up.mime || "").includes("mpeg") ? "mp3"
-          : "bin";
-        archive.append(buf, { name: `uploads/${up.id}.${ext}` });
+      const s = await storage.get(up.storage_key);
+      if (s && s.stream) {
+        archive.append(s.stream, { name: `uploads/${up.id}.${extFor(up.mime)}` });
       }
     }
 
