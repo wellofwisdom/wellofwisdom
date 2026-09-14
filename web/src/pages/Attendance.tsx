@@ -111,7 +111,7 @@ export default function Attendance() {
     }
   }, [who, from, to]);
 
-  useEffect(() => { load(); }, [who]);
+  useEffect(() => { load(); }, [load]);
 
   async function setDay(day: string, body: { counted: boolean; minutes?: number | null; note?: string | null }) {
     try {

@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security report
+    url: https://github.com/wellofwisdom/wellofwisdom/security/advisories/new
+    about: Do not file a security hole as a public issue. See SECURITY.md.
+  - name: Good first issue drafts
+    url: https://github.com/wellofwisdom/wellofwisdom/tree/main/docs/issues
+    about: Twenty scoped tasks, each with the file paths and the checks that prove it works.
+  - name: Documentation
+    url: https://github.com/wellofwisdom/wellofwisdom/tree/main/docs
+    about: Architecture, API, operations, pedagogy and the roadmap.
+  - name: Questions and ideas
+    url: https://github.com/wellofwisdom/wellofwisdom/discussions
+    about: For "how do I" and "would this fit" questions that are not yet an issue.

@@ -2,6 +2,7 @@
 // Guide console shell: sidebar matching the Trinacle design language:
 // colored icon chips, collapsible submenus, hover lift, active accent bar.
 import { useEffect, useState, type ReactNode } from "react";
+import Logo from "./Logo";
 import type { CourseSummary, Me } from "../types";
 import { isDark, setMode } from "../theme";
 import Palette from "./Palette";
@@ -108,7 +109,7 @@ export default function Shell({
       {drawerOpen && <div className="scrim" onClick={() => setDrawerOpen(false)} />}
       <aside className={`sidebar${drawerOpen ? " open" : ""}`}>
         <div className="brand">
-          <span className="nut" aria-hidden="true">🌰</span>
+          <span className="nut"><Logo size={38} /></span>
           <span className="brandname">
             Well of Wisdom
             <span className="sub">{me.familyName}</span>

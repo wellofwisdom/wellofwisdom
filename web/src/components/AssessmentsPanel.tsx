@@ -9,7 +9,7 @@
 // This panel records a result. It does not say whether the result is enough,
 // and must not start to: that turns on the law of one place and the facts of
 // one family, and the app knows neither.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { Panel, EmptyState, Field, Modal } from "./ui";
 
@@ -81,7 +81,7 @@ export default function AssessmentsPanel({ learnerId, learnerName }: { learnerId
   const [editing, setEditing] = useState<Assessment | "new" | null>(null);
   const [msg, setMsg] = useState("");
 
-  async function load() {
+  const load = useCallback(async () => {
     try {
       const d = await api<{ assessments: Assessment[] }>(`/api/assessments/${learnerId}`);
       setItems(d.assessments);
@@ -89,13 +89,13 @@ export default function AssessmentsPanel({ learnerId, learnerName }: { learnerId
       setMsg(niceError(e));
       setItems([]);
     }
-  }
+  }, [learnerId]);
 
   useEffect(() => {
     setItems(null);
     setMsg("");
     load();
-  }, [learnerId]);
+  }, [load]);
 
   async function remove(a: Assessment) {
     if (!window.confirm(`Delete "${a.title}" from ${learnerName}'s record? This cannot be undone.`)) return;

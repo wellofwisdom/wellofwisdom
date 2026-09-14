@@ -103,7 +103,9 @@ app.get("/api/me", async (req, res) => {
   if (!me) return res.json({ user: null });
   if (me.role !== "parent") return res.json({ user: me });
   const rows = await learners.listForFamily(db, me.familyId).catch(() => []);
-  res.json({ user: me, learners: rows });
+  // The UI hides server-wide settings from everyone else; the routes enforce it.
+  const instanceAdmin = await require("./lib/instanceAdmin").forRequest(req);
+  res.json({ user: { ...me, instanceAdmin }, learners: rows });
 });
 
 app.use("/api/demo", require("./routes/demo"));
@@ -211,6 +213,17 @@ app.get("/c/:slug", async (req, res, next) => {
   }
 });
 
+// Static marketing and legal pages get a server-rendered head so crawlers and
+// link unfurlers see a real title and description without running JavaScript.
+const STATIC_ROUTES = ["for-homeschools", "for-co-ops", "for-teachers", "self-host", "privacy", "terms", "children"];
+for (const id of STATIC_ROUTES) {
+  app.get(`/${id}`, (req, res, next) => {
+    try {
+      sendShell(res, seo.injectHead(readShell(), seo.staticHead(id, seo.origin(req))));
+    } catch (err) { next(err); }
+  });
+}
+
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
   try {
@@ -256,6 +269,9 @@ async function boot() {
     ai.setUsageLogger(require("./lib/aiusage").logUsage);
     require("./lib/jobs").startJobs();
     require("./lib/digest").startDigestSchedule();
+    if (process.env.DEMO_MODE === "true" || process.env.DEMO_MODE === "1") {
+      require("./routes/demo").backfillDemoFamilies().catch(() => {});
+    }
   }
   if (require.main === module) {
     app.listen(PORT, "0.0.0.0", () => {
