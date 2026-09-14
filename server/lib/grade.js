@@ -36,7 +36,7 @@ function gradeExercise(item, learnerAnswer) {
     }
     case "numeric": {
       if (keyless) return null;
-      const expected = Number(item.answer);
+      const expected = parseNumeric(item.answer);
       const given = parseNumeric(learnerAnswer);
       if (!Number.isFinite(expected) || !Number.isFinite(given)) return false;
       const tol = Math.max(Math.abs(expected) * 0.005, 0.01);
@@ -103,4 +103,4 @@ function htmlToText(html) {
     .trim();
 }
 
-module.exports = { gradeExercise, youtubeId, safeSourceUrl, htmlToText };
+module.exports = { gradeExercise, parseNumeric, youtubeId, safeSourceUrl, htmlToText };

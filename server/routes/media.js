@@ -9,6 +9,7 @@ const db = require("../lib/db");
 const jobs = require("../lib/jobs");
 const media = require("../lib/media");
 const adventure = require("../lib/adventure");
+const { requireInstanceAdmin } = require("../lib/instanceAdmin");
 
 const router = express.Router();
 router.use(auth.parentOnly);
@@ -35,7 +36,7 @@ router.get("/status", async (_req, res, next) => {
   }
 });
 
-router.get("/config", async (_req, res, next) => {
+router.get("/config", requireInstanceAdmin, async (_req, res, next) => {
   try {
     const cfg = await media.resolveConfig();
     res.json({
@@ -51,7 +52,8 @@ router.get("/config", async (_req, res, next) => {
   }
 });
 
-router.put("/config", auth.requirePerm("spend_media"), async (req, res, next) => {
+// Media keys are server-wide: instance admin only (lib/instanceAdmin.js).
+router.put("/config", requireInstanceAdmin, async (req, res, next) => {
   try {
     const b = req.body || {};
     const cfg = {};

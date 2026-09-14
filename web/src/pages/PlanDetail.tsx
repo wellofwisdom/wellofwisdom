@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Learning-path detail: the milestone timeline, per-learner progress,
 // just-in-time course generation, resources and projects.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, niceError } from "../api";
 import { Panel, Modal, Field } from "../components/ui";
 import { IconTrash } from "../components/Icons";
@@ -46,12 +46,12 @@ export default function PlanDetail({ planId, onNavigate, meLearners }: {
   const [genBusy, setGenBusy] = useState(false);
   const [addLink, setAddLink] = useState<Milestone | null>(null);
 
-  const load = () =>
+  const load = useCallback(() =>
     api<{ plan: PlanTree }>(`/api/plans/${planId}`)
       .then((d) => setPlan(d.plan))
-      .catch((e) => setError(niceError(e)));
+      .catch((e) => setError(niceError(e))), [planId]);
 
-  useEffect(() => { load(); }, [planId]);
+  useEffect(() => { load(); }, [load]);
 
   if (error && !plan) return <Panel title="Learning path"><div className="formerror">{error}</div></Panel>;
   if (!plan) return <div className="skel" style={{ height: 180 }} />;

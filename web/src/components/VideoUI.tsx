@@ -114,7 +114,6 @@ export function VideoPlayer({ content, poster, videoRef }: {
   if (content.fileUrl) {
     return (
       <div className="videowrap">
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <video ref={videoRef} src={content.fileUrl} controls preload="metadata" playsInline title={content.title || "Course video"} />
       </div>
     );
@@ -216,7 +215,6 @@ export function VideoLibrary({ uploads, onPick, onDelete, pickLabel = "Use", can
     <div className="videolist">
       {uploads.map((u) => (
         <div className="videorow" key={u.id}>
-          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <video src={`/media/${u.id}`} preload="metadata" muted playsInline className="videothumb" />
           <div className="grow">
             <div className="n">{u.title || u.original_name || `Video ${u.id}`}</div>

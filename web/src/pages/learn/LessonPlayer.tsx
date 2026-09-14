@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The lesson player: articles, videos, exercises with grading feedback,
 // hints, explain-my-mistake, and completion. Focus mode. No nav chrome.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../api";
 import type { ItemNode, LearnLesson, Submission } from "../../types";
 import { linkProps } from "../../router";
@@ -9,6 +9,7 @@ import ArticleItem from "./items/ArticleItem";
 import ExerciseItem from "./items/ExerciseItem";
 import VideoItem from "./items/VideoItem";
 import ProjectItem from "./items/ProjectItem";
+import AudioItem from "./items/AudioItem";
 
 
 export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
@@ -22,7 +23,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   const [nextLesson, setNextLesson] = useState<{ id: number; title: string } | null>(null);
   const completionLogged = useRef(false);
 
-  const load = () =>
+  const load = useCallback(() =>
     api<{ lesson: LearnLesson; solved: Record<string, boolean>; submissions: Record<string, Submission> }>(`/api/learn/lessons/${lessonId}`)
       .then((d) => {
         setLesson(d.lesson);
@@ -39,11 +40,11 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
           })
           .catch(() => {});
       })
-      .catch(() => setError("Could not load this lesson."));
+      .catch(() => setError("Could not load this lesson.")), [lessonId]);
 
   useEffect(() => {
     load();
-  }, [lessonId]);
+  }, [load]);
 
   const onSolved = (key: string, correct: boolean | null) => {
     setSolved((prev) => {
@@ -147,5 +148,6 @@ function LessonItem({ item, solved, onSolved, submission, onSubmission }: {
   if (item.type === "article") return <ArticleItem item={item} />;
   if (item.type === "project") return <ProjectItem item={item} submission={submission} onSubmission={onSubmission} />;
   if (item.type === "video") return <VideoItem item={item} solved={solved} onSolved={onSolved} />;
+  if (item.type === "audio") return <AudioItem item={item} />;
   return <ExerciseItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} question={null} />;
 }
