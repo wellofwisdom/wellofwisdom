@@ -18,3 +18,6 @@
 .weekly-hint{font-size:12px;color:var(--muted)}
 .weekly-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;flex:0 0 22px}
 .weekly.done .weekly-check{background:var(--good);border-color:var(--good)}
+.weeklies-progress{height:8px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border);overflow:hidden;margin-bottom:10px}
+.weeklies-progress>span{display:block;height:100%;background:var(--accent);transition:width .6s ease}
+

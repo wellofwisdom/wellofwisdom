@@ -8,7 +8,7 @@
 const express = require("express");
 const db = require("../lib/db");
 const auth = require("../lib/auth");
-const store = require("../lib/uploads");
+const storage = require("../lib/storage");
 
 const router = express.Router();
 
@@ -82,7 +82,7 @@ router.post("/synthesize", auth.parentOnly, async (req, res, next) => {
     ).catch(() => ({ rows: [] }));
     if (cached.rows[0]) return res.json({ uploadId: Number(cached.rows[0].id), url: `/media/${cached.rows[0].id}`, cached: true });
     const buf = await synthesizeWithCache(text, voice);
-    const saved = await store.save(req.user.familyId, "audio/mpeg", buf);
+    const saved = await storage.put(req.user.familyId, "audio/mpeg", buf);
     const { rows } = await db.query(
       `insert into uploads (family_id, kind, mime, bytes, storage_key, original_name, title, created_by) values ($1,'audio','audio/mpeg',$2,$3,$4,$5,$6) returning id`,
       [req.user.familyId, saved.bytes, saved.key, `tts-${hash}.mp3`, `${title} narration`, req.user.id]
@@ -118,7 +118,7 @@ router.get("/for-encounter/:id", auth.authRequired, async (req, res, next) => {
     ).catch(() => ({ rows: [] }));
     if (cached.rows[0]) return res.json({ uploadId: Number(cached.rows[0].id), url: `/media/${cached.rows[0].id}`, cached: true });
     const buf = await synthesizeWithCache(text, voice);
-    const saved = await store.save(req.user.familyId, "audio/mpeg", buf);
+    const saved = await storage.put(req.user.familyId, "audio/mpeg", buf);
     const ins = await db.query(
       `insert into uploads (family_id, kind, mime, bytes, storage_key, original_name, title, created_by) values ($1,'audio','audio/mpeg',$2,$3,$4,$5,$6) returning id`,
       [req.user.familyId, saved.bytes, saved.key, `tts-${hash}.mp3`, `${String(row.title).slice(0, 80)} narration`, req.user.id]

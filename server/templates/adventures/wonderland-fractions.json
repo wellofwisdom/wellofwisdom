@@ -6,23 +6,94 @@
   "worldPrompt": "An original children's adventure inside Lewis Carroll's Wonderland (1865, public domain). The learner travels with Alice through the hall of doors, the pool of tears, the caterpillar's mushroom, the tea party that never ends, and the Queen's croquet ground. Each chapter's encounter maps to the fractions unit it gates: equal parts, same-denominator comparing and adding, unlike denominators and equivalent renaming, and the number line from 0 to 1. Characters are Alice, White Rabbit, Cheshire Cat, Mad Hatter, March Hare, Dormouse, Caterpillar, and Queen of Hearts only, described faithfully from the book. Battles are riddles and fairness trials, not violence. Loot is objects the text names: tarts, Drink Me bottles, keys, fans, the tart knife, the smile token. Boss is the Queen's fairness trial that asks for a streak of correct renaming, warm and winnable.",
   "gameType": "cyoa",
   "characters": [
-    { "name": "Alice", "role": "self", "bio": "Curious, brave, and polite even when Wonderland makes no sense. You see Wonderland through her eyes and she grows or shrinks with every fair cut you get right." },
-    { "name": "White Rabbit", "role": "ally", "bio": "Always checking his watch and worrying about being late. He knows every door in the hall and guards the first key. He rewards careful counting." },
-    { "name": "Cheshire Cat", "role": "mentor", "bio": "Appears when you need a hint and vanishes before giving the answer. He speaks in riddles that point to the renaming trick. He never does the maths for you." },
-    { "name": "Mad Hatter", "role": "rival", "bio": "Runs the endless tea table. He is generous and fussy about fair shares. He challenges you to add same-size pieces without changing the bottom number." },
-    { "name": "Queen of Hearts", "role": "boss", "bio": "Runs the trial of the tarts. She is loud but fair when the numbers prove it. The final boss is her fairness court, a streak of right answers that ends with applause, not punishment." }
+    {
+      "name": "Alice",
+      "role": "self",
+      "bio": "Curious, brave, and polite even when Wonderland makes no sense. You see Wonderland through her eyes and she grows or shrinks with every fair cut you get right.",
+      "voiceHint": "young, warm, curious, clear American girl, unhurried"
+    },
+    {
+      "name": "White Rabbit",
+      "role": "ally",
+      "bio": "Always checking his watch and worrying about being late. He knows every door in the hall and guards the first key. He rewards careful counting.",
+      "voiceHint": "quick, lightly flustered, bright"
+    },
+    {
+      "name": "Cheshire Cat",
+      "role": "mentor",
+      "bio": "Appears when you need a hint and vanishes before giving the answer. He speaks in riddles that point to the renaming trick. He never does the maths for you.",
+      "voiceHint": "soft, amused, slightly slow, dry British wit"
+    },
+    {
+      "name": "Mad Hatter",
+      "role": "rival",
+      "bio": "Runs the endless tea table. He is generous and fussy about fair shares. He challenges you to add same-size pieces without changing the bottom number.",
+      "voiceHint": "playful, gently eccentric, never manic"
+    },
+    {
+      "name": "Queen of Hearts",
+      "role": "boss",
+      "bio": "Runs the trial of the tarts. She is loud but fair when the numbers prove it. The final boss is her fairness court, a streak of right answers that ends with applause, not punishment.",
+      "voiceHint": "grand, theatrical but not scary, firm fair-judge"
+    }
   ],
   "chapters": [
-    { "title": "The Hall of Doors", "hook": "Every door has a different lock. Every key is a different fraction." },
-    { "title": "The Tea Party Without End", "hook": "The table is set forever. Who got more tart?" },
-    { "title": "The Queen's Croquet Ground", "hook": "Nothing is the size you expect. Make the pieces match." },
-    { "title": "The Line from Small to Tall", "hook": "From no cake to whole cake, lay every piece on one line." }
+    {
+      "title": "The Hall of Doors",
+      "hook": "Every door has a different lock. Every key is a different fraction.",
+      "musicPrompt": "Warm curious music for a hall of tiny doors. Gentle strings and soft woodwinds, slow and wonder-filled, low and unobtrusive, instrumental only, no vocals."
+    },
+    {
+      "title": "The Tea Party Without End",
+      "hook": "The table is set forever. Who got more tart?",
+      "musicPrompt": "Playful tea party music. Light bouncy piano with soft percussion, whimsical but never frantic, warm, instrumental only."
+    },
+    {
+      "title": "The Queen's Croquet Ground",
+      "hook": "Nothing is the size you expect. Make the pieces match.",
+      "musicPrompt": "Tense but not scary croquet ground. Low strings with a steady careful pulse, like a puzzle being solved, instrumental only."
+    },
+    {
+      "title": "The Line from Small to Tall",
+      "hook": "From no cake to whole cake, lay every piece on one line.",
+      "musicPrompt": "Calm number line walk. Airy, steady, quietly triumphant as pieces fall into order, instrumental only, low enough to study over."
+    }
   ],
   "loot": [
-    { "name": "Wonder Tart", "description": "One tart from the endless table, cut into eighths. The crumbs recall the first fair share. Chapter 1, the tea party.", "icon": "🥧", "rarity": "common" },
-    { "name": "Drink Me Tag", "description": "The paper tag from the bottle that says Drink Me. It shrinks with careful measurement. Chapter 1, the hall of doors.", "icon": "🏷️", "rarity": "common" },
-    { "name": "Cheshire Smile", "description": "A faint grin that appears when you need a nudge. Grant one hint without breaking a boss streak. Chapter 2, the Cat's branch.", "icon": "😺", "rarity": "uncommon" },
-    { "name": "Hatter's Tart Knife", "description": "The knife that never adds the bottom numbers. Unlocks the cutting puzzle that asks you to cut everything into twelfths. Chapter 2, the croquet approach.", "icon": "🔪", "rarity": "rare" },
-    { "name": "Queen's Seal of Fairness", "description": "The Queen's own stamp, given when the streak proves the shares are fair. Legendary chapter clear. Chapter 3 and the final trial.", "icon": "👑", "rarity": "legendary" }
-  ]
+    {
+      "name": "Wonder Tart",
+      "description": "One tart from the endless table, cut into eighths. The crumbs recall the first fair share. Chapter 1, the tea party.",
+      "icon": "🥧",
+      "rarity": "common"
+    },
+    {
+      "name": "Drink Me Tag",
+      "description": "The paper tag from the bottle that says Drink Me. It shrinks with careful measurement. Chapter 1, the hall of doors.",
+      "icon": "🏷️",
+      "rarity": "common"
+    },
+    {
+      "name": "Cheshire Smile",
+      "description": "A faint grin that appears when you need a nudge. Grant one hint without breaking a boss streak. Chapter 2, the Cat's branch.",
+      "icon": "😺",
+      "rarity": "uncommon"
+    },
+    {
+      "name": "Hatter's Tart Knife",
+      "description": "The knife that never adds the bottom numbers. Unlocks the cutting puzzle that asks you to cut everything into twelfths. Chapter 2, the croquet approach.",
+      "icon": "🔪",
+      "rarity": "rare"
+    },
+    {
+      "name": "Queen's Seal of Fairness",
+      "description": "The Queen's own stamp, given when the streak proves the shares are fair. Legendary chapter clear. Chapter 3 and the final trial.",
+      "icon": "👑",
+      "rarity": "legendary"
+    }
+  ],
+  "musicDefaults": {
+    "volume": 0.18,
+    "duckUnderVoice": true,
+    "loop": true
+  }
 }

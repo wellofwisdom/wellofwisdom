@@ -89,7 +89,7 @@ router.get("/jobs/:id", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
   try {
     const { rows } = await db.query(
-      `select c.id, c.title, c.topic, c.lens, c.grade_level, c.status, c.description, c.created_at,
+      `select c.id, c.title, c.topic, c.lens, c.grade_level, c.status, c.description, c.created_at, c.cover_url,
               u.name as learner_name,
               (select count(*) from units un where un.course_id = c.id)::int as unit_count,
               (select count(*) from lessons l join units un on un.id = l.unit_id where un.course_id = c.id)::int as lesson_count,
@@ -174,11 +174,8 @@ router.post("/worksheet-import", async (req, res, next) => {
       );
       if (!rows[0]) return bad(res, "upload_not_found", 404);
       if (Number(rows[0].bytes) > 12 * 1024 * 1024) return bad(res, "too_large", 413);
-      const store = require("../lib/uploads");
-      const abs = store.resolveKey(rows[0].storage_key);
-      if (!abs) return bad(res, "file_missing", 410);
-      const fsp = require("node:fs/promises");
-      const buf = await fsp.readFile(abs).catch(() => null);
+      const storage = require("../lib/storage");
+      const buf = await storage.getBuffer(rows[0].storage_key);
       if (!buf) return bad(res, "file_missing", 410);
       const ocr = require("../lib/ocr");
       if (!ocr.hasVision()) return bad(res, "ocr_not_configured", 503);
@@ -230,11 +227,8 @@ router.post("/worksheet-ocr", async (req, res, next) => {
     );
     if (!rows[0]) return bad(res, "upload_not_found", 404);
     if (Number(rows[0].bytes) > 12 * 1024 * 1024) return bad(res, "too_large", 413);
-    const store = require("../lib/uploads");
-    const abs = store.resolveKey(rows[0].storage_key);
-    if (!abs) return bad(res, "file_missing", 410);
-    const fsp = require("node:fs/promises");
-    const buf = await fsp.readFile(abs).catch(() => null);
+    const storage = require("../lib/storage");
+    const buf = await storage.getBuffer(rows[0].storage_key);
     if (!buf) return bad(res, "file_missing", 410);
     let text;
     try {

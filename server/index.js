@@ -103,7 +103,9 @@ app.get("/api/me", async (req, res) => {
   if (!me) return res.json({ user: null });
   if (me.role !== "parent") return res.json({ user: me });
   const rows = await learners.listForFamily(db, me.familyId).catch(() => []);
-  res.json({ user: me, learners: rows });
+  // The UI hides server-wide settings from everyone else; the routes enforce it.
+  const instanceAdmin = await require("./lib/instanceAdmin").forRequest(req);
+  res.json({ user: { ...me, instanceAdmin }, learners: rows });
 });
 
 app.use("/api/demo", require("./routes/demo"));
@@ -130,6 +132,7 @@ app.use("/api/assessments", require("./routes/assessments"));
 app.use("/api/waitlist", require("./routes/waitlist"));
 app.use("/api/community", require("./routes/community"));
 app.use("/api/narration", require("./routes/narration"));
+app.use("/api/stt", require("./routes/stt"));
 app.use("/api/ai", require("./routes/ai"));
 app.use("/api/music", require("./routes/music"));
 
@@ -210,6 +213,24 @@ app.get("/c/:slug", async (req, res, next) => {
   }
 });
 
+// Static marketing and legal pages get a server-rendered head so crawlers and
+// link unfurlers see a real title and description without running JavaScript.
+// Every page listed in server/lib/site.json (the gallery at /c renders its own).
+const STATIC_ROUTES = seo.SITE.pages.map((p) => p.path).filter(Boolean);
+// The home page head comes from site.json too, so the shell's generic tags are replaced.
+app.get("/", (req, res, next) => {
+  try {
+    sendShell(res, seo.injectHead(readShell(), seo.staticHead("", seo.origin(req))));
+  } catch (err) { next(err); }
+});
+for (const id of STATIC_ROUTES) {
+  app.get(`/${id}`, (req, res, next) => {
+    try {
+      sendShell(res, seo.injectHead(readShell(), seo.staticHead(id, seo.origin(req))));
+    } catch (err) { next(err); }
+  });
+}
+
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
   try {
@@ -255,6 +276,9 @@ async function boot() {
     ai.setUsageLogger(require("./lib/aiusage").logUsage);
     require("./lib/jobs").startJobs();
     require("./lib/digest").startDigestSchedule();
+    if (process.env.DEMO_MODE === "true" || process.env.DEMO_MODE === "1") {
+      require("./routes/demo").backfillDemoFamilies().catch(() => {});
+    }
   }
   if (require.main === module) {
     app.listen(PORT, "0.0.0.0", () => {

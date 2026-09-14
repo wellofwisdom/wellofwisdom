@@ -86,12 +86,19 @@ export default function WeekliesBoard({ reviewsDue, lessonsDone, lessonsTotal, s
 
   return (
     <div className="weeklies" role="region" aria-label="Weekly quests">
+      {lessonsTotal > 0 && (
+        <div className="weeklies-progress" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label="Weekly progress">
+          <span style={{ width: `${progressPct}%` }} />
+        </div>
+      )}
       <h2 className="weeklies-title">This week{allDone ? " ✓" : ""}</h2>
       <div className="weeklies-grid">
         {items.map((it) => (
           <button
             key={it.id}
             type="button"
+            data-nav
+            data-say={`${it.label} ${it.hint}`}
             className={`weekly${it.done ? " done" : ""}`}
             onClick={() => toggle(it.id)}
             aria-pressed={it.done}

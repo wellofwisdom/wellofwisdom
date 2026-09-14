@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// CoursePath: the course as a path, not a list. Units become waypoints,
+// CoursePath: the course as a path, not a list. Units become waypoints;
 // lessons become nodes on a winding SVG trail. Done glows, next pulses,
 // locked is dim. The path drives a traveling avatar that advances with progress.
 // Pure layout, no new API. Reuses the same LearnCourseTree the list used.
@@ -93,6 +93,8 @@ export default function CoursePath({
               <button
                 key={n.id}
                 type="button"
+                data-nav
+                data-say={`${n.title}${isDone ? " done" : isNext ? " next up" : " locked"}`}
                 className={`pathnode${isDone ? " done" : ""}${isNext ? " next" : ""}${isLocked ? " locked" : ""}`}
                 style={{ left: x, top: y }}
                 onClick={() => onNavigate(`lesson/${n.id}`)}
@@ -113,6 +115,26 @@ export default function CoursePath({
           <span className="pathavatar" aria-hidden="true" style={{ left: avatar.x, top: avatar.y }}>
             <span className="pathavatar-dot">\u25CF</span>
           </span>
+          {(() => {
+            const doors: JSX.Element[] = [];
+            let lastUnit = flat[0]?.unitIdx;
+            for (let i = 1; i < flat.length; i++) {
+              if (flat[i].unitIdx !== lastUnit) {
+                const a = points[i - 1];
+                const b = points[i];
+                const x = (a.x + b.x) / 2;
+                const y = (a.y + b.y) / 2;
+                const unlocked = a.n.done;
+                doors.push(
+                  <span key={`door-${i}`} className={`pathdoor${unlocked ? " has-key" : ""}`} style={{ left: x, top: y }} aria-hidden="true">
+                    {unlocked ? "\uD83D\uDD11" : "\uD83D\uDEAA"}
+                  </span>
+                );
+                lastUnit = flat[i].unitIdx;
+              }
+            }
+            return doors;
+          })()}
         </div>
       </div>
 

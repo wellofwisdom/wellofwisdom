@@ -1,0 +1,29 @@
+{
+  "name": "Well of Wisdom",
+  "short_name": "Well of Wisdom",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1a2a",
+  "theme_color": "#0b1a2a",
+  "description": "Open-source, AI-first learning for families, classrooms, schools, co-ops and tutors. Build a full course from any topic, taught through what each learner loves, and let them play it as a world. Self-host with one command, or run it fully offline."
+}

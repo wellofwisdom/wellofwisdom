@@ -21,7 +21,7 @@ export default function QuestLog({ upcoming, returned, reviewsDue, onNavigate }:
         <div className="questlog-group">
           <h3 className="questlog-group-title">Messages from your guide</h3>
           {returned!.slice(0, 3).map((w) => (
-            <button key={w.item_id} type="button" className="questcard quest-returned" onClick={() => onNavigate(`lesson/${w.lesson_id}`)}>
+            <button key={w.item_id} type="button" data-nav data-say={`${w.title} from ${w.course_title}`} className="questcard quest-returned" onClick={() => onNavigate(`lesson/${w.lesson_id}`)}>
               <span className="questcard-icon" aria-hidden="true">💬</span>
               <span className="questcard-body">
                 <span className="questcard-title">"{w.title}"</span>
@@ -35,7 +35,7 @@ export default function QuestLog({ upcoming, returned, reviewsDue, onNavigate }:
       {hasReviews && (
         <div className="questlog-group">
           <h3 className="questlog-group-title">Side quest</h3>
-          <button type="button" className="questcard quest-practice" onClick={() => onNavigate("practice")}>
+            <button type="button" data-nav data-say={`Practice ${reviewsDue} due`} className="questcard quest-practice" onClick={() => onNavigate("practice")}>
             <span className="questcard-icon" aria-hidden="true">🔁</span>
             <span className="questcard-body">
               <span className="questcard-title">Practice: {reviewsDue} due</span>

@@ -6,6 +6,7 @@ const express = require("express");
 const db = require("../lib/db");
 const auth = require("../lib/auth");
 const store = require("../lib/uploads");
+const storage = require("../lib/storage");
 const jobs = require("../lib/jobs");
 const media = require("../lib/media");
 const captions = require("../lib/captions");
@@ -32,7 +33,9 @@ router.post("/", auth.parentOnly, rawBody, async (req, res, next) => {
     if (!Buffer.isBuffer(req.body) || !req.body.length) return bad(res, "empty_body");
     if (req.body.length > store.maxBytesFor(t.kind)) return bad(res, "too_large", 413);
 
-    const saved = await store.save(req.user.familyId, mime, req.body);
+    const saved = await storage.put(req.user.familyId, mime, req.body);
+    // Preserve the kind for the DB row (storage.put returns bytes+key, kind from mime)
+    saved.kind = store.typeFor(mime).kind;
     const title = String(req.get("x-upload-title") || "").slice(0, 200) || null;
     const originalName = String(req.get("x-upload-name") || "").slice(0, 260) || null;
 
@@ -102,7 +105,7 @@ router.delete("/:id", auth.parentOnly, async (req, res, next) => {
       [id, req.user.familyId]
     );
     if (!rows[0]) return bad(res, "not_found", 404);
-    await store.remove(rows[0].storage_key);
+    await storage.delete(rows[0].storage_key);
     res.json({ ok: true });
   } catch (err) {
     next(err);
@@ -225,11 +228,21 @@ async function streamHandler(req, res, next) {
       if (Number(user.familyId) !== Number(up.family_id)) return bad(res, "forbidden", 403);
     }
 
-    const ok = await store.stream(res, up.storage_key, up.mime, {
-      rangeHeader: req.get("range"),
-      download: req.query.download ? (up.original_name || `upload-${id}`) : null,
-    });
-    if (!ok) return bad(res, "file_missing", 410);
+    const got = await storage.get(up.storage_key, { range: req.get("range") || undefined });
+    if (!got || !got.stream) return bad(res, "file_missing", 410);
+    res.setHeader("Content-Type", up.mime || "application/octet-stream");
+    res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Cache-Control", "private, max-age=3600");
+    if (req.query.download) {
+      const dl = String(up.original_name || `upload-${id}`).replace(/[^\w.\-]/g, "_");
+      res.setHeader("Content-Disposition", `attachment; filename="${dl}"`);
+    }
+    if (got.contentRange) res.setHeader("Content-Range", got.contentRange);
+    if (got.size != null) res.setHeader("Content-Length", String(got.size));
+    res.status(got.statusCode || 200);
+    got.stream.pipe(res);
+    // Keep the response open until the stream ends; do not fall through.
+    return;
   } catch (err) {
     next(err);
   }

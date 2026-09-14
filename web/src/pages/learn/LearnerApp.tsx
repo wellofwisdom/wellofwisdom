@@ -146,7 +146,7 @@ function LearnerHome({
       <p className="sub">Pick a course and dive in.</p>
 
       {paths && paths.map((p) => (
-        <button key={p.id} type="button" className="kidcourse" onClick={() => p.next?.course_id ? onNavigate(`course/${p.next.course_id}`) : onNavigate("")} style={{ opacity: p.next ? 1 : 0.75 }}>
+        <button key={p.id} type="button" data-nav data-say={`${p.title} ${p.next ? p.next.title : ""}`} className="kidcourse" onClick={() => p.next?.course_id ? onNavigate(`course/${p.next.course_id}`) : onNavigate("")} style={{ opacity: p.next ? 1 : 0.75 }}>
           <span className="kc-icon" aria-hidden="true">🗺️</span>
           <span className="kc-body">
             <span className="kc-title">{p.title}</span>
@@ -162,7 +162,7 @@ function LearnerHome({
       ))}
 
       {returned.map((w) => (
-        <button key={w.item_id} type="button" className="kidcourse returnedcard" onClick={() => onNavigate(`lesson/${w.lesson_id}`)}>
+        <button key={w.item_id} type="button" data-nav data-say={`Guide feedback on ${w.title}`} className="kidcourse returnedcard" onClick={() => onNavigate(`lesson/${w.lesson_id}`)}>
           <span className="kc-icon" aria-hidden="true">💬</span>
           <span className="kc-body">
             <span className="kc-title">Your guide read "{w.title}"</span>
@@ -177,7 +177,7 @@ function LearnerHome({
       ))}
 
       {reviewsDue !== null && reviewsDue > 0 && (
-        <button type="button" className="kidcourse practicecard" onClick={() => onNavigate("practice")}>
+        <button type="button" data-nav data-say={`Practice ${reviewsDue} due`} className="kidcourse practicecard" onClick={() => onNavigate("practice")}>
           <span className="kc-icon" aria-hidden="true">🔁</span>
           <span className="kc-body">
             <span className="kc-title">Practice: {reviewsDue} due now</span>
@@ -213,6 +213,8 @@ function LearnerHome({
               <button
                 key={c.id}
                 type="button"
+                data-nav
+                data-say={`${c.title} ${done} of ${c.lesson_count} lessons`}
                 className="kidcourse"
                 onClick={() => onNavigate(`course/${c.id}`)}
               >

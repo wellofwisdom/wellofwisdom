@@ -25,7 +25,7 @@ export default function CourseView({ courseId, onNavigate, onLogout: _onLogout }
   return (
     <div className="courseview">
       <div className="courseview-head">
-        <button className="btn ghost" type="button" onClick={() => onNavigate("")}>← Home</button>
+        <button className="btn ghost" type="button" data-nav data-say="Back home" onClick={() => onNavigate("")}>← Home</button>
         <div className="grow" />
       </div>
 

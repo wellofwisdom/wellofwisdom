@@ -82,6 +82,32 @@ function courseHead(meta, base) {
   ].filter(Boolean).join("\n    ");
 }
 
+/** The public site's pages, features and audiences: one file, server/lib/site.json,
+ *  read here for heads, robots, the sitemap and llms.txt, and by the web app to
+ *  render the pages. Add a page there and every surface knows about it. */
+const SITE = require("./site.json");
+const STATIC_PAGES = Object.fromEntries(SITE.pages.filter((p) => p.path).map((p) => [p.path, p]));
+
+function staticHead(id, base) {
+  const meta = id === "" ? SITE.pages.find((p) => p.path === "") : STATIC_PAGES[id];
+  if (!meta) return "";
+  const url = id ? `${base}/${id}` : `${base}/`;
+  const image = `${base}/og.png`;
+  return [
+    `<title>${esc(meta.title)}</title>`,
+    `<meta name="description" content="${esc(meta.description)}">`,
+    `<link rel="canonical" href="${esc(url)}">`,
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:site_name" content="Well of Wisdom">`,
+    `<meta property="og:title" content="${esc(meta.title)}">`,
+    `<meta property="og:description" content="${esc(meta.description)}">`,
+    `<meta property="og:url" content="${esc(url)}">`,
+    `<meta property="og:image" content="${esc(image)}">`,
+    `<meta property="og:image:width" content="1200">`,
+    `<meta property="og:image:height" content="630">`,
+  ].join("\n    ");
+}
+
 /** Replace the shell's <title> with real metadata. */
 function injectHead(html, headBlock) {
   // Drop the shell's generic tags first: shipping two descriptions or two
@@ -97,7 +123,7 @@ function injectHead(html, headBlock) {
   </head>`);
 }
 
-/** robots.txt, public course pages are crawlable, the app itself is not. */
+/** robots.txt: the public site and open courses are crawlable, the app is not. */
 function robotsTxt(base) {
   return [
     "User-agent: *",
@@ -105,6 +131,7 @@ function robotsTxt(base) {
     "Allow: /c/",
     "Allow: /api/public/",
     "Allow: /llms.txt",
+    ...SITE.pages.filter((p) => p.path).map((p) => `Allow: /${p.path}`),
     "Disallow: /api/",
     "Disallow: /join",
     "Disallow: /learners",
@@ -124,9 +151,10 @@ async function sitemapXml(base) {
     `select public_slug, published_at from courses
       where published_at is not null order by published_at desc limit 5000`
   ).catch(() => ({ rows: [] }));
+  const pageUrls = SITE.pages.map((p) =>
+    `<url><loc>${esc(base)}/${esc(p.path)}</loc><changefreq>${p.section === "legal" ? "monthly" : "weekly"}</changefreq><priority>${esc(p.priority || "0.5")}</priority></url>`);
   const urls = [
-    `<url><loc>${esc(base)}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
-    `<url><loc>${esc(base)}/c</loc><changefreq>daily</changefreq></url>`,
+    ...pageUrls,
     ...rows.map((r) =>
       `<url><loc>${esc(base)}/c/${esc(r.public_slug)}</loc>` +
       `<lastmod>${new Date(r.published_at).toISOString().slice(0, 10)}</lastmod></url>`),
@@ -136,25 +164,53 @@ async function sitemapXml(base) {
 }
 
 function llmsTxt(base) {
+  const link = (p) => `- [${p.title}](${base}/${p.path}): ${p.description}`;
+  const bySection = (s) => SITE.pages.filter((p) => p.section === s).map(link);
   return [
     "# Well of Wisdom",
     "",
-    "> Self-hosted, AI-first learning for homeschools, classrooms, co-ops, and self-learners.",
-    "> Generate courses through what learners love, with spaced repetition, gamified worlds, and state-ready portfolios.",
+    `> ${SITE.summary}`,
     "",
-    `- [Homepage](${base}/): what it is and how to run it`,
-    `- [Shared courses gallery](${base}/c)`,
-    `- [Plain-text courses](${base}/c/<slug>.txt) (for research tools; answer keys stripped)`,
+    "## Product",
+    "",
+    ...bySection("home"),
+    ...bySection("product"),
+    "",
+    "## Who it is for",
+    "",
+    ...bySection("audience"),
+    "",
+    "## Features",
+    "",
+    ...SITE.pillars.flatMap((pl) => [
+      `### ${pl.title}`,
+      "",
+      pl.line,
+      "",
+      ...pl.features.map((ft) => `- ${ft.name}: ${ft.detail}`),
+      "",
+    ]),
+    "## On the roadmap",
+    "",
+    ...SITE.roadmap.map((r) => `- ${r.name}: ${r.detail}`),
+    "",
+    "## Machine-readable courses",
+    "",
+    `- [Open course gallery](${base}/c)`,
+    `- [Plain-text courses](${base}/c/<slug>.txt) (answer keys stripped)`,
     `- [Course packages](${base}/api/public/courses/<slug>/export) (portable JSON)`,
     `- [Public course list](${base}/api/public/courses) (JSON)`,
-    `- [Product story and roadmap](https://github.com/wellofwisdom/wellofwisdom/blob/main/docs/ROADMAP.md)`,
-    `- [Source](https://github.com/wellofwisdom/wellofwisdom) (AGPL-3.0)`,
-    "",
-    "## How to use the courses",
     "",
     "Each published course at /c/<slug> has a plain-text sibling at /c/<slug>.txt with answer keys stripped, and a .wow-course.json download at /api/public/courses/<slug>/export. Import the JSON in any running Well of Wisdom at Courses then Import, or paste the /c/ URL.",
+    "",
+    "## Legal",
+    "",
+    ...bySection("legal"),
+    "",
+    `- [Source code](${SITE.repo}) (AGPL-3.0)`,
+    `- [Roadmap](${SITE.repo}/blob/main/docs/ROADMAP.md)`,
     "",
   ].join("\n");
 }
 
-module.exports = { esc, origin, publishedMeta, courseHead, injectHead, robotsTxt, sitemapXml, llmsTxt };
+module.exports = { esc, origin, publishedMeta, courseHead, injectHead, robotsTxt, sitemapXml, llmsTxt, staticHead, STATIC_PAGES, SITE };
