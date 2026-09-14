@@ -5,6 +5,7 @@
 // it is what a parent reads, what a caption shows, and what the browser's
 // offline speech reads when no file is there yet.
 import { useEffect, useMemo, useRef, useState } from "react";
+import { speakWithLang, currentLang } from "../i18n";
 
 export interface AudioContent {
   title?: string;
@@ -49,13 +50,9 @@ export function AudioPlayer({ content }: { content: AudioContent }) {
       setSpeaking(false);
       return;
     }
-    const u = new SpeechSynthesisUtterance(speakable);
-    u.rate = 1;
-    u.onend = () => setSpeaking(false);
-    u.onerror = () => setSpeaking(false);
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-    setSpeaking(true);
+    const lang = currentLang();
+    const ok = speakWithLang(speakable, lang, { onend: () => setSpeaking(false), onerror: () => setSpeaking(false) });
+    if (ok) setSpeaking(true);
   }
 
   if (!src) {

@@ -11,6 +11,7 @@ import { AudioPlayer } from "../../components/AudioPlayer";
 import { PushToTalk } from "../../components/PushToTalk";
 import TutorChat from "./TutorChat";
 import { triggerRumble } from "../../lib/gamepad";
+import { speakWithLang, currentLang } from "../../i18n";
 
 interface AttemptResponse {
   correct: boolean | null;
@@ -170,13 +171,9 @@ function ReadAloud({ text }: { text: string }) {
       .trim()
       .slice(0, 5000);
     if (!speakable) return;
-    const u = new SpeechSynthesisUtterance(speakable);
-    u.rate = 1;
-    u.onend = () => setSpeaking(false);
-    u.onerror = () => setSpeaking(false);
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-    setSpeaking(true);
+    const lang = currentLang();
+    const ok = speakWithLang(speakable, lang, { onend: () => setSpeaking(false), onerror: () => setSpeaking(false) });
+    if (ok) setSpeaking(true);
   }
 
   return (

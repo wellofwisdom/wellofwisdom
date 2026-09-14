@@ -465,7 +465,7 @@ function BossFight({ encounter, onWin, onClose }: {
       setBusy(false);
       submitting.current = false;
     }
-  }, [encounter.id, limit]);
+  }, [encounter.id, limit, bt]);
 
   // Start the fight once, on open.
   useEffect(() => {
