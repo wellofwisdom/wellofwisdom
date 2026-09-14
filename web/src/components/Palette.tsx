@@ -8,6 +8,7 @@ export interface PaletteCommand {
   label: string;
   hint?: string;
   icon: string;
+  group?: string;
   run: () => void;
 }
 
@@ -45,17 +46,21 @@ export default function Palette({
 
   const commands: PaletteCommand[] = useMemo(() => {
     const nav: PaletteCommand[] = [
-      { id: "n-dash", label: "Go to Dashboard", icon: "🏠", run: () => onNavigate("dashboard") },
-      { id: "n-studio", label: "Generate a course: Course Studio", icon: "✨", run: () => onNavigate("studio") },
-      { id: "n-courses", label: "Go to Courses", icon: "📘", run: () => onNavigate("courses") },
-      { id: "n-learners", label: "Manage learners", icon: "🧑‍🎓", run: () => onNavigate("learners") },
-      { id: "n-plans", label: "Learning Paths: plan a semester or year", icon: "🗺️", run: () => onNavigate("plans") },
-      { id: "n-notes", label: "Workspace: notes & pages", icon: "🗒️", run: () => onNavigate("notes") },
-      { id: "n-library", label: "Library: resources & links", icon: "📚", run: () => onNavigate("library") },
-      { id: "n-calendar", label: "Calendar: events & deadlines", icon: "🗓️", run: () => onNavigate("calendar") },
-      { id: "n-records", label: "Progress & achievements", icon: "📈", run: () => onNavigate("records") },
-      { id: "n-exp", label: "Experience: themes & colors", icon: "🎨", run: () => onNavigate("experience") },
-      { id: "n-settings", label: "Settings", icon: "⚙️", run: () => onNavigate("settings") },
+      { id: "n-dash", label: "Dashboard", icon: "🏠", group: "", run: () => onNavigate("dashboard") },
+      { id: "n-studio", label: "Course Studio", icon: "✨", group: "Teach", run: () => onNavigate("studio") },
+      { id: "n-courses", label: "Courses", icon: "📘", group: "Teach", run: () => onNavigate("courses") },
+      { id: "n-community", label: "Open courses", icon: "🌍", group: "Teach", run: () => onNavigate("community") },
+      { id: "n-plans", label: "Learning paths", icon: "🗺️", group: "Teach", run: () => onNavigate("plans") },
+      { id: "n-learners", label: "Learners", icon: "🧑‍🎓", group: "Learners", run: () => onNavigate("learners") },
+      { id: "n-work", label: "Submitted work", icon: "🛠️", group: "Learners", run: () => onNavigate("work") },
+      { id: "n-tutor", label: "Tutor log", icon: "🌰", group: "Learners", run: () => onNavigate("tutor") },
+      { id: "n-records", label: "Progress", icon: "📈", group: "Records", run: () => onNavigate("records") },
+      { id: "n-attendance", label: "Attendance", icon: "🗓️", group: "Records", run: () => onNavigate("attendance") },
+      { id: "n-calendar", label: "Calendar", icon: "🗓️", group: "Records", run: () => onNavigate("calendar") },
+      { id: "n-notes", label: "Workspace", icon: "🗒️", group: "Workspace", run: () => onNavigate("notes") },
+      { id: "n-library", label: "Library", icon: "📚", group: "Workspace", run: () => onNavigate("library") },
+      { id: "n-settings", label: "Settings", icon: "⚙️", group: "Workspace", run: () => onNavigate("settings") },
+      { id: "n-exp", label: "Experience", icon: "🎨", group: "Workspace", run: () => onNavigate("experience") },
       { id: "a-theme", label: "Toggle light / dark mode", icon: "🌗", run: onToggleTheme },
     ];
     const courseCmds: PaletteCommand[] = (courses || []).slice(0, 8).map((c) => ({
@@ -71,7 +76,7 @@ export default function Palette({
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     if (!needle) return commands;
-    return commands.filter((c) => c.label.toLowerCase().includes(needle));
+    return commands.filter((c) => c.label.toLowerCase().includes(needle) || (c.group && c.group.toLowerCase().includes(needle)));
   }, [q, commands]);
 
   if (!open) return null;
@@ -81,6 +86,8 @@ export default function Palette({
     setOpen(false);
     cmd.run();
   }
+
+  let lastGroup = "";
 
   return (
     <div
@@ -103,21 +110,28 @@ export default function Palette({
         />
         <div className="paletteList" role="listbox">
           {filtered.length === 0 && <div className="muted small" style={{ padding: 14 }}>Nothing matches “{q}”.</div>}
-          {filtered.map((c, i) => (
-            <button
-              key={c.id}
-              type="button"
-              role="option"
-              aria-selected={i === sel}
-              className={`palitem${i === sel ? " on" : ""}`}
-              onMouseEnter={() => setSel(i)}
-              onClick={() => choose(c)}
-            >
-              <span aria-hidden="true">{c.icon}</span>
-              <span className="grow" style={{ textAlign: "left" }}>{c.label}</span>
-              {c.hint && <span className="chip">{c.hint}</span>}
-            </button>
-          ))}
+          {filtered.map((c, i) => {
+            const showHeader = c.group && c.group !== lastGroup;
+            const header = showHeader ? <div key={`h-${c.group}`} className="palhead">{c.group}</div> : null;
+            if (showHeader) lastGroup = c.group!;
+            return (
+              <div key={c.id}>
+                {header}
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={i === sel}
+                  className={`palitem${i === sel ? " on" : ""}`}
+                  onMouseEnter={() => setSel(i)}
+                  onClick={() => choose(c)}
+                >
+                  <span aria-hidden="true">{c.icon}</span>
+                  <span className="grow" style={{ textAlign: "left" }}>{c.label}</span>
+                  {c.hint && <span className="chip">{c.hint}</span>}
+                </button>
+              </div>
+            );
+          })}
         </div>
         <div className="hint" style={{ padding: "8px 12px" }}>↑↓ move · ↵ open · esc close</div>
       </div>

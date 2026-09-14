@@ -12,7 +12,8 @@ function ensureKatex(): Promise<typeof import("katex")> {
   return Promise.all([
     import("katex"),
     // CSS is imported dynamically so the landing bundle never contains it
-    // @ts-expect-error css side effect, no types
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- css import has no types
+    // @ts-ignore css side effect, no types
     import("katex/dist/katex.min.css"),
   ]).then(([mod]) => {
     katexModule = (mod as unknown as { default: typeof import("katex") }).default || (mod as unknown as typeof import("katex"));

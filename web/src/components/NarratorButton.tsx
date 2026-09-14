@@ -4,6 +4,7 @@
 // No autoplay, no sound before a tap, respects muted HUD.
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
+import { speakWithLang, currentLang } from "../i18n";
 
 interface Props {
   encounterId: number;
@@ -57,13 +58,10 @@ export default function NarratorButton({ encounterId, text, soundOn }: Props) {
 
   function speakWithBrowser() {
     if (typeof speechSynthesis === "undefined" || !text) return;
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(String(text).slice(0, 4000));
-    u.rate = 1;
-    u.onend = () => setPlaying(false);
-    u.onerror = () => setPlaying(false);
-    speechSynthesis.speak(u);
-    setPlaying(true);
+    const lang = currentLang();
+    const clean = String(text).slice(0, 4000);
+    const ok = speakWithLang(clean, lang, { onend: () => setPlaying(false), onerror: () => setPlaying(false) });
+    if (ok) setPlaying(true);
   }
 
   async function toggle() {

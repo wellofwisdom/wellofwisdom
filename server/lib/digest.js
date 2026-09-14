@@ -369,12 +369,19 @@ async function markNotified(id) {
 }
 
 /** Weekly + daily sweeps on one hourly timer. */
+let digestTimer = null;
 function startDigestSchedule({ log = console.log } = {}) {
-  const timer = setInterval(() => {
+  if (digestTimer) return;
+  digestTimer = setInterval(() => {
     sweepAll({ log }).catch(() => {});
     sweepEventReminders({ log }).catch(() => {});
   }, 60 * 60 * 1000);
-  timer.unref();
+  digestTimer.unref();
+}
+
+function stopDigestSchedule() {
+  if (digestTimer) clearInterval(digestTimer);
+  digestTimer = null;
 }
 
 async function sendDigestManual(familyId) {
@@ -391,6 +398,6 @@ async function sendDigestManual(familyId) {
 }
 
 module.exports = {
-  startDigestSchedule, sendDigest, sendNow, isoWeekKey,
+  startDigestSchedule, stopDigestSchedule, sendDigest, sendNow, isoWeekKey,
   sendLearnerNote, sendLearnerNotes, shouldSendLearnerNote, learnerNoteHtml, firstName,
 };
