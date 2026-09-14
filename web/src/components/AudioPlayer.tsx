@@ -37,9 +37,10 @@ export function AudioPlayer({ content }: { content: AudioContent }) {
   const speakable = useMemo(() => cleanText(transcript), [transcript]);
 
   useEffect(() => {
+    const el = audioRef.current;
     return () => {
       if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
-      if (audioRef.current) audioRef.current.pause();
+      if (el) el.pause();
     };
   }, []);
 

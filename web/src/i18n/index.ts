@@ -113,12 +113,7 @@ export function useTCallback() {
   return useCallback((key: TranslationKey, vars?: Record<string, string | number>) => tKey(lang, key, vars), [lang]);
 }
 
-// For places outside React (e.g. direct speech call), read lang from storage or argument.
 export function currentLang(): Lang {
-  try {
-    const v = localStorage.getItem("wow-learner-lang");
-    if (v) return normalizeLang(v);
-  } catch {}
   try {
     const docLang = document.documentElement.lang;
     if (docLang) return normalizeLang(docLang);
