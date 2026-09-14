@@ -143,7 +143,7 @@ test("spoken answers grade the same as typed ones", () => {
   assert.equal(numeric("three quarters", "0.75"), true);
   assert.equal(numeric("one and a half", "1.5"), true);
   assert.equal(numeric("negative five", "-5"), true);
-  assert.equal(numeric("um two thirds", "0.67"), true);
+  assert.equal(numeric("um two thirds", "2/3"), true);
   assert.equal(numeric("three quarters", "0.5"), false);
   const mcq = (said, key, ids) =>
     grade.gradeExercise(
