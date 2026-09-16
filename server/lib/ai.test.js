@@ -91,6 +91,62 @@ test("resolveEffectiveEntry: prompt with learner data triggers fallback even for
   assert.equal(r.entry.id, "__default");
 });
 
+test("resolveEffectiveEntry: fails closed for a task no denylist ever covered, even when the sniff sees nothing", () => {
+  // The adventure world prompt shape: a learner's name and interests in a
+  // phrasing the sniffer does not know. The rule must not depend on the task
+  // name or the sniff; only publicContent opens the door.
+  const vault = {
+    aiBaseUrl: "https://default.example/v1",
+    aiApiKey: "sk-default",
+    aiProviders: [{ id: "cheap", name: "Cheap", kind: "openai-compatible", baseUrl: "https://cheap.example/v1", apiKey: "sk-cheap", trainsOnData: true, models: [] }],
+    aiRoutes: { lens: { providerId: "cheap", model: null } },
+  };
+  const r = ai.resolveEffectiveEntry({
+    vault, task: "lens",
+    messages: [{ role: "user", content: "Learner: Mara, grade 4, loves trains and sailing" }],
+    opts: {},
+  });
+  assert.equal(r.entry.id, "__default");
+  assert.ok(r.fallbackWarning && r.fallbackWarning.includes("cheap"));
+});
+
+test("resolveEffectiveEntry: the sniff overrides publicContent and still falls back", () => {
+  const vault = {
+    aiBaseUrl: "https://default.example/v1",
+    aiApiKey: "sk-default",
+    aiProviders: [{ id: "cheap", name: "Cheap", kind: "openai-compatible", baseUrl: "https://cheap.example/v1", apiKey: "sk-cheap", trainsOnData: true, models: [] }],
+    aiRoutes: { "course-gen": { providerId: "cheap", model: null } },
+  };
+  const r = ai.resolveEffectiveEntry({
+    vault, task: "course-gen",
+    messages: [{ role: "user", content: "Learner interests: sailing, mecha" }],
+    opts: { publicContent: true },
+  });
+  assert.equal(r.entry.id, "__default");
+});
+
+test("resolveEffectiveEntry: opts.learnerData forces fallback even with publicContent", () => {
+  const vault = {
+    aiBaseUrl: "https://default.example/v1",
+    aiApiKey: "sk-default",
+    aiProviders: [{ id: "cheap", name: "Cheap", kind: "openai-compatible", baseUrl: "https://cheap.example/v1", apiKey: "sk-cheap", trainsOnData: true, models: [] }],
+    aiRoutes: { "exercise-gen": { providerId: "cheap", model: null } },
+  };
+  const r = ai.resolveEffectiveEntry({ vault, task: "exercise-gen", messages: [], opts: { publicContent: true, learnerData: true } });
+  assert.equal(r.entry.id, "__default");
+});
+
+test("resolveEffectiveEntry: publicContent must be strictly true, not truthy", () => {
+  const vault = {
+    aiBaseUrl: "https://default.example/v1",
+    aiApiKey: "sk-default",
+    aiProviders: [{ id: "cheap", name: "Cheap", kind: "openai-compatible", baseUrl: "https://cheap.example/v1", apiKey: "sk-cheap", trainsOnData: true, models: [] }],
+    aiRoutes: { "course-gen": { providerId: "cheap", model: null } },
+  };
+  const r = ai.resolveEffectiveEntry({ vault, task: "course-gen", messages: [], opts: { publicContent: "yes" } });
+  assert.equal(r.entry.id, "__default");
+});
+
 test("resolveEffectiveEntry: safe provider is used when routed", () => {
   const vault = {
     aiBaseUrl: "https://default.example/v1",
@@ -138,13 +194,13 @@ test("learner data never leaves via a trains-on-data provider (acceptance shape)
       { id: "cheap", name: "Cheap public generation", kind: "openai-compatible", baseUrl: "https://cheap.example/v1", apiKey: "sk-cheap-9999", trainsOnData: true, models: ["cheap-model"] },
       { id: "safe", name: "No-training provider", kind: "openai-compatible", baseUrl: "https://safe.example/v1", apiKey: "sk-safe-1111", trainsOnData: false, models: ["safe-model"] },
     ],
-    aiRoutes: { "course-gen": { providerId: "cheap", model: "cheap-model" }, tutor: { providerId: "cheap", model: null }, hint: { providerId: "cheap", model: null }, grading: { providerId: "cheap", model: null }, rubric: { providerId: "cheap", model: null } },
+    aiRoutes: { "course-gen": { providerId: "cheap", model: "cheap-model" }, tutor: { providerId: "cheap", model: null }, hint: { providerId: "cheap", model: null }, grading: { providerId: "cheap", model: null }, rubric: { providerId: "cheap", model: null }, lens: { providerId: "cheap", model: null }, translate: { providerId: "cheap", model: null }, "lesson-content": { providerId: "cheap", model: null } },
   };
   const aiMod = require("./ai");
   // open course generation may use cheap
   assert.equal(aiMod.resolveEffectiveEntry({ vault, task: "course-gen", messages: [], opts: { publicContent: true } }).entry.id, "cheap");
-  // every learner-data task must fall back
-  for (const task of ["tutor", "hint", "grading", "rubric"]) {
+  // every learner-data task must fall back, including tasks no denylist covered
+  for (const task of ["tutor", "hint", "grading", "rubric", "lens", "translate", "lesson-content", "exercise-gen", "misconceptions"]) {
     const r = aiMod.resolveEffectiveEntry({ vault, task, messages: [], opts: {} });
     assert.equal(r.entry.id, "__default", task + " should fall back");
   }

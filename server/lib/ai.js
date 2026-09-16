@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Task-routed AI layer. Point AI_BASE_URL at ANY provider:
 // OpenAI-compatible (DeepSeek, OpenAI, Ollama, ...) OR Claude (Anthropic) OR Gemini (Google).
+// All features degrade gracefully when no endpoint is configured.
 // Per-task routing: the vault stores named providers (kind, base URL, key,
 // models, trainsOnData) and aiRoutes maps each task to a provider and model.
 // The single-provider fields (AI_BASE_URL etc) become the default provider, so
-// existing installs keep working. Learner-data calls never reach a trains-on-data
-// provider; they fall back to the default with a warning.
+// existing installs keep working. The learner-data rule is fail closed: a
+// provider that trains on data serves only calls marked opts.publicContent,
+// and every other call falls back to the default provider with a warning.
 const { fetchT } = require("./http");
 
 // Which model class each task uses. "pro" = quality (course generation),
@@ -24,12 +26,12 @@ const DEFAULT_ROUTES = {
   stt: "flash",
 };
 
-// Tasks that touch learner data and must not use a trains-on-data provider.
-const LEARNER_DATA_TASKS = new Set(["tutor", "hint", "grading", "rubric"]);
-
 // Return true for messages that include a learner's personal data (name, notes,
-// interests, or per-learner prompt baggage). Only used to expand the rule
-// beyond the fixed task set.
+// interests, or per-learner prompt baggage). This is the second guard of the
+// learner-data rule: even a call marked publicContent falls back when it sees
+// learner data in the prompt. Sniffing cannot catch everything (a bare name is
+// not detectable), which is why the rule itself is fail closed rather than
+// relying on this alone.
 function promptHasLearnerData(messages) {
   const hay = (Array.isArray(messages) ? messages : []).map((m) => String((m && m.content) || "")).join("\n").toLowerCase();
   if (hay.includes("their guide asked you to remember") || hay.includes("they love:")) return true;
@@ -173,13 +175,21 @@ function vaultAsProviderEntry(vaultDefault, id) {
   };
 }
 
+// The learner-data rule, fail closed. A provider flagged trains-on-data is
+// served only when the call site passes opts.publicContent === true, a flag
+// each site sets by hand only when its prompt provably carries no learner
+// data (today that is open course generation: no learner attached, guide
+// ticked open publish). Every other call, whatever its task name, falls back
+// to the default provider. A task-name denylist cannot work here: any new
+// call site, or any prompt carrying only a learner's name, would slip past
+// it. The prompt sniff above is a second guard and can still veto a
+// publicContent call; opts.learnerData does the same by hand.
 function resolveEffectiveEntry({ vault, task, messages, opts }) {
   const vaultDefault = defaultProviderFromVault(vault);
   const routes = vault && vault.aiRoutes && typeof vault.aiRoutes === "object" ? vault.aiRoutes : null;
   const mapped = routes && routes[task] ? routes[task] : null;
-  const isLearnerData = LEARNER_DATA_TASKS.has(task) || promptHasLearnerData(messages) || Boolean(opts && opts.learnerData);
-  const isCourseGen = task === "course-gen";
-  const publicContent = Boolean(opts && opts.publicContent);
+  const publicContent = opts ? opts.publicContent === true : false;
+  const learnerData = Boolean(opts && opts.learnerData) || promptHasLearnerData(messages);
 
   let entry = null;
   let modelOverride = null;
@@ -195,15 +205,10 @@ function resolveEffectiveEntry({ vault, task, messages, opts }) {
 
   if (!entry) {
     entry = vaultAsProviderEntry(vaultDefault, "__default");
-    return { entry, modelOverride, vaultDefault, fallbackWarning, isLearnerData };
+    return { entry, modelOverride, vaultDefault, fallbackWarning, learnerData };
   }
 
-  const wouldBreakRule = (() => {
-    if (!entry.trainsOnData) return false;
-    if (isLearnerData) return true;
-    if (isCourseGen && !publicContent) return true;
-    return false;
-  })();
+  const wouldBreakRule = Boolean(entry.trainsOnData) && (!publicContent || learnerData);
 
   if (wouldBreakRule) {
     fallbackWarning = `ai_learner_data_fallback: task ${task} requested provider ${entry.id} which trains on data; fell back to default`;
@@ -212,7 +217,7 @@ function resolveEffectiveEntry({ vault, task, messages, opts }) {
     modelOverride = null;
   }
 
-  return { entry, modelOverride, vaultDefault, fallbackWarning, isLearnerData };
+  return { entry, modelOverride, vaultDefault, fallbackWarning, learnerData };
 }
 
 async function effectiveConfig() {
@@ -464,5 +469,5 @@ function tryParse(text) {
 
 module.exports = {
   chat, chatJson, resolveRoute, configured, health, setUsageLogger, provider, refreshVault, configuredFromVault,
-  DEFAULT_ROUTES, LEARNER_DATA_TASKS, promptHasLearnerData, resolveEffectiveEntry,
+  DEFAULT_ROUTES, promptHasLearnerData, resolveEffectiveEntry,
 };
