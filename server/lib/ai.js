@@ -21,6 +21,9 @@ const DEFAULT_ROUTES = {
   tutor: "flash",
   hint: "flash",
   grading: "flash",
+  // Reading a whole piece of work against a rubric is a quality job, not a
+  // quick one, so it sits on the pro tier. Override with AI_ROUTES if your
+  // instance runs one model.
   rubric: "pro",
   translate: "flash",
   stt: "flash",
@@ -55,6 +58,7 @@ function resolveRoute(task) {
 }
 
 // ---- provider detection ----
+// AI_PROVIDER=anthropic|gemini|openai is explicit. Otherwise auto-detect from base URL.
 function provider() {
   const explicit = String(process.env.AI_PROVIDER || "").trim().toLowerCase();
   if (explicit === "anthropic" || explicit === "claude") return "anthropic";
@@ -132,6 +136,7 @@ async function refreshVault() {
 }
 
 // Injected at boot to avoid a circular import (db <- aiusage -> nothing <- ai).
+// Signature: usageLogger({familyId, task, model, tokensIn, tokensOut, note, providerId})
 let usageLogger = null;
 function setUsageLogger(fn) {
   usageLogger = fn;
@@ -240,6 +245,16 @@ function vaultConfigured(cfg) {
   return Boolean((cfg.baseUrl || "").trim() || (cfg.apiKey || "").trim());
 }
 
+/**
+ * Send a chat completion for a task.
+ * @param {string} task - one of the keys in DEFAULT_ROUTES
+ * @param {Array<{role:string,content:string}>} messages
+ * @param {{json?:boolean, maxTokens?:number, temperature?:number, usage?:{familyId:number,note:string}, publicContent?:boolean, learnerData?:boolean}} [opts]
+ *   publicContent: true only at call sites whose prompt provably carries no
+ *   learner data; it is the sole thing that unlocks a trains-on-data provider.
+ *   learnerData: true forces the learner-data fallback by hand.
+ * @returns {Promise<{content:string, usage:object|null, model:string|null}>}
+ */
 async function chat(task, messages, opts = {}) {
   const vault = await aiConfigSnapshot();
   const vaultDefault = defaultProviderFromVault(vault);
@@ -286,6 +301,7 @@ async function chat(task, messages, opts = {}) {
     err.code = "ai_not_configured";
     throw err;
   }
+  // Enforce spend limits before burning tokens
   if (opts.usage && opts.usage.familyId) {
     try {
       const lim = require("./aiLimits");

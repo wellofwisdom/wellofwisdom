@@ -35,6 +35,7 @@ router.get("/status", async (_req, res, next) => {
   try { res.json(await aiConfig.status()); } catch (err) { next(err); }
 });
 
+// The vault is the whole server's, not one family's: see lib/instanceAdmin.js.
 router.get("/config", requireInstanceAdmin, async (_req, res, next) => {
   try {
     const cfg = await aiConfig.resolveConfig();
@@ -52,6 +53,7 @@ router.put("/config", requireInstanceAdmin, async (req, res, next) => {
     const b = req.body || {};
     const cfg = {};
     for (const k of ALLOWED_KEYS) if (b[k] !== undefined && b[k] !== null && String(b[k]).trim() !== "") cfg[k] = b[k];
+    // Normalize caps: numbers, 0 means no limit. Negative is rejected.
     if (cfg.aiMonthlyCap != null) {
       const n = Number(cfg.aiMonthlyCap);
       if (!Number.isFinite(n) || n < 0) return bad(res, "monthly_cap_invalid");
@@ -62,6 +64,7 @@ router.put("/config", requireInstanceAdmin, async (req, res, next) => {
       if (!Number.isFinite(n) || n < 0) return bad(res, "daily_cap_invalid");
       cfg.aiDailyCap = n;
     }
+    // aiPrices: allow object or JSON string.
     if (cfg.aiPrices != null && typeof cfg.aiPrices === "string") {
       try { cfg.aiPrices = JSON.parse(cfg.aiPrices); } catch { return bad(res, "ai_prices_invalid"); }
     }
@@ -78,6 +81,10 @@ router.put("/config", requireInstanceAdmin, async (req, res, next) => {
       [JSON.stringify(merged)]
     );
     aiConfig.invalidateCache();
+    // media routes also read KIE_API_KEY / googleTtsOnKie etc from env; in this instance
+    // the DB ai key wins for media only when media's own row is not set. For now keep
+    // the two rows separate: write through to media when kieKey changes so a guide has
+    // one vault, not two save buttons.
     if (cfg.kieKey != null) {
       try {
         const prevMedia = await db.query("select value from server_settings where key = 'media'").then((r) => (r.rows[0] && r.rows[0].value) || {});
@@ -184,6 +191,7 @@ router.put("/providers", requireInstanceAdmin, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Spend vault: richer than the plain month summary.
 router.get("/spend", async (req, res, next) => {
   try {
     const fam = req.user.familyId;
@@ -191,12 +199,14 @@ router.get("/spend", async (req, res, next) => {
     const lim = await aiLimits.limits();
     const mSpend = await aiLimits.monthSpend(fam);
     const dSpend = await aiLimits.daySpend(fam);
+    // Daily bars for the chart (last 14 days). One query, no cross-family leak.
     const bars = await db.query(
       `select date_trunc('day', created_at)::date as day, coalesce(sum(cost),0) as cost, count(*)::int as calls, coalesce(sum(tokens_in),0)::int as tokens_in, coalesce(sum(tokens_out),0)::int as tokens_out
          from ai_usage where family_id = $1 and created_at >= now() - interval '14 days'
          group by 1 order by 1`,
       [fam]
     ).catch(() => ({ rows: [] }));
+    // Model breakdown (all time, top 8)
     const byModel = await db.query(
       `select coalesce(model,'(unknown)') as model, count(*)::int as calls, coalesce(sum(cost),0) as cost, coalesce(sum(tokens_in),0)::int as tokens_in, coalesce(sum(tokens_out),0)::int as tokens_out
          from ai_usage where family_id = $1 group by 1 order by cost desc limit 8`,
