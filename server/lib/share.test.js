@@ -25,14 +25,15 @@ const video = {
 
 const article = { id: 3, type: "article", position: 2, content: { title: "Halves", body: "A half is..." } };
 
-test("publicItem: an exercise NEVER carries its answer, explanation or hint", () => {
+test("publicItem: an exercise NEVER carries its answer or explanation, but hints and choice feedback are learner-visible", () => {
   const out = share.publicItem(exercise);
   const json = JSON.stringify(out);
   assert.ok(!("answer" in out.content), "answer leaked");
   assert.ok(!("explanation" in out.content), "explanation leaked");
-  assert.ok(!("hint" in out.content), "hint leaked");
   assert.doesNotMatch(json, /Common denominator/);
-  assert.doesNotMatch(json, /denominators match/);
+  // hints are a ladder the learner sees, not a key
+  assert.ok(Array.isArray(out.content.hints) && out.content.hints.length === 1, "hint ladder lost");
+  assert.match(json, /denominators match/);
   // but the teaching material survives
   assert.equal(out.content.prompt, "What is 1/2 + 1/4?");
   assert.equal(out.content.choices.length, 2);
@@ -133,7 +134,7 @@ test("courseText: plain-text view carries the teaching material, never answers",
   const txt = share.courseText(tree, { url: "https://x.test/c/frac" });
   // The invariant: it is built from the public projection, so no answer key.
   assert.doesNotMatch(txt, /Common denominator/, "explanation leaked into text");
-  assert.doesNotMatch(txt, /denominators match/, "hint leaked into text");
+  assert.match(txt, /denominators match/, "hint is learner-visible and belongs in the text");
   // The teaching material is present.
   assert.match(txt, /A half is/, "article body missing");
   assert.match(txt, /What is 1\/2 \+ 1\/4\?/, "exercise prompt missing");

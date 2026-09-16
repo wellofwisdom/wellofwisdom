@@ -230,6 +230,14 @@ const es: Record<TranslationKey, string> = {
   "exercise.selectAll": "Selecciona todas las que apliquen",
   "exercise.choiceFeedback": "Comentario",
   "exercise.noFeedback": "Sin comentario",
+  "exercise.orderHint": "Arrastra para ordenarlos o usa las flechas.",
+  "exercise.orderMoveHelp": "Usa las flechas arriba y abajo para reordenar",
+  "exercise.matchHint": "Empareja cada elemento de la izquierda con uno de la derecha.",
+  "exercise.matchPairLabel": "Empareja {left}",
+  "exercise.matchChoose": "Elige",
+  "exercise.matchUnpaired": "aun no emparejado",
+  "exercise.categorizeHint": "Pon cada tarjeta en el grupo correcto.",
+  "exercise.categorizePairLabel": "Pon {card} en",
 };
 
 export default es;

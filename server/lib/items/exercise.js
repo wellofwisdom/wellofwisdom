@@ -1,118 +1,82 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-const { stripTags } = require("../text");
-const { youtubeId } = require("../grade");
-const str = (v, max = 4000) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-const clean = (s, max) => stripTags(str(s, max));
-const hasValue = (v) => v != null && String(v).trim() !== "";
-const MAX_CHOICES = 5;
+const { str, clean, MAX_CHOICES, MAX_HINTS, normalizeHints } = require("./kinds/common");
+const { forKind, REGISTRY } = require("./kinds");
 
-function mapChoices(rawChoices, rawAnswer) {
-  const kept = (Array.isArray(rawChoices) ? rawChoices : [])
-    .filter((c) => c && typeof c === "object" && clean(c.text, 500))
-    .slice(0, MAX_CHOICES);
-  const choices = kept.map((c, i) => ({ id: `c${i + 1}`, text: clean(c.text, 500) }));
-  if (!hasValue(rawAnswer)) return { choices, answer: null };
-  const raw = String(rawAnswer).trim();
-  let at = kept.findIndex((c) => c.id != null && String(c.id) === raw);
-  if (at < 0 && kept.every((c) => c.id == null)) {
-    const m = /^c(\d+)$/.exec(raw);
-    if (m && Number(m[1]) >= 1 && Number(m[1]) <= kept.length) at = Number(m[1]) - 1;
-  }
-  if (at < 0) at = choices.findIndex((c) => c.text === clean(raw, 500));
-  return { choices, answer: at >= 0 ? choices[at].id : null };
+function kindOf(content) {
+  const k = content && content.kind;
+  return REGISTRY[k] ? k : "mcq";
 }
 
 function normalize(content) {
-  const kind = ["mcq", "numeric", "text"].includes(content.kind) ? content.kind : "mcq";
-  const prompt = clean(content.prompt, 2000);
-  if (!prompt) return null;
-  const ex = { prompt, kind };
-  if (kind === "mcq") {
-    const { choices, answer } = mapChoices(content.choices, content.answer);
-    if (choices.length < 2) return null;
-    ex.choices = choices;
-    if (answer) ex.answer = answer;
-  } else if (kind === "numeric") {
-    if (hasValue(content.answer)) {
-      const n = parseNumeric(content.answer);
-      if (!Number.isFinite(n)) return null;
-      ex.answer = n;
-    }
-  } else {
-    const a = str(content.answer, 2000);
-    if (a) ex.answer = a;
-  }
+  if (!content || typeof content !== "object") return null;
+  const kind = kindOf(content);
+  const handler = forKind(kind);
+  if (!handler) return null;
+  const promptStr = clean(content.prompt, 2000);
+  if (!promptStr) return null;
+  const out = handler.normalize(content);
+  if (!out) return null;
   const explanation = str(content.explanation, 3000);
-  const hint = str(content.hint, 500);
-  if (explanation) ex.explanation = explanation;
-  if (hint) ex.hint = hint;
-  // Backward: single hint stays; new code also reads hints array.
-  return ex;
+  if (explanation) out.explanation = explanation;
+  const hints = normalizeHints(content);
+  if (hints) out.hints = hints;
+  return out;
 }
 
 function problem(content) {
   if (!content || typeof content !== "object") return "content_required";
-  const choiceTexts = (list) => (Array.isArray(list) ? list : [])
-    .map((x) => (x && typeof x === "object" ? clean(x.text, 500) : ""))
-    .filter(Boolean);
   if (!clean(content.prompt, 2000)) return "prompt_required";
-  const kind = ["mcq", "numeric", "text"].includes(content.kind) ? content.kind : "mcq";
-  if (kind === "mcq") {
-    const texts = choiceTexts(content.choices);
-    if (texts.length < 2) return "choices_required";
-    if (texts.length > MAX_CHOICES) return "too_many_choices";
-    if (!hasValue(content.answer)) return "answer_required";
-    return mapChoices(content.choices, content.answer).answer ? null : "answer_invalid";
+  if (Array.isArray(content.hints)) {
+    const filtered = content.hints.map((v) => str(v, 500).trim()).filter(Boolean);
+    if (filtered.length > MAX_HINTS) return "too_many_hints";
+    for (const h of filtered) if (h.length > 500) return "hint_too_long";
   }
-  if (kind === "numeric") {
-    const n = parseNumeric(content.answer);
-    return String(content.answer ?? "").trim() && Number.isFinite(n) ? null : "answer_required";
-  }
-  return str(content.answer, 2000) ? null : "answer_required";
+  const kind = kindOf(content);
+  const handler = forKind(kind);
+  if (!handler) return "type_invalid";
+  return handler.problem(content);
 }
 
 function strip(content) {
-  const out = { prompt: content.prompt, kind: content.kind };
-  if (content.choices) out.choices = content.choices;
-  return out;
+  if (!content || typeof content !== "object") return { prompt: "", kind: "mcq" };
+  const kind = kindOf(content);
+  const handler = forKind(kind);
+  const base = handler ? handler.strip(content) : { prompt: content.prompt, kind };
+  if (Array.isArray(content.hints) && content.hints.length) {
+    base.hints = content.hints.map((v) => str(v, 500).trim()).filter(Boolean).slice(0, MAX_HINTS);
+  } else if (content.hint) {
+    const single = str(content.hint, 500).trim();
+    if (single) base.hints = [single];
+  } else if (Array.isArray(content.hints)) {
+    base.hints = [];
+  }
+  // explanation stays server-side; shown only in learn.js reveal after an attempt.
+  return base;
 }
 
 function grade(item, learnerAnswer) {
-  const keyless = item.answer == null || String(item.answer).trim() === "";
-  switch (item.kind) {
-    case "mcq": {
-      if (keyless || !(item.choices || []).some((c) => c.id === item.answer)) return null;
-      const id = String(learnerAnswer ?? "");
-      const valid = (item.choices || []).some((c) => c.id === id);
-      return valid && String(item.answer) === id;
-    }
-    case "numeric": {
-      if (keyless) return null;
-      const expected = parseNumeric(item.answer);
-      const given = parseNumeric(learnerAnswer);
-      if (!Number.isFinite(expected) || !Number.isFinite(given)) return false;
-      const tol = Math.max(Math.abs(expected) * 0.005, 0.01);
-      return Math.abs(expected - given) <= tol;
-    }
-    case "text": return null;
-    default: return null;
-  }
+  if (!item || typeof item !== "object") return null;
+  const handler = forKind(item.kind);
+  if (!handler) return null;
+  return handler.grade(item, learnerAnswer);
 }
 
-function parseNumeric(v) {
-  if (typeof v === "number") return v;
-  const s = String(v ?? "").replace(/[$,\s]/g, "");
-  if (s === "") return NaN;
-  const mixed = s.match(/^(-?\d+)\+(\d+)\/(\d+)$/);
-  if (mixed) return Number(mixed[1]) + Number(mixed[2]) / Number(mixed[3]);
-  const mixedSpace = String(v ?? "").trim().match(/^(-?\d+)\s+(\d+)\s*\/\s*(\d+)$/);
-  if (mixedSpace) return Number(mixedSpace[1]) + Number(mixedSpace[2]) / Number(mixedSpace[3]);
-  const frac = s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
-  if (frac) {
-    const denom = Number(frac[2]);
-    return denom === 0 ? NaN : Number(frac[1]) / denom;
-  }
-  return parseFloat(s);
+function mapChoices(rawChoices, rawAnswer) {
+  return require("./kinds/common").mapChoices(rawChoices, rawAnswer);
 }
 
-module.exports = { normalize, problem, strip, grade, mapChoices, MAX_CHOICES };
+function mapMultiAnswer(rawAnswer, kept, choices) {
+  return require("./kinds/common").mapMultiAnswer(rawAnswer, kept, choices);
+}
+
+module.exports = {
+  normalize,
+  problem,
+  strip,
+  grade,
+  mapChoices,
+  mapMultiAnswer,
+  MAX_CHOICES,
+  MAX_HINTS,
+  REGISTRY,
+};
