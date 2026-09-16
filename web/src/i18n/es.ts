@@ -262,6 +262,28 @@ const es: Record<TranslationKey, string> = {
   "exercise.matchUnpaired": "aun no emparejado",
   "exercise.categorizeHint": "Pon cada tarjeta en el grupo correcto.",
   "exercise.categorizePairLabel": "Pon {card} en",
+
+  "cloze.label": "Completa los huecos",
+  "cloze.empty": "Nada que completar aun.",
+  "cloze.blankLabel": "Hueco {id}",
+  "cloze.blankPlaceholder": "Tu respuesta",
+  "cloze.blankEmpty": "vacio",
+  "cloze.choose": "Elige",
+  "numberline.label": "Recta numerica",
+  "numberline.empty": "Recta numerica aun no lista.",
+  "numberline.hint": "Mueve el marcador a tu respuesta.",
+  "numberline.decrease": "Disminuir",
+  "numberline.increase": "Aumentar",
+  "numberline.valueLabel": "Valor",
+  "numberline.current": "Actual: {value}",
+  "fraction.label": "Fraccion",
+  "fraction.empty": "Fraccion aun no lista.",
+  "fraction.hint": "Toca las partes para sombrearlas. Usa las flechas para moverte.",
+  "fraction.partLabel": "Parte {index} de {total}",
+  "fraction.partShaded": "Parte {index} sombreada",
+  "fraction.partEmpty": "Parte {index} vacia",
+  "fraction.shadedCount": "{count} de {total} sombreadas",
+  "fraction.clear": "Borrar",
 };
 
 export default es;
