@@ -15,4 +15,6 @@ create table if not exists api_tokens (
 
 create index if not exists api_tokens_family_idx on api_tokens (family_id);
 create index if not exists api_tokens_user_idx on api_tokens (user_id);
-create index if not exists api_tokens_hash_idx on api_tokens (token_hash);
+
+-- No index on token_hash: the unique constraint above already keeps one
+-- (041 drops the redundant index an earlier revision of this file created).
