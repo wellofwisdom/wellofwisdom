@@ -20,7 +20,9 @@ request.
 like `wow_` plus 32 random bytes in base64url, is shown once, and is stored only
 as a SHA-256 hash. Send it as `Authorization: Bearer wow_...`. It acts as that
 guide limited to its scopes (`read`, `courses:write`, `learners:read`,
-`progress:read`). An unknown or revoked token gets 401. Bearer requests are
+`progress:read`); each scope is an explicit route allowlist, so a token
+reaches only what its scopes list (see "Scopes" under Tokens). An unknown or
+revoked token gets 401. Bearer requests are
 rate limited per token (120 per minute) and skip cookie checks. Token
 management itself needs the session cookie: a bearer token gets 403 on
 `/api/tokens`, so a leaked token can never mint a bigger one. Learners cannot
@@ -1348,10 +1350,36 @@ Auth: `auth.authRequired`, then a parent check
 Returns: `{ ok: true }`
 Notes: revokes the token. Unknown or not yours gives 404 `not_found`. A revoked token answers 401 on bearer use.
 
+### Scopes
+
+Each scope is an explicit route allowlist (`server/lib/apiTokens.js`,
+`ROUTE_ALLOWLIST`). A bearer token reaches only the routes its scopes list;
+anything else is 403 `not_allowed`. No scope ever reaches `/api/tokens`, the
+instance-admin routes (`/api/ai/config`, `/api/stt/config`, `/api/mail/config`,
+`/api/waitlist`), the full exports (`GET /api/family/export`,
+`GET /api/courses/:id/export`), or learner-only surfaces (`/api/learn`,
+`/api/worlds`, `/api/tutor`). A token minted by an instance admin with every
+scope is still refused on all of them.
+
+- `read`: `GET /api/me`, `GET /api/family`, `GET /api/family/learners`,
+  `GET /api/courses`, `GET /api/courses/:id`, `GET /api/progress`,
+  `GET /api/reports`, `GET /api/reports/preview`, `GET /api/reports/:id`,
+  `GET /api/reports/portfolio/:learnerId`
+- `courses:write`: `GET`, `POST`, `PATCH`, `DELETE` on the course routes
+  (`/api/courses`, `/api/courses/:id`, `/api/courses/jobs/:id`, `/import`,
+  `/import-url`, `/generate`, `/rewrite`, `/worksheet-import`,
+  `/worksheet-ocr`, `/:id/publish`, `/:id/unpublish`, `/items/:itemId`,
+  `/lessons/:lessonId`)
+- `learners:read`: `GET /api/me`, `GET /api/family/learners`
+- `progress:read`: `GET /api/me`, `GET /api/progress`, `GET /api/reports`,
+  `GET /api/reports/preview`, `GET /api/reports/:id`,
+  `GET /api/reports/portfolio/:learnerId`
+
 Bearer use elsewhere: send `Authorization: Bearer wow_...`. On any route it is
-checked before the cookie. Unknown or revoked is 401, insufficient scope is
-403, and per-token rate limit is 120 per minute (429 `too_many_attempts`).
-`/api/tokens` itself always answers 403 to a bearer token.
+checked before the cookie. Unknown or revoked is 401, a route not on the
+token's scope list is 403, and per-token rate limit is 120 per minute
+(429 `too_many_attempts`). `/api/tokens` itself always answers 403 to a
+bearer token.
 
 ## Roster (/api/roster)
 

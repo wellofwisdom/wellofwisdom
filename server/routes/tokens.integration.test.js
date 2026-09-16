@@ -22,7 +22,7 @@ async function signup(a, tag) {
   const r = await http(a, "/api/auth/signup", { body: { familyName: `Fam ${tag}`, name: "Parent", email, password: "s3cur3Pass" } });
   assert.equal(r.status, 200, r.text); const db = require("../lib/db");
   const row = await db.query("select id, family_id from users where email=$1", [email.toLowerCase()]);
-  assert.ok(row.rows[0]); return { jar: jar(r), userId: Number(row.rows[0].id), familyId: Number(row.rows[0].family_id) };
+  assert.ok(row.rows[0]); return { jar: jar(r), userId: Number(row.rows[0].id), familyId: Number(row.rows[0].family_id), email: email.toLowerCase() };
 }
 
 describe("tokens integration", () => {
@@ -83,6 +83,32 @@ describe("tokens integration", () => {
     const fake = "wow_" + "x".repeat(43);
     const me3 = await http(a, "/api/me", { method: "GET", bearer: fake });
     assert.equal(me3.status, 401, me3.text);
+  });
+
+  it("even an instance admin's token gets 403 on /api/ai/config", async () => {
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
+    const a = await app();
+    const fam = await signup(a, "tokAdmin");
+    const prev = process.env.INSTANCE_ADMIN_EMAILS;
+    process.env.INSTANCE_ADMIN_EMAILS = fam.email;
+    try {
+      // by cookie this guide really is an instance admin
+      const byCookie = await http(a, "/api/ai/config", { method: "GET", cookie: fam.jar });
+      assert.equal(byCookie.status, 200, byCookie.text);
+      // a token with every scope still cannot read the server's AI config
+      const cr = await http(a, "/api/tokens", { cookie: fam.jar, body: { name: "admin full", scopes: ["read", "courses:write", "learners:read", "progress:read"] } });
+      assert.equal(cr.status, 201, cr.text);
+      const byToken = await http(a, "/api/ai/config", { method: "GET", bearer: cr.json.token });
+      assert.equal(byToken.status, 403, byToken.text);
+      // and the read scope cannot pull the full family export either
+      const cr2 = await http(a, "/api/tokens", { cookie: fam.jar, body: { name: "admin read", scopes: ["read"] } });
+      assert.equal(cr2.status, 201, cr2.text);
+      const ex = await http(a, "/api/family/export", { method: "GET", bearer: cr2.json.token });
+      assert.equal(ex.status, 403, ex.text);
+    } finally {
+      if (prev === undefined) delete process.env.INSTANCE_ADMIN_EMAILS;
+      else process.env.INSTANCE_ADMIN_EMAILS = prev;
+    }
   });
 
   it("learner cannot create token", async () => {

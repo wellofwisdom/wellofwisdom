@@ -138,32 +138,95 @@ function tokenLimit(tokenHash, { max = 120, windowMs = 60 * 1000 } = {}) {
   return { ok: true };
 }
 
+// What each scope may reach: an explicit route list, never "every GET". A
+// route belongs to a scope only by being listed here, so a route added
+// tomorrow is not silently reachable by old tokens. Patterns match segment
+// by segment and ":x" matches exactly one segment. On no list, on purpose:
+//   - /api/tokens: token management is session-only, so a leaked token can
+//     never mint a bigger one (see tokenAllows).
+//   - server-wide admin routes (/api/ai/config, /api/stt/config, /api/mail,
+//     /api/waitlist, ...): a family token is never an instance admin, not
+//     even the instance admin's own token.
+//   - the full exports (/api/family/export, /api/courses/:id/export) and
+//     every learner-only surface (/api/learn, /api/worlds, /api/tutor).
+const ROUTE_ALLOWLIST = {
+  read: {
+    GET: [
+      "/api/me",
+      "/api/family",
+      "/api/family/learners",
+      "/api/courses",
+      "/api/courses/:id",
+      "/api/progress",
+      "/api/reports",
+      "/api/reports/preview",
+      "/api/reports/:id",
+      "/api/reports/portfolio/:learnerId",
+    ],
+  },
+  "courses:write": {
+    GET: ["/api/courses", "/api/courses/:id", "/api/courses/jobs/:id"],
+    POST: [
+      "/api/courses/import",
+      "/api/courses/import-url",
+      "/api/courses/generate",
+      "/api/courses/rewrite",
+      "/api/courses/worksheet-import",
+      "/api/courses/worksheet-ocr",
+      "/api/courses/:id/publish",
+      "/api/courses/:id/unpublish",
+      "/api/courses/items/:itemId/video-questions",
+      "/api/courses/lessons/:lessonId/items",
+    ],
+    PATCH: [
+      "/api/courses/:id",
+      "/api/courses/items/:itemId",
+      "/api/courses/lessons/:lessonId",
+    ],
+    DELETE: ["/api/courses/:id", "/api/courses/items/:itemId"],
+  },
+  "learners:read": {
+    GET: ["/api/me", "/api/family/learners"],
+  },
+  "progress:read": {
+    GET: [
+      "/api/me",
+      "/api/progress",
+      "/api/reports",
+      "/api/reports/preview",
+      "/api/reports/:id",
+      "/api/reports/portfolio/:learnerId",
+    ],
+  },
+};
+
+function routeMatches(pattern, path) {
+  const pat = pattern.split("/");
+  const p = path.split("/");
+  if (pat.length !== p.length) return false;
+  for (let i = 0; i < pat.length; i++) {
+    if (pat[i].startsWith(":")) continue;
+    if (pat[i] !== p[i]) return false;
+  }
+  return true;
+}
+
 function tokenAllows(req, scopes) {
-  const rawPath = String(req.path || req.originalUrl || req.url || "").split("?")[0];
-  const p = rawPath.split("?")[0];
+  let p = String(req.path || req.originalUrl || req.url || "").split("?")[0];
+  if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
   const method = String(req.method || "GET").toUpperCase();
   // Token management is session-only. A bearer token must never reach
   // /api/tokens: a leaked read-only token could otherwise mint a full-scope
   // one and escalate itself.
   if (p === "/api/tokens" || p.startsWith("/api/tokens/")) return false;
-  // Always allow health and public: they answer without a session anyway
+  // Health and public routes answer without a session anyway.
   if (p === "/api/health" || p.startsWith("/api/public")) return true;
-  // GET /api/me is session bootstrap, allow read scopes
-  if (p === "/api/me" && method === "GET") {
-    if (scopes.includes("read") || scopes.includes("learners:read") || scopes.includes("progress:read")) return true;
-    // also allow any read for me
-    return scopes.includes("read");
+  const m = method === "HEAD" ? "GET" : method;
+  for (const scope of Array.isArray(scopes) ? scopes : []) {
+    const routes = ROUTE_ALLOWLIST[scope];
+    const patterns = routes && routes[m];
+    if (patterns && patterns.some((pat) => routeMatches(pat, p))) return true;
   }
-  if (method === "GET" || method === "HEAD" || method === "OPTIONS") {
-    if (scopes.includes("read")) return true;
-    if (p.startsWith("/api/family/learners") && scopes.includes("learners:read")) return true;
-    if ((p.startsWith("/api/progress") || p.startsWith("/api/reports")) && scopes.includes("progress:read")) return true;
-    if (p.startsWith("/api/courses") && scopes.includes("courses:write")) return true;
-    // public courses via authenticated endpoint? treat as read
-    return false;
-  }
-  // writes
-  if (p.startsWith("/api/courses") && scopes.includes("courses:write")) return true;
   return false;
 }
 

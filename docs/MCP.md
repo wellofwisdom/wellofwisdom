@@ -88,4 +88,9 @@ The server fetches `/api/public/courses/:slug/export` on the other instance when
 
 ## Security
 
-Tokens act as the guide who created them, limited to the chosen scopes. They never grant learner-only routes. Keep the `wow_...` value secret the same way you would a password.
+Tokens act as the guide who created them, limited to the chosen scopes. Each
+scope is an explicit route allowlist (see "Scopes" under Tokens in
+`docs/API.md`): a token never reaches `/api/tokens`, the server-wide settings
+routes such as `/api/ai/config`, or the export routes, whatever its scopes.
+They never grant learner-only routes. Keep the `wow_...` value secret the
+same way you would a password.
