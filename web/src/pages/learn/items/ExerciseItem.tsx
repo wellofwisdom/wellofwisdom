@@ -126,10 +126,7 @@ export default function ExerciseItem({
   const pickedFeedback: string | null = (() => {
     if (!picked || correct) return null;
     const fromReveal = result?.reveal?.feedback && picked ? result.reveal.feedback[picked] : null;
-    if (fromReveal) return fromReveal;
-    const ch = choices.find((x) => x.id === picked);
-    if (ch?.feedback) return ch.feedback;
-    return null;
+    return fromReveal || null;
   })();
 
   function onChoiceKeyDown(e: React.KeyboardEvent, id: string) {
