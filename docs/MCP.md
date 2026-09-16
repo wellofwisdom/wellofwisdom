@@ -16,7 +16,7 @@ Seven tools, all family scoped to the token's guide:
 
 ## Create a token
 
-Open Settings, find the API tokens card, pick a name and scopes, and create the token. Copy the `wow_...` value right away. It is shown once and stored only as a hash. For the MCP server give it at least `read` and `courses:write` if you want it to import or generate courses. Learners cannot create tokens. Revoke a token from the same card. A revoked token gets 401.
+Open Settings, find the API tokens card, pick a name and scopes, and create the token. Copy the `wow_...` value right away. It is shown once and stored only as a hash. For the MCP server give it at least `read` and `courses:write` if you want it to import or generate courses. Learners, observers, and demo-family guides cannot create tokens. Revoke a token from the same card. A revoked token gets 401.
 
 The token is used as `Authorization: Bearer wow_...` on every HTTP call the MCP server makes. Bearer requests are rate limited per token (120 per minute) and scope checked (403 if a write is attempted without the scope).
 

@@ -130,6 +130,33 @@ describe("tokens integration", () => {
     assert.equal(cr.status, 403, cr.text);
   });
 
+  it("observer cannot create a token", async () => {
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
+    const a = await app(); const db = require("../lib/db");
+    const fam = await signup(a, "tokObserver");
+    await db.query("update users set guide_role = 'observer' where id = $1", [fam.userId]);
+    const cr = await http(a, "/api/tokens", { cookie: fam.jar, body: { name: "nope", scopes: ["read"] } });
+    assert.equal(cr.status, 403, cr.text);
+    assert.equal(cr.json.error, "read_only");
+    // management of tokens minted earlier stays possible (revoke needs it)
+    const ls = await http(a, "/api/tokens", { method: "GET", cookie: fam.jar });
+    assert.equal(ls.status, 200, ls.text);
+  });
+
+  it("demo family cannot create a token", async () => {
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
+    const a = await app(); const db = require("../lib/db");
+    const fam = await signup(a, "tokDemo");
+    await db.query("update families set is_demo = true where id = $1", [fam.familyId]);
+    const cr = await http(a, "/api/tokens", { cookie: fam.jar, body: { name: "nope", scopes: ["read"] } });
+    assert.equal(cr.status, 403, cr.text);
+    assert.equal(cr.json.error, "demo_forbidden");
+    // upgrading turns is_demo off, and creation works again
+    await db.query("update families set is_demo = false where id = $1", [fam.familyId]);
+    const cr2 = await http(a, "/api/tokens", { cookie: fam.jar, body: { name: "after upgrade", scopes: ["read"] } });
+    assert.equal(cr2.status, 201, cr2.text);
+  });
+
   it("hash at rest, token shown once", async () => {
     if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");

@@ -421,7 +421,7 @@ function MediaPanel() {
   );
 }
 
-function TokensPanel() {
+function TokensPanel({ observer }: { observer: boolean }) {
   const [tokens, setTokens] = useState<{ id: number; name: string; scopes: string[]; createdAt: string; lastUsedAt: string | null; revokedAt: string | null }[] | null>(null);
   const [name, setName] = useState("");
   const [scopes, setScopes] = useState<string[]>(["read"]);
@@ -464,17 +464,21 @@ function TokensPanel() {
           <button className="btn ghost" type="button" style={{ marginLeft: 8 }} onClick={() => setNewToken(null)}>Dismiss</button>
         </div>
       )}
-      <div className="row wrap" style={{ gap: 8, marginBottom: 8 }}>
-        <input className="input" style={{ maxWidth: 220 }} value={name} onChange={(e) => setName(e.target.value)} placeholder="Token name (e.g. Claude Desktop)" aria-label="Token name" />
-        <span className="small muted" style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-          {ALL_SCOPES.map((s) => (
-            <label key={s} style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
-              <input type="checkbox" checked={scopes.includes(s)} onChange={(e) => setScopes((prev) => e.target.checked ? [...prev, s] : prev.filter((x) => x !== s))} /> {s}
-            </label>
-          ))}
-        </span>
-        <button className="btn primary" type="button" disabled={busy || !name.trim() || !scopes.length} onClick={create}>{busy ? "Creating…" : "Create token"}</button>
-      </div>
+      {observer ? (
+        <p className="muted small">Observers can view but not act, so they cannot create API tokens. Ask an owner or guide if you need one.</p>
+      ) : (
+        <div className="row wrap" style={{ gap: 8, marginBottom: 8 }}>
+          <input className="input" style={{ maxWidth: 220 }} value={name} onChange={(e) => setName(e.target.value)} placeholder="Token name (e.g. Claude Desktop)" aria-label="Token name" />
+          <span className="small muted" style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+            {ALL_SCOPES.map((s) => (
+              <label key={s} style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
+                <input type="checkbox" checked={scopes.includes(s)} onChange={(e) => setScopes((prev) => e.target.checked ? [...prev, s] : prev.filter((x) => x !== s))} /> {s}
+              </label>
+            ))}
+          </span>
+          <button className="btn primary" type="button" disabled={busy || !name.trim() || !scopes.length} onClick={create}>{busy ? "Creating…" : "Create token"}</button>
+        </div>
+      )}
       {tokens.length === 0 ? <p className="muted small">No tokens yet.</p> : tokens.map((t) => (
         <div key={t.id} className="checkitem">
           <span className="t"><strong>{t.name}</strong> <span className="muted small">· {t.scopes.join(", ")} · {new Date(t.createdAt).toLocaleDateString()}</span>{t.lastUsedAt && <span className="muted small"> · last used {new Date(t.lastUsedAt).toLocaleDateString()}</span>}{t.revokedAt && <span className="muted small"> · revoked</span>}</span>
@@ -583,7 +587,7 @@ export default function Settings({ me }: { me: MeResponse }) {
       )}
 
       <Panel title="API tokens" side="for MCP and integrations">
-        <TokensPanel />
+        <TokensPanel observer={user.guideRole === "observer"} />
       </Panel>
 
       <Panel title="Export your data" side="your family's zip">

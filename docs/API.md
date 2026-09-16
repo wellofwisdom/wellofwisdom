@@ -25,8 +25,9 @@ reaches only what its scopes list (see "Scopes" under Tokens). An unknown or
 revoked token gets 401. Bearer requests are
 rate limited per token (120 per minute) and skip cookie checks. Token
 management itself needs the session cookie: a bearer token gets 403 on
-`/api/tokens`, so a leaked token can never mint a bigger one. Learners cannot
-create tokens. See also `docs/MCP.md` and `POST /api/tokens` below.
+`/api/tokens`, so a leaked token can never mint a bigger one. Learners,
+observers, and guides in a demo family cannot create tokens. See also
+`docs/MCP.md` and `POST /api/tokens` below.
 
 **Body format.** JSON for everything under `/api`, except `POST /api/uploads`,
 which takes the raw file as the body. Big pastes and course packages get a
@@ -1343,7 +1344,7 @@ Notes: never returns the raw token or its hash. Family and user scoped.
 Auth: `auth.authRequired`, then a parent check
 Body: `name`, `scopes` (array of `read`, `courses:write`, `learners:read`, `progress:read`)
 Returns: 201 `{ token, id, name, scopes, createdAt }`. `token` is `wow_...` and is shown once
-Notes: 400 `name_required`, `name_too_long`, `scopes_required`.
+Notes: 400 `name_required`, `name_too_long`, `scopes_required`. 403 `read_only` for observers and 403 `demo_forbidden` inside a demo family: a token acts as its guide, and neither an observer nor the shared demo family may hand out standing credentials. Listing and revoking stay open to every parent.
 
 ### DELETE /api/tokens/:id
 Auth: `auth.authRequired`, then a parent check
