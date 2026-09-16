@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Temporary: v2 routes extracted to avoid heredoc quoting issues.
-// This file is required by server/routes/courses.js and registers itself.
-// It is deleted after the merge into courses.js in the next commit.
+// Generator v2 routes, required by server/routes/courses.js, which passes
+// the shared deps in. Kept separate so the v1 generation routes stay
+// untouched in that file.
 module.exports = function registerV2(router, deps) {
   const { db, jobs, ai, safeFetch, safeSourceUrl, htmlToText } = deps;
   function bad(res, msg, code = 400) { return res.status(code).json({ error: msg }); }

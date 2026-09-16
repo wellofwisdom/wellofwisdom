@@ -14,8 +14,10 @@ const standards = require("../lib/standards");
 const router = express.Router();
 router.use(auth.parentOnly);
 
-// Generator v2 routes live in _v2_routes.js for a clean diff.
-try { require("./_v2_routes")(router, { db, jobs, ai, safeFetch, safeSourceUrl, htmlToText }); } catch {}
+// Generator v2 routes (outline, per-lesson, verify, media) live in
+// _v2_routes.js to keep this file readable. A load failure here must be
+// loud: silently missing generation routes are worse than a boot error.
+require("./_v2_routes")(router, { db, jobs, ai, safeFetch, safeSourceUrl, htmlToText });
 
 
 function bad(res, msg, code = 400) {
