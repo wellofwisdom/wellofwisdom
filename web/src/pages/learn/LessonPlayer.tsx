@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// The lesson player: articles, videos, exercises with grading feedback,
-// hints, explain-my-mistake, and completion. Focus mode. No nav chrome.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../api";
 import { triggerRumble } from "../../lib/gamepad";
@@ -8,6 +6,7 @@ import type { ItemNode, LearnLesson, Submission } from "../../types";
 import { linkProps } from "../../router";
 import ArticleItem from "./items/ArticleItem";
 import ExerciseItem from "./items/ExerciseItem";
+import MultiItem from "./items/MultiItem";
 import VideoItem from "./items/VideoItem";
 import ProjectItem from "./items/ProjectItem";
 import AudioItem from "./items/AudioItem";
@@ -29,7 +28,6 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
         setLesson(d.lesson);
         setSolved(d.solved || {});
         setSubmissions(d.submissions || {});
-        // find the next lesson in course order for the completion flow
         api<{ course: { units: { lessons: { id: number; title: string }[] }[] } }>(
           `/api/learn/courses/${d.lesson.course_id}`
         )
@@ -65,8 +63,6 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
     return keys;
   }, [lesson]);
 
-  // A project is finished when it has been handed in, which is the same rule
-  // the server applies to the course tree.
   const projectIds = useMemo(
     () => (lesson ? lesson.items.filter((i) => i.type === "project").map((i) => String(i.id)) : []),
     [lesson]
@@ -78,7 +74,6 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
     if (gradableKeys.length + projectIds.length > 0 && gradedDone && handedIn) setDone(true);
   }, [solved, gradableKeys, projectIds, submissions]);
 
-  // log completion once: feeds the guide's Progress page
   useEffect(() => {
     if (done && lesson && !completionLogged.current) {
       completionLogged.current = true;
@@ -150,5 +145,7 @@ function LessonItem({ item, solved, onSolved, submission, onSubmission }: {
   if (item.type === "project") return <ProjectItem item={item} submission={submission} onSubmission={onSubmission} />;
   if (item.type === "video") return <VideoItem item={item} solved={solved} onSolved={onSolved} />;
   if (item.type === "audio") return <AudioItem item={item} />;
+  const kind = (item.content as Record<string, unknown>)?.kind;
+  if (kind === "multi") return <MultiItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
   return <ExerciseItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} question={null} />;
 }

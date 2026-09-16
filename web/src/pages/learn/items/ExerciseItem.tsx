@@ -1,19 +1,23 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// ExerciseItem: the graded exercise rendered inside a lesson or a video question.
-// Kinds handled today are mcq, numeric and text. The registry dispatch in
-// LessonPlayer picks this component, so adding a kind later means adding a
-// file next to this one, not editing a long if-chain.
 import { useState } from "react";
 import { api, niceError } from "../../../api";
 import { PushToTalk } from "../../../components/PushToTalk";
 import { triggerRumble } from "../../../lib/gamepad";
 import type { ItemNode } from "../../../types";
 import { MathText } from "../../../lib/rich";
+import { useT } from "../../../i18n";
 import TutorChat from "../TutorChat";
+import HintLadder from "./HintLadder";
 
 interface AttemptResponse {
   correct: boolean | null;
-  reveal: { kind: string; explanation: string | null; hint: string | null; answer: string | null };
+  reveal: {
+    kind: string;
+    explanation: string | null;
+    hint: string | null;
+    answer: string | null;
+    feedback?: Record<string, string> | null;
+  };
 }
 
 const REWIND_SEC = 10;
@@ -26,26 +30,40 @@ export function clockOf(sec: number): string {
   return `${h ? `${h}:${String(m).padStart(2, "0")}` : m}:${String(r).padStart(2, "0")}`;
 }
 
-export default function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question, rewind }: {
+export default function ExerciseItem({
+  item,
+  solved,
+  onSolved,
+  qKey,
+  qIdx,
+  question,
+  rewind,
+}: {
   item: ItemNode;
   solved: Record<string, boolean>;
   onSolved: (key: string, correct: boolean | null) => void;
   qKey: string;
   qIdx: number;
-  question: { prompt: string; choices: { id: string; text: string }[]; atSec?: number } | null;
+  question: { prompt: string; choices: { id: string; text: string; feedback?: string | null }[]; atSec?: number } | null;
   rewind?: (atSec: number, play: boolean) => boolean;
 }) {
-  const c: Record<string, any> = item.content || {};
-  const kind = question ? "mcq" : c.kind;
-  const prompt = question ? question.prompt : c.prompt;
-  const choices: { id: string; text: string }[] = question ? question.choices : c.choices || [];
+  const { t } = useT();
+  const c: Record<string, unknown> = (item.content || {}) as Record<string, unknown>;
+  const kind = question ? "mcq" : String((c as { kind?: unknown }).kind || "mcq");
+  const prompt = question ? question.prompt : String((c as { prompt?: unknown }).prompt || "");
+  const choices: { id: string; text: string; feedback?: string | null }[] = question
+    ? (question.choices as { id: string; text: string; feedback?: string | null }[])
+    : (Array.isArray((c as { choices?: unknown }).choices) ? (c as { choices: { id: string; text: string; feedback?: unknown }[] }).choices : []).map((ch) => ({
+        id: String(ch.id),
+        text: String(ch.text || ""),
+        feedback: ch.feedback ? String(ch.feedback) : null,
+      }));
 
   const [answer, setAnswer] = useState("");
   const [picked, setPicked] = useState<string | null>(null);
   const [result, setResult] = useState<AttemptResponse | null>(null);
   const [revealed, setRevealed] = useState<AttemptResponse | null>(null);
   const [busy, setBusy] = useState(false);
-  const [hint, setHint] = useState<string | null>(null);
   const [tutorOpen, setTutorOpen] = useState(false);
   const [explain, setExplain] = useState("");
   const [explainBusy, setExplainBusy] = useState(false);
@@ -88,10 +106,15 @@ export default function ExerciseItem({ item, solved, onSolved, qKey, qIdx, quest
     setExplainBusy(true);
     setErr("");
     try {
-      const d = await api<{ explanation: string }>("/api/learn/explain", { method: "POST", body: { itemId: item.id, questionIndex: qIdx, myAnswer: kind === "mcq" ? picked : answer } });
+      const d = await api<{ explanation: string }>("/api/learn/explain", {
+        method: "POST",
+        body: { itemId: item.id, questionIndex: qIdx, myAnswer: kind === "mcq" ? picked : answer },
+      });
       setExplain(d.explanation);
     } catch (e) {
-      setErr(e instanceof Error && e.message.includes("ai_not_configured") ? "The explainer needs an AI provider on this server." : niceError(e));
+      setErr(
+        e instanceof Error && e.message.includes("ai_not_configured") ? t("exercise.explainerMissing") : niceError(e),
+      );
     } finally {
       setExplainBusy(false);
     }
@@ -100,6 +123,33 @@ export default function ExerciseItem({ item, solved, onSolved, qKey, qIdx, quest
   const correct = result?.correct === true;
   const textSelfCheck = kind === "text" && revealed;
 
+  const pickedFeedback: string | null = (() => {
+    if (!picked || correct) return null;
+    const fromReveal = result?.reveal?.feedback && picked ? result.reveal.feedback[picked] : null;
+    if (fromReveal) return fromReveal;
+    const ch = choices.find((x) => x.id === picked);
+    if (ch?.feedback) return ch.feedback;
+    return null;
+  })();
+
+  function onChoiceKeyDown(e: React.KeyboardEvent, id: string) {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      setPicked(id);
+    }
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const group = (e.currentTarget as HTMLElement).closest(".choices");
+      if (!group) return;
+      const els = Array.from(group.querySelectorAll<HTMLElement>("[data-nav]"));
+      const idx = els.indexOf(e.currentTarget as HTMLElement);
+      if (idx === -1) return;
+      const dir = e.key === "ArrowDown" ? 1 : -1;
+      const next = (idx + dir + els.length) % els.length;
+      els[next]?.focus();
+    }
+  }
+
   return (
     <section className={`litem exercise${isSolved ? " solved" : ""}`}>
       <div className="exhead">
@@ -107,70 +157,158 @@ export default function ExerciseItem({ item, solved, onSolved, qKey, qIdx, quest
         {isSolved && <span className="chip on">✓</span>}
       </div>
       {!result && kind === "mcq" && (
-        <div className="choices">
+        <div className="choices" role="radiogroup" aria-label={prompt}>
           {choices.map((ch) => (
-            <button key={ch.id} type="button" className={`choice${picked === ch.id ? " picked" : ""}`} disabled={busy} onClick={() => setPicked(ch.id)}>
+            <button
+              key={ch.id}
+              type="button"
+              role="radio"
+              aria-checked={picked === ch.id}
+              aria-label={ch.text}
+              data-nav
+              data-say={ch.text}
+              className={`choice${picked === ch.id ? " picked" : ""}`}
+              disabled={busy}
+              onClick={() => setPicked(ch.id)}
+              onKeyDown={(e) => onChoiceKeyDown(e, ch.id)}
+            >
               <MathText text={ch.text} />
             </button>
           ))}
-          <div className="row">
-            {c.hint && !hint && <button className="btn ghost" type="button" onClick={() => setHint(c.hint)}>Hint</button>}
-            <button className="btn ghost" type="button" onClick={() => setTutorOpen(true)}>Ask for help</button>
-            <PushToTalk kind="mcq" choiceCount={choices.length} onResult={(spoken) => { if (spoken.choiceIndex !== null) setPicked(choices[spoken.choiceIndex].id); }} />
-            <button className="btn primary" type="button" disabled={busy || !picked} onClick={() => submit(picked!)}>{busy ? "Checking..." : "Check"}</button>
+          <div className="row wrap">
+            <HintLadder content={c} />
+            <button className="btn ghost" type="button" data-nav onClick={() => setTutorOpen(true)}>
+              {t("exercise.askForHelp")}
+            </button>
+            <PushToTalk
+              kind="mcq"
+              choiceCount={choices.length}
+              onResult={(spoken) => {
+                if (spoken.choiceIndex !== null) setPicked(choices[spoken.choiceIndex].id);
+              }}
+            />
+            <button className="btn primary" type="button" data-nav disabled={busy || !picked} onClick={() => submit(picked!)}>
+              {busy ? t("exercise.checking") : t("exercise.check")}
+            </button>
           </div>
         </div>
       )}
       {!result && kind === "numeric" && (
         <div className="row wrap">
-          <input className="input" style={{ maxWidth: 220 }} inputMode="decimal" placeholder="Your answer" value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyDown={(e) => e.key === "Enter" && answer && submit()} />
-          {c.hint && !hint && <button className="btn ghost" type="button" onClick={() => setHint(c.hint)}>Hint</button>}
-          <button className="btn ghost" type="button" onClick={() => setTutorOpen(true)}>Ask for help</button>
+          <input
+            className="input"
+            style={{ maxWidth: 220 }}
+            inputMode="decimal"
+            placeholder={t("exercise.yourAnswerPlaceholder")}
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && answer && submit()}
+            aria-label={t("exercise.yourAnswerPlaceholder")}
+          />
+          <HintLadder content={c} />
+          <button className="btn ghost" type="button" data-nav onClick={() => setTutorOpen(true)}>
+            {t("exercise.askForHelp")}
+          </button>
           <PushToTalk kind="numeric" onResult={(spoken) => setAnswer(spoken.text)} />
-          <button className="btn primary" type="button" disabled={busy || !answer.trim()} onClick={() => submit()}>{busy ? "Checking..." : "Check"}</button>
+          <button className="btn primary" type="button" data-nav disabled={busy || !answer.trim()} onClick={() => submit()}>
+            {busy ? t("exercise.checking") : t("exercise.check")}
+          </button>
         </div>
       )}
       {!result && kind === "text" && (
         <div>
-          <textarea className="input" rows={3} placeholder="Write your answer in your own words..." value={answer} onChange={(e) => setAnswer(e.target.value)} />
+          <textarea
+            className="input"
+            rows={3}
+            placeholder={t("exercise.writePlaceholder")}
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            aria-label={t("exercise.writePlaceholder")}
+          />
           <div className="row" style={{ marginTop: 8 }}>
-            <button className="btn primary" type="button" disabled={!answer.trim()} onClick={() => setRevealed({ correct: null, reveal: { kind: "text", explanation: null, hint: null, answer: c.answer } })}>Show model answer</button>
+            <HintLadder content={c} />
+            <button
+              className="btn primary"
+              type="button"
+              data-nav
+              disabled={!answer.trim()}
+              onClick={() =>
+                setRevealed({ correct: null, reveal: { kind: "text", explanation: null, hint: null, answer: String((c as { answer?: unknown }).answer || "") } })
+              }
+            >
+              {t("exercise.showModelAnswer")}
+            </button>
             <PushToTalk kind="text" onResult={(spoken) => setAnswer((current) => (current.trim() ? `${current.trim()} ${spoken.text}` : spoken.text))} />
           </div>
         </div>
       )}
-      {hint && !result && <p className="hintbox">{hint}</p>}
       {tutorOpen && <TutorChat itemId={item.id} onClose={() => setTutorOpen(false)} />}
       {textSelfCheck && !result && (
         <div className="feedback selfcheck" role="status" aria-live="polite">
-          <p><strong>Model answer:</strong> {revealed.reveal?.answer}</p>
-          <p className="muted small">Be honest, nobody is watching.</p>
+          <p>
+            <strong>{t("exercise.modelAnswer")}</strong> {revealed.reveal?.answer}
+          </p>
+          <p className="muted small">{t("exercise.beHonest")}</p>
           <div className="row">
-            <button className="btn" type="button" onClick={() => selfCheck(true)}>I got it</button>
-            <button className="btn ghost" type="button" onClick={() => selfCheck(false)}>Need more practice</button>
+            <button className="btn" type="button" data-nav onClick={() => selfCheck(true)}>
+              {t("exercise.iGotIt")}
+            </button>
+            <button className="btn ghost" type="button" data-nav onClick={() => selfCheck(false)}>
+              {t("exercise.needMorePractice")}
+            </button>
           </div>
         </div>
       )}
       {result && (
         <div className={`feedback ${correct ? "good" : "bad"}`} role="status" aria-live="polite">
-          <strong><span aria-hidden="true">{correct ? "✅" : "❌"}</span> {correct ? "Correct!" : "Not quite."}</strong>
+          <strong>
+            <span aria-hidden="true">{correct ? "✅" : "❌"}</span> {correct ? t("exercise.correct") : t("exercise.notQuite")}
+          </strong>
           {revealed?.reveal?.explanation && <p>{revealed.reveal.explanation}</p>}
-          {kind === "text" && revealed?.reveal?.answer && <p><strong>Model answer:</strong> {revealed.reveal.answer}</p>}
+          {pickedFeedback && (
+            <p className="choice-feedback">
+              <strong>{t("exercise.choiceFeedback")}:</strong> {pickedFeedback}
+            </p>
+          )}
+          {kind === "text" && revealed?.reveal?.answer && (
+            <p>
+              <strong>{t("exercise.modelAnswer")}</strong> {revealed.reveal.answer}
+            </p>
+          )}
           {!correct && (
             <div className="row wrap" style={{ marginTop: 6 }}>
-              <button className="btn ghost" type="button" disabled={explainBusy} onClick={explainMistake}>{explainBusy ? "Thinking..." : "Why was I wrong?"}</button>
+              <button className="btn ghost" type="button" data-nav disabled={explainBusy} onClick={explainMistake}>
+                {explainBusy ? t("exercise.thinking") : t("exercise.whyWrong")}
+              </button>
               {anchor !== null && rewind && (
-                <button className="btn ghost" type="button" onClick={() => rewind(anchor, true)}>Watch from {clockOf(Math.max(0, anchor - REWIND_SEC))}</button>
+                <button className="btn ghost" type="button" data-nav onClick={() => rewind(anchor, true)}>
+                  {t("exercise.watchFrom", { time: clockOf(Math.max(0, anchor - REWIND_SEC)) })}
+                </button>
               )}
               {kind !== "text" && (
-                <button className="btn ghost" type="button" onClick={() => { setResult(null); setRevealed(null); setPicked(null); }}>Try again</button>
+                <button
+                  className="btn ghost"
+                  type="button"
+                  data-nav
+                  onClick={() => {
+                    setResult(null);
+                    setRevealed(null);
+                    setPicked(null);
+                  }}
+                >
+                  {t("exercise.tryAgain")}
+                </button>
               )}
             </div>
           )}
           {explain && <div className="explainbox">{explain}</div>}
         </div>
       )}
-      {err && <div className="formerror" role="alert">{err}</div>}
+      {err && (
+        <div className="formerror" role="alert">
+          {err}
+        </div>
+      )}
     </section>
   );
 }
