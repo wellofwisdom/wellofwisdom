@@ -111,6 +111,30 @@ describe("tokens integration", () => {
     }
   });
 
+  it("/api/me answers the same user by cookie and by token", async () => {
+    if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
+    const a = await app(); const db = require("../lib/db");
+    const fam = await signup(a, "tokParity");
+    // Give the guide non-default values, so the comparison has something to bite on
+    await db.query(
+      "update users set guide_role = 'guide', grade_level = 4, interests = ARRAY['space','code'], prefs = '{\"theme\":\"dark\"}'::jsonb where id = $1",
+      [fam.userId]
+    );
+    const cr = await http(a, "/api/tokens", { cookie: fam.jar, body: { name: "parity", scopes: ["read"] } });
+    assert.equal(cr.status, 201, cr.text);
+    const byCookie = await http(a, "/api/me", { method: "GET", cookie: fam.jar });
+    const byToken = await http(a, "/api/me", { method: "GET", bearer: cr.json.token });
+    assert.equal(byCookie.status, 200, byCookie.text);
+    assert.equal(byToken.status, 200, byToken.text);
+    // same fields, same value shapes (id included: bigint-as-string both ways)
+    assert.deepEqual(byToken.json.user, byCookie.json.user);
+    assert.deepEqual(byToken.json.learners, byCookie.json.learners);
+    assert.equal(byToken.json.user.guideRole, "guide");
+    assert.deepEqual(byToken.json.user.prefs, { theme: "dark" });
+    assert.deepEqual(byToken.json.user.interests, ["space", "code"]);
+    assert.equal(byToken.json.user.gradeLevel, 4);
+  });
+
   it("learner cannot create token", async () => {
     if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const db = require("../lib/db");

@@ -86,14 +86,17 @@ async function revokeToken({ id, familyId, userId }) {
 
 async function lookupToken(raw) {
   if (!raw || typeof raw !== "string" || !raw.startsWith(PREFIX)) return null;
+  const auth = require("./auth");
   const h = hashToken(raw);
+  // Column names mirror userForToken's query so auth.buildUser(row) builds
+  // the exact user a cookie session would get: /api/me parity by construction.
   const { rows } = await db.query(
-    `select t.id as token_id, t.family_id, t.user_id, t.name, t.scopes, t.revoked_at,
-            u.id, u.role, u.name as user_name, u.family_id as u_family_id, u.guide_role, u.prefs, u.grade_level, u.interests,
+    `select t.id as token_id, t.family_id as t_family_id, t.user_id, t.scopes, t.revoked_at,
+            u.id, u.role, u.name, u.family_id, u.guide_role, u.prefs, u.grade_level, u.interests,
             f.name as family_name, f.join_code
        from api_tokens t
        join users u on u.id = t.user_id
-       join families f on f.id = t.family_id
+       join families f on f.id = u.family_id
       where t.token_hash = $1`,
     [h]
   );
@@ -103,21 +106,10 @@ async function lookupToken(raw) {
   return {
     tokenId: Number(row.token_id),
     tokenHash: h,
-    familyId: Number(row.family_id),
+    familyId: Number(row.t_family_id),
     userId: Number(row.user_id),
     scopes: Array.isArray(row.scopes) ? row.scopes : [],
-    user: {
-      id: Number(row.id),
-      role: row.role,
-      name: row.user_name,
-      familyId: Number(row.u_family_id),
-      familyName: row.family_name,
-      joinCode: row.join_code,
-      prefs: row.prefs || {},
-      gradeLevel: row.grade_level,
-      interests: row.interests || [],
-      guideRole: row.role === "parent" ? (row.guide_role || "owner") : null,
-    },
+    user: auth.buildUser(row),
   };
 }
 

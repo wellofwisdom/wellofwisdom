@@ -1380,7 +1380,9 @@ Bearer use elsewhere: send `Authorization: Bearer wow_...`. On any route it is
 checked before the cookie. Unknown or revoked is 401, a route not on the
 token's scope list is 403, and per-token rate limit is 120 per minute
 (429 `too_many_attempts`). `/api/tokens` itself always answers 403 to a
-bearer token.
+bearer token. The token's user is built by the same code as the session's
+(`auth.buildUser`), so `GET /api/me` answers identically by cookie and by
+token.
 
 ## Roster (/api/roster)
 
