@@ -14,9 +14,12 @@ export default function Learners({ me }: { me: MeResponse }) {
       <Panel
         title="Your learners"
         side={
-          <button className="btn primary" type="button" onClick={() => navigate("learners/new")}>
-            ＋ Add learner
-          </button>
+          <span className="row" style={{ gap: 8 }}>
+            <button className="btn" type="button" onClick={() => navigate("roster-import")}>Import roster (CSV)</button>
+            <button className="btn primary" type="button" onClick={() => navigate("learners/new")}>
+              ＋ Add learner
+            </button>
+          </span>
         }
       >
         {learners.length === 0 ? (
