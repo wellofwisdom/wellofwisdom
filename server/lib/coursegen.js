@@ -369,13 +369,19 @@ async function generateCourse(spec, userId, familyId) {
     .map((s, i) => `--- SOURCE ${i + 1}: ${s.title || "untitled"} ---\n${String(s.text || "").slice(0, 6000)}`)
     .join("\n\n");
 
+  // openPublish is the one publicContent flag in the app. The spec is built
+  // in routes/courses.js, where openPublish is only ever true with no learner
+  // attached, so this prompt provably carries no learner data: no name,
+  // interests or remembered notes reach it (buildUserPrompt adds those only
+  // from a learner profile). A private course, or one for a learner, leaves
+  // the flag off and falls back to the default provider.
   const out = await ai.chatJson(
     "course-gen",
     [
       { role: "system", content: GEN_SYSTEM },
       { role: "user", content: buildUserPrompt(spec, sourcesText) },
     ],
-    { maxTokens: 8000, temperature: 0.7, usage: { familyId, note: `course: ${spec.topic}` } }
+    { maxTokens: 8000, temperature: 0.7, usage: { familyId, note: `course: ${spec.topic}` }, publicContent: spec.openPublish === true }
   );
 
   const course = normalizeCourse(out.json);

@@ -3,7 +3,8 @@
 // kie image/video + voice + music + vision + prices + limits, plus spend.
 // One save for the top vault (mirrors to media), one save for limits, one
 // honest chart. Secrets are never shown in full: masked last 4, paste to
-// replace.
+// replace. The provider vault and routing table live here too, so an admin
+// can keep learner data on a no-training host and send open content elsewhere.
 import { useEffect, useMemo, useState } from "react";
 import { api, niceError } from "../api";
 import { Field, Panel, StatBar } from "./ui";
@@ -35,6 +36,7 @@ interface SttConfig {
 interface Spend {
   month: { calls: number; tokens_in: number; tokens_out: number; cost: string | null };
   byTask: { task: string; calls: number; cost: string | null }[];
+  byProvider?: { provider_id: string; calls: number; cost: string | null }[];
   recent: { task: string; model: string | null; tokens_in: number; tokens_out: number; cost: string | null; created_at: string }[];
   daily: { day: string; cost: string | null; calls: number; tokens_in: number; tokens_out: number }[];
   byModel: { model: string; calls: number; cost: string | null; tokens_in: number; tokens_out: number }[];
@@ -42,6 +44,18 @@ interface Spend {
   monthSpend: number;
   daySpend: number;
 }
+
+interface Provider {
+  id: string;
+  name: string;
+  kind: string;
+  baseUrl: string;
+  apiKey: string;
+  trainsOnData: boolean;
+  models: string[];
+}
+
+const TASK_KEYS = ["course-gen", "lesson-content", "exercise-gen", "lens", "tutor", "hint", "grading", "rubric", "translate", "stt"] as const;
 
 function isMasked(v?: string | null) {
   return typeof v === "string" && v.startsWith("•••••");
@@ -66,16 +80,9 @@ function BarChart({ daily }: { daily: Spend["daily"] }) {
   );
 }
 
-// Speech input, on its own save because it is its own endpoint: a family may
-// run the tutor on one provider and keep a small local Whisper box for the
-// children's voices. Off by default, and the recordings switch is off by
-// default too: a child's voice is not kept because nobody said no.
 function SpeechCard() {
   const [stt, setStt] = useState<SttConfig | null>(null);
   const [configured, setConfigured] = useState(false);
-  // The endpoint and key are the whole server's (lib/instanceAdmin.js). Only
-  // the person who runs the server sees this card, so a locked state is a
-  // safety net rather than the normal path.
   const [locked, setLocked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -158,6 +165,145 @@ function SpeechCard() {
   );
 }
 
+function ProvidersCard() {
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [routes, setRoutes] = useState<Record<string, { providerId: string; model: string | null }>>({});
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [editing, setEditing] = useState<Provider | null>(null);
+  const [draft, setDraft] = useState<Provider>({ id: "", name: "", kind: "openai-compatible", baseUrl: "", apiKey: "", trainsOnData: false, models: [] });
+
+  const load = () => {
+    api<{ providers: Provider[]; routes: typeof routes }>("/api/ai/providers")
+      .then((r) => { setProviders(r.providers || []); setRoutes(r.routes || {}); })
+      .catch(() => {});
+  };
+  useEffect(() => { load(); }, []);
+
+  const startNew = () => {
+    setEditing(null);
+    setDraft({ id: "", name: "", kind: "openai-compatible", baseUrl: "", apiKey: "", trainsOnData: false, models: [] });
+  };
+  const startEdit = (p: Provider) => {
+    setEditing(p);
+    setDraft({ ...p, models: [...(p.models || [])] });
+  };
+
+  const saveProviders = async (nextProviders: Provider[], nextRoutes: typeof routes) => {
+    setBusy(true);
+    setMsg("");
+    try {
+      await api("/api/ai/providers", { method: "PUT", body: { providers: nextProviders, routes: nextRoutes } });
+      setMsg("✓ Saved.");
+      load();
+    } catch (e) {
+      setMsg(niceError(e));
+    } finally { setBusy(false); }
+  };
+
+  const saveDraft = async () => {
+    const id = draft.id.trim();
+    const name = draft.name.trim() || id;
+    if (!id || !/^[a-z0-9_-]+$/i.test(id)) { setMsg("Provider id must be letters, numbers, dash or underscore."); return; }
+    const baseUrl = draft.baseUrl.trim();
+    if (baseUrl) { try { const u = new URL(baseUrl); if (!["http:", "https:"].includes(u.protocol)) throw new Error("bad"); } catch { setMsg("Provider URL must be http or https."); return; } }
+    const entry: Provider = { ...draft, id, name, baseUrl, models: draft.models.map((m) => m.trim()).filter(Boolean).slice(0, 20) };
+    let next: Provider[];
+    if (editing) next = providers.map((p) => p.id === editing.id ? entry : p);
+    else {
+      if (providers.some((p) => p.id === id)) { setMsg("That provider id already exists."); return; }
+      next = [...providers, entry];
+    }
+    await saveProviders(next, routes);
+    setEditing(null);
+    setDraft({ id: "", name: "", kind: "openai-compatible", baseUrl: "", apiKey: "", trainsOnData: false, models: [] });
+  };
+
+  const remove = async (id: string) => {
+    const next = providers.filter((p) => p.id !== id);
+    const nextRoutes = { ...routes };
+    for (const [k, v] of Object.entries(nextRoutes)) if (v.providerId === id) delete nextRoutes[k];
+    await saveProviders(next, nextRoutes);
+  };
+
+  const setRoute = (task: string, providerId: string, model: string) => {
+    const nr = { ...routes };
+    if (!providerId) delete nr[task];
+    else nr[task] = { providerId, model: model.trim() || null };
+    setRoutes(nr);
+  };
+
+  const saveRoutes = async () => {
+    await saveProviders(providers, routes);
+  };
+
+  return (
+    <>
+      <p className="hint" style={{ marginTop: 0 }}>
+        Add providers once, then route each task to the right one. Providers marked as trains on data are never used for learner data: tutor, hints, grading, rubrics, and any prompt with a learner's name, notes or interests fall back to the default provider and log a warning.
+        Course generation may use a trains-on-data provider only when the course has no learner attached and is marked for open publishing.
+      </p>
+
+      <div style={{ marginBottom: 12 }}>
+        {providers.length === 0 ? <p className="muted small">No extra providers yet. The default provider above is used for every task.</p> : null}
+        {providers.map((p) => (
+          <div key={p.id} className="checkitem" style={{ gap: 8 }}>
+            <span className="t"><strong>{p.name}</strong> <span className="muted small">· {p.id} · {p.kind}</span>{p.trainsOnData ? <span className="chip" style={{ marginLeft: 6 }}>trains on data</span> : <span className="chip" style={{ marginLeft: 6 }}>no training</span>}{p.baseUrl ? <span className="muted small"> · {p.baseUrl}</span> : null}</span>
+            <button className="btn ghost" type="button" onClick={() => startEdit(p)}>Edit</button>
+            <button className="btn ghost" type="button" onClick={() => remove(p.id)}>Remove</button>
+          </div>
+        ))}
+      </div>
+
+      <details open={editing !== null || providers.length === 0} style={{ marginBottom: 12 }}>
+        <summary className="small" style={{ cursor: "pointer", color: "var(--accent)", fontWeight: 600 }}>{editing ? `Edit ${editing.id}` : "Add a provider"}</summary>
+        <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+          <div className="row" style={{ gap: 12 }}>
+            <div className="grow"><Field label="Provider id" hint="Letters, numbers, dash or underscore. Used in the routing table."><input className="input" value={draft.id} onChange={(e) => setDraft((d) => ({ ...d, id: e.target.value }))} placeholder="deepseek-main" disabled={Boolean(editing)} /></Field></div>
+            <div className="grow"><Field label="Name"><input className="input" value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} placeholder="DeepSeek main" /></Field></div>
+          </div>
+          <div className="row" style={{ gap: 12 }}>
+            <div className="grow"><Field label="Kind"><select className="input" value={draft.kind} onChange={(e) => setDraft((d) => ({ ...d, kind: e.target.value }))}><option value="openai-compatible">openai-compatible</option><option value="openai">openai</option><option value="anthropic">anthropic</option><option value="gemini">gemini</option></select></Field></div>
+            <div className="grow"><Field label="Base URL"><input className="input" value={draft.baseUrl} onChange={(e) => setDraft((d) => ({ ...d, baseUrl: e.target.value }))} placeholder="https://api.deepseek.com/v1" /></Field></div>
+          </div>
+          <Field label="API key" hint="Stored in the vault. Reads come back masked."><input className="input" type={isMasked(draft.apiKey) ? "text" : "password"} value={draft.apiKey} onChange={(e) => setDraft((d) => ({ ...d, apiKey: e.target.value }))} placeholder={isMasked(draft.apiKey) ? "saved. Paste new to change" : "sk-…"} /></Field>
+          <Field label="Models (comma separated)" hint="Used when a route sets no model: first for pro tasks, second for flash."><input className="input" value={draft.models.join(", ")} onChange={(e) => setDraft((d) => ({ ...d, models: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) }))} placeholder="deepseek-chat, deepseek-reasoner" /></Field>
+          <label className="row small" style={{ gap: 8 }}><input type="checkbox" checked={draft.trainsOnData} onChange={(e) => setDraft((d) => ({ ...d, trainsOnData: e.target.checked }))} /> This provider trains on data</label>
+          <div className="row">
+            <button className="btn primary" type="button" disabled={busy} onClick={saveDraft}>{busy ? "Saving…" : editing ? "Save provider" : "Add provider"}</button>
+            {editing && <button className="btn" type="button" onClick={() => { setEditing(null); setDraft({ id: "", name: "", kind: "openai-compatible", baseUrl: "", apiKey: "", trainsOnData: false, models: [] }); }}>Cancel</button>}
+            {!editing && <button className="btn" type="button" onClick={startNew}>Clear</button>}
+          </div>
+        </div>
+      </details>
+
+      {providers.length > 0 && (
+        <>
+          <h4 style={{ margin: "12px 0 8px" }}>Task routing</h4>
+          <p className="hint" style={{ marginTop: 0 }}>Pick a provider and model per task. Empty means use the default provider above. The rule for learner data is shown at the top and enforced on the server.</p>
+          <div style={{ display: "grid", gap: 8 }}>
+            {TASK_KEYS.map((task) => (
+              <div key={task} className="row" style={{ gap: 8, alignItems: "flex-end" }}>
+                <div style={{ minWidth: 140 }}><span className="small" style={{ fontWeight: 600 }}>{task}</span></div>
+                <select className="input" style={{ maxWidth: 220 }} value={routes[task]?.providerId || ""} onChange={(e) => setRoute(task, e.target.value, routes[task]?.model || "")}>
+                  <option value="">default</option>
+                  {providers.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.id})</option>)}
+                </select>
+                <input className="input" style={{ flex: 1 }} value={routes[task]?.model || ""} onChange={(e) => setRoute(task, routes[task]?.providerId || "", e.target.value)} placeholder="model override, or empty" />
+              </div>
+            ))}
+          </div>
+          <div className="row" style={{ marginTop: 10 }}>
+            <button className="btn primary" type="button" disabled={busy} onClick={saveRoutes}>{busy ? "Saving…" : "Save routing"}</button>
+            {msg && <span className="small">{msg}</span>}
+          </div>
+        </>
+      )}
+      {msg && providers.length === 0 && <p className="small">{msg}</p>}
+    </>
+  );
+}
+
 export function AiVault() {
   const [cfg, setCfg] = useState<AiConfig | null>(null);
   const [spend, setSpend] = useState<Spend | null>(null);
@@ -179,7 +325,6 @@ export function AiVault() {
     setBusy(true);
     setMsg("");
     try {
-      // Prices: accept JSON string or object. Normalize here so the vault round-trips.
       const body: Record<string, unknown> = { ...(cfg || {}) };
       if (typeof body.aiPrices === "string") {
         const s = String(body.aiPrices).trim();
@@ -264,6 +409,10 @@ export function AiVault() {
         {msg && <span className="small">{msg}</span>}
       </div>
 
+      <Panel title="Providers and task routing" side="per-task providers; learner data stays on no-training hosts">
+        <ProvidersCard />
+      </Panel>
+
       <details style={{ margin: "10px 0" }}>
         <summary className="small" style={{ cursor: "pointer", color: "var(--accent)", fontWeight: 600 }}>Speech input (a learner talks instead of typing)</summary>
         <div style={{ marginTop: 10 }}>
@@ -289,6 +438,14 @@ export function AiVault() {
                 <span key={t.task} className="chip">{t.task} · ${Number(t.cost || 0).toFixed(3)} · {t.calls}</span>
               ))}
             </div>
+            {spend.byProvider && spend.byProvider.length > 0 && (
+              <div className="row wrap" style={{ marginTop: 8, gap: 8 }}>
+                <span className="muted small">By provider</span>
+                {spend.byProvider.map((p) => (
+                  <span key={p.provider_id} className="chip">{p.provider_id} · ${Number(p.cost || 0).toFixed(3)} · {p.calls}</span>
+                ))}
+              </div>
+            )}
             {spend.byModel.length > 0 && (
               <div className="row wrap" style={{ marginTop: 8, gap: 8 }}>
                 <span className="muted small">By model</span>

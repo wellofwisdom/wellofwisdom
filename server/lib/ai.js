@@ -2,6 +2,12 @@
 // Task-routed AI layer. Point AI_BASE_URL at ANY provider:
 // OpenAI-compatible (DeepSeek, OpenAI, Ollama, ...) OR Claude (Anthropic) OR Gemini (Google).
 // All features degrade gracefully when no endpoint is configured.
+// Per-task routing: the vault stores named providers (kind, base URL, key,
+// models, trainsOnData) and aiRoutes maps each task to a provider and model.
+// The single-provider fields (AI_BASE_URL etc) become the default provider, so
+// existing installs keep working. The learner-data rule is fail closed: a
+// provider that trains on data serves only calls marked opts.publicContent,
+// and every other call falls back to the default provider with a warning.
 const { fetchT } = require("./http");
 
 // Which model class each task uses. "pro" = quality (course generation),
@@ -20,7 +26,21 @@ const DEFAULT_ROUTES = {
   // instance runs one model.
   rubric: "pro",
   translate: "flash",
+  stt: "flash",
 };
+
+// Return true for messages that include a learner's personal data (name, notes,
+// interests, or per-learner prompt baggage). This is the second guard of the
+// learner-data rule: even a call marked publicContent falls back when it sees
+// learner data in the prompt. Sniffing cannot catch everything (a bare name is
+// not detectable), which is why the rule itself is fail closed rather than
+// relying on this alone.
+function promptHasLearnerData(messages) {
+  const hay = (Array.isArray(messages) ? messages : []).map((m) => String((m && m.content) || "")).join("\n").toLowerCase();
+  if (hay.includes("their guide asked you to remember") || hay.includes("they love:")) return true;
+  if (hay.includes("learner interests") || hay.includes("remembered learner notes")) return true;
+  return false;
+}
 
 function routes() {
   if (!process.env.AI_ROUTES) return DEFAULT_ROUTES;
@@ -69,6 +89,7 @@ function configured() {
   if (cachedAiConfig) {
     const c = cachedAiConfig;
     if (c.aiProvider === "anthropic" || c.aiProvider === "gemini") return Boolean((c.aiApiKey || "").trim());
+    if (Array.isArray(c.aiProviders) && c.aiProviders.length) return true;
     if (c.aiBaseUrl) return true;
     if (c.aiApiKey && (c.aiProvider === "openai" || !c.aiProvider)) return true;
   }
@@ -83,6 +104,7 @@ function configuredFromVault(cfg) {
   if (!cfg) return configured();
   const prov = String(cfg.aiProvider || "").trim().toLowerCase();
   if (prov === "anthropic" || prov === "gemini") return Boolean((cfg.aiApiKey || "").trim());
+  if (Array.isArray(cfg.aiProviders) && cfg.aiProviders.length) return true;
   const base = String(cfg.aiBaseUrl || "").trim();
   if (base) return true;
   if ((cfg.aiApiKey || "").trim()) return true;
@@ -114,28 +136,95 @@ async function refreshVault() {
 }
 
 // Injected at boot to avoid a circular import (db <- aiusage -> nothing <- ai).
-// Signature: usageLogger({familyId, task, model, tokensIn, tokensOut, note})
+// Signature: usageLogger({familyId, task, model, tokensIn, tokensOut, note, providerId})
 let usageLogger = null;
 function setUsageLogger(fn) {
   usageLogger = fn;
 }
 
-function logUsageTokens({ familyId, task, model, tokensIn, tokensOut, note }) {
+function logUsageTokens({ familyId, task, model, tokensIn, tokensOut, note, providerId }) {
   if (!usageLogger) return;
   try {
-    usageLogger({ familyId, task, model, tokensIn, tokensOut, note });
+    usageLogger({ familyId, task, model, tokensIn, tokensOut, note, providerId });
   } catch {
     /* accounting never breaks AI */
   }
 }
 
-/**
- * Send a chat completion for a task.
- * @param {string} task - one of the keys in DEFAULT_ROUTES
- * @param {Array<{role:string,content:string}>} messages
- * @param {{json?:boolean, maxTokens?:number, temperature?:number, usage?:{familyId:number,note:string}}} [opts]
- * @returns {Promise<{content:string, usage:object|null, model:string|null}>}
- */
+function effectiveProviderEntry(cfg, providerId) {
+  if (!cfg || !Array.isArray(cfg.aiProviders) || !cfg.aiProviders.length) return null;
+  return cfg.aiProviders.find((p) => p.id === providerId) || null;
+}
+
+function defaultProviderFromVault(vault) {
+  if (!vault) return { provider: provider(), baseUrl: process.env.AI_BASE_URL || "", apiKey: process.env.AI_API_KEY || "", modelPro: process.env.AI_MODEL_PRO || "", modelFlash: process.env.AI_MODEL_FLASH || "", vision: process.env.AI_VISION_MODEL || "" };
+  return {
+    provider: vault.aiProvider || provider(),
+    baseUrl: vault.aiBaseUrl || process.env.AI_BASE_URL || "",
+    apiKey: vault.aiApiKey || process.env.AI_API_KEY || "",
+    modelPro: vault.aiModelPro || process.env.AI_MODEL_PRO || "",
+    modelFlash: vault.aiModelFlash || process.env.AI_MODEL_FLASH || "",
+    vision: vault.aiVisionModel || process.env.AI_VISION_MODEL || "",
+  };
+}
+
+function vaultAsProviderEntry(vaultDefault, id) {
+  return {
+    id,
+    name: "Default",
+    kind: vaultDefault.provider || "openai",
+    baseUrl: vaultDefault.baseUrl,
+    apiKey: vaultDefault.apiKey,
+    trainsOnData: false,
+    models: [vaultDefault.modelPro, vaultDefault.modelFlash].filter(Boolean),
+  };
+}
+
+// The learner-data rule, fail closed. A provider flagged trains-on-data is
+// served only when the call site passes opts.publicContent === true, a flag
+// each site sets by hand only when its prompt provably carries no learner
+// data (today that is open course generation: no learner attached, guide
+// ticked open publish). Every other call, whatever its task name, falls back
+// to the default provider. A task-name denylist cannot work here: any new
+// call site, or any prompt carrying only a learner's name, would slip past
+// it. The prompt sniff above is a second guard and can still veto a
+// publicContent call; opts.learnerData does the same by hand.
+function resolveEffectiveEntry({ vault, task, messages, opts }) {
+  const vaultDefault = defaultProviderFromVault(vault);
+  const routes = vault && vault.aiRoutes && typeof vault.aiRoutes === "object" ? vault.aiRoutes : null;
+  const mapped = routes && routes[task] ? routes[task] : null;
+  const publicContent = opts ? opts.publicContent === true : false;
+  const learnerData = Boolean(opts && opts.learnerData) || promptHasLearnerData(messages);
+
+  let entry = null;
+  let modelOverride = null;
+  let fallbackWarning = null;
+
+  if (mapped) {
+    const found = effectiveProviderEntry(vault, mapped.providerId);
+    if (found) {
+      entry = found;
+      modelOverride = mapped.model || null;
+    }
+  }
+
+  if (!entry) {
+    entry = vaultAsProviderEntry(vaultDefault, "__default");
+    return { entry, modelOverride, vaultDefault, fallbackWarning, learnerData };
+  }
+
+  const wouldBreakRule = Boolean(entry.trainsOnData) && (!publicContent || learnerData);
+
+  if (wouldBreakRule) {
+    fallbackWarning = `ai_learner_data_fallback: task ${task} requested provider ${entry.id} which trains on data; fell back to default`;
+    try { console.warn(fallbackWarning); } catch {}
+    entry = vaultAsProviderEntry(vaultDefault, "__default");
+    modelOverride = null;
+  }
+
+  return { entry, modelOverride, vaultDefault, fallbackWarning, learnerData };
+}
+
 async function effectiveConfig() {
   const vault = await aiConfigSnapshot();
   if (!vault) return { provider: provider(), baseUrl: process.env.AI_BASE_URL || "", apiKey: process.env.AI_API_KEY || "", modelPro: process.env.AI_MODEL_PRO || "", modelFlash: process.env.AI_MODEL_FLASH || "", vision: process.env.AI_VISION_MODEL || "" };
@@ -156,10 +245,59 @@ function vaultConfigured(cfg) {
   return Boolean((cfg.baseUrl || "").trim() || (cfg.apiKey || "").trim());
 }
 
+/**
+ * Send a chat completion for a task.
+ * @param {string} task - one of the keys in DEFAULT_ROUTES
+ * @param {Array<{role:string,content:string}>} messages
+ * @param {{json?:boolean, maxTokens?:number, temperature?:number, usage?:{familyId:number,note:string}, publicContent?:boolean, learnerData?:boolean}} [opts]
+ *   publicContent: true only at call sites whose prompt provably carries no
+ *   learner data; it is the sole thing that unlocks a trains-on-data provider.
+ *   learnerData: true forces the learner-data fallback by hand.
+ * @returns {Promise<{content:string, usage:object|null, model:string|null}>}
+ */
 async function chat(task, messages, opts = {}) {
-  const cfg = await effectiveConfig();
+  const vault = await aiConfigSnapshot();
+  const vaultDefault = defaultProviderFromVault(vault);
+  const routed = resolveEffectiveEntry({ vault, task, messages, opts });
+  const entry = routed.entry;
+  const modelOverride = routed.modelOverride;
+
+  const cfg = (() => {
+    const kind = String(entry.kind || vaultDefault.provider || "openai").toLowerCase();
+    const providerName = kind === "anthropic" || kind === "claude" ? "anthropic" : kind === "gemini" || kind === "google" ? "gemini" : "openai";
+    if (entry.id === "__default") {
+      return {
+        provider: vaultDefault.provider || providerName,
+        baseUrl: vaultDefault.baseUrl,
+        apiKey: vaultDefault.apiKey,
+        modelPro: vaultDefault.modelPro,
+        modelFlash: vaultDefault.modelFlash,
+        vision: vaultDefault.vision,
+        providerId: entry.id,
+        fallbackWarning: routed.fallbackWarning,
+      };
+    }
+    // A routed provider never inherits the default provider's model names:
+    // those models live on the default host and usually do not exist here, so
+    // sending them is a guaranteed error from the provider. The route's model
+    // wins; without one, the provider's own models list supplies it, first
+    // model for pro tasks and second for flash (one model serves both), the
+    // same [pro, flash] order the default provider's pair uses.
+    const own = (Array.isArray(entry.models) ? entry.models : []).filter(Boolean);
+    return {
+      provider: providerName,
+      baseUrl: entry.baseUrl || vaultDefault.baseUrl || "",
+      apiKey: entry.apiKey || "",
+      modelPro: own[0] || "",
+      modelFlash: own[1] || own[0] || "",
+      vision: "",
+      providerId: entry.id,
+      fallbackWarning: routed.fallbackWarning,
+    };
+  })();
+
   if (!vaultConfigured(cfg)) {
-    const err = new Error("ai_not_configured: set AI settings in Settings  vault or AI_BASE_URL / AI_PROVIDER + AI_API_KEY. See .env.example");
+    const err = new Error("ai_not_configured: set AI settings in Settings vault or AI_BASE_URL / AI_PROVIDER + AI_API_KEY. See .env.example");
     err.code = "ai_not_configured";
     throw err;
   }
@@ -178,16 +316,20 @@ async function chat(task, messages, opts = {}) {
   const tm = resolveRoute(task);
   const wantPro = tm.tier === "pro";
   const vaultModel = wantPro ? (cfg.modelPro || "") : (cfg.modelFlash || "");
-  const effModel = vaultModel || tm.model || null;
+  // The env tier models (AI_MODEL_PRO / AI_MODEL_FLASH) are the DEFAULT
+  // provider's names, so they are never sent to a routed provider: a missing
+  // model there is a configuration error, not a cross-provider guess.
+  const effModel = modelOverride || vaultModel || (entry.id === "__default" ? tm.model : null);
   if (!effModel) {
-    const err = new Error(`ai_no_model: task "${task}" resolved to tier with no model. Set models in the AI vault or AI_MODEL_PRO/AI_MODEL_FLASH`);
+    const err = new Error(`ai_no_model: task "${task}" is routed to provider "${entry.id}" which has no model. Set a model on the route, or add models to the provider, in the AI vault`);
     err.code = "ai_no_model";
     throw err;
   }
   const p = String(cfg.provider || provider()).toLowerCase();
-  if (p === "anthropic" || p === "claude") return chatViaAnthropic(task, messages, opts, effModel, cfg);
-  if (p === "gemini" || p === "google") return chatViaGemini(task, messages, opts, effModel, cfg);
-  return chatViaOpenAI(task, messages, opts, effModel, cfg);
+  const callOpts = { ...opts, providerId: cfg.providerId };
+  if (p === "anthropic" || p === "claude") return chatViaAnthropic(task, messages, callOpts, effModel, cfg);
+  if (p === "gemini" || p === "google") return chatViaGemini(task, messages, callOpts, effModel, cfg);
+  return chatViaOpenAI(task, messages, callOpts, effModel, cfg);
 }
 
 async function chatViaGemini(task, messages, opts, model, cfg) {
@@ -217,6 +359,7 @@ async function chatViaGemini(task, messages, opts, model, cfg) {
       tokensIn: out.usage.prompt_tokens,
       tokensOut: out.usage.completion_tokens,
       note: opts.usage && opts.usage.note,
+      providerId: opts.providerId,
     });
   }
   return out;
@@ -249,6 +392,7 @@ async function chatViaAnthropic(task, messages, opts, model, cfg) {
       tokensIn: out.usage.prompt_tokens,
       tokensOut: out.usage.completion_tokens,
       note: opts.usage && opts.usage.note,
+      providerId: opts.providerId,
     });
   }
   return out;
@@ -281,6 +425,7 @@ async function chatViaOpenAI(task, messages, opts, model, cfg) {
       tokensIn: data.usage.prompt_tokens,
       tokensOut: data.usage.completion_tokens,
       note: opts.usage && opts.usage.note,
+      providerId: opts.providerId,
     });
   }
   return {
@@ -348,4 +493,7 @@ function tryParse(text) {
   return undefined;
 }
 
-module.exports = { chat, chatJson, resolveRoute, configured, health, setUsageLogger, provider, refreshVault, configuredFromVault };
+module.exports = {
+  chat, chatJson, resolveRoute, configured, health, setUsageLogger, provider, refreshVault, configuredFromVault,
+  DEFAULT_ROUTES, promptHasLearnerData, resolveEffectiveEntry,
+};
