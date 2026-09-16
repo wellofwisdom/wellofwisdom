@@ -1348,6 +1348,23 @@ Bearer use elsewhere: send `Authorization: Bearer wow_...`. On any route it is
 checked before the cookie. Unknown or revoked is 401, insufficient scope is
 403, and per-token rate limit is 120 per minute (429 `too_many_attempts`).
 
+## Roster (/api/roster)
+
+Mounted at `/api/roster`. Bulk learner creation from a spreadsheet. Every route needs `perm.can("create_learner")` (owner and editor, not viewer or learner), family scoped, rate limited per IP.
+
+### POST /api/roster/preview
+Body: `{ csv }` or `{ text }` (raw CSV text; accepts comma or semicolon delimiters, quoted fields, and a leading UTF-8 BOM). Also accepts `{ csv: string }` when the CSV is pasted in JSON. Columns: `name`, `username` (optional, generated from name when blank), `grade`, `interests` (semicolon or comma separated), `email` (optional). Accepts header aliases (for example `student`, `login`, `grade_level`, `hobbies`, `e-mail`). Cap at 200 rows; excess is reported via `capExceeded` and `ignoredBeyondCap`.
+Returns: `{ rows, capExceeded, totalRows, ignoredBeyondCap }`. Each row has `name`, `username`, `generatedUsername`, `grade`, `interests`, `email`, `errors`, `valid`. Possible codes per row: `name_required`, `name_too_long`, `username_invalid`, `username_taken` (already in family), `username_duplicate_in_file`, `grade_invalid` (must be integer 1 to 14 when present), `email_invalid`, `row_cap_exceeded`.
+Notes: validates without writing. 400 `csv_required` for empty input; 429 `too_many_attempts` (30 per 10 minutes per IP for preview).
+
+### POST /api/roster/import
+Body: same as preview (`{ csv }` or `{ text }`)
+Returns: `{ created, failed, capExceeded }`. `created` is `{ id, name, username, pin }` per learner; the PIN is shown once and stored as a hash, never in plain text. `failed` is `{ index, errors }` for rows that did not pass preview. Writes the valid rows in one transaction; a mid-import failure rolls back. 400 `csv_required`; 429 `too_many_attempts` (10 per 15 minutes per IP for import). Still checks each taken username inside the transaction, and 409 `username_taken` if a race is detected.
+
+### GET /api/roster/template
+Auth: `perm.can("create_learner")`
+Returns: `text/csv` attachment `roster-template.csv` with header `name,username,grade,interests,email` and two example rows.
+
 ## STT (/api/stt)
 
 Mounted at `/api/stt`. Speech to text for learner answers and guide notes.
