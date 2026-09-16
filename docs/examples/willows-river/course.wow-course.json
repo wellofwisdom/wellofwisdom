@@ -25,6 +25,32 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Watercolour of a riverbank with roots holding soil, shrubs, and willow trees shading the water",
+                "caption": "The riparian strip: roots hold soil, leaves feed the web, shade cools the water.",
+                "prompt": "A riverbank watercolour with roots holding soil, shrubs and willows shading the water, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: why the bank matters",
+                "problem": "Why does a thin strip of willows and shrubs help the whole river?",
+                "steps": [
+                  {
+                    "text": "List the strip's jobs: roots hold soil so banks do not crumble."
+                  },
+                  {
+                    "text": "Leaves and twigs feed insects that feed fish and birds."
+                  },
+                  {
+                    "text": "Shade cools water, and cooler water holds more oxygen, so fish thrive."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
@@ -95,6 +121,49 @@
               "content": {
                 "title": "Rat's picnic and Badger's larder",
                 "body": "Rat brings bread, cold chicken, salad, and a bottle of something bubbly for his first picnic with Mole. Badger, when you finally visit his house in the Wild Wood, keeps a deep and tidy larder. Both meals trace back to the bank and the wood, step by step.\n\nEvery riverbank bite comes from a chain.\n\n- **Producers** make food from sunlight: willows, reeds, waterweed, and tiny algae on stones\n- **Consumers** eat that food: mayfly nymphs graze algae, small fish eat nymphs, a heron eats the fish, an otter may hunt along the edge\n- **Decomposers** break dead leaves, wood, and bodies into nutrients: fungi, bacteria, worms, and woodlice\n\nA line of who eats whom is a **food chain**. When many chains share members they weave into a **food web**. If $1$ link breaks, such as no algae after shade is cleared, the mayflies fall and the fish above feel it. Take one thread away and the whole net sags. Keep the base strong and the rest can hold."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Diagram of a food chain: algae to mayfly to small fish to heron",
+                "caption": "One food chain on the bank: algae makes food, mayfly grazes, fish eats mayfly, heron eats fish.",
+                "prompt": "A diagram of a food chain algae to mayfly to small fish to heron, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: build a food chain",
+                "problem": "Make a food chain for this bank that starts with algae.",
+                "steps": [
+                  {
+                    "text": "Start with the producer that makes food from sunlight: algae."
+                  },
+                  {
+                    "text": "Add a grazer: mayfly eats algae."
+                  },
+                  {
+                    "text": "Add the next consumers: small fish eats mayfly, heron eats fish. That is the chain."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "predict",
+              "content": {
+                "prompt": "You clear the trees from a bank leaving bare soil to the water. Predict what happens to clarity after rain.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Water becomes cloudier"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Water becomes clearer"
+                  }
+                ],
+                "reveal": "Water becomes cloudier because soil washes in without roots to hold it, so the disc vanishes sooner."
               }
             },
             {
@@ -215,6 +284,32 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Close view of writing desk with sentence drafts showing sight and sound details circled",
+                "caption": "Strong description names what is there and picks one sense at a time.",
+                "prompt": "A writing desk with sentence drafts and sight and sound details circled, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: write with senses",
+                "problem": "Write one sentence with one sight and one sound for the bank.",
+                "steps": [
+                  {
+                    "text": "Pick a specific sight you checked: willow shadow falling on still water."
+                  },
+                  {
+                    "text": "Pick a specific sound you heard: moorhen chattering among reeds."
+                  },
+                  {
+                    "text": "Join them in one short sentence under 25 words."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
@@ -264,6 +359,32 @@
               "content": {
                 "title": "What the river says when you listen",
                 "body": "On Grahame's river you hear before you see. The lapping around Rat's boat, the plop of a water vole, the wind stirring the willow tops. Mole, who has lived by smell underground, must learn to listen in air. Close your eyes on a bank and the river gives a map in sound.\n\nGood listening is not just \"I heard birds.\" It is **specific and checkable**.\n\n- High or low, near or far, steady or sudden, each quality tells you where to look\n- A continuous hiss means reeds in wind, a sharp splash means something entered water\n- Distance changes volume: a coot calls loud nearby, a train sounds thin beyond the field\n- Silence matters too: when wind drops, the small water sounds rise and carry\n\nOn a real visit, stand still for a count of $30$ seconds with eyes closed, then list $3$ sounds with one word for pitch and one for pattern. That list is data you can return to and compare next season."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Moorhen among reeds with ripples and willow shadows on still water at dawn",
+                "caption": "Listen first, then look. The river at dawn smells of damp earth and sounds of reeds.",
+                "prompt": "A moorhen among reeds with ripples and willow shadows on still water at dawn, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: listen before you count",
+                "problem": "You arrive at the bank. What do you do first before any tally?",
+                "steps": [
+                  {
+                    "text": "Stand still and listen for one minute. Note wind, water, birds."
+                  },
+                  {
+                    "text": "Write one sentence of description using one sight and one sound."
+                  },
+                  {
+                    "text": "Then start the count. Description first keeps your measures honest."
+                  }
+                ]
               }
             },
             {
@@ -319,6 +440,32 @@
               "content": {
                 "title": "Toad in summer, Badger in winter",
                 "body": "In Grahame's year, summer belongs to Toad. He roars down the road in a motorcar, all speed and shine, and forgets every plan he made last week. Winter belongs to Badger, who stays deep in his sett in the Wild Wood and receives friends by the fire. Nature keeps a similar clock, though Grahame's Toad wastes his seasons and Badger respects his.\n\nThe bank changes what you can find.\n\n- **Spring:** fresh willow shoots, nesting birds, insects hatching as days lengthen\n- **Summer:** peak activity, warm air, many young birds, insects abundant, water lowest and most used\n- **Autumn:** seeds and leaf fall cloud and feed the water, berries along the edge, birds gathering\n- **Winter:** growth slows, many animals shelter and move less, water colder and often clearer after rains settle\n\nEven a small temperature shift changes who thrives, because cooler water holds more oxygen and warmer water can stress fish. Where shade keeps a stretch at $18^{\\circ}C$ rather than $24^{\\circ}C$, trout and mayflies have more room to breathe."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Four small panels of the same bank in spring, summer, autumn, winter",
+                "caption": "The same bank through the seasons: green growth, summer crowd, leaf fall, quiet winter.",
+                "prompt": "Four panels of the same riverbank in spring summer autumn winter, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: shade and oxygen",
+                "problem": "Why might a fish prefer a shaded stretch in summer?",
+                "steps": [
+                  {
+                    "text": "Shade keeps water cooler than sun."
+                  },
+                  {
+                    "text": "Cooler water holds more dissolved oxygen."
+                  },
+                  {
+                    "text": "Fish need oxygen to breathe, so the cooler shaded stretch helps."
+                  }
+                ]
               }
             },
             {
@@ -408,6 +555,49 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Garden trowel, local seedlings, and a hand drawn care plan with who waters and when",
+                "caption": "One small patch with local plants and a written plan someone else could continue.",
+                "prompt": "A garden trowel with local seedlings and a hand drawn care plan, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: small plan that lasts",
+                "problem": "Which care plan lasts: one small patch with a named waterer and written record, or the whole bank replanted at once?",
+                "steps": [
+                  {
+                    "text": "Ask: could next year's class continue it? A small written plan can be tended and handed on."
+                  },
+                  {
+                    "text": "A grand replant with no plan and thirsty imports cannot be kept."
+                  },
+                  {
+                    "text": "So the small patch with local plants and a named waterer lasts."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "predict",
+              "content": {
+                "prompt": "A shaded stretch and a sunny stretch are the same creek in summer. Where do you predict more fish shelter?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Shaded stretch"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Sunny stretch"
+                  }
+                ],
+                "reveal": "Shaded stretch, because cooler water there holds more dissolved oxygen that fish need."
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
@@ -457,6 +647,32 @@
               "content": {
                 "title": "The Wild Wood is not the riverbank",
                 "body": "The Wild Wood in Grahame's book is not the open riverbank. The bank is light, breezy, and social. Rat rows, Mole wanders, Otter plays, and friends picnic in the open. The Wild Wood is close, shady, and old, with holes and paths that only Badger knows. Animals feel the difference in their bones. Mole is frightened when he first enters the Wood alone before Badger finds him.\n\nHabitats differ in light, cover, and ground.\n\n- **Riverbank:** open sky, willows and reeds, wet soil, many insects on show, sound carries across water\n- **Wild Wood:** tall trees, deep shade, thick leaf litter, hollows and setts, sound muffled by trunks\n- Between them is an **edge** where both sets of creatures meet and feed, richest of all for visits\n- Some animals cross often: Otter moves bank to wood, Badger rarely leaves the Wood except to call on friends\n\nKnowing which habitat you stand in helps you predict what you will find and what care it needs. Do not expect reeds in deep wood. Do not expect a Badger sett in open reeds. Match your eyes to the habitat."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Split view: tangled Wild Wood canopy beside open sunny riverbank with reed beds",
+                "caption": "Wild Wood shade versus open bank sun: different shelter, different crowds.",
+                "prompt": "A split view of tangled Wild Wood canopy beside open sunny riverbank with reed beds, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: Wild Wood versus bank",
+                "problem": "How does the Wild Wood differ from the open riverbank as habitat?",
+                "steps": [
+                  {
+                    "text": "Canopy: Wild Wood is shaded and sheltered, bank is open and sunny."
+                  },
+                  {
+                    "text": "Food and cover differ, so different crowds gather: woodland insects versus water grazers."
+                  },
+                  {
+                    "text": "Edge between them is richest because both sets meet."
+                  }
+                ]
               }
             },
             {
@@ -537,6 +753,32 @@
               "content": {
                 "title": "Clear, cool, and moving",
                 "body": "Rat knows his river by eye: is it clear, cool, and moving just so, or is it cloudy after rain, warm in sun, and low between stones? You can learn the same reading without special gear. Three simple checks tell a lot about what the water can hold.\n\nLearn to **read water** before you judge it.\n\n- **Clarity:** clear water lets you see stones at knee depth; cloudy water after a storm carries soil from bare banks\n- **Temperature:** cool water shaded by willows can hold more oxygen for fish than a shallow sunny pool\n- **Flow and edge:** a steady glide past roots means a stable bank; a raw cut shows where soil is washing away\n\nIf you visit twice, note each check in words and a number where you can. For clarity, record the depth in centimetres where a white stone disappears, such as $30$ cm or $60$ cm. For temperature, read the thermometer at the same time of day and same spot. The numbers make the words honest, and the words make the numbers matter."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Clarity tube and thermometer beside a creek with a data sheet for temperature and clarity",
+                "caption": "Reading the water: air and water temperature and how far you see before the disc vanishes.",
+                "prompt": "A clarity tube and thermometer beside a creek with a data sheet, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: temperature and clarity sheet",
+                "problem": "You record air and water temperature and clarity on a field sheet. What tells you to look closer?",
+                "steps": [
+                  {
+                    "text": "Compare air and water temperature: a warm inflow raises water temperature."
+                  },
+                  {
+                    "text": "Check clarity when the disc vanishes: cloudier after rain may mean soil washing in."
+                  },
+                  {
+                    "text": "A rise in temperature or drop in clarity raises a question about shade or bank stability."
+                  }
+                ]
               }
             },
             {
@@ -639,6 +881,32 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Web diagram of the bank: arrows from willow and algae to insects to fish to heron and back through decomposers",
+                "caption": "A food web: many chains woven together. Take one thread away and the others sag.",
+                "prompt": "A web diagram of the bank with arrows from willow and algae to insects to fish to heron and through decomposers, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: from chain to web",
+                "problem": "Why can a food web survive losing one prey better than a single chain?",
+                "steps": [
+                  {
+                    "text": "A chain has one path: if the mayfly is gone, the fish has no link."
+                  },
+                  {
+                    "text": "A web has many prey linked to the same predator."
+                  },
+                  {
+                    "text": "So the fish can eat another insect and the heron can eat another fish."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
@@ -720,6 +988,49 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Tape measure along a bank transect with quadrats and sketch of groundcover, shrubs, trees",
+                "caption": "Measure the strip: tape, quadrats, and layers sketched before you count.",
+                "prompt": "A tape measure along a bank transect with quadrats and layers of groundcover shrubs trees, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: measure the riparian strip",
+                "problem": "Lay a tape from water edge inland. How do you record three layers?",
+                "steps": [
+                  {
+                    "text": "Mark groundcover, shrubs, and trees as you move inland and note where each starts."
+                  },
+                  {
+                    "text": "Use small quadrats to estimate cover, and sketch heights."
+                  },
+                  {
+                    "text": "Compare two spots: a healthy bank has all three layers in order, a bare bank does not."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "predict",
+              "content": {
+                "prompt": "You plan a planting with thirsty garden flowers across the whole bank and no written record. Predict if next year's class can continue it.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "They can continue it easily"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "They cannot"
+                  }
+                ],
+                "reveal": "They cannot, because the plan is too large, needs more water, and has no record to hand on."
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
@@ -776,6 +1087,32 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Boots on a creek bank with field sheet, pencil, and written observation before measuring",
+                "caption": "Two courses, one creek: write your one sentence of description before you measure.",
+                "prompt": "Boots on a creek bank with a field sheet and pencil, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: walk then measure",
+                "problem": "What is the best order for a creek visit after two courses?",
+                "steps": [
+                  {
+                    "text": "Describe the bank first with words: one sentence of sight and sound."
+                  },
+                  {
+                    "text": "Then measure and tally: date, air and water temperature, clarity, three rock lifts."
+                  },
+                  {
+                    "text": "Finish with one question the numbers raised and a line for next time."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
@@ -825,6 +1162,32 @@
               "content": {
                 "title": "Bringing it all together",
                 "body": "By now you have read the bank like Rat, noted seasons like Badger, and dreamed roads like Toad but chosen to stay and tend. Mole started afraid and ended useful because he learned to notice and to help in one place. Your last job is to pull every thread together on a single page that someone else could follow.\n\nA strong stewardship page holds four parts at once.\n\n- A **named patch** with a one line location someone could find again, such as east bank ten steps past the willow bend\n- One **food web chain** of at least three links you actually saw or that fits this bank, with arrows such as algae $\\rightarrow$ mayfly $\\rightarrow$ fish\n- One **descriptive sentence** with a specific sight and a specific sound, under $25$ words\n- A **three line care plan** that says what you will plant, where on the strip, and how you will know it is working next term\n\nKeep each part short and checkable. If a friend can stand on your patch, read your sentence and see the same bank, and follow your plan without asking you, the page has done its work. That is stewardship, not scenery. Grahame's friends would recognise it."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Stewardship page layout with patch name, food chain, descriptive sentence, and three line care plan",
+                "caption": "Your riverbank stewardship page: patch, chain, sentence, and plan on one sheet.",
+                "prompt": "A stewardship page layout with patch name, food chain sketch, sentence and care plan, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: build the stewardship page",
+                "problem": "Build a stewardship page for a patch you know. What four parts must it have?",
+                "steps": [
+                  {
+                    "text": "Name the patch and locate it in one line."
+                  },
+                  {
+                    "text": "Sketch one correct producer to consumer chain with at least three links."
+                  },
+                  {
+                    "text": "Add one descriptive sentence with a specific sight and sound, then a three line plan: what you will plant, where, and how you will know it works."
+                  }
+                ]
               }
             },
             {

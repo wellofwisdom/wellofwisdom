@@ -25,18 +25,59 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Compass rose with north east south west and the four halfway points labelled",
+                "caption": "The rose in order clockwise: north, northeast, east, southeast, south, southwest, west, northwest.",
+                "prompt": "A compass rose with north east south west and halfway points labelled, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: Never Eat Soggy Waffles",
+                "problem": "Put the four main points in clockwise order starting at north.",
+                "steps": [
+                  {
+                    "text": "Start at north at the top."
+                  },
+                  {
+                    "text": "Go clockwise: east is right, south is bottom, west is left."
+                  },
+                  {
+                    "text": "So the order is north, east, south, west, then back to north."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
                 "prompt": "If you face east in Oz, which direction is south?",
                 "choices": [
-                  { "id": "c1", "text": "To your right", "feedback": "Correct. Facing east puts north on your left and south on your right because north and south are opposite." },
-                  { "id": "c2", "text": "To your left", "feedback": "Misconception: swapping north and south. When you face east, left is north, not south, so left cannot be south." },
-                  { "id": "c3", "text": "Behind you", "feedback": "Misconception: thinking opposite means behind you. West is behind you when you face east, not south. South is a right turn, not a U turn." }
+                  {
+                    "id": "c1",
+                    "text": "To your right",
+                    "feedback": "Correct. Facing east puts north on your left and south on your right because north and south are opposite."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "To your left",
+                    "feedback": "Misconception: swapping north and south. When you face east, left is north, not south, so left cannot be south."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Behind you",
+                    "feedback": "Misconception: thinking opposite means behind you. West is behind you when you face east, not south. South is a right turn, not a U turn."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Facing east, north is left and south is right, with north and south opposite each other.",
-                "hints": ["Picture the compass with N at top, E at right, S at bottom, W at left. Now turn your body to face E. Where is S?", "When you face east, north is on your left. The direction opposite north is south, so it must be on the other side."]
+                "hints": [
+                  "Picture the compass with N at top, E at right, S at bottom, W at left. Now turn your body to face E. Where is S?",
+                  "When you face east, north is on your left. The direction opposite north is south, so it must be on the other side."
+                ]
               }
             },
             {
@@ -45,13 +86,28 @@
                 "kind": "mcq",
                 "prompt": "The yellow brick road runs southeast from Munchkin Country. Which two compass points does that lie between?",
                 "choices": [
-                  { "id": "c1", "text": "South and east", "feedback": "Correct. Southeast is exactly halfway between south and east." },
-                  { "id": "c2", "text": "North and west", "feedback": "Misconception: picking the opposite corner. North and west make northwest, not southeast. Check each half of the word." },
-                  { "id": "c3", "text": "East and north", "feedback": "Misconception: mixing one correct half with the wrong one. North and east make northeast. Southeast needs south plus east." }
+                  {
+                    "id": "c1",
+                    "text": "South and east",
+                    "feedback": "Correct. Southeast is exactly halfway between south and east."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "North and west",
+                    "feedback": "Misconception: picking the opposite corner. North and west make northwest, not southeast. Check each half of the word."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "East and north",
+                    "feedback": "Misconception: mixing one correct half with the wrong one. North and east make northeast. Southeast needs south plus east."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Southeast is halfway between south and east.",
-                "hints": ["Break the word into two directions: south plus east. Which two words do you see inside southeast?", "The compass order clockwise is N, E, S, W. South is opposite north. Which pair includes south?"]
+                "hints": [
+                  "Break the word into two directions: south plus east. Which two words do you see inside southeast?",
+                  "The compass order clockwise is N, E, S, W. South is opposite north. Which pair includes south?"
+                ]
               }
             }
           ]
@@ -68,18 +124,75 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Map excerpt showing dot for Emerald City, wavy line for river, green bands for fields, grey for mountains, and a legend",
+                "caption": "Same symbol, same meaning everywhere on the map. The legend keeps the promise.",
+                "prompt": "A map excerpt with dot for city, wavy line for river, green for fields, grey for mountains and a legend box, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: read the legend",
+                "problem": "The legend says a wavy blue line means a river. What does that line show on the map?",
+                "steps": [
+                  {
+                    "text": "Find the symbol on the map: wavy blue line."
+                  },
+                  {
+                    "text": "Look it up in the legend."
+                  },
+                  {
+                    "text": "The legend says river, so that line is a river."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "predict",
+              "content": {
+                "prompt": "A compass rose has no labels. You see north at the top. Predict where is east.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "To the right of north"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "To the left of north"
+                  }
+                ],
+                "reveal": "East is to the right of north, going clockwise. So east is on the right side of the rose."
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
                 "prompt": "On a map of Oz the legend says a wavy blue line means a river and grey hatching means mountains. What does the wavy blue line show?",
                 "choices": [
-                  { "id": "c1", "text": "A river", "feedback": "Correct. The legend promised that symbol means river, so you read what the map promised, not what the line looks like elsewhere." },
-                  { "id": "c2", "text": "A road", "feedback": "Misconception: assuming any line is a road. On this map roads have a different symbol, and the legend says wavy blue is water." },
-                  { "id": "c3", "text": "The edge of the map", "feedback": "Misconception: reading decoration as edge. The map border is not listed in the legend as a feature inside the land." }
+                  {
+                    "id": "c1",
+                    "text": "A river",
+                    "feedback": "Correct. The legend promised that symbol means river, so you read what the map promised, not what the line looks like elsewhere."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "A road",
+                    "feedback": "Misconception: assuming any line is a road. On this map roads have a different symbol, and the legend says wavy blue is water."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "The edge of the map",
+                    "feedback": "Misconception: reading decoration as edge. The map border is not listed in the legend as a feature inside the land."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "The legend assigns meaning to each symbol. Blue wavy line was defined as river.",
-                "hints": ["Check what the legend says the wavy blue line stands for. Trust the key, not a guess."]
+                "hints": [
+                  "Check what the legend says the wavy blue line stands for. Trust the key, not a guess."
+                ]
               }
             },
             {
@@ -89,7 +202,9 @@
                 "prompt": "Look at any map of your home or school. Name one symbol in its legend and what real thing it stands for. If you have no legend nearby, invent one clear symbol and say what you would use it for.",
                 "answer": "A small hospital cross symbol that stands for a clinic building, with a note that it is the same symbol everywhere on the map.",
                 "explanation": "Any answer that names one symbol and the real thing it consistently represents is good.",
-                "hints": ["Pick one mark and one thing it always means, and state both clearly."]
+                "hints": [
+                  "Pick one mark and one thing it always means, and state both clearly."
+                ]
               }
             }
           ]
@@ -106,19 +221,64 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Person standing on a field facing east with north on the left and south on the right",
+                "caption": "Turn yourself, not the map. Facing east, north is left and south is right.",
+                "prompt": "A person standing in a field facing east with faint compass directions, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: facing east",
+                "problem": "You face east. Which side is south?",
+                "steps": [
+                  {
+                    "text": "Picture the rose: north up, east right, south down, west left."
+                  },
+                  {
+                    "text": "Turn to face east (to the right)."
+                  },
+                  {
+                    "text": "South is now on your right, north on your left."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
                 "prompt": "If north is 0 degrees and you turn clockwise, what bearing is southwest?",
                 "choices": [
-                  { "id": "c1", "text": "225 degrees", "feedback": "Correct. South is 180 and west is 270, so halfway is 225." },
-                  { "id": "c2", "text": "135 degrees", "feedback": "Misconception: mixing southeast with southwest. 135 is southeast, between south and east, not south and west." },
-                  { "id": "c3", "text": "45 degrees", "feedback": "Misconception: picking northeast. 45 is between north and east, the opposite quadrant from southwest." },
-                  { "id": "c4", "text": "315 degrees", "feedback": "Misconception: picking northwest. 315 is between north and west, one step north of southwest." }
+                  {
+                    "id": "c1",
+                    "text": "225 degrees",
+                    "feedback": "Correct. South is 180 and west is 270, so halfway is 225."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "135 degrees",
+                    "feedback": "Misconception: mixing southeast with southwest. 135 is southeast, between south and east, not south and west."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "45 degrees",
+                    "feedback": "Misconception: picking northeast. 45 is between north and east, the opposite quadrant from southwest."
+                  },
+                  {
+                    "id": "c4",
+                    "text": "315 degrees",
+                    "feedback": "Misconception: picking northwest. 315 is between north and west, one step north of southwest."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Bearings go clockwise from north: NE 45, SE 135, SW 225, NW 315.",
-                "hints": ["List the four cardinals with degrees: N 0, E 90, S 180, W 270. Southwest is halfway between S and W.", "Halfway between 180 and 270 is 225. Which choice is 225?"]
+                "hints": [
+                  "List the four cardinals with degrees: N 0, E 90, S 180, W 270. Southwest is halfway between S and W.",
+                  "Halfway between 180 and 270 is 225. Which choice is 225?"
+                ]
               }
             },
             {
@@ -127,13 +287,28 @@
                 "kind": "mcq",
                 "prompt": "Dorothy stands in Winkie Country in the west of Oz. Which direction is the Emerald City at the centre?",
                 "choices": [
-                  { "id": "c1", "text": "East", "feedback": "Correct. Winkie Country is west of the centre, so the centre is east of you. West and east are opposite." },
-                  { "id": "c2", "text": "West", "feedback": "Misconception: thinking the centre is farther west because you are in the west. The centre is inward, so it is the opposite direction." },
-                  { "id": "c3", "text": "South", "feedback": "Misconception: confusing south with east. Quadling Country is south, not the centre from the west." }
+                  {
+                    "id": "c1",
+                    "text": "East",
+                    "feedback": "Correct. Winkie Country is west of the centre, so the centre is east of you. West and east are opposite."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "West",
+                    "feedback": "Misconception: thinking the centre is farther west because you are in the west. The centre is inward, so it is the opposite direction."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "South",
+                    "feedback": "Misconception: confusing south with east. Quadling Country is south, not the centre from the west."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "The Emerald City is at the centre, so from the west it lies to the east.",
-                "hints": ["Winkie Country is the west region. The centre is inland from the west. Which direction points inward?", "West is toward the desert border. The opposite direction points toward the middle of Oz."]
+                "hints": [
+                  "Winkie Country is the west region. The centre is inland from the west. Which direction points inward?",
+                  "West is toward the desert border. The opposite direction points toward the middle of Oz."
+                ]
               }
             }
           ]
@@ -150,6 +325,32 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Munchkin farmer pointing southeast while the yellow brick road winds that way on a map",
+                "caption": "Southeast lies between south and east. The road on the map follows the ground.",
+                "prompt": "A Munchkin farmer pointing southeast beside a map with the yellow brick road winding southeast, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: southeast as two directions",
+                "problem": "The road runs southeast. Which two points is it between?",
+                "steps": [
+                  {
+                    "text": "Split the word: south and east."
+                  },
+                  {
+                    "text": "Southeast is halfway between its two parts."
+                  },
+                  {
+                    "text": "So it is between south and east."
+                  }
+                ]
+              }
+            },
+            {
               "type": "audio",
               "content": {
                 "title": "Munchkin farmer gives directions",
@@ -162,13 +363,28 @@
                 "kind": "mcq",
                 "prompt": "In the audio, after reaching the yellow brick road, which bearing does the farmer say to follow to the Scarecrow's field?",
                 "choices": [
-                  { "id": "c1", "text": "Southwest", "feedback": "Correct. The farmer says turn southwest and follow the bricks five kilometres to the cornfield." },
-                  { "id": "c2", "text": "Northeast", "feedback": "Misconception: flipping the direction. Northeast is opposite southwest. The farmer points toward the centre, not back toward Gillikin Country." },
-                  { "id": "c3", "text": "Southeast", "feedback": "Misconception: mixing up west and east. Southeast would point toward Quadling Country in the south, not toward the centre from the east." }
+                  {
+                    "id": "c1",
+                    "text": "Southwest",
+                    "feedback": "Correct. The farmer says turn southwest and follow the bricks five kilometres to the cornfield."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Northeast",
+                    "feedback": "Misconception: flipping the direction. Northeast is opposite southwest. The farmer points toward the centre, not back toward Gillikin Country."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Southeast",
+                    "feedback": "Misconception: mixing up west and east. Southeast would point toward Quadling Country in the south, not toward the centre from the east."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "The farmer says turn southwest on the yellow brick road toward the Scarecrow's cornfield.",
-                "hints": ["Replay the step after the two kilometre walk south. Which compound direction does he name?", "The farmer says keep the river on your west while heading to the field. Which direction keeps west on your right?"]
+                "hints": [
+                  "Replay the step after the two kilometre walk south. Which compound direction does he name?",
+                  "The farmer says keep the river on your west while heading to the field. Which direction keeps west on your right?"
+                ]
               }
             },
             {
@@ -178,7 +394,9 @@
                 "prompt": "In one or two sentences, repeat the farmer's route in order using directions and distances from the audio.",
                 "answer": "Walk south 2 km to the yellow brick road, then southwest 5 km to the cornfield keeping the river on the west, with Gillikin Country to the north as a check.",
                 "explanation": "Any answer that lists south 2 km to the road then southwest 5 km to the field, with river west or Gillikin north as reference, is good.",
-                "hints": ["List the steps in order with a direction and a distance for each."]
+                "hints": [
+                  "List the steps in order with a direction and a distance for each."
+                ]
               }
             }
           ]
@@ -200,13 +418,42 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Map scale bar: one centimetre on the map equals ten kilometres on the ground, road measured along curves as 8 cm",
+                "caption": "One centimetre stands for ten kilometres. Eight centimetres along the curves is eighty kilometres.",
+                "prompt": "A map scale bar showing one centimetre equals ten kilometres with a winding road measured as 8 cm, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: scale times length",
+                "problem": "Scale is 1 cm to 10 km. Road measures 8 cm along curves. How far on the ground?",
+                "steps": [
+                  {
+                    "text": "One cm stands for ten km."
+                  },
+                  {
+                    "text": "Multiply the map cm by ten."
+                  },
+                  {
+                    "text": "Eight times ten is eighty km."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
                 "prompt": "On a map where 1 cm = 10 km, a road measures 8 cm along its curves. How many km is the road on the ground?",
                 "answer": 80,
                 "explanation": "8 cm times 10 km per cm equals 80 km.",
-                "hints": ["Multiply the map centimetres by the km each centimetre stands for: ground equals map times scale.", "You measured 8 cm and each cm is 10 km. What is 8 times 10? Make sure you measured along the curves."]
+                "hints": [
+                  "Multiply the map centimetres by the km each centimetre stands for: ground equals map times scale.",
+                  "You measured 8 cm and each cm is 10 km. What is 8 times 10? Make sure you measured along the curves."
+                ]
               }
             },
             {
@@ -215,13 +462,28 @@
                 "kind": "mcq",
                 "prompt": "Why must you measure along the curves of the yellow brick road, not straight between its ends?",
                 "choices": [
-                  { "id": "c1", "text": "The road curves so the distance along it is longer than the straight line", "feedback": "Correct. A winding route is longer than the straight gap between its endpoints, so cutting across undercounts." },
-                  { "id": "c2", "text": "Maps are always wrong", "feedback": "Misconception: dismissing the map. The map is right when you use the scale correctly. The error is measuring the wrong line." },
-                  { "id": "c3", "text": "Scale bars do not work on curves", "feedback": "Misconception: thinking scale fails on curves. Scale works on any line. You just must trace the real line." }
+                  {
+                    "id": "c1",
+                    "text": "The road curves so the distance along it is longer than the straight line",
+                    "feedback": "Correct. A winding route is longer than the straight gap between its endpoints, so cutting across undercounts."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Maps are always wrong",
+                    "feedback": "Misconception: dismissing the map. The map is right when you use the scale correctly. The error is measuring the wrong line."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Scale bars do not work on curves",
+                    "feedback": "Misconception: thinking scale fails on curves. Scale works on any line. You just must trace the real line."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "A winding route is longer than the straight-line gap between its endpoints.",
-                "hints": ["Is the brick road straight? Compare the bent line to a ruler jump.", "Which line is longer, the wiggly road or the straight shortcut between the same two points?"]
+                "hints": [
+                  "Is the brick road straight? Compare the bent line to a ruler jump.",
+                  "Which line is longer, the wiggly road or the straight shortcut between the same two points?"
+                ]
               }
             }
           ]
@@ -238,13 +500,59 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Cyclist measuring a winding road with string versus a ruler jumping straight between ends",
+                "caption": "Measure along the bends with string, not a straight ruler jump, or you shorten the journey.",
+                "prompt": "A cyclist measuring a winding road with string versus a straight ruler, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: winding distance",
+                "problem": "Why is winding along the road longer than the straight line between ends?",
+                "steps": [
+                  {
+                    "text": "The road curves and bends away from the direct line."
+                  },
+                  {
+                    "text": "Every bend adds length."
+                  },
+                  {
+                    "text": "So the distance along it is longer than the straight gap."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "predict",
+              "content": {
+                "prompt": "A map scale says 1 cm is 10 km. A 6 cm winding road is measured straight as 3 cm. Predict which measure a walker should trust.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "6 cm along the bends"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "3 cm straight jump"
+                  }
+                ],
+                "reveal": "The 6 cm along the bends, because a winding road is longer than the straight gap between its ends."
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
                 "prompt": "A map uses 1 cm : 5 km. You trace the yellow brick road with thread and it straightens to 6.4 cm. How many km on the ground?",
                 "answer": 32,
                 "explanation": "6.4 times 5 equals 32. The thread follows the curves, so 32 is the road distance, not the straight gap.",
-                "hints": ["Use ground equals map times scale: multiply 6.4 by 5.", "The straight gap between the ends would be shorter than 6.4 cm, so be sure you used the traced length."]
+                "hints": [
+                  "Use ground equals map times scale: multiply 6.4 by 5.",
+                  "The straight gap between the ends would be shorter than 6.4 cm, so be sure you used the traced length."
+                ]
               }
             },
             {
@@ -253,13 +561,28 @@
                 "kind": "mcq",
                 "prompt": "Which statement about straight line distance versus road distance is true?",
                 "choices": [
-                  { "id": "c1", "text": "Road distance is longer than or equal to straight line distance", "feedback": "Correct. The road must wander, so its length cannot be shorter than the straight gap. Equality only if the road is perfectly straight." },
-                  { "id": "c2", "text": "Straight line distance is always longer than road distance", "feedback": "Misconception: flipping the comparison. A straight line is the shortest connection, so it cannot be longer than a winding road." },
-                  { "id": "c3", "text": "They are always exactly the same", "feedback": "Misconception: ignoring curves. They match only on a perfectly straight road. The yellow brick road is not straight." }
+                  {
+                    "id": "c1",
+                    "text": "Road distance is longer than or equal to straight line distance",
+                    "feedback": "Correct. The road must wander, so its length cannot be shorter than the straight gap. Equality only if the road is perfectly straight."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Straight line distance is always longer than road distance",
+                    "feedback": "Misconception: flipping the comparison. A straight line is the shortest connection, so it cannot be longer than a winding road."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "They are always exactly the same",
+                    "feedback": "Misconception: ignoring curves. They match only on a perfectly straight road. The yellow brick road is not straight."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "A winding road is longer than the straight gap. They are equal only if the road itself is straight.",
-                "hints": ["Think of a wiggly string versus a taut ruler between the same two pins. Which string is longer?", "If the road bends, does that add length or remove it compared to the straight line?"]
+                "hints": [
+                  "Think of a wiggly string versus a taut ruler between the same two pins. Which string is longer?",
+                  "If the road bends, does that add length or remove it compared to the straight line?"
+                ]
               }
             }
           ]
@@ -276,19 +599,68 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Mountain range with a steep pass over the top and a longer valley road around the end",
+                "caption": "The straight line over the range is short on paper and slow on foot. The valley road may be quicker.",
+                "prompt": "A mountain range with a steep pass over the top and a valley road around the end, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: choose the valley road",
+                "problem": "Steep pass short but slow, valley road long but faster walking. How do you decide?",
+                "steps": [
+                  {
+                    "text": "Estimate time for each: distance divided by speed for that terrain."
+                  },
+                  {
+                    "text": "Add cost of water and rest for each route."
+                  },
+                  {
+                    "text": "Pick the walkable route with less time, not just shorter draw."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "multi",
                 "prompt": "Which of these would count as a barrier that could make a straight line worse than a winding road around it? Select all that apply.",
                 "choices": [
-                  { "id": "c1", "text": "A steep mountain range across the straight line", "feedback": "Correct. A steep range is a barrier. Climbing costs time and energy and can be unsafe." },
-                  { "id": "c2", "text": "A wide river with no bridge on the straight line", "feedback": "Correct. Water without a crossing blocks a straight walk and forces a detour to a ford or bridge." },
-                  { "id": "c3", "text": "A flat dry field with a firm path", "feedback": "Misconception: calling easy ground a barrier. Flat firm fields help travel, they do not block it." },
-                  { "id": "c4", "text": "The deadly desert that rings Oz", "feedback": "Correct. In Baum's story the desert encircles Oz and is nearly impassable, so it is a natural barrier." }
+                  {
+                    "id": "c1",
+                    "text": "A steep mountain range across the straight line",
+                    "feedback": "Correct. A steep range is a barrier. Climbing costs time and energy and can be unsafe."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "A wide river with no bridge on the straight line",
+                    "feedback": "Correct. Water without a crossing blocks a straight walk and forces a detour to a ford or bridge."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "A flat dry field with a firm path",
+                    "feedback": "Misconception: calling easy ground a barrier. Flat firm fields help travel, they do not block it."
+                  },
+                  {
+                    "id": "c4",
+                    "text": "The deadly desert that rings Oz",
+                    "feedback": "Correct. In Baum's story the desert encircles Oz and is nearly impassable, so it is a natural barrier."
+                  }
                 ],
-                "answer": ["c1", "c2", "c4"],
+                "answer": [
+                  "c1",
+                  "c2",
+                  "c4"
+                ],
                 "explanation": "Mountains, rivers without crossings, and the desert are barriers. Flat firm fields are not.",
-                "hints": ["Ask for each item: does this slow or stop a walker, or does it help?", "Three of these stop or greatly slow you. One helps you walk. Which is the helper?"]
+                "hints": [
+                  "Ask for each item: does this slow or stop a walker, or does it help?",
+                  "Three of these stop or greatly slow you. One helps you walk. Which is the helper?"
+                ]
               }
             },
             {
@@ -297,13 +669,28 @@
                 "kind": "mcq",
                 "prompt": "Why is winding around mountains often faster than climbing straight over them?",
                 "choices": [
-                  { "id": "c1", "text": "Climbing cuts speed and energy so the longer path can be quicker", "feedback": "Correct. Steep ground lowers speed enough that a longer flat route takes less time." },
-                  { "id": "c2", "text": "Mountains are not real on maps", "feedback": "Misconception: treating contour marks as decoration. Mountains are real high ground that slows any walker." },
-                  { "id": "c3", "text": "All roads must be straight", "feedback": "Misconception: thinking straight is required. Roads bend to avoid what is hard to cross." }
+                  {
+                    "id": "c1",
+                    "text": "Climbing cuts speed and energy so the longer path can be quicker",
+                    "feedback": "Correct. Steep ground lowers speed enough that a longer flat route takes less time."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Mountains are not real on maps",
+                    "feedback": "Misconception: treating contour marks as decoration. Mountains are real high ground that slows any walker."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "All roads must be straight",
+                    "feedback": "Misconception: thinking straight is required. Roads bend to avoid what is hard to cross."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Steep terrain slows travel enough that a longer flat route can take less time.",
-                "hints": ["Compare speeds: climbing might be 2 to 3 km per hour, flat is 5 km per hour. Time equals distance divided by speed.", "If climbing halves your speed, does saving a few km still save time?"]
+                "hints": [
+                  "Compare speeds: climbing might be 2 to 3 km per hour, flat is 5 km per hour. Time equals distance divided by speed.",
+                  "If climbing halves your speed, does saving a few km still save time?"
+                ]
               }
             }
           ]
@@ -320,6 +707,32 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Dorothy, Scarecrow and Tin Woodman studying a river and bridge on a scouting map",
+                "caption": "Scouts ask: what blocks the straight path, which line avoids it, and what does it cost?",
+                "prompt": "Dorothy Scarecrow and Tin Woodman studying a river and bridge on a scouting map, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: what a scout needs",
+                "problem": "Dorothy can climb a pass or take a valley road. What info do you want?",
+                "steps": [
+                  {
+                    "text": "Speed uphill versus on flat for each option."
+                  },
+                  {
+                    "text": "Water and shelter on each."
+                  },
+                  {
+                    "text": "Barrier details: how steep the pass, how long the valley."
+                  }
+                ]
+              }
+            },
+            {
               "type": "audio",
               "content": {
                 "title": "Tin Woodman scouting report",
@@ -333,7 +746,10 @@
                 "prompt": "The scout followed the river bank 3 cm on a sketch where 1 cm = 1 km. How many km did he walk along the bank?",
                 "answer": 3,
                 "explanation": "3 cm times 1 km per cm equals 3 km, the distance to the ford.",
-                "hints": ["Multiply map centimetres by km per centimetre: 3 times 1.", "The scale is one to one, so the number of cm is the same as the number of km."]
+                "hints": [
+                  "Multiply map centimetres by km per centimetre: 3 times 1.",
+                  "The scale is one to one, so the number of cm is the same as the number of km."
+                ]
               }
             },
             {
@@ -342,13 +758,28 @@
                 "kind": "mcq",
                 "prompt": "Based on the scout's speeds, which way should the party go to save time?",
                 "choices": [
-                  { "id": "c1", "text": "Follow the valley road and ford the river", "feedback": "Correct. Valley speed is 5 km per hour while climbing is 2 km per hour, so the longer flat road still takes less time." },
-                  { "id": "c2", "text": "Climb straight over the steep hills to the east", "feedback": "Misconception: choosing the shorter line on the map. Short on paper is not short in time when climbing cuts speed in half or more." },
-                  { "id": "c3", "text": "Stay put because all routes are equally fast", "feedback": "Misconception: ignoring speed differences. Different surfaces give very different times for the same distance." }
+                  {
+                    "id": "c1",
+                    "text": "Follow the valley road and ford the river",
+                    "feedback": "Correct. Valley speed is 5 km per hour while climbing is 2 km per hour, so the longer flat road still takes less time."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Climb straight over the steep hills to the east",
+                    "feedback": "Misconception: choosing the shorter line on the map. Short on paper is not short in time when climbing cuts speed in half or more."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Stay put because all routes are equally fast",
+                    "feedback": "Misconception: ignoring speed differences. Different surfaces give very different times for the same distance."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Flat valley at 5 km per hour beats steep hills at 2 km per hour even though the valley is longer.",
-                "hints": ["Compare time equals distance divided by speed for each option. Which speed makes a longer distance still quicker?", "Three kilometres at 5 km per hour is less than even one kilometre at 2 km per hour. Which choice uses the faster speed?"]
+                "hints": [
+                  "Compare time equals distance divided by speed for each option. Which speed makes a longer distance still quicker?",
+                  "Three kilometres at 5 km per hour is less than even one kilometre at 2 km per hour. Which choice uses the faster speed?"
+                ]
               }
             }
           ]
@@ -370,18 +801,59 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Oz divided into four coloured quarters: blue east, yellow west, purple north, red south, with Emerald City centre",
+                "caption": "Baum's Oz is one country with four regions and the capital where they meet.",
+                "prompt": "A map of Oz divided into four coloured quarters blue east yellow west purple north red south with Emerald City centre, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: scale on both maps",
+                "problem": "Draw a region inside Oz. Is Munchkin Country the whole or a part?",
+                "steps": [
+                  {
+                    "text": "Oz is the country; Munchkin Country is the eastern quarter."
+                  },
+                  {
+                    "text": "A region is an area with shared traits inside a larger place."
+                  },
+                  {
+                    "text": "So Munchkin Country is a region inside Oz, not the whole."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
                 "prompt": "In Baum's Oz, what is Munchkin Country?",
                 "choices": [
-                  { "id": "c1", "text": "A region inside the larger country of Oz", "feedback": "Correct. Oz is the country and Munchkin Country is the eastern region within it, marked blue." },
-                  { "id": "c2", "text": "A separate planet", "feedback": "Misconception: treating a region as a separate world. It is a part of Oz, east of the centre, not another planet." },
-                  { "id": "c3", "text": "The capital city", "feedback": "Misconception: confusing a region with a city. The capital is the Emerald City at the centre, not Munchkin Country." }
+                  {
+                    "id": "c1",
+                    "text": "A region inside the larger country of Oz",
+                    "feedback": "Correct. Oz is the country and Munchkin Country is the eastern region within it, marked blue."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "A separate planet",
+                    "feedback": "Misconception: treating a region as a separate world. It is a part of Oz, east of the centre, not another planet."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "The capital city",
+                    "feedback": "Misconception: confusing a region with a city. The capital is the Emerald City at the centre, not Munchkin Country."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Oz is the country and Munchkin Country is the eastern region within it.",
-                "hints": ["Is Munchkin Country the whole, or a part of the whole?", "Oz contains four regions. Where does Munchkin Country sit?"]
+                "hints": [
+                  "Is Munchkin Country the whole, or a part of the whole?",
+                  "Oz contains four regions. Where does Munchkin Country sit?"
+                ]
               }
             },
             {
@@ -390,13 +862,28 @@
                 "kind": "mcq",
                 "prompt": "Which is a region at a larger scale than Munchkin Country?",
                 "choices": [
-                  { "id": "c1", "text": "Oz itself", "feedback": "Correct. Oz contains all its regions so it is the larger scale. A farm is a smaller portion inside." },
-                  { "id": "c2", "text": "One farm inside Munchkin Country", "feedback": "Misconception: reversing scale. A farm is a smaller portion inside the region, not larger than the region." },
-                  { "id": "c3", "text": "One road through the fields", "feedback": "Misconception: mixing a feature with a region. A road is a line inside a region, not a region that holds it." }
+                  {
+                    "id": "c1",
+                    "text": "Oz itself",
+                    "feedback": "Correct. Oz contains all its regions so it is the larger scale. A farm is a smaller portion inside."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "One farm inside Munchkin Country",
+                    "feedback": "Misconception: reversing scale. A farm is a smaller portion inside the region, not larger than the region."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "One road through the fields",
+                    "feedback": "Misconception: mixing a feature with a region. A road is a line inside a region, not a region that holds it."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Oz contains all its regions so it is the larger scale. A farm is a smaller portion inside.",
-                "hints": ["Which one holds all the others?", "A region inside Oz is smaller than Oz itself. Which choice names the container?"]
+                "hints": [
+                  "Which one holds all the others?",
+                  "A region inside Oz is smaller than Oz itself. Which choice names the container?"
+                ]
               }
             }
           ]
@@ -413,19 +900,85 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Two fences: one follows a river, the other a straight surveyed line with posts",
+                "caption": "Some borders follow rivers or ranges; some are agreed lines straight across the land.",
+                "prompt": "Two fences, one following a river and one straight surveyed line, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: river as border",
+                "problem": "Is a river a natural border or an agreed line?",
+                "steps": [
+                  {
+                    "text": "Ask: did people agree the line, or does land make it? A river makes it."
+                  },
+                  {
+                    "text": "Rivers and ranges create natural borders by blocking movement."
+                  },
+                  {
+                    "text": "A straight surveyed line is an agreed border where land does not."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "predict",
+              "content": {
+                "prompt": "Oz has four regions plus the capital. Predict which region lies in the south by Baum's colours.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Quadling Country"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Munchkin Country"
+                  }
+                ],
+                "reveal": "Quadling Country in the south (red), Munchkin Country is in the east (blue)."
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "multi",
                 "prompt": "Which of these are natural borders you could spot on the ground without a map? Select all that apply.",
                 "choices": [
-                  { "id": "c1", "text": "The deadly desert that rings Oz", "feedback": "Correct. The desert is a visible band of sand that blocks travel, a classic natural border." },
-                  { "id": "c2", "text": "A wide river between two regions", "feedback": "Correct. A river is water you can see and must cross, so it is natural." },
-                  { "id": "c3", "text": "A line of painted posts across flat farmland where Gillikin meets Munchkin", "feedback": "Misconception: calling a marker a landform. Posts mark an agreed line on flat ground, not a natural feature." },
-                  { "id": "c4", "text": "A mountain ridge", "feedback": "Correct. A ridge is high ground you can see and that slows or blocks crossing." }
+                  {
+                    "id": "c1",
+                    "text": "The deadly desert that rings Oz",
+                    "feedback": "Correct. The desert is a visible band of sand that blocks travel, a classic natural border."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "A wide river between two regions",
+                    "feedback": "Correct. A river is water you can see and must cross, so it is natural."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "A line of painted posts across flat farmland where Gillikin meets Munchkin",
+                    "feedback": "Misconception: calling a marker a landform. Posts mark an agreed line on flat ground, not a natural feature."
+                  },
+                  {
+                    "id": "c4",
+                    "text": "A mountain ridge",
+                    "feedback": "Correct. A ridge is high ground you can see and that slows or blocks crossing."
+                  }
                 ],
-                "answer": ["c1", "c2", "c4"],
+                "answer": [
+                  "c1",
+                  "c2",
+                  "c4"
+                ],
                 "explanation": "Desert, river, and ridge are natural borders you can see. Painted posts mark an agreed border.",
-                "hints": ["Ask for each: can you see this with no map, as water, sand, or high ground?", "One of these is built by people on flat land. The other three are landforms. Which is which?"]
+                "hints": [
+                  "Ask for each: can you see this with no map, as water, sand, or high ground?",
+                  "One of these is built by people on flat land. The other three are landforms. Which is which?"
+                ]
               }
             },
             {
@@ -435,7 +988,10 @@
                 "prompt": "Dorothy climbs a steep pass that is short on the map but slow on foot, or takes a long valley road that is long on the map but faster to walk. In one or two sentences, say how you would decide which to take and what information you would want.",
                 "answer": "Estimate time for each: climbing speed up the pass versus flat speed on the valley road, plus water and shelter available on each.",
                 "explanation": "Any answer that weighs time or effort alongside distance and names needed information is good.",
-                "hints": ["Distance alone is not the full cost. What else matters on foot?", "Think speed on slope versus flat, and needs like water. What numbers would let you compare times?"]
+                "hints": [
+                  "Distance alone is not the full cost. What else matters on foot?",
+                  "Think speed on slope versus flat, and needs like water. What numbers would let you compare times?"
+                ]
               }
             }
           ]
@@ -452,13 +1008,42 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Three route options sketched: direct over mountains, valley road, and river ferry crossing",
+                "caption": "Choosing a route means weighing distance, time over terrain, and water and rest.",
+                "prompt": "Three route options sketched: over mountains, around valley, ferry crossing, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: estimate before you go",
+                "problem": "Two routes: 3 km pass at 2 km per hour versus 6 km valley at 5 km per hour. Which is quicker?",
+                "steps": [
+                  {
+                    "text": "Time over pass: 3 divided by 2 is 1.5 hours."
+                  },
+                  {
+                    "text": "Time via valley: 6 divided by 5 is 1.2 hours."
+                  },
+                  {
+                    "text": "Valley is quicker even though longer drawn."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
                 "prompt": "At a steady 5 km per hour on flat ground, how many hours does an 80 km valley route take?",
                 "answer": 16,
                 "explanation": "80 divided by 5 equals 16 hours of walking time.",
-                "hints": ["Time equals distance divided by speed: hours equals km divided by km per hour.", "You need 80 divided by 5. How many fives fit in 80?"]
+                "hints": [
+                  "Time equals distance divided by speed: hours equals km divided by km per hour.",
+                  "You need 80 divided by 5. How many fives fit in 80?"
+                ]
               }
             },
             {
@@ -467,13 +1052,28 @@
                 "kind": "mcq",
                 "prompt": "A mountain short cut is 50 km at 2 km per hour. A valley road is 80 km at 5 km per hour. Which is faster and why?",
                 "choices": [
-                  { "id": "c1", "text": "Valley road is faster: 16 hours versus 25 hours", "feedback": "Correct. Time is distance divided by speed, so 80 over 5 is 16 and 50 over 2 is 25. Longer can be quicker." },
-                  { "id": "c2", "text": "Mountain is faster because it is shorter", "feedback": "Misconception: using map length alone. Short on the map is not short in time when climbing cuts speed to 2 km per hour." },
-                  { "id": "c3", "text": "They are the same time", "feedback": "Misconception: ignoring the division. Different speeds make equal time impossible here. Calculate each: 50 divided by 2 versus 80 divided by 5." }
+                  {
+                    "id": "c1",
+                    "text": "Valley road is faster: 16 hours versus 25 hours",
+                    "feedback": "Correct. Time is distance divided by speed, so 80 over 5 is 16 and 50 over 2 is 25. Longer can be quicker."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Mountain is faster because it is shorter",
+                    "feedback": "Misconception: using map length alone. Short on the map is not short in time when climbing cuts speed to 2 km per hour."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "They are the same time",
+                    "feedback": "Misconception: ignoring the division. Different speeds make equal time impossible here. Calculate each: 50 divided by 2 versus 80 divided by 5."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Valley 80/5=16h beats mountain 50/2=25h, so the longer flat route wins.",
-                "hints": ["Calculate each time: distance divided by speed. Which division gives the smaller number?", "50 at 2 km per hour is 25 hours. 80 at 5 km per hour is 16 hours. Which is smaller?"]
+                "hints": [
+                  "Calculate each time: distance divided by speed. Which division gives the smaller number?",
+                  "50 at 2 km per hour is 25 hours. 80 at 5 km per hour is 16 hours. Which is smaller?"
+                ]
               }
             }
           ]
@@ -487,6 +1087,32 @@
               "content": {
                 "title": "A map a stranger could follow",
                 "body": "Dorothy needed a map someone else had drawn with care. Now you draw one. A good **sketch map** has the same five pieces a printed map does, whether it shows Oz or the streets near your school. Anyone who has never walked the ground should be able to use your map to reach a marked spot without you beside them.\n\n- A **title** that names where and when, and a **north arrow** that fixes direction\n- A **legend** with every symbol you used, each used consistently, for example $\\text{star} = \\text{Emerald City}$\n- A **scale bar** with a real number such as $1\\ cm : 1\\ km$ on paper equals so many metres or kilometres on the ground\n- **Borders or edges** people can check, such as a river, a fence line, a ring road, or the edge of the desert that rings Oz"
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Student desk with two maps side by side: sketch of Oz and sketch of home streets, each with title, north arrow, legend, scale bar",
+                "caption": "Two maps, same five pieces: title, north arrow, legend, scale bar, and checkable borders.",
+                "prompt": "A desk with two sketch maps side by side, one of Oz and one of home streets each with title north arrow legend scale bar, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: the stranger test",
+                "problem": "How do you know a sketch map works?",
+                "steps": [
+                  {
+                    "text": "Give it to someone who has not seen the ground."
+                  },
+                  {
+                    "text": "Ask them to follow it to a marked spot."
+                  },
+                  {
+                    "text": "If they reach the goal, the map is good."
+                  }
+                ]
               }
             },
             {
