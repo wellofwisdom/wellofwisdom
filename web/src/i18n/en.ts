@@ -278,6 +278,29 @@ const en = {
   "exercise.matchUnpaired": "not yet matched",
   "exercise.categorizeHint": "Put each card in the right bucket.",
   "exercise.categorizePairLabel": "Put {card} in",
+
+  // Well 21: cloze, numberline, fraction
+  "cloze.label": "Fill in the blanks",
+  "cloze.empty": "Nothing to fill yet.",
+  "cloze.blankLabel": "Blank {id}",
+  "cloze.blankPlaceholder": "Your answer",
+  "cloze.blankEmpty": "empty",
+  "cloze.choose": "Choose",
+  "numberline.label": "Number line",
+  "numberline.empty": "Number line not ready yet.",
+  "numberline.hint": "Move the marker to your answer.",
+  "numberline.decrease": "Decrease",
+  "numberline.increase": "Increase",
+  "numberline.valueLabel": "Value",
+  "numberline.current": "Current: {value}",
+  "fraction.label": "Fraction",
+  "fraction.empty": "Fraction not ready yet.",
+  "fraction.hint": "Tap parts to shade them. Use arrow keys to move.",
+  "fraction.partLabel": "Part {index} of {total}",
+  "fraction.partShaded": "Part {index} shaded",
+  "fraction.partEmpty": "Part {index} empty",
+  "fraction.shadedCount": "{count} of {total} shaded",
+  "fraction.clear": "Clear",
 } as const;
 
 export type TranslationKey = keyof typeof en;
