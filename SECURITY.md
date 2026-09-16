@@ -10,7 +10,8 @@ Please do **not** open a public issue for a security problem.
 
 Use GitHub's private vulnerability reporting instead: go to the repository's
 **Security** tab and choose **Report a vulnerability**. That opens a private
-advisory visible only to you and the maintainers.
+advisory visible only to you and the maintainers. You can also email
+kevin@wellofwisdom.app, which reaches the maintainer directly.
 
 Include, as far as you can:
 

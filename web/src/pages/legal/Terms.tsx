@@ -3,7 +3,7 @@ import { LegalChrome } from "./LegalLayout";
 
 export default function Terms() {
   return (
-    <LegalChrome path="terms" title="Terms of Service" updated="13 September 2026">
+    <LegalChrome path="terms" title="Terms of Service" updated="16 September 2026">
       <h2>The short version</h2>
       <p>Well of Wisdom is open source under <strong>AGPL-3.0</strong>. Run it yourself for free, forever. Hosted service adds convenience, not a different license.</p>
 
@@ -31,6 +31,9 @@ export default function Terms() {
 
       <h2>Changes</h2>
       <p>We post changes to this page with a new date. Continued use after that date means you accept the change.</p>
+
+      <h2>Contact</h2>
+      <p>Questions about the service: support@wellofwisdom.app. Questions about data and privacy: privacy@wellofwisdom.app. Business, press and partnerships: kevin@wellofwisdom.app.</p>
     </LegalChrome>
   );
 }
