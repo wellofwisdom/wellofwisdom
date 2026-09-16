@@ -35,8 +35,7 @@ function estimateCost(model, tokensIn, tokensOut) {
 /** Fire-and-forget usage log. Never throws. */
 function logUsage({ familyId, task, model, tokensIn, tokensOut, note, providerId }) {
   if (!db.configured()) return;
-  const prov = providerId ? String(providerId).slice(0, 80) : null;
-  const hasProviderCol = true;
+  // provider_id is guaranteed by migration 041, so no column fallback here.
   db.query(
     `insert into ai_usage (family_id, task, model, tokens_in, tokens_out, cost, note, provider_id)
      values ($1,$2,$3,$4,$5,$6,$7,$8)`,
@@ -48,28 +47,9 @@ function logUsage({ familyId, task, model, tokensIn, tokensOut, note, providerId
       Number(tokensOut) || 0,
       estimateCost(model, Number(tokensIn) || 0, Number(tokensOut) || 0),
       note ? String(note).slice(0, 200) : null,
-      prov,
+      providerId ? String(providerId).slice(0, 80) : null,
     ]
-  ).catch((err) => {
-    if (String(err.message || "").includes("column") && String(err.message).includes("provider_id")) {
-      db.query(
-        `insert into ai_usage (family_id, task, model, tokens_in, tokens_out, cost, note)
-         values ($1,$2,$3,$4,$5,$6,$7)`,
-        [
-          familyId || null,
-          String(task || "unknown").slice(0, 50),
-          model ? String(model).slice(0, 80) : null,
-          Number(tokensIn) || 0,
-          Number(tokensOut) || 0,
-          estimateCost(model, Number(tokensIn) || 0, Number(tokensOut) || 0),
-          note ? String(note).slice(0, 200) : null,
-        ]
-      ).catch((e2) => console.error(`[aiusage] log failed (ignored): ${e2.message}`));
-      return;
-    }
-    console.error(`[aiusage] log failed (ignored): ${err.message}`);
-  });
-  void hasProviderCol;
+  ).catch((err) => console.error(`[aiusage] log failed (ignored): ${err.message}`));
 }
 
 async function familySummary(familyId) {
@@ -93,8 +73,9 @@ async function familySummary(familyId) {
     `select coalesce(provider_id,'(default)') as provider_id, count(*)::int as calls, coalesce(sum(cost),0) as cost
        from ai_usage
       where family_id = $1 and created_at >= date_trunc('month', now())
-      group by provider_id order by cost desc`
-  , [familyId]).catch(() => ({ rows: [] }));
+      group by provider_id order by cost desc`,
+    [familyId]
+  );
   const recent = await db.query(
     `select task, model, tokens_in, tokens_out, cost, created_at
        from ai_usage where family_id = $1 order by id desc limit 15`,
