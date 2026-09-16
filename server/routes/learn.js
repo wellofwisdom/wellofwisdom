@@ -21,7 +21,15 @@ function bad(res, msg, code = 400) {
 function learnerItem(item) {
   const reg = require("../lib/items").forType(item.type);
   if (reg && typeof reg.strip === "function") {
-    return { id: item.id, type: item.type, position: item.position, content: reg.strip(item.content || {}) };
+    const stripped = reg.strip(item.content || {});
+    if ((item.content || {}).kind === "order" && Array.isArray(stripped.items) && stripped.items.length) {
+      try {
+        const orderKind = require("../lib/items/kinds/order");
+        const seed = orderKind.shuffleSeed(item.id, 0);
+        stripped.items = orderKind.seededShuffle(stripped.items, seed);
+      } catch {}
+    }
+    return { id: item.id, type: item.type, position: item.position, content: stripped };
   }
   return { id: item.id, type: item.type, position: item.position, content: item.content || {} };
 }
@@ -301,13 +309,19 @@ router.post("/attempt", async (req, res, next) => {
       const ex = require("../lib/items/exercise");
       const h = ex.REGISTRY && ex.REGISTRY[c.kind];
       const hints = Array.isArray(c.hints) ? c.hints.slice(0, 3) : c.hint ? [String(c.hint).trim()].filter(Boolean) : [];
-      const pickedIds = Array.isArray(answer)
-        ? answer.map((v) => String(v ?? "").trim()).filter(Boolean)
-        : answer != null && String(answer).trim() ? [String(answer).trim()] : [];
-      const pickedFeedback = {};
-      for (const id of pickedIds) {
-        const ch = (c.choices || []).find((x) => String(x.id) === id);
-        if (ch && ch.feedback) pickedFeedback[id] = String(ch.feedback).slice(0, 500);
+      let pickedFeedback = null;
+      if (c.kind === "categorize" && out && typeof out === "object" && out.feedback) {
+        pickedFeedback = out.feedback;
+      } else {
+        const pickedIds = Array.isArray(answer)
+          ? answer.map((v) => String(v ?? "").trim()).filter(Boolean)
+          : answer != null && String(answer).trim() ? [String(answer).trim()] : [];
+        const pf = {};
+        for (const id of pickedIds) {
+          const ch = (c.choices || []).find((x) => String(x.id) === id);
+          if (ch && ch.feedback) pf[id] = String(ch.feedback).slice(0, 500);
+        }
+        if (Object.keys(pf).length) pickedFeedback = pf;
       }
       reveal = {
         kind: c.kind,
@@ -315,7 +329,7 @@ router.post("/attempt", async (req, res, next) => {
         hints: hints.length ? hints : null,
         hint: hints[0] || null,
         answer: c.kind === "text" ? c.answer : null,
-        feedback: Object.keys(pickedFeedback).length ? pickedFeedback : null,
+        feedback: pickedFeedback,
       };
       if (h && h.kind === "mcq" && graded === true) reveal.answer = null; // never leak future answers; mcq self-evident
       void h;

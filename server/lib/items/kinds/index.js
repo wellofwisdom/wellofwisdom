@@ -3,6 +3,9 @@ const mcq = require("./mcq");
 const numeric = require("./numeric");
 const text = require("./text");
 const multi = require("./multi");
+const order = require("./order");
+const match = require("./match");
+const categorize = require("./categorize");
 const common = require("./common");
 
 const REGISTRY = {
@@ -10,6 +13,9 @@ const REGISTRY = {
   numeric,
   text,
   multi,
+  order,
+  match,
+  categorize,
 };
 
 function forKind(kind) {
