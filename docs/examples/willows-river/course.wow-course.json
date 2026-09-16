@@ -21,7 +21,7 @@
               "type": "article",
               "content": {
                 "title": "Mole meets the river",
-                "body": "Mole has spent his life underground, sweeping. When he scrambles up to the meadow, scent hits him first: damp earth, then willow. Rat is on the bank with a picnic basket and a boat that has been in his family forever. The bank they sit on is not just an edge. It is a belt of life called the **riparian strip**, the green border of roots, shrubs, and trees that holds the river together.\n\n- Roots grip soil so banks do not crumble\n- Leaves and twigs feed insects that feed fish and birds\n- Shade cools the water, and cooler water holds more oxygen\n- A healthy bank has layers: groundcover, shrubs, trees, each sheltering a different crowd"
+                "body": "Mole has spent all spring cleaning his small burrow under the field. On a bright morning he scrambles up through the tunnel, pushes past the last roots, and reaches the meadow air. Scent hits first: damp earth, then willow and river. Rat is there on the bank with a picnic basket and a little blue painted boat that has been in his family and is moored by the edge.\n\nThe bank they sit on is not a sharp line. It is a **riparian strip**, the living border where land and water meet and help each other.\n\n- Roots of willow, alder, and sedge grip soil so banks do not crumble when the river rises\n- Fallen leaves and twigs feed insects and small crustaceans that feed fish and birds\n- Shade from branches cools the water, and cooler water can hold more dissolved oxygen\n- A healthy bank shows layers: groundcover low, shrubs in the middle, trees above, each sheltering a different crowd\n\nWhere that strip is intact, the riverbank works like a pantry and a blanket at once."
               }
             },
             {
@@ -30,13 +30,28 @@
                 "kind": "mcq",
                 "prompt": "Why does a strip of willows and shrubs help the river even though the trees are not in the water?",
                 "choices": [
-                  { "id": "c1", "text": "Roots hold soil, leaves feed insects, shade cools water" },
-                  { "id": "c2", "text": "Trees drink all the river water" },
-                  { "id": "c3", "text": "Willows stop the river from flowing" }
+                  {
+                    "id": "c1",
+                    "text": "Roots hold soil, leaves feed insects, shade cools water",
+                    "feedback": "Correct. Roots steady banks, leaf litter feeds the food web, and shade keeps water cooler so it holds more oxygen."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Trees drink all the river water so the bank stays dry",
+                    "feedback": "Misconception: trees use some water, but they do not empty a river. The main helps are holding soil, feeding insects, and shading."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Willows stop the river from flowing and hold it still",
+                    "feedback": "Misconception: plants do not block flow. They steady banks and feed and shade the channel while water keeps moving."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "A riparian strip stabilises banks, feeds the food web with leaf litter, and cools water by shading it.",
-                "hint": "Think of roots, food, and shade."
+                "hints": [
+                  "Think of what roots, fallen leaves, and shade each do for the bank.",
+                  "Which answer names three separate helps, not one huge effect?"
+                ]
               }
             },
             {
@@ -45,13 +60,28 @@
                 "kind": "mcq",
                 "prompt": "Which bank shows three layers of riparian life?",
                 "choices": [
-                  { "id": "c1", "text": "Groundcover below, shrubs in the middle, trees above" },
-                  { "id": "c2", "text": "Bare soil to the water with one lonely tree" },
-                  { "id": "c3", "text": "A concrete wall" }
+                  {
+                    "id": "c1",
+                    "text": "Groundcover below, shrubs in the middle, trees above",
+                    "feedback": "Correct. Healthy riparian strips show all three layers: low groundcover, middle shrubs, tall trees."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Bare soil to the water with one lonely tree",
+                    "feedback": "Misconception: one tree is not three layers. Layers need groundcover, shrubs, and trees together."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "A concrete wall straight to the water",
+                    "feedback": "Misconception: concrete has no plant layers and gives no habitat or shade."
+                  }
                 ],
                 "answer": "c1",
-                "explanation": "Layers are groundcover, shrubs, and trees together.",
-                "hint": "How many layers did the article name?"
+                "explanation": "Layers are groundcover, shrubs, and trees together, each sheltering different life.",
+                "hints": [
+                  "How many layers did the article name?",
+                  "Look for the answer that lists three levels from low to high."
+                ]
               }
             }
           ]
@@ -64,22 +94,81 @@
               "type": "article",
               "content": {
                 "title": "Rat's picnic and Badger's larder",
-                "body": "Rat brings bread, cold chicken, and a bottle of something bubbly. Badger, when you finally meet him, keeps a deep, tidy larder. Both are eating what the bank and the Wild Wood made, step by step.\n\n- **Producers** make food from sunlight: willows, reeds, waterweed, algae\n- **Consumers** eat that food: mayflies graze algae, small fish eat mayflies, the heron eats the fish\n- **Decomposers** break dead matter back into nutrients: fungi, bacteria, worms, slaters\n\nA line of who eats whom is a **food chain**. Many chains woven together are a **food web**. Take one thread away and the others sag."
+                "body": "Rat brings bread, cold chicken, salad, and a bottle of something bubbly for his first picnic with Mole. Badger, when you finally visit his house in the Wild Wood, keeps a deep and tidy larder. Both meals trace back to the bank and the wood, step by step.\n\nEvery riverbank bite comes from a chain.\n\n- **Producers** make food from sunlight: willows, reeds, waterweed, and tiny algae on stones\n- **Consumers** eat that food: mayfly nymphs graze algae, small fish eat nymphs, a heron eats the fish, an otter may hunt along the edge\n- **Decomposers** break dead leaves, wood, and bodies into nutrients: fungi, bacteria, worms, and woodlice\n\nA line of who eats whom is a **food chain**. When many chains share members they weave into a **food web**. If $1$ link breaks, such as no algae after shade is cleared, the mayflies fall and the fish above feel it. Take one thread away and the whole net sags. Keep the base strong and the rest can hold."
               }
             },
             {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
-                "prompt": "Which shows a food chain in the right order?",
+                "prompt": "Which shows a food chain in the right order from producer to top consumer?",
                 "choices": [
-                  { "id": "c1", "text": "Algae to mayfly to small fish to heron" },
-                  { "id": "c2", "text": "Heron to small fish to mayfly to algae" },
-                  { "id": "c3", "text": "Small fish to algae to heron" }
+                  {
+                    "id": "c1",
+                    "text": "Algae to mayfly to small fish to heron",
+                    "feedback": "Correct. Energy flows from producer to consumers in order: algae makes food, mayfly eats it, fish eats mayfly, heron eats fish."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Heron to small fish to mayfly to algae",
+                    "feedback": "Misconception: this reverses the chain. Energy flows up from producers, not down from the top predator."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Small fish to algae to heron to mayfly",
+                    "feedback": "Misconception: small fish cannot come first. Start with the producer that makes food from sunlight."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Energy flows from producers to consumers: algae makes food, mayfly eats it, fish eats mayfly, heron eats fish.",
-                "hint": "Start with the producer that makes food from sunlight."
+                "hints": [
+                  "Start with the living thing that makes food from sunlight.",
+                  "Ask who eats whom, then put the eaten one before the eater."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "multi",
+                "prompt": "Which three are producers that make food from sunlight on this bank? Select all that apply.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Willow",
+                    "feedback": "Correct. Willow is a tree that makes food from sunlight, so it is a producer."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Reed",
+                    "feedback": "Correct. Reeds are plants that make food from sunlight."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Algae on stones",
+                    "feedback": "Correct. Algae makes food from sunlight even though it is tiny."
+                  },
+                  {
+                    "id": "c4",
+                    "text": "Mayfly nymph",
+                    "feedback": "Misconception: mayfly grazes algae, so it is a consumer that eats producers, not a producer."
+                  },
+                  {
+                    "id": "c5",
+                    "text": "Heron",
+                    "feedback": "Misconception: heron hunts fish and frogs, so it is a consumer, not a maker of food."
+                  }
+                ],
+                "answer": [
+                  "c1",
+                  "c2",
+                  "c3"
+                ],
+                "explanation": "Willow, reed, and algae are producers. Mayfly and heron are consumers.",
+                "hints": [
+                  "Producers make food from sunlight, consumers eat, decomposers break down.",
+                  "Which three make their own food from sunlight?"
+                ]
               }
             },
             {
@@ -88,13 +177,28 @@
                 "kind": "mcq",
                 "prompt": "What do decomposers do in the web?",
                 "choices": [
-                  { "id": "c1", "text": "Break dead matter into nutrients producers can reuse" },
-                  { "id": "c2", "text": "Eat sunlight directly" },
-                  { "id": "c3", "text": "Make new sunlight" }
+                  {
+                    "id": "c1",
+                    "text": "Break dead matter into nutrients producers can reuse",
+                    "feedback": "Correct. Decomposers return nutrients to soil and water so producers can grow again."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Eat sunlight directly to make food",
+                    "feedback": "Misconception: only producers make food from sunlight. Decomposers break down dead material."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Make new sunlight for plants",
+                    "feedback": "Misconception: sunlight comes from the sun. Decomposers recycle nutrients, not light."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Decomposers return nutrients to the soil and water so producers can grow again.",
-                "hint": "Which word means to undo or break down?"
+                "hints": [
+                  "What word means to break down dead matter?",
+                  "Which group returns nutrients to soil?"
+                ]
               }
             }
           ]
@@ -107,7 +211,7 @@
               "type": "article",
               "content": {
                 "title": "How Rat describes a river",
-                "body": "Grahame does not write \"the river was nice.\" He writes of a river that glints, slips, chatters, and keeps going. His nouns pick the right scale. His verbs carry the motion. His images let you feel a place without having visited it.\n\n- A good description names **what is there** (willow, bank, water, light) before how it felt\n- Strong **verbs** carry motion: the river slides rather than just is there\n- **Sensory detail** picks one sense at a time: the scent of damp earth, the chill on the water\n- A simile earns its keep when it makes the strange familiar: the river like a lazy road\n\nWrite what you saw. Let the feeling follow, not lead."
+                "body": "Grahame never writes \"the river was nice.\" He lets the river glint, slip, chatter, and keep going. When Mole first sees it, the writing slows and lets you see light on water, the push of current on the boat, and the low wash against the bank. His nouns pick the right scale. His verbs carry motion. His images let you feel a place without having visited it.\n\nA careful river description does four things.\n\n- It names **what is there** first: willow, bank, water, light, before it says how it felt\n- It chooses strong **verbs** that carry motion: the river slides and swirls rather than just is there\n- It adds one **sensory detail** at a time: the scent of damp earth, the chill of water on a paw, the rustle of reeds\n- It earns a simile when the strange becomes familiar: the river winding like a lazy road\n\nWrite what you saw and heard. Let the feeling follow the facts, not lead. A reader who can picture the bank will feel why Rat loves it."
               }
             },
             {
@@ -116,13 +220,28 @@
                 "kind": "mcq",
                 "prompt": "Which sentence shows sensory detail doing its job?",
                 "choices": [
-                  { "id": "c1", "text": "The bank smelled of damp earth and the water ran cool over my ankles" },
-                  { "id": "c2", "text": "The place was good" },
-                  { "id": "c3", "text": "There was water and some ground" }
+                  {
+                    "id": "c1",
+                    "text": "The bank smelled of damp earth and the water ran cool over my ankles",
+                    "feedback": "Correct. It names two checkable senses, scent and touch temperature, so a reader can test it."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "The place was good",
+                    "feedback": "Misconception: vague judgement gives no picture. Good does not tell what you saw or felt."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "There was water and some ground",
+                    "feedback": "Misconception: lists items but gives no sensory detail a reader could picture."
+                  }
                 ],
                 "answer": "c1",
-                "explanation": "It picks two checkable senses (scent and touch temperature) rather than a vague judgement.",
-                "hint": "Which one lets you smell or feel the place?"
+                "explanation": "It picks two checkable senses, scent and touch temperature, rather than a vague judgement.",
+                "hints": [
+                  "Which sentence lets you smell or hear something concrete?",
+                  "Vague praise does not describe; senses do."
+                ]
               }
             },
             {
@@ -131,8 +250,57 @@
                 "kind": "text",
                 "prompt": "Write one sentence describing a place by a creek using one specific sight and one specific sound. Keep it under 25 words.",
                 "answer": "Willow shadow fell on still water while a moorhen chattered among the reeds.",
-                "explanation": "Any sentence that names one clear visual and one audible, concrete detail is good. Short is fine.",
-                "hint": "What did you see? What did you hear?"
+                "explanation": "Any sentence that names one clear visual and one audible, concrete detail is good. Short is fine."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Listening to the river",
+          "summary": "Close your eyes and the bank draws a map in sound.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "What the river says when you listen",
+                "body": "On Grahame's river you hear before you see. The lapping around Rat's boat, the plop of a water vole, the wind stirring the willow tops. Mole, who has lived by smell underground, must learn to listen in air. Close your eyes on a bank and the river gives a map in sound.\n\nGood listening is not just \"I heard birds.\" It is **specific and checkable**.\n\n- High or low, near or far, steady or sudden, each quality tells you where to look\n- A continuous hiss means reeds in wind, a sharp splash means something entered water\n- Distance changes volume: a coot calls loud nearby, a train sounds thin beyond the field\n- Silence matters too: when wind drops, the small water sounds rise and carry\n\nOn a real visit, stand still for a count of $30$ seconds with eyes closed, then list $3$ sounds with one word for pitch and one for pattern. That list is data you can return to and compare next season."
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Morning on the riverbank with Mole and Rat",
+                "transcript": "Narrator: It is early morning on the riverbank. You hear water lapping against Rat's blue boat, reeds rustling, and a moorhen calling from the far reeds.\nRat: Now then, Mole, sit still and listen. That plop was a water vole. That hiss is wind in the willows. Can you pick the coot's call from the robin?\nMole: I hear the water every second, but the splash came just once. And the coot is louder because it is closer.\nRat: Exactly. Near sounds are loud and sharp, far sounds are thin. If you close your eyes for thirty seconds, you can count three sounds and know where each lives. Try it.\nNarrator: Pause here. Close your eyes. List one steady sound, one sudden sound, and one high or low call. Write a word for where each came from."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What makes a sound note useful on a bank visit?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "It names pitch, pattern, and direction so another person could look in the right place",
+                    "feedback": "Correct. Specific pitch and pattern plus direction lets someone else test your note."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "It says the place was noisy",
+                    "feedback": "Misconception: noisy is a judgement, not a checkable detail. Name the sound and its quality."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "It lists sounds you imagined might be there",
+                    "feedback": "Misconception: notes must record what you actually heard, not guesses."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Useful notes give enough detail for another person to find the source.",
+                "hints": [
+                  "A useful note names one specific sound and when you heard it.",
+                  "Think of moorhen, reeds, wind: which names both clearly?"
+                ]
               }
             }
           ]
@@ -150,7 +318,7 @@
               "type": "article",
               "content": {
                 "title": "Toad in summer, Badger in winter",
-                "body": "In Grahame's year, summer is Toad wild on the road in a motorcar, winter is Badger quiet in his sett. Nature keeps a similar clock. In spring the bank greens first; in summer insects and young birds crowd; in autumn seeds and leaf fall feed the water; in winter many creatures shelter and slow.\n\n- **Spring:** fresh growth, nesting, more food appearing\n- **Summer:** peak activity, warm water, insects abundant\n- **Autumn:** seed and leaf drop, water cloudier after rains\n- **Winter:** less growth, cooler water, many animals sheltering\n\nA change in temperature by even a few degrees can shift who thrives, because cooler water holds more oxygen and warmer water can stress fish."
+                "body": "In Grahame's year, summer belongs to Toad. He roars down the road in a motorcar, all speed and shine, and forgets every plan he made last week. Winter belongs to Badger, who stays deep in his sett in the Wild Wood and receives friends by the fire. Nature keeps a similar clock, though Grahame's Toad wastes his seasons and Badger respects his.\n\nThe bank changes what you can find.\n\n- **Spring:** fresh willow shoots, nesting birds, insects hatching as days lengthen\n- **Summer:** peak activity, warm air, many young birds, insects abundant, water lowest and most used\n- **Autumn:** seeds and leaf fall cloud and feed the water, berries along the edge, birds gathering\n- **Winter:** growth slows, many animals shelter and move less, water colder and often clearer after rains settle\n\nEven a small temperature shift changes who thrives, because cooler water holds more oxygen and warmer water can stress fish. Where shade keeps a stretch at $18^{\\circ}C$ rather than $24^{\\circ}C$, trout and mayflies have more room to breathe."
               }
             },
             {
@@ -159,23 +327,71 @@
                 "kind": "mcq",
                 "prompt": "Why might a fish prefer a shaded stretch in summer?",
                 "choices": [
-                  { "id": "c1", "text": "Shade keeps water cooler so it holds more oxygen" },
-                  { "id": "c2", "text": "Shade makes water warmer" },
-                  { "id": "c3", "text": "Fish like to sit in direct sun" }
+                  {
+                    "id": "c1",
+                    "text": "Shade keeps water cooler so it holds more oxygen",
+                    "feedback": "Correct. Cooler water holds more dissolved oxygen, which fish need to breathe."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Shade makes water warmer so fish can bask",
+                    "feedback": "Misconception: shade cools water, not warms it. Warmer water holds less oxygen."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Fish like to sit in direct sun on hot days",
+                    "feedback": "Misconception: direct sun warms shallow water and lowers oxygen, so fish seek cooler shaded water."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Cooler water holds more dissolved oxygen, which fish need to breathe.",
-                "hint": "What does cooler water hold more of?"
+                "hints": [
+                  "Remember the link between cool water and oxygen discussed in the article.",
+                  "Which answer says cooler water can hold more of what fish breathe?"
+                ]
               }
             },
             {
               "type": "exercise",
               "content": {
-                "kind": "text",
-                "prompt": "Name one seasonal change on a creek you could observe and one question you would ask after seeing it.",
-                "answer": "Autumn leaf fall darkened the water. Question: do more leaf-eating insects appear after leaves fall?",
-                "explanation": "Any real seasonal observation plus a question it naturally raises is good.",
-                "hint": "What did you see change? What would that make you look for next?"
+                "kind": "multi",
+                "prompt": "Select the two changes you are most likely to see on the bank in autumn. Choose exactly two.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Leaf fall that feeds and clouds the water after rain",
+                    "feedback": "Correct. Autumn leaf drop is a classic seasonal input to the creek."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Fresh green shoots and new nests everywhere",
+                    "feedback": "Misconception: fresh shoots and nesting peak in spring, not autumn."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Seeds and berries along the edge and birds gathering",
+                    "feedback": "Correct. Autumn brings fruits and seeds and birds gathering for movement or winter."
+                  },
+                  {
+                    "id": "c4",
+                    "text": "Peak insect hatch and lowest water of the year",
+                    "feedback": "Misconception: that peak and low water fits summer, not autumn."
+                  },
+                  {
+                    "id": "c5",
+                    "text": "Deep cold, snow cover, and animals shut in setts",
+                    "feedback": "Misconception: that is winter sheltering, not autumn activity."
+                  }
+                ],
+                "answer": [
+                  "c1",
+                  "c3"
+                ],
+                "explanation": "Autumn is marked by leaf, seed, and fruit inputs and gathering, before winter slowing.",
+                "hints": [
+                  "Autumn brings seed drop, leaf fall, cloudier water, less insect drone.",
+                  "Pick changes that belong to autumn, not summer."
+                ]
               }
             }
           ]
@@ -188,30 +404,362 @@
               "type": "article",
               "content": {
                 "title": "How Rat and Mole keep house",
-                "body": "Rat keeps his bank tidy by habit: a swept door, a stocked pantry, a boat tied snug. He does not fix the whole river. He keeps his stretch well. A class or family can do the same.\n\n- Choose **one patch** of bank, not the whole creek\n- Plant what already lives nearby, not thirsty garden favourites\n- Agree who waters, when you will weed, and where you wrote the plan so next term finds it\n- Leave the rest alone to recover while your patch establishes\n\nThe aim is a plan someone else could continue, not a grand map nobody tends."
+                "body": "Rat keeps his riverbank tidy by habit, not by campaign. A swept floor, a stocked pantry, a boat tied snug with a good knot. Badger keeps his house in the Wild Wood immaculate because he lives alone and likes order. Neither tries to fix the whole river or the whole wood. They keep one stretch well.\n\nA class or family can do the same for a creek.\n\n- Choose **one patch** of bank, about as long as Rat's boat plus two steps, not the whole creek\n- Plant what already grows nearby, not thirsty garden favourites that need constant water\n- Agree who waters, on which days, and where you wrote the plan so next term finds it in the same place\n- Leave the rest alone to recover while your patch settles, and record one photo from the same spot each visit\n\nThe aim is a plan someone else could continue after you, not a grand map no one tends. Small, local, and written beats big and forgotten. Rat would approve, and Badger would keep you honest."
               }
             },
             {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
-                "prompt": "Which care plan is most likely to last?",
+                "prompt": "Which care plan is most likely to last beyond one term?",
                 "choices": [
-                  { "id": "c1", "text": "One small patch with local plants, a named waterer, and a written record" },
-                  { "id": "c2", "text": "The entire bank replanted with garden flowers, no written plan" },
-                  { "id": "c3", "text": "A single big planting day with no follow up" }
+                  {
+                    "id": "c1",
+                    "text": "One small patch with local plants, a named waterer, and a written record",
+                    "feedback": "Correct. Small scale, local species, assigned care, and a written plan lets the next group continue."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "The entire bank replanted with garden flowers, no written plan",
+                    "feedback": "Misconception: grand scale with thirsty non local plants and no record cannot be maintained."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "A single big planting day with no follow up watering",
+                    "feedback": "Misconception: a one off event without aftercare wilts. Care is weekly, not once."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Small, local, written, and tended beats grand and abandoned.",
-                "hint": "Which one could next year's class actually continue?"
+                "hints": [
+                  "Reread the article before choosing.",
+                  "Which choice matches the article's definition?"
+                ]
               }
             },
             {
-              "type": "project",
+              "type": "exercise",
               "content": {
-                "title": "Your riverbank stewardship page",
-                "description": "Make a stewardship page for a patch you know or have visited. Name the patch, sketch one food web chain from producer to consumer there, describe one patch using one sight and one sound in one sentence, and write a three-line care plan: what you will plant, where, and how you will know it is working. If you can, use your River Ecology Field Study notes for real data.",
-                "rubric": "- The patch is named and located in one line\n- One correct producer to consumer chain with at least three links\n- One descriptive sentence with a specific sight and a specific sound\n- Three-line plan: what, where, and how you will check it"
+                "kind": "text",
+                "prompt": "Name one seasonal change on a creek you could observe and one question you would ask after seeing it.",
+                "answer": "Autumn leaf fall darkened the water. Question: do more leaf eating insects appear after leaves fall?",
+                "explanation": "Any real seasonal observation plus a question it naturally raises is good."
+              }
+            }
+          ]
+        },
+        {
+          "title": "The Wild Wood and the riverbank",
+          "summary": "Two habitats side by side, each with its own crowd.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The Wild Wood is not the riverbank",
+                "body": "The Wild Wood in Grahame's book is not the open riverbank. The bank is light, breezy, and social. Rat rows, Mole wanders, Otter plays, and friends picnic in the open. The Wild Wood is close, shady, and old, with holes and paths that only Badger knows. Animals feel the difference in their bones. Mole is frightened when he first enters the Wood alone before Badger finds him.\n\nHabitats differ in light, cover, and ground.\n\n- **Riverbank:** open sky, willows and reeds, wet soil, many insects on show, sound carries across water\n- **Wild Wood:** tall trees, deep shade, thick leaf litter, hollows and setts, sound muffled by trunks\n- Between them is an **edge** where both sets of creatures meet and feed, richest of all for visits\n- Some animals cross often: Otter moves bank to wood, Badger rarely leaves the Wood except to call on friends\n\nKnowing which habitat you stand in helps you predict what you will find and what care it needs. Do not expect reeds in deep wood. Do not expect a Badger sett in open reeds. Match your eyes to the habitat."
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Badger talks about winter in the sett",
+                "transcript": "Badger: Winter is not idle, Mole. We tidy, we store, we keep the sett dry. I line the sleeping chamber with dry leaves and keep the pantry full of roots and preserved acorns.\nMole: Do you not get hungry out there in the cold?\nBadger: We move less and we eat what we stored. The wood above is quiet. On the riverbank, the wind cuts. In here, the earth holds its heat. When spring comes, Rat will find fresh shoots on the bank before we see them in the deep wood, because his place gets sun first. Every habitat has its season. Learn where you stand, then you will know what to look for.\nNarrator: Badger teaches two habitats and two clocks. The open bank greens first in spring. The deep wood wakes slower. List one sign of each."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which sentence correctly compares the Wild Wood and the riverbank in The Wind in the Willows?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Wild Wood is shady and enclosed with setts; riverbank is open, light, and social near water",
+                    "feedback": "Correct. Grahame contrasts the close, sheltering Wood where Badger lives with the open sociable bank where Rat lives."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Both are the same open sunny place with boats and picnics",
+                    "feedback": "Misconception: the Wood is close and shady, not open and sunny, and boats belong on the river, not the wood."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Wild Wood is the sunny river edge and the bank is the dark forest",
+                    "feedback": "Misconception: reversed. The bank is the sunny edge, the Wood is the dark forest inland."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Grahame sets the sunny, social riverbank against the enclosed, sheltered Wild Wood.",
+                "hints": [
+                  "Reread the article before choosing.",
+                  "Which choice matches the article's definition?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why is the edge between wood and bank often the richest place?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Creatures from both habitats meet and feed there, so foods overlap",
+                    "feedback": "Correct. Edges mix species from two habitats, so food and shelter overlap."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "No animals visit an edge because it is too exposed",
+                    "feedback": "Misconception: many animals prefer edges for cover plus open feeding. Edges are busy."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Only one kind of plant can live on an edge",
+                    "feedback": "Misconception: edges hold plants from both sides, so more kinds, not fewer."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Edges mix resources from two habitats, so more species can use them.",
+                "hints": [
+                  "Reread the article before choosing.",
+                  "Which choice matches the article's definition?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Reading the water",
+          "summary": "Clear, cool, and moving tells you what the bank can hold.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Clear, cool, and moving",
+                "body": "Rat knows his river by eye: is it clear, cool, and moving just so, or is it cloudy after rain, warm in sun, and low between stones? You can learn the same reading without special gear. Three simple checks tell a lot about what the water can hold.\n\nLearn to **read water** before you judge it.\n\n- **Clarity:** clear water lets you see stones at knee depth; cloudy water after a storm carries soil from bare banks\n- **Temperature:** cool water shaded by willows can hold more oxygen for fish than a shallow sunny pool\n- **Flow and edge:** a steady glide past roots means a stable bank; a raw cut shows where soil is washing away\n\nIf you visit twice, note each check in words and a number where you can. For clarity, record the depth in centimetres where a white stone disappears, such as $30$ cm or $60$ cm. For temperature, read the thermometer at the same time of day and same spot. The numbers make the words honest, and the words make the numbers matter."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which reading suggests the bank is eroding?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Raw cut bank, cloudy water after rain, and exposed roots",
+                    "feedback": "Correct. A raw cut plus cloudiness after rain points to soil washing in where roots no longer hold it."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Clear water, steady glide past rooted edge, shading willows overhead",
+                    "feedback": "Misconception: that describes a stable, shaded, healthy edge, not erosion."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Cool temperature and good shade at midday",
+                    "feedback": "Misconception: cool shaded water is healthy for oxygen, not a sign of erosion."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Erosion shows as bare cuts, exposed roots, and cloudiness after rain.",
+                "hints": [
+                  "Reread the article before choosing.",
+                  "Which choice matches the article's definition?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "You lower a white marker and it vanishes at 45 cm on a clear day and at 20 cm after rain. How many centimetres clearer was the first reading than the second?",
+                "answer": 25,
+                "explanation": "45 minus 20 equals 25 cm. The drop shows soil carried in after rain.",
+                "hints": [
+                  "Reread the article before choosing.",
+                  "Which choice matches the article's definition?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "multi",
+                "prompt": "Select the two measures that together tell you most about what the water can hold for life. Choose two.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Clarity depth where a white stone disappears",
+                    "feedback": "Correct. Clarity depth shows how much soil or algae clouds the water."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Water temperature at the same spot and time of day",
+                    "feedback": "Correct. Temperature sets how much oxygen the water can hold."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "The colour of your boots",
+                    "feedback": "Misconception: boot colour tells nothing about water quality."
+                  },
+                  {
+                    "id": "c4",
+                    "text": "Number of clouds in the sky at that minute",
+                    "feedback": "Misconception: clouds change light, but not what the creek can hold for life."
+                  }
+                ],
+                "answer": [
+                  "c1",
+                  "c2"
+                ],
+                "explanation": "Clarity and temperature are the two quick checks that link most directly to habitat quality.",
+                "hints": [
+                  "Read at eye level, bottom of the curve; record units and tool mark.",
+                  "What must you note beside the number to make it checkable?"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Food webs, measures, and stewardship",
+      "lessons": [
+        {
+          "title": "From chain to web",
+          "summary": "One line becomes a net that can stretch without snapping.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "From one chain to a web",
+                "body": "A single food chain is a tidy line: algae to mayfly to small fish to heron. Real banks are messier. The same algae feeds many grazers. The same fish eats several kinds of insects. The heron eats fish and frogs. When you draw all the lines at once, you get a **food web**, a net that can stretch without snapping until too many threads are cut.\n\nA web is healthy when it has\n\n- Several **producers** at the base: algae, waterweed, reeds, fallen leaves\n- Several **consumers** at each level: more than one insect, more than one fish, more than one bird\n- **Decomposers** returning nutrients so producers can grow again after leaves fall\n- Connections that cross habitats: a wood beetle falls in and feeds a fish, a fish egg feeds a bank bird\n\nDraw your web with arrows pointing the way energy moves, such as algae $\\rightarrow$ mayfly $\\rightarrow$ fish $\\rightarrow$ heron. Then ask: if mayflies vanished, which eaters still have another path? A web with alternate routes survives a bad week. A single chain does not."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why can a food web survive the loss of one prey better than a single food chain can?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "A web has alternate routes, so a predator can eat another prey that is still there",
+                    "feedback": "Correct. Webs give predators more than one prey at a level, so one loss still leaves food."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "A web has only one prey for each predator, so it is simpler",
+                    "feedback": "Misconception: one prey each describes a single chain, not a web. That is fragile, not stable."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "A web needs no producers because consumers make their own food",
+                    "feedback": "Misconception: consumers cannot make food from sunlight. Every web needs producers at the base."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Alternate prey paths let a web absorb one loss. A chain with one path collapses.",
+                "hints": [
+                  "Think of how many menu options a predator has in a web versus a single line.",
+                  "Which answer gives a predator another choice if its first prey disappears?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "multi",
+                "prompt": "Select two features that make a riverbank food web more stable than a single chain. Choose two.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Several producers at the base, not just one",
+                    "feedback": "Correct. More producers means more entry points for energy."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Several different consumers at each level",
+                    "feedback": "Correct. Multiple consumers give alternate paths if one prey dips."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Only one prey for each predator so the line stays tidy",
+                    "feedback": "Misconception: that is a single chain. One link fails and the line breaks."
+                  },
+                  {
+                    "id": "c4",
+                    "text": "No decomposers, so nothing is recycled",
+                    "feedback": "Misconception: without decomposers nutrients do not return and producers weaken."
+                  }
+                ],
+                "answer": [
+                  "c1",
+                  "c2"
+                ],
+                "explanation": "Multiple producers and multiple consumers at each level create redundancy.",
+                "hints": [
+                  "Reread the article before choosing.",
+                  "Which choice matches the article's definition?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Measuring the riparian strip",
+          "summary": "How wide is wide enough, and how much shade is enough?",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "How wide is healthy",
+                "body": "Rat would say his bank needs room. Not much, but enough for roots to grip and shade to fall. Ecologists say much the same about a **riparian buffer**, the strip of native plants that keeps a creek cool and steady. Too thin and it cannot hold soil. Too tangled with weeds and it shades nothing well.\n\nA simple way to picture it is width and shade together.\n\n- Measure from the water edge out $5$ metres and then $10$ metres, and note which plants live in each band\n- Healthy ground has covered soil, not bare patches, and layers: groundcover then shrubs then trees with cover over $50$ percent of the channel at midday\n- A shaded pool can stay several degrees cooler than a sunny one, holding more oxygen for fish\n- Bare banks after clearing can lose soil at $2$ to $5$ cm a year, which clouds water and buries gravel where insects breed\n\nYou do not need to claim an exact perfect width. Record what you see and ask if the strip could shade the water at midday and hold the soil after rain. That question leads to a care plan that fits the place."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A healthy shade target is 50 percent of a 10 metre wide channel. How many metres of canopy overhang does that need?",
+                "answer": 5,
+                "explanation": "50 percent of 10 metres is 5 metres. Half the channel shaded helps keep water cooler.",
+                "hints": [
+                  "Shade keeps water cooler.",
+                  "Cooler water holds more dissolved oxygen."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which measurement best checks shade over the water at midday?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Estimate the percent of channel covered by canopy at noon",
+                    "feedback": "Correct. Percent cover at midday tells you if shade reaches the water when heat peaks."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Count cars on the road near the creek",
+                    "feedback": "Misconception: traffic does not measure canopy shade over water."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Measure air temperature only, not the water",
+                    "feedback": "Misconception: air alone does not show how much of the channel is actually shaded."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Canopy cover over the channel at midday is the direct shade check.",
+                "hints": [
+                  "Shade keeps water cooler.",
+                  "Cooler water holds more dissolved oxygen."
+                ]
               }
             }
           ]
@@ -224,7 +772,7 @@
               "type": "article",
               "content": {
                 "title": "Two courses, one creek",
-                "body": "This book gave you language. The field course gave you numbers. Use them together on a visit: read the bank first with words, then measure with a sheet.\n\n- Walk the bank and write your one sentence of description before you measure anything\n- Then take the field sheet from your River Ecology course: date, air and water temperature, clarity when a disc vanishes, and three rock lifts listing each kind you saw\n- Add one question the numbers raise and one line for next time\n\nThe words make the numbers matter. The numbers make the words honest."
+                "body": "This course gave you language from Grahame. Your field study gave you sheets and numbers. Use them together on one real visit. Read the bank first with words, then measure with a sheet, so the numbers check the story you just told.\n\nA good field visit has a simple order.\n\n- Walk the bank and write your one sentence of description before you measure anything\n- Then take the field sheet: date, air and water temperature, clarity depth where a white disc vanishes, and three rock lifts listing each kind you saw under each stone\n- Add one **question** the numbers raise and one line for next time, such as to return after rain or in another season\n- Leave the bank as you found it, and carry the numbers home to compare\n\nThe words make the numbers matter because you know why you looked. The numbers make the words honest because they keep your memory true. Together they build a record a next year class can use, just as Rat keeps his log of river levels by his door."
               }
             },
             {
@@ -233,13 +781,88 @@
                 "kind": "mcq",
                 "prompt": "On a creek visit after these two courses together, what is the best order?",
                 "choices": [
-                  { "id": "c1", "text": "Describe the bank, then measure and tally, then note a question" },
-                  { "id": "c2", "text": "Guess the answers before looking, then describe to fit the guesses" },
-                  { "id": "c3", "text": "Only measure, skip the description" }
+                  {
+                    "id": "c1",
+                    "text": "Describe the bank, then measure and tally, then note a question",
+                    "feedback": "Correct. Description first grounds you, measures test it, a question carries learning forward."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Guess the answers before looking, then describe to fit the guesses",
+                    "feedback": "Misconception: guessing first biases what you see. Observe and describe before judging."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Only measure, skip the description",
+                    "feedback": "Misconception: numbers without a word picture lose context you need to interpret them."
+                  }
                 ],
                 "answer": "c1",
-                "explanation": "Description first grounds observation; measures then check and extend it; the question carries the learning forward.",
-                "hint": "Which order keeps observing before guessing?"
+                "explanation": "Description first grounds observation, measures then check and extend it, the question carries the learning forward.",
+                "hints": [
+                  "Reread the article before choosing.",
+                  "Which choice matches the article's definition?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "After one rock lift on a creek visit, you saw 6 mayfly nymphs, 2 snails, and 1 small yabbie. Write one sentence that reports the tally exactly and asks one follow up question.",
+                "answer": "Under one rock I found 6 mayfly nymphs, 2 snails, and 1 yabbie. Are there more nymphs on shaded rocks?",
+                "explanation": "Any sentence with an exact tally plus a testable next question is good."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Your riverbank stewardship page",
+          "summary": "Bring every thread together on one checkable page.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Bringing it all together",
+                "body": "By now you have read the bank like Rat, noted seasons like Badger, and dreamed roads like Toad but chosen to stay and tend. Mole started afraid and ended useful because he learned to notice and to help in one place. Your last job is to pull every thread together on a single page that someone else could follow.\n\nA strong stewardship page holds four parts at once.\n\n- A **named patch** with a one line location someone could find again, such as east bank ten steps past the willow bend\n- One **food web chain** of at least three links you actually saw or that fits this bank, with arrows such as algae $\\rightarrow$ mayfly $\\rightarrow$ fish\n- One **descriptive sentence** with a specific sight and a specific sound, under $25$ words\n- A **three line care plan** that says what you will plant, where on the strip, and how you will know it is working next term\n\nKeep each part short and checkable. If a friend can stand on your patch, read your sentence and see the same bank, and follow your plan without asking you, the page has done its work. That is stewardship, not scenery. Grahame's friends would recognise it."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "What makes a stewardship page actually usable next term?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Named patch, checkable chain, one sight and sound sentence, and three line plan with how to check",
+                    "feedback": "Correct. All four checkable parts let a new group stand, see, and continue care."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "A grand map of the whole creek with thirsty garden plants and no record of where",
+                    "feedback": "Misconception: too big, non local, and unrecorded means no one can maintain it."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "A single photo with no words or plan",
+                    "feedback": "Misconception: a photo alone gives no chain, no description, and no care steps to follow."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Checkable, small, and written wins. Next year's group must be able to find and follow it.",
+                "hints": [
+                  "Name a small patch, local plants, one chain, one check.",
+                  "Which plan has what, where, and how you will check?"
+                ]
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Your riverbank stewardship page",
+                "description": "Make a one page stewardship record for a patch you know or have visited. Include: 1) patch name and one line location that a stranger could find, 2) sketch one food web chain of at least three links from producer to consumer that fits this bank with arrows showing energy flow, 3) one descriptive sentence of under 25 words with one specific sight and one specific sound, 4) a three line care plan that says what you will plant (local species), where on the buffer (distance from water), and how you will know it is working at your next visit (one measure such as shade percent, clarity depth, or photo from same spot). If you can, attach your River Ecology Field Study data.",
+                "rubric": "- Patch is named and located in one line a stranger could follow\n- One correct producer to consumer chain with at least three links and arrows in correct direction\n- One descriptive sentence with a specific sight and a specific sound under 25 words\n- Three line plan: what local plant, where in metres from water, and how you will check next time with a named measure\n- Page could be followed next term without asking you"
               }
             }
           ]
