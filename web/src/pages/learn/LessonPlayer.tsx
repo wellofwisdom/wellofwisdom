@@ -7,6 +7,9 @@ import { linkProps } from "../../router";
 import ArticleItem from "./items/ArticleItem";
 import ExerciseItem from "./items/ExerciseItem";
 import MultiItem from "./items/MultiItem";
+import OrderItem from "./items/OrderItem";
+import MatchItem from "./items/MatchItem";
+import CategorizeItem from "./items/CategorizeItem";
 import VideoItem from "./items/VideoItem";
 import ProjectItem from "./items/ProjectItem";
 import AudioItem from "./items/AudioItem";
@@ -155,5 +158,8 @@ function LessonItem({ item, solved, onSolved, submission, onSubmission }: {
   if ((item.type as string) === "flashcards") return <FlashcardsItem item={item as unknown as never} />;
   const kind = (item.content as Record<string, unknown>)?.kind;
   if (kind === "multi") return <MultiItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "order") return <OrderItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "match") return <MatchItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "categorize") return <CategorizeItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
   return <ExerciseItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} question={null} />;
 }

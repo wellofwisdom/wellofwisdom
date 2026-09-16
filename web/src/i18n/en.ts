@@ -270,6 +270,14 @@ const en = {
   "flashcards.next": "Next",
   "flashcards.showFront": "Show front",
   "flashcards.showBack": "Show back",
+  "exercise.orderHint": "Drag to put them in order, or use arrow keys.",
+  "exercise.orderMoveHelp": "Use Up and Down arrows to reorder",
+  "exercise.matchHint": "Match each item on the left with one on the right.",
+  "exercise.matchPairLabel": "Match {left}",
+  "exercise.matchChoose": "Choose",
+  "exercise.matchUnpaired": "not yet matched",
+  "exercise.categorizeHint": "Put each card in the right bucket.",
+  "exercise.categorizePairLabel": "Put {card} in",
 } as const;
 
 export type TranslationKey = keyof typeof en;

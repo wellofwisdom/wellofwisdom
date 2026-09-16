@@ -174,6 +174,9 @@ function courseText(tree, opts = {}) {
         } else if (it.type === "exercise") {
           push(`EXERCISE (${c.kind || "mcq"}): ${c.prompt || ""}`);
           (c.choices || []).forEach((ch) => push(`  - ${ch.text}`));
+          if (Array.isArray(c.hints) && c.hints.length) {
+            for (const h of c.hints) push(`  Hint: ${h}`);
+          }
         } else if (it.type === "video") {
           let where = "Uploaded video";
           if (c.youtubeId) where = `https://www.youtube.com/watch?v=${c.youtubeId}`;
