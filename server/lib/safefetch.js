@@ -41,7 +41,7 @@ for (const [addr, bits] of [
 // The server's OWN public address is the one gap a list like this cannot know.
 // From inside, a request to it reaches the host directly and can skip an edge
 // firewall, so an operator can name it (and anything else): FETCH_BLOCK_CIDRS
-// is a comma list like "5.78.143.227/32,2a01:4f8::/32". A malformed entry is
+// is a comma list like "203.0.113.10/32,2001:db8::/48". A malformed entry is
 // skipped with a warning rather than taking the server down.
 for (const entry of String(process.env.FETCH_BLOCK_CIDRS || "").split(",").map((s) => s.trim()).filter(Boolean)) {
   const [addr, bitsRaw] = entry.split("/");

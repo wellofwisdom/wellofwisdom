@@ -39,7 +39,7 @@ Every learner drinks from their own well: courses shaped around what they love, 
      <video src="web/public/demo.mp4" autoplay loop muted playsinline width="760"></video>
   7. Delete this comment and the placeholder line under it.
 -->
-*A 30 second GIF of a learner walking the path and beating a boss goes in this spot. Steps are in the comment above and in [the launch checklist](docs/LAUNCH-CHECKLIST.md).*
+*A 30 second GIF of a learner walking the path and beating a boss goes in this spot. Steps are in the comment above.*
 
 </div>
 
@@ -238,7 +238,6 @@ Full detail in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 | [docs/DESIGN.md](docs/DESIGN.md) | The two spaces, the accessibility bar, and the design system. |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | What is done, what is next, and why in that order. |
 | [CHANGELOG.md](CHANGELOG.md) | What shipped, by day, in plain language. |
-| [docs/LAUNCH-CHECKLIST.md](docs/LAUNCH-CHECKLIST.md) | The launch runbook, with owners. |
 
 ## Contributing
 
