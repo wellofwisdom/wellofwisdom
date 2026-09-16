@@ -13,6 +13,10 @@ import CategorizeItem from "./items/CategorizeItem";
 import VideoItem from "./items/VideoItem";
 import ProjectItem from "./items/ProjectItem";
 import AudioItem from "./items/AudioItem";
+import FigureItem from "./items/FigureItem";
+import StepsItem from "./items/StepsItem";
+import PredictItem from "./items/PredictItem";
+import FlashcardsItem from "./items/FlashcardsItem";
 
 export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   lessonId: number; onNavigate: (hash: string) => void; onLogout: () => void;
@@ -148,6 +152,10 @@ function LessonItem({ item, solved, onSolved, submission, onSubmission }: {
   if (item.type === "project") return <ProjectItem item={item} submission={submission} onSubmission={onSubmission} />;
   if (item.type === "video") return <VideoItem item={item} solved={solved} onSolved={onSolved} />;
   if (item.type === "audio") return <AudioItem item={item} />;
+  if ((item.type as string) === "figure") return <FigureItem item={item as unknown as never} />;
+  if ((item.type as string) === "steps") return <StepsItem item={item as unknown as never} />;
+  if ((item.type as string) === "predict") return <PredictItem item={item as unknown as never} />;
+  if ((item.type as string) === "flashcards") return <FlashcardsItem item={item as unknown as never} />;
   const kind = (item.content as Record<string, unknown>)?.kind;
   if (kind === "multi") return <MultiItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "order") return <OrderItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
