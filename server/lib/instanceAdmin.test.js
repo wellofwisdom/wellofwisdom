@@ -85,6 +85,8 @@ test("every server-wide settings route carries the guard", () => {
   };
   guarded("ai.js", "get", "/config");
   guarded("ai.js", "put", "/config");
+  guarded("ai.js", "get", "/providers");
+  guarded("ai.js", "put", "/providers");
   guarded("ai.js", "put", "/limits");
   guarded("mail.js", "get", "/config");
   guarded("mail.js", "put", "/config");
