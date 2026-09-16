@@ -667,8 +667,7 @@ structurally cannot:
 
 # Desktop, Steam, controller, speech, language (added 2026-09-13, Well 4)
 
-Full reasoning, alternatives and costs are in `docs/REVIEW-AND-PLAN-2026-09-13.md`
-sections 8 to 10. This is the checklist. Order matters: controller and speech come
+This is the checklist. Order matters: controller and speech come
 before the desktop build because they are what makes a Steam Deck verification
 pass and what makes language learning possible at all.
 

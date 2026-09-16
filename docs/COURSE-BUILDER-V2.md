@@ -65,7 +65,6 @@ Most of Well 2's work is already on main. `git cherry` shows only these changes 
 |---|---|---|
 | `audio` item type, `AudioPlayer.tsx`, migration `031_voice_music.sql`, media and jobs support | Not on main | See the two problems below |
 | Community library shows local courses alongside remote (`409dc95`) | Not on main | Check against `c6466b5` on main, which covered part of it |
-| `docs/IP-CURRICULUM-PLAN.md` wording and `frankenstein-life` adventure template | Partly on main | Diff and keep the newer text |
 
 Two problems in the audio pilot:
 
