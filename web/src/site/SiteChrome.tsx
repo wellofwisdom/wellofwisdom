@@ -173,6 +173,7 @@ function SiteFooter() {
             <ul>
               {legal.map((p) => <li key={p.path}><a {...linkProps(p.path)}>{p.path === "children" ? "Children's data" : p.path === "privacy" ? "Privacy" : "Terms"}</a></li>)}
               <li><a href={`${REPO}/security/policy`} target="_blank" rel="noreferrer">Security</a></li>
+              <li><a href="mailto:support@wellofwisdom.app">Email support</a></li>
               <li><a href={`${REPO}/blob/main/docs/PEDAGOGY.md`} target="_blank" rel="noreferrer">Pedagogy</a></li>
             </ul>
           </div>

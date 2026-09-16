@@ -3,7 +3,7 @@ import { LegalChrome } from "./LegalLayout";
 
 export default function Privacy() {
   return (
-    <LegalChrome path="privacy" title="Privacy Policy" updated="13 September 2026">
+    <LegalChrome path="privacy" title="Privacy Policy" updated="16 September 2026">
       <p><strong>In short.</strong> Self-hosted means your data sits on your server. The hosted option, when it opens, keeps only what it needs to run your school.</p>
 
       <h2>What we collect</h2>
@@ -34,13 +34,13 @@ export default function Privacy() {
       </ul>
 
       <h2>Retention and deletion</h2>
-      <p>A parent can delete a learner, a course, or a report. A hosted account can be closed by email, and data is removed within 30 days [placeholder: Kevin to confirm retention period]. The waitlist email can be removed on request.</p>
+      <p>A parent can delete a learner, a course, or a report. A hosted account can be closed by emailing privacy@wellofwisdom.app, and data is removed within 30 days [placeholder: Kevin to confirm retention period]. The waitlist email can be removed on request.</p>
 
       <h2>Cookies</h2>
       <p>One session cookie keeps you signed in. No analytics cookies.</p>
 
       <h2>Contact</h2>
-      <p>For privacy questions or deletion requests, email privacy@wellofwisdom.app [placeholder: Kevin to confirm private contact address]. We answer on a best effort basis.</p>
+      <p>For privacy questions or deletion requests, email privacy@wellofwisdom.app. We answer on a best effort basis.</p>
     </LegalChrome>
   );
 }
