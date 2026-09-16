@@ -142,8 +142,12 @@ function tokenAllows(req, scopes) {
   const rawPath = String(req.path || req.originalUrl || req.url || "").split("?")[0];
   const p = rawPath.split("?")[0];
   const method = String(req.method || "GET").toUpperCase();
-  // Always allow health, public, and the token management itself
-  if (p === "/api/health" || p.startsWith("/api/public") || p.startsWith("/api/tokens")) return true;
+  // Token management is session-only. A bearer token must never reach
+  // /api/tokens: a leaked read-only token could otherwise mint a full-scope
+  // one and escalate itself.
+  if (p === "/api/tokens" || p.startsWith("/api/tokens/")) return false;
+  // Always allow health and public: they answer without a session anyway
+  if (p === "/api/health" || p.startsWith("/api/public")) return true;
   // GET /api/me is session bootstrap, allow read scopes
   if (p === "/api/me" && method === "GET") {
     if (scopes.includes("read") || scopes.includes("learners:read") || scopes.includes("progress:read")) return true;

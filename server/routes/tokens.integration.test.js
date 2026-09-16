@@ -44,8 +44,17 @@ describe("tokens integration", () => {
     const ls = await http(a, "/api/tokens", { method: "GET", cookie: fam.jar });
     assert.equal(ls.status, 200, ls.text);
     assert.ok(ls.json.tokens.some((t) => Number(t.id) === tid));
-    assert.ok(!String(ls.text).includes(token.slice(5, 15)) || true); // token not in list
+    assert.ok(!ls.text.includes(token)); // the raw token never comes back
     for (const t of ls.json.tokens) assert.ok(!("token" in t) && !("token_hash" in t));
+
+    // a bearer token can never manage tokens: a leaked token must not be able
+    // to mint a full-scope one, list hashes, or revoke its siblings
+    const escList = await http(a, "/api/tokens", { method: "GET", bearer: token });
+    assert.equal(escList.status, 403, escList.text);
+    const escMint = await http(a, "/api/tokens", { bearer: token, body: { name: "escalate", scopes: ["read", "courses:write", "learners:read", "progress:read"] } });
+    assert.equal(escMint.status, 403, escMint.text);
+    const escDel = await http(a, `/api/tokens/${tid}`, { method: "DELETE", bearer: token });
+    assert.equal(escDel.status, 403, escDel.text);
 
     // bearer auth can read
     const me = await http(a, "/api/me", { method: "GET", bearer: token });

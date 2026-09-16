@@ -52,3 +52,11 @@ test("tokenAllows checks scopes", () => {
   assert.equal(apiTokens.tokenAllows(req("GET", "/api/me"), ["read"]), true);
   assert.equal(apiTokens.tokenAllows(req("POST", "/api/family/learners"), ["learners:read"]), false);
 });
+
+test("token management is session-only: no scope reaches /api/tokens", () => {
+  function req(method, path) { return { method, path }; }
+  const all = ["read", "courses:write", "learners:read", "progress:read"];
+  assert.equal(apiTokens.tokenAllows(req("GET", "/api/tokens"), all), false);
+  assert.equal(apiTokens.tokenAllows(req("POST", "/api/tokens"), all), false);
+  assert.equal(apiTokens.tokenAllows(req("DELETE", "/api/tokens/1"), all), false);
+});

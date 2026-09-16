@@ -21,7 +21,9 @@ like `wow_` plus 32 random bytes in base64url, is shown once, and is stored only
 as a SHA-256 hash. Send it as `Authorization: Bearer wow_...`. It acts as that
 guide limited to its scopes (`read`, `courses:write`, `learners:read`,
 `progress:read`). An unknown or revoked token gets 401. Bearer requests are
-rate limited per token (120 per minute) and skip cookie checks. Learners cannot
+rate limited per token (120 per minute) and skip cookie checks. Token
+management itself needs the session cookie: a bearer token gets 403 on
+`/api/tokens`, so a leaked token can never mint a bigger one. Learners cannot
 create tokens. See also `docs/MCP.md` and `POST /api/tokens` below.
 
 **Body format.** JSON for everything under `/api`, except `POST /api/uploads`,
@@ -1323,10 +1325,12 @@ Notes: `return` hands the work back and stamps `returned_at`. 400 `outcome_inval
 
 ## Tokens (/api/tokens)
 
-Mounted at `/api/tokens`. Every route needs a session (`auth.authRequired`). A
-learner is refused with 403 `parent_only`. Each token belongs to the guide who
-created it, in that guide's family. Bearer auth on other routes uses these
-tokens; this router is how they are managed.
+Mounted at `/api/tokens`. Every route needs a session cookie
+(`auth.authRequired`). A learner is refused with 403 `parent_only`. A bearer
+token is refused here with 403 `not_allowed`, whatever its scopes: management
+is session-only, so a leaked token cannot mint or revoke tokens. Each token
+belongs to the guide who created it, in that guide's family. Bearer auth on
+other routes uses these tokens; this router is how they are managed.
 
 ### GET /api/tokens
 Auth: `auth.authRequired`, then a parent check
@@ -1347,6 +1351,7 @@ Notes: revokes the token. Unknown or not yours gives 404 `not_found`. A revoked 
 Bearer use elsewhere: send `Authorization: Bearer wow_...`. On any route it is
 checked before the cookie. Unknown or revoked is 401, insufficient scope is
 403, and per-token rate limit is 120 per minute (429 `too_many_attempts`).
+`/api/tokens` itself always answers 403 to a bearer token.
 
 ## Roster (/api/roster)
 
