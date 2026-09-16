@@ -456,6 +456,11 @@ router.patch("/items/:itemId", auth.requirePerm("edit_course"), async (req, res,
       [itemId, req.user.familyId, JSON.stringify(clean.content)]
     );
     if (!rows[0]) return bad(res, "not_found", 404);
+    const snapCourse = await db.query(
+      "select un.course_id from lesson_items i join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id where i.id = $1",
+      [itemId]
+    );
+    if (snapCourse.rows[0]) { try { await require("../lib/courseVersions").saveSnapshot(Number(snapCourse.rows[0].course_id), req.user.familyId, req.user.id); } catch (_) {} }
     res.json({ ok: true, item: { id: itemId, type, content: clean.content } });
   } catch (err) {
     next(err);
@@ -464,7 +469,13 @@ router.patch("/items/:itemId", auth.requirePerm("edit_course"), async (req, res,
 
 // Delete an item (parent trims AI output).
 router.delete("/items/:itemId", async (req, res, next) => {
+  let snapCourseId = null;
   try {
+    const snapQ = await db.query(
+      "select un.course_id from lesson_items i join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id where i.id = $1",
+      [Number(req.params.itemId)]
+    );
+    snapCourseId = snapQ.rows[0] ? Number(snapQ.rows[0].course_id) : null;
     const { rowCount } = await db.query(
       `delete from lesson_items i
          using lessons l, units un, courses c
@@ -473,6 +484,7 @@ router.delete("/items/:itemId", async (req, res, next) => {
       [Number(req.params.itemId), req.user.familyId]
     );
     if (!rowCount) return bad(res, "not_found", 404);
+    if (snapCourseId) { try { await require("../lib/courseVersions").saveSnapshot(snapCourseId, req.user.familyId, req.user.id); } catch (_) {} }
     res.json({ ok: true });
   } catch (err) {
     next(err);
@@ -644,6 +656,10 @@ router.post("/lessons/:lessonId/items", async (req, res, next) => {
        values ($1, $2, $3, $4) returning id, type, position, content`,
       [lessonId, clean.type, pos.rows[0].p, JSON.stringify(clean.content)]
     );
+    try {
+      const sc = await db.query("select un.course_id from lessons l join units un on un.id = l.unit_id where l.id = $1", [lessonId]);
+      if (sc.rows[0]) await require("../lib/courseVersions").saveSnapshot(Number(sc.rows[0].course_id), req.user.familyId, req.user.id);
+    } catch (_) {}
     res.status(201).json({ item: { ...rows[0], id: Number(rows[0].id) } });
   } catch (err) {
     next(err);
@@ -676,6 +692,10 @@ router.patch("/lessons/:lessonId", async (req, res, next) => {
       params
     );
     if (!rowCount) return bad(res, "not_found", 404);
+    try {
+      const sc = await db.query("select un.course_id from lessons l join units un on un.id = l.unit_id where l.id = $1", [Number(req.params.lessonId)]);
+      if (sc.rows[0]) await require("../lib/courseVersions").saveSnapshot(Number(sc.rows[0].course_id), req.user.familyId, req.user.id);
+    } catch (_) {}
     res.json({ ok: true });
   } catch (err) {
     next(err);
@@ -841,5 +861,317 @@ router.get("/:id/answer-key", async (req, res, next) => {
     next(err);
   }
 });
+
+// ---- structural editor: units, lessons, and item order (Well 17) ----
+
+async function snapshotAfterMutate(req, courseId) {
+  try {
+    await require("../lib/courseVersions").saveSnapshot(courseId, req.user.familyId, req.user.id);
+  } catch (_) {
+    // Snapshots must never break a save. Quota, driver, or a half-applied
+    // migration all fail soft here, same posture as jobs and digests on boot.
+  }
+}
+
+function siblingEdit() {
+  return auth.requirePerm("edit_course");
+}
+
+// Units
+router.post("/:courseId/units", siblingEdit(), async (req, res, next) => {
+  try {
+    const courseId = Number(req.params.courseId);
+    const title = String((req.body && req.body.title) || "").trim().slice(0, 200) || "New unit";
+    const owns = await db.query("select 1 from courses where id = $1 and family_id = $2", [courseId, req.user.familyId]);
+    if (!owns.rowCount) return bad(res, "not_found", 404);
+    const pos = await db.query("select coalesce(max(position), -1) + 1 as p from units where course_id = $1", [courseId]);
+    const { rows } = await db.query(
+      "insert into units (course_id, title, position) values ($1,$2,$3) returning id, title, position",
+      [courseId, title, pos.rows[0].p]
+    );
+    await snapshotAfterMutate(req, courseId);
+    res.status(201).json({ unit: { id: Number(rows[0].id), title: rows[0].title, position: Number(rows[0].position) } });
+  } catch (err) { next(err); }
+});
+
+router.patch("/units/:unitId", siblingEdit(), async (req, res, next) => {
+  try {
+    const unitId = Number(req.params.unitId);
+    const title = req.body && req.body.title !== undefined ? String(req.body.title).trim() : undefined;
+    if (title !== undefined && !title) return bad(res, "title_required");
+    if (title !== undefined && title.length > 200) return bad(res, "title_too_long");
+    const found = await db.query(
+      "select un.course_id from units un join courses c on c.id = un.course_id where un.id = $1 and c.family_id = $2",
+      [unitId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    if (title === undefined) return bad(res, "nothing_to_update");
+    await db.query("update units set title = $1 where id = $2", [title.slice(0, 200), unitId]);
+    await snapshotAfterMutate(req, Number(found.rows[0].course_id));
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+router.delete("/units/:unitId", siblingEdit(), async (req, res, next) => {
+  try {
+    const unitId = Number(req.params.unitId);
+    const found = await db.query(
+      "select un.course_id from units un join courses c on c.id = un.course_id where un.id = $1 and c.family_id = $2",
+      [unitId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const courseId = Number(found.rows[0].course_id);
+    await db.query("delete from units where id = $1", [unitId]);
+    await snapshotAfterMutate(req, courseId);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+router.post("/units/:unitId/move", siblingEdit(), async (req, res, next) => {
+  try {
+    const unitId = Number(req.params.unitId);
+    const dir = String((req.body && req.body.direction) || "").trim();
+    if (!["up", "down"].includes(dir)) return bad(res, "direction_invalid");
+    const found = await db.query(
+      "select un.id, un.position, un.course_id from units un join courses c on c.id = un.course_id where un.id = $1 and c.family_id = $2",
+      [unitId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const courseId = Number(found.rows[0].course_id);
+    const ordered = await db.query("select id, position from units where course_id = $1 order by position, id", [courseId]);
+    const idx = ordered.rows.findIndex((r) => Number(r.id) === unitId);
+    const swapIdx = dir === "up" ? idx - 1 : idx + 1;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= ordered.rows.length) return bad(res, "at_edge");
+    const a = ordered.rows[idx];
+    const b = ordered.rows[swapIdx];
+    await db.query("update units set position = $1 where id = $2", [b.position, a.id]);
+    await db.query("update units set position = $1 where id = $2", [a.position, b.id]);
+    // When positions collide (both 0 after a manual import), normalize the run.
+    if (a.position === b.position) {
+      const all = await db.query("select id from units where course_id = $1 order by position, id", [courseId]);
+      for (let i = 0; i < all.rows.length; i++) await db.query("update units set position = $1 where id = $2", [i, all.rows[i].id]);
+    }
+    await snapshotAfterMutate(req, courseId);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+// Lessons
+router.post("/units/:unitId/lessons", siblingEdit(), async (req, res, next) => {
+  try {
+    const unitId = Number(req.params.unitId);
+    const title = String((req.body && req.body.title) || "").trim().slice(0, 200) || "New lesson";
+    const found = await db.query(
+      "select un.course_id from units un join courses c on c.id = un.course_id where un.id = $1 and c.family_id = $2",
+      [unitId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const courseId = Number(found.rows[0].course_id);
+    const pos = await db.query("select coalesce(max(position), -1) + 1 as p from lessons where unit_id = $1", [unitId]);
+    const { rows } = await db.query(
+      "insert into lessons (unit_id, title, position) values ($1,$2,$3) returning id, title, position",
+      [unitId, title, pos.rows[0].p]
+    );
+    await snapshotAfterMutate(req, courseId);
+    res.status(201).json({ lesson: { id: Number(rows[0].id), title: rows[0].title, position: Number(rows[0].position) } });
+  } catch (err) { next(err); }
+});
+
+router.delete("/lessons/:lessonId", siblingEdit(), async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    const found = await db.query(
+      "select un.course_id from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id where l.id = $1 and c.family_id = $2",
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const courseId = Number(found.rows[0].course_id);
+    await db.query("delete from lessons where id = $1", [lessonId]);
+    await snapshotAfterMutate(req, courseId);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+router.post("/lessons/:lessonId/move", siblingEdit(), async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    const dir = String((req.body && req.body.direction) || "").trim();
+    const targetUnitId = req.body && req.body.unitId != null ? Number(req.body.unitId) : null;
+    if (!["up", "down"].includes(dir) && targetUnitId == null) return bad(res, "direction_invalid");
+    const found = await db.query(
+      `select l.id, l.unit_id, l.position, un.course_id
+         from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id
+        where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const courseId = Number(found.rows[0].course_id);
+    // Cross-unit move when unitId is supplied. Used by the editor to move a
+    // lesson between units; otherwise reorder inside the same unit.
+    if (targetUnitId != null) {
+      if (!Number.isInteger(targetUnitId)) return bad(res, "unit_invalid");
+      const tu = await db.query("select 1 from units where id = $1 and course_id = $2", [targetUnitId, courseId]);
+      if (!tu.rowCount) return bad(res, "unit_not_found", 404);
+      const pos = await db.query("select coalesce(max(position), -1) + 1 as p from lessons where unit_id = $1", [targetUnitId]);
+      await db.query("update lessons set unit_id = $1, position = $2 where id = $3", [targetUnitId, pos.rows[0].p, lessonId]);
+      await snapshotAfterMutate(req, courseId);
+      return res.json({ ok: true });
+    }
+    const unitId = Number(found.rows[0].unit_id);
+    const ordered = await db.query("select id, position from lessons where unit_id = $1 order by position, id", [unitId]);
+    const idx = ordered.rows.findIndex((r) => Number(r.id) === lessonId);
+    const swapIdx = dir === "up" ? idx - 1 : idx + 1;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= ordered.rows.length) return bad(res, "at_edge");
+    const a = ordered.rows[idx];
+    const b = ordered.rows[swapIdx];
+    await db.query("update lessons set position = $1 where id = $2", [b.position, a.id]);
+    await db.query("update lessons set position = $1 where id = $2", [a.position, b.id]);
+    if (a.position === b.position) {
+      const all = await db.query("select id from lessons where unit_id = $1 order by position, id", [unitId]);
+      for (let i = 0; i < all.rows.length; i++) await db.query("update lessons set position = $1 where id = $2", [i, all.rows[i].id]);
+    }
+    await snapshotAfterMutate(req, courseId);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+// Lesson items reorder
+router.post("/items/:itemId/move", siblingEdit(), async (req, res, next) => {
+  try {
+    const itemId = Number(req.params.itemId);
+    const dir = String((req.body && req.body.direction) || "").trim();
+    if (!["up", "down"].includes(dir)) return bad(res, "direction_invalid");
+    const found = await db.query(
+      `select i.id, i.lesson_id, i.position, un.course_id
+         from lesson_items i join lessons l on l.id = i.lesson_id
+         join units un on un.id = l.unit_id join courses c on c.id = un.course_id
+        where i.id = $1 and c.family_id = $2`,
+      [itemId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const lessonId = Number(found.rows[0].lesson_id);
+    const courseId = Number(found.rows[0].course_id);
+    const ordered = await db.query("select id, position from lesson_items where lesson_id = $1 order by position, id", [lessonId]);
+    const idx = ordered.rows.findIndex((r) => Number(r.id) === itemId);
+    const swapIdx = dir === "up" ? idx - 1 : idx + 1;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= ordered.rows.length) return bad(res, "at_edge");
+    const a = ordered.rows[idx];
+    const b = ordered.rows[swapIdx];
+    await db.query("update lesson_items set position = $1 where id = $2", [b.position, a.id]);
+    await db.query("update lesson_items set position = $1 where id = $2", [a.position, b.id]);
+    if (a.position === b.position) {
+      const all = await db.query("select id from lesson_items where lesson_id = $1 order by position, id", [lessonId]);
+      for (let i = 0; i < all.rows.length; i++) await db.query("update lesson_items set position = $1 where id = $2", [i, all.rows[i].id]);
+    }
+    await snapshotAfterMutate(req, courseId);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+// Direct position reorder for units/lessons/items. Preferred over repeated
+// up/down moves when the editor reorders via drag.
+router.post("/:courseId/reorder", siblingEdit(), async (req, res, next) => {
+  try {
+    const courseId = Number(req.params.courseId);
+    const { type, order } = req.body || {};
+    if (!["unit", "lesson", "item"].includes(type)) return bad(res, "type_invalid");
+    if (!Array.isArray(order) || !order.length) return bad(res, "order_required");
+    const ids = order.map(Number).filter((n) => Number.isInteger(n) && n > 0);
+    if (ids.length !== order.length) return bad(res, "order_invalid");
+    const owns = await db.query("select 1 from courses where id = $1 and family_id = $2", [courseId, req.user.familyId]);
+    if (!owns.rowCount) return bad(res, "not_found", 404);
+    if (type === "unit") {
+      const units = await db.query("select id from units where course_id = $1", [courseId]);
+      const have = new Set(units.rows.map((r) => Number(r.id)));
+      if (ids.length !== units.rows.length || !ids.every((id) => have.has(id))) return bad(res, "order_mismatch");
+      for (let i = 0; i < ids.length; i++) await db.query("update units set position = $1 where id = $2", [i, ids[i]]);
+    } else if (type === "lesson") {
+      const { unitId } = req.body || {};
+      if (!Number.isInteger(Number(unitId))) return bad(res, "unit_required");
+      const tu = await db.query("select 1 from units where id = $1 and course_id = $2", [Number(unitId), courseId]);
+      if (!tu.rowCount) return bad(res, "unit_not_found", 404);
+      const lessons = await db.query("select id from lessons where unit_id = $1", [Number(unitId)]);
+      const have = new Set(lessons.rows.map((r) => Number(r.id)));
+      if (ids.length !== lessons.rows.length || !ids.every((id) => have.has(id))) return bad(res, "order_mismatch");
+      for (let i = 0; i < ids.length; i++) await db.query("update lessons set position = $1 where id = $2", [i, ids[i]]);
+    } else {
+      const { lessonId } = req.body || {};
+      if (!Number.isInteger(Number(lessonId))) return bad(res, "lesson_required");
+      const tl = await db.query(
+        "select 1 from lessons l join units un on un.id = l.unit_id where l.id = $1 and un.course_id = $2",
+        [Number(lessonId), courseId]
+      );
+      if (!tl.rowCount) return bad(res, "lesson_not_found", 404);
+      const items = await db.query("select id from lesson_items where lesson_id = $1", [Number(lessonId)]);
+      const have = new Set(items.rows.map((r) => Number(r.id)));
+      if (ids.length !== items.rows.length || !ids.every((id) => have.has(id))) return bad(res, "order_mismatch");
+      for (let i = 0; i < ids.length; i++) await db.query("update lesson_items set position = $1 where id = $2", [i, ids[i]]);
+    }
+    await snapshotAfterMutate(req, courseId);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+// Version history
+router.get("/:courseId/versions", async (req, res, next) => {
+  try {
+    const courseId = Number(req.params.courseId);
+    const owns = await db.query("select 1 from courses where id = $1 and family_id = $2", [courseId, req.user.familyId]);
+    if (!owns.rowCount) return bad(res, "not_found", 404);
+    const versions = await require("../lib/courseVersions").listVersions(courseId, req.user.familyId);
+    res.json({ versions });
+  } catch (err) { next(err); }
+});
+
+router.post("/:courseId/versions/:versionId/restore", siblingEdit(), async (req, res, next) => {
+  try {
+    const courseId = Number(req.params.courseId);
+    const versionId = Number(req.params.versionId);
+    const owns = await db.query("select 1 from courses where id = $1 and family_id = $2", [courseId, req.user.familyId]);
+    if (!owns.rowCount) return bad(res, "not_found", 404);
+    const ver = await require("../lib/courseVersions").getVersion(versionId, courseId, req.user.familyId);
+    if (!ver) return bad(res, "not_found", 404);
+    await require("../lib/courseVersions").restoreVersion(ver, courseId, req.user.familyId);
+    await snapshotAfterMutate(req, courseId);
+    res.json({ ok: true });
+  } catch (err) {
+    if (err.code === "course_unparseable") return bad(res, "course_unparseable", 400);
+    next(err);
+  }
+});
+
+// Preview one lesson as the learner sees it, without switching the session.
+// Stripped the same way routes/learn strips, so no answers leak.
+router.get("/lessons/:lessonId/preview", async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    const found = await db.query(
+      `select l.id, l.title, l.summary, c.id as course_id, c.title as course_title
+         from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id
+        where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const items = await db.query("select id, type, position, content from lesson_items where lesson_id = $1 order by position, id", [lessonId]);
+    const strip = (item) => {
+      const reg = require("../lib/items").forType(item.type);
+      if (reg && typeof reg.strip === "function") {
+        return { id: item.id, type: item.type, position: item.position, content: reg.strip(item.content || {}) };
+      }
+      return { id: item.id, type: item.type, position: item.position, content: item.content || {} };
+    };
+    res.json({
+      lesson: {
+        id: Number(found.rows[0].id),
+        course_id: Number(found.rows[0].course_id),
+        course_title: found.rows[0].course_title,
+        title: found.rows[0].title,
+        summary: found.rows[0].summary,
+        items: items.rows.map(strip),
+      },
+    });
+  } catch (err) { next(err); }
+});
+
 
 module.exports = router;
