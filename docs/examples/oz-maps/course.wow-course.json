@@ -21,7 +21,7 @@
               "type": "article",
               "content": {
                 "title": "Dorothy looks around",
-                "body": "Dorothy stands in Munchkin Country and sees yellow brick road winding off to the south. The Scarecrow says the Emerald City is not where she is pointing. A **compass rose** settles the argument.\n\n- The rose's points are **north, east, south, west**, in clockwise order. A memory trick is Never Eat Soggy Waffles.\n- Halfway between are **northeast, southeast, southwest, northwest**\n- **North** on a map points the same way everywhere on the map. What is west from the Munchkins is still west from the Winkies\n- Turn yourself, not the map. If you face east, south is on your right and north on your left"
+                "body": "Dorothy wakes in Munchkin Country after the cyclone carries the Gale farmhouse from Kansas. She stands on blue ground where Munchkins wear blue, and the **yellow brick road** winds toward the south. The Good Witch of the North tells her Munchkin Country is the east of Oz and the Emerald City lies at the centre, but Dorothy is not sure which way is which. A **compass rose** settles the argument.\n\n- The rose shows **north, east, south, west** in clockwise order. Never Eat Soggy Waffles helps you remember.\n- Halfway between are **northeast, southeast, southwest, northwest**, each $45^{\\circ}$ from the next cardinal point. East to southeast is $45^{\\circ}$\n- **North** on the map points the same way everywhere on that map. What is west from the Munchkins is still west from the Winkies, even though one is east and one is west of the centre\n- Turn yourself, not the map. If you face east, south is on your right and north is on your left, and behind you is west"
               }
             },
             {
@@ -30,13 +30,13 @@
                 "kind": "mcq",
                 "prompt": "If you face east in Oz, which direction is south?",
                 "choices": [
-                  { "id": "c1", "text": "To your right" },
-                  { "id": "c2", "text": "To your left" },
-                  { "id": "c3", "text": "Behind you" }
+                  { "id": "c1", "text": "To your right", "feedback": "Correct. Facing east puts north on your left and south on your right because north and south are opposite." },
+                  { "id": "c2", "text": "To your left", "feedback": "Misconception: swapping north and south. When you face east, left is north, not south, so left cannot be south." },
+                  { "id": "c3", "text": "Behind you", "feedback": "Misconception: thinking opposite means behind you. West is behind you when you face east, not south. South is a right turn, not a U turn." }
                 ],
                 "answer": "c1",
                 "explanation": "Facing east, north is left and south is right, with north and south opposite each other.",
-                "hint": "Picture the compass: N at top, E at right, S at bottom, W at left. Turn to face E."
+                "hints": ["Picture the compass with N at top, E at right, S at bottom, W at left. Now turn your body to face E. Where is S?", "When you face east, north is on your left. The direction opposite north is south, so it must be on the other side."]
               }
             },
             {
@@ -45,13 +45,13 @@
                 "kind": "mcq",
                 "prompt": "The yellow brick road runs southeast from Munchkin Country. Which two compass points does that lie between?",
                 "choices": [
-                  { "id": "c1", "text": "South and east" },
-                  { "id": "c2", "text": "North and west" },
-                  { "id": "c3", "text": "East and north" }
+                  { "id": "c1", "text": "South and east", "feedback": "Correct. Southeast is exactly halfway between south and east." },
+                  { "id": "c2", "text": "North and west", "feedback": "Misconception: picking the opposite corner. North and west make northwest, not southeast. Check each half of the word." },
+                  { "id": "c3", "text": "East and north", "feedback": "Misconception: mixing one correct half with the wrong one. North and east make northeast. Southeast needs south plus east." }
                 ],
                 "answer": "c1",
                 "explanation": "Southeast is halfway between south and east.",
-                "hint": "Break the word into two directions."
+                "hints": ["Break the word into two directions: south plus east. Which two words do you see inside southeast?", "The compass order clockwise is N, E, S, W. South is opposite north. Which pair includes south?"]
               }
             }
           ]
@@ -64,7 +64,7 @@
               "type": "article",
               "content": {
                 "title": "Reading Oz like a mapmaker",
-                "body": "A good map of Oz does not try to draw every brick. It uses **symbols**: a dot for the Emerald City, a wavy line for the river, green bands for the fields, grey for mountains. The **legend** (also called the key) tells you which is which. A scale bar shows distance. A north arrow tells orientation. Without them the picture is just a picture.\n\n- A symbol stands for a real thing and is the same everywhere on that map\n- The legend lists what each symbol means\n- The title says where and when: Land of Oz at the time of Dorothy's journey\n- A north arrow and scale bar let a stranger use the map"
+                "body": "A map of Oz is not a painting of a brick road. It uses **symbols** so a stranger can read it without walking it first. A dot marks the Emerald City at the centre. A wavy blue line marks a river. Green bands mark fields, and grey hatching marks mountains. The **legend**, also called the key, tells which mark means what. A scale bar and a north arrow let you use the map on the ground.\n\n- A **symbol** stands for one real thing and means the same thing everywhere on that map. One dot is always the same kind of place\n- The **legend** lists every symbol and its meaning, for example $1\\ \\text{dot} = 1\\ \\text{city}$ or $\\text{blue wave} = \\text{river}$\n- The **title** says where and when the map shows, such as Land of Oz at the time of Dorothy's journey in 1900\n- A **north arrow** and **scale bar** make the map usable, because direction and distance are then checkable"
               }
             },
             {
@@ -73,13 +73,13 @@
                 "kind": "mcq",
                 "prompt": "On a map of Oz the legend says a wavy blue line means a river and grey hatching means mountains. What does the wavy blue line show?",
                 "choices": [
-                  { "id": "c1", "text": "A river" },
-                  { "id": "c2", "text": "A road" },
-                  { "id": "c3", "text": "The edge of the map" }
+                  { "id": "c1", "text": "A river", "feedback": "Correct. The legend promised that symbol means river, so you read what the map promised, not what the line looks like elsewhere." },
+                  { "id": "c2", "text": "A road", "feedback": "Misconception: assuming any line is a road. On this map roads have a different symbol, and the legend says wavy blue is water." },
+                  { "id": "c3", "text": "The edge of the map", "feedback": "Misconception: reading decoration as edge. The map border is not listed in the legend as a feature inside the land." }
                 ],
                 "answer": "c1",
                 "explanation": "The legend assigns meaning to each symbol. Blue wavy line was defined as river.",
-                "hint": "What did the legend promise that line would mean?"
+                "hints": ["Check what the legend says the wavy blue line stands for. Trust the key, not a guess."]
               }
             },
             {
@@ -87,13 +87,107 @@
               "content": {
                 "kind": "text",
                 "prompt": "Look at any map of your home or school. Name one symbol in its legend and what real thing it stands for. If you have no legend nearby, invent one clear symbol and say what you would use it for.",
-                "answer": "A small hospital symbol that stands for a clinic building, with a note that it is the same symbol everywhere on the map.",
+                "answer": "A small hospital cross symbol that stands for a clinic building, with a note that it is the same symbol everywhere on the map.",
                 "explanation": "Any answer that names one symbol and the real thing it consistently represents is good.",
-                "hint": "Pick one mark and one thing it always means."
+                "hints": ["Pick one mark and one thing it always means, and state both clearly."]
               }
             }
           ]
         },
+        {
+          "title": "Finding bearings on the road to Oz",
+          "summary": "Turn directions into numbers you can check.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "From words to bearings",
+                "body": "Dorothy leaves Munchkin Country in the east and follows the **yellow brick road** southwest toward the Emerald City, picking up the **Scarecrow** and later the **Tin Woodman** along the way. On a compass, southwest is halfway between south and west, which is $225^{\\circ}$ if north is $0^{\\circ}$ and you turn clockwise. Knowing the bearing keeps you from drifting toward Quadling Country in the south or Winkie Country in the west by mistake.\n\n- A **bearing** is direction measured clockwise from north, so east is $90^{\\circ}$, south is $180^{\\circ}$, west is $270^{\\circ}$\n- **Intercardinal points** split the gap: northeast is $45^{\\circ}$, southeast is $135^{\\circ}$, southwest is $225^{\\circ}$, northwest is $315^{\\circ}$\n- From Munchkin Country, the city centre lies about southwest. From the Winkie Country in the west, the same city is east at $90^{\\circ}$\n- If you face southwest, northwest is directly behind you, $180^{\\circ}$ away, and southeast is to your right"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "If north is 0 degrees and you turn clockwise, what bearing is southwest?",
+                "choices": [
+                  { "id": "c1", "text": "225 degrees", "feedback": "Correct. South is 180 and west is 270, so halfway is 225." },
+                  { "id": "c2", "text": "135 degrees", "feedback": "Misconception: mixing southeast with southwest. 135 is southeast, between south and east, not south and west." },
+                  { "id": "c3", "text": "45 degrees", "feedback": "Misconception: picking northeast. 45 is between north and east, the opposite quadrant from southwest." },
+                  { "id": "c4", "text": "315 degrees", "feedback": "Misconception: picking northwest. 315 is between north and west, one step north of southwest." }
+                ],
+                "answer": "c1",
+                "explanation": "Bearings go clockwise from north: NE 45, SE 135, SW 225, NW 315.",
+                "hints": ["List the four cardinals with degrees: N 0, E 90, S 180, W 270. Southwest is halfway between S and W.", "Halfway between 180 and 270 is 225. Which choice is 225?"]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Dorothy stands in Winkie Country in the west of Oz. Which direction is the Emerald City at the centre?",
+                "choices": [
+                  { "id": "c1", "text": "East", "feedback": "Correct. Winkie Country is west of the centre, so the centre is east of you. West and east are opposite." },
+                  { "id": "c2", "text": "West", "feedback": "Misconception: thinking the centre is farther west because you are in the west. The centre is inward, so it is the opposite direction." },
+                  { "id": "c3", "text": "South", "feedback": "Misconception: confusing south with east. Quadling Country is south, not the centre from the west." }
+                ],
+                "answer": "c1",
+                "explanation": "The Emerald City is at the centre, so from the west it lies to the east.",
+                "hints": ["Winkie Country is the west region. The centre is inland from the west. Which direction points inward?", "West is toward the desert border. The opposite direction points toward the middle of Oz."]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Listening to directions: the Munchkin guide",
+          "summary": "Turn spoken turns into a picture in your head.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Hearing the map",
+                "body": "Dorothy asks a Munchkin farmer for directions. He speaks them aloud, and Dorothy must hold them in memory and picture the **compass rose** as he talks. Listening to directions is a map skill too, because many travellers learned routes by ear before paper maps were common. In Oz, where roads branch through fields of blue, hearing left and right correctly matters.\n\n- Said directions use the same words as a map: go **east**, turn **south**, keep the river on your **west**\n- A spoken route still needs a **reference direction**. Without knowing where north is, east and west have no meaning\n- Turning the body changes what is left and right, but not what is north and south. The land stays fixed while you move\n- A good listener repeats back the turns and checks the picture in the head against a real map, where $\\text{right turn when facing south} = \\text{west}$"
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Munchkin farmer gives directions",
+                "transcript": "Hello, traveler. You stand in Munchkin Country in the east, where our houses are blue. Walk south two kilometres to the yellow brick road, that is two kilometres. Turn southwest and follow the bricks for five kilometres to the cornfield where the Scarecrow waits on his pole. Keep the river on your west as you go, so the water stays to your right when you face southwest. If you reach the purple Gillikin border to the north, you have gone too far and must turn back south. The Emerald City lies farther southwest beyond the field. Check your north arrow and your scale bar as you go. One centimetre on your map is one kilometre on the ground."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "In the audio, after reaching the yellow brick road, which bearing does the farmer say to follow to the Scarecrow's field?",
+                "choices": [
+                  { "id": "c1", "text": "Southwest", "feedback": "Correct. The farmer says turn southwest and follow the bricks five kilometres to the cornfield." },
+                  { "id": "c2", "text": "Northeast", "feedback": "Misconception: flipping the direction. Northeast is opposite southwest. The farmer points toward the centre, not back toward Gillikin Country." },
+                  { "id": "c3", "text": "Southeast", "feedback": "Misconception: mixing up west and east. Southeast would point toward Quadling Country in the south, not toward the centre from the east." }
+                ],
+                "answer": "c1",
+                "explanation": "The farmer says turn southwest on the yellow brick road toward the Scarecrow's cornfield.",
+                "hints": ["Replay the step after the two kilometre walk south. Which compound direction does he name?", "The farmer says keep the river on your west while heading to the field. Which direction keeps west on your right?"]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In one or two sentences, repeat the farmer's route in order using directions and distances from the audio.",
+                "answer": "Walk south 2 km to the yellow brick road, then southwest 5 km to the cornfield keeping the river on the west, with Gillikin Country to the north as a check.",
+                "explanation": "Any answer that lists south 2 km to the road then southwest 5 km to the field, with river west or Gillikin north as reference, is good.",
+                "hints": ["List the steps in order with a direction and a distance for each."]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Scale, distance, and reading the land",
+      "lessons": [
         {
           "title": "Scale: how far down the brick road?",
           "summary": "A short line on paper can mean a long walk in the world.",
@@ -102,7 +196,7 @@
               "type": "article",
               "content": {
                 "title": "Counting miles from a bar",
-                "body": "On a map of Oz the scale bar says one centimetre on the map equals ten kilometres on the ground, written $1\\ cm : 10\\ km$. The yellow brick road on the map is $8\\ cm$ long. Dorothy's walk is not eight of anything on the ground. It is $8 \\times 10 = 80\\ km$.\n\n- A **scale bar** converts map length to ground length by multiplication\n- The same scale works everywhere on the same map\n- Measure along the curves, not in a straight ruler jump, or you will think the journey is shorter than it is\n- Units must match: centimetres on the map to kilometres on the ground via the scale"
+                "body": "On a map of Oz the scale bar says $1\\ cm : 10\\ km$, which means one centimetre on paper equals ten kilometres on the ground. The **yellow brick road** from Munchkin Country to the Emerald City measures $8\\ cm$ along its curves on that map. Dorothy's walk is not eight of anything on the ground. It is $8 \\times 10 = 80\\ km$. A scale works the same everywhere on the same map, so you can trust it for any part of the route.\n\n- A **scale bar** converts map length to ground length by multiplication: $\\text{ground} = \\text{map} \\times \\text{scale}$\n- The same scale works for the whole map. If $1\\ cm = 10\\ km$ in the east, it is also $10\\ km$ in the west\n- Measure along the **curves**, not in a straight ruler jump, or you will think the journey is much shorter than it is\n- Units must match. The bar links centimetres on the map to kilometres on the ground, so $2.5\\ cm \\times 10 = 25\\ km$"
               }
             },
             {
@@ -112,7 +206,7 @@
                 "prompt": "On a map where 1 cm = 10 km, a road measures 8 cm along its curves. How many km is the road on the ground?",
                 "answer": 80,
                 "explanation": "8 cm times 10 km per cm equals 80 km.",
-                "hint": "Multiply the map centimetres by the km each centimetre stands for."
+                "hints": ["Multiply the map centimetres by the km each centimetre stands for: ground equals map times scale.", "You measured 8 cm and each cm is 10 km. What is 8 times 10? Make sure you measured along the curves."]
               }
             },
             {
@@ -121,13 +215,140 @@
                 "kind": "mcq",
                 "prompt": "Why must you measure along the curves of the yellow brick road, not straight between its ends?",
                 "choices": [
-                  { "id": "c1", "text": "The road curves so the distance along it is longer than the straight line" },
-                  { "id": "c2", "text": "Maps are always wrong" },
-                  { "id": "c3", "text": "Scale bars do not work on curves" }
+                  { "id": "c1", "text": "The road curves so the distance along it is longer than the straight line", "feedback": "Correct. A winding route is longer than the straight gap between its endpoints, so cutting across undercounts." },
+                  { "id": "c2", "text": "Maps are always wrong", "feedback": "Misconception: dismissing the map. The map is right when you use the scale correctly. The error is measuring the wrong line." },
+                  { "id": "c3", "text": "Scale bars do not work on curves", "feedback": "Misconception: thinking scale fails on curves. Scale works on any line. You just must trace the real line." }
                 ],
                 "answer": "c1",
                 "explanation": "A winding route is longer than the straight-line gap between its endpoints.",
-                "hint": "Is the brick road straight?"
+                "hints": ["Is the brick road straight? Compare the bent line to a ruler jump.", "Which line is longer, the wiggly road or the straight shortcut between the same two points?"]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Measuring what is not straight",
+          "summary": "The wiggly line is the true length.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Tracing the wiggles",
+                "body": "The yellow brick road never runs straight. It bends around fields, rivers, and hills, so a ruler laid straight from start to finish cuts off the bends and undercounts the walk. Map readers use a string or a set of short straight steps to follow the line, then straighten the string against the scale bar. That careful walk along the line is the true distance.\n\n- A **curved route** is longer than the **straight line** between its endpoints. The difference can be large when the road winds\n- To measure a curve, lay a thread along it or add short segments: $3\\ cm + 2\\ cm + 3\\ cm = 8\\ cm$ on the map, then $8 \\times 10 = 80\\ km$\n- An **estimate** that ignores curves is called a **straight line distance**. It is always less than or equal to the road distance\n- If the map is $1\\ cm : 5\\ km$ and you trace $6.4\\ cm$ of road, the ground is $6.4 \\times 5 = 32\\ km$"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A map uses 1 cm : 5 km. You trace the yellow brick road with thread and it straightens to 6.4 cm. How many km on the ground?",
+                "answer": 32,
+                "explanation": "6.4 times 5 equals 32. The thread follows the curves, so 32 is the road distance, not the straight gap.",
+                "hints": ["Use ground equals map times scale: multiply 6.4 by 5.", "The straight gap between the ends would be shorter than 6.4 cm, so be sure you used the traced length."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which statement about straight line distance versus road distance is true?",
+                "choices": [
+                  { "id": "c1", "text": "Road distance is longer than or equal to straight line distance", "feedback": "Correct. The road must wander, so its length cannot be shorter than the straight gap. Equality only if the road is perfectly straight." },
+                  { "id": "c2", "text": "Straight line distance is always longer than road distance", "feedback": "Misconception: flipping the comparison. A straight line is the shortest connection, so it cannot be longer than a winding road." },
+                  { "id": "c3", "text": "They are always exactly the same", "feedback": "Misconception: ignoring curves. They match only on a perfectly straight road. The yellow brick road is not straight." }
+                ],
+                "answer": "c1",
+                "explanation": "A winding road is longer than the straight gap. They are equal only if the road itself is straight.",
+                "hints": ["Think of a wiggly string versus a taut ruler between the same two pins. Which string is longer?", "If the road bends, does that add length or remove it compared to the straight line?"]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Landforms and barriers: why routes bend",
+          "summary": "Mountains and rivers shape the path before you draw it.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Why the worst crossing looks tempting",
+                "body": "To reach the Emerald City, Dorothy could go straight over the mountains that ring Oz or follow the longer road that swings around them. The straight line is short on the map and terrible on the ground. In Baum's Oz the land is framed by a great **desert** and crossed by rivers and forested hills that act as **barriers**. Real travellers ask three questions before drawing a line.\n\n- **Barrier:** what blocks the straight path, such as a range, a river without a bridge, or the desert around Oz\n- **Route:** which line avoids the barrier while still reaching the goal. Often it is longer on paper and shorter in effort\n- **Cost:** what the choice costs in time, water, and rest. Climbing can cut speed to $3\\ km$ per hour while flat walking is $5\\ km$ per hour\n- The best route is not the shortest draw. It is the shortest that a person can actually walk safely"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "multi",
+                "prompt": "Which of these would count as a barrier that could make a straight line worse than a winding road around it? Select all that apply.",
+                "choices": [
+                  { "id": "c1", "text": "A steep mountain range across the straight line", "feedback": "Correct. A steep range is a barrier. Climbing costs time and energy and can be unsafe." },
+                  { "id": "c2", "text": "A wide river with no bridge on the straight line", "feedback": "Correct. Water without a crossing blocks a straight walk and forces a detour to a ford or bridge." },
+                  { "id": "c3", "text": "A flat dry field with a firm path", "feedback": "Misconception: calling easy ground a barrier. Flat firm fields help travel, they do not block it." },
+                  { "id": "c4", "text": "The deadly desert that rings Oz", "feedback": "Correct. In Baum's story the desert encircles Oz and is nearly impassable, so it is a natural barrier." }
+                ],
+                "answer": ["c1", "c2", "c4"],
+                "explanation": "Mountains, rivers without crossings, and the desert are barriers. Flat firm fields are not.",
+                "hints": ["Ask for each item: does this slow or stop a walker, or does it help?", "Three of these stop or greatly slow you. One helps you walk. Which is the helper?"]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Why is winding around mountains often faster than climbing straight over them?",
+                "choices": [
+                  { "id": "c1", "text": "Climbing cuts speed and energy so the longer path can be quicker", "feedback": "Correct. Steep ground lowers speed enough that a longer flat route takes less time." },
+                  { "id": "c2", "text": "Mountains are not real on maps", "feedback": "Misconception: treating contour marks as decoration. Mountains are real high ground that slows any walker." },
+                  { "id": "c3", "text": "All roads must be straight", "feedback": "Misconception: thinking straight is required. Roads bend to avoid what is hard to cross." }
+                ],
+                "answer": "c1",
+                "explanation": "Steep terrain slows travel enough that a longer flat route can take less time.",
+                "hints": ["Compare speeds: climbing might be 2 to 3 km per hour, flat is 5 km per hour. Time equals distance divided by speed.", "If climbing halves your speed, does saving a few km still save time?"]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Listening to a scouting report: crossing Oz",
+          "summary": "Turn an audio report into a map check.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "What the scout heard",
+                "body": "The **Tin Woodman** joins Dorothy as she moves west toward the Emerald City and then on toward Winkie Country, where he will later rule. He offers to scout ahead and report what he hears and sees: where the road is soft, where a river needs a bridge, and where the track turns. A spoken scouting report is like an audio map, and the listener must turn words into a picture with directions and distances.\n\n- A scout names **landmarks**, **directions**, and **distances** together, for example go north two kilometres to the river, then west\n- Listeners track the route step by step, updating position on an imaginary map with bearings such as $0^{\\circ}$ for north and $270^{\\circ}$ for west\n- The report includes **warnings** about barriers, so the main party can choose to go around rather than through\n- Checking the report against a printed map catches mistakes before they cost a day's walk, using $\\text{ground} = \\text{map} \\times \\text{scale}$"
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Tin Woodman scouting report",
+                "transcript": "Scout report from the Tin Woodman. I walked north one kilometre to the river, that is one kilometre north. The river is wide with no bridge here. I turned west and followed the bank three kilometres to a shallow ford, that is three kilometres west. The ford is passable but slow. The hills to the east rise steep and would cut speed to two kilometres per hour. The valley road along the river keeps five kilometres per hour. The bearing back to the Emerald City from the ford is east by northeast. If you use the sketch map, one centimetre on your map is one kilometre on the ground, so three centimetres on the map is three kilometres. End of report."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "The scout followed the river bank 3 cm on a sketch where 1 cm = 1 km. How many km did he walk along the bank?",
+                "answer": 3,
+                "explanation": "3 cm times 1 km per cm equals 3 km, the distance to the ford.",
+                "hints": ["Multiply map centimetres by km per centimetre: 3 times 1.", "The scale is one to one, so the number of cm is the same as the number of km."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Based on the scout's speeds, which way should the party go to save time?",
+                "choices": [
+                  { "id": "c1", "text": "Follow the valley road and ford the river", "feedback": "Correct. Valley speed is 5 km per hour while climbing is 2 km per hour, so the longer flat road still takes less time." },
+                  { "id": "c2", "text": "Climb straight over the steep hills to the east", "feedback": "Misconception: choosing the shorter line on the map. Short on paper is not short in time when climbing cuts speed in half or more." },
+                  { "id": "c3", "text": "Stay put because all routes are equally fast", "feedback": "Misconception: ignoring speed differences. Different surfaces give very different times for the same distance." }
+                ],
+                "answer": "c1",
+                "explanation": "Flat valley at 5 km per hour beats steep hills at 2 km per hour even though the valley is longer.",
+                "hints": ["Compare time equals distance divided by speed for each option. Which speed makes a longer distance still quicker?", "Three kilometres at 5 km per hour is less than even one kilometre at 2 km per hour. Which choice uses the faster speed?"]
               }
             }
           ]
@@ -145,7 +366,7 @@
               "type": "article",
               "content": {
                 "title": "Why one land needs many colours",
-                "body": "Baum's Oz is divided into four **regions**, one in each compass quarter, plus the capital at the centre. In his telling, Munchkins live in the blue east, Winkies in the yellow west, Gillikins in the purple north, Quadlings in the red south. Each region has its own colour of dress, fields, and sign. Dorothy must cross borders to get home. Real countries work the same way.\n\n- A **region** is an area with shared traits: land, climate, or people\n- A **border** is a line that separates one region from the next. Some borders follow rivers or ranges, some are agreed lines\n- The **capital** sits where the regions meet and roads join\n- A single place can belong to two regions at different scales: Oz is the country, Munchkin Country is a region inside it"
+                "body": "Baum's Oz is one country divided into four **regions**, one in each compass quarter, plus the capital at the centre. The **Munchkins** live in the blue east where Dorothy lands. The **Winkies** live in the yellow west, guarded by fields and later ruled by the Tin Woodman. The **Gillikins** live in the purple north, home of the Good Witch of the North. The **Quadlings** live in the red south, home of Glinda the Good Witch of the South. The **Emerald City** sits where the regions meet and the roads join.\n\n- A **region** is an area with shared traits such as dress colour, crops, or landforms\n- A **border** separates one region from the next. Some borders follow rivers or ranges, some are agreed lines on the map\n- The **capital** at the centre connects to each region, so the yellow brick road leads inward from the east\n- One place can belong at two scales, for example $\\text{Munchkin Country} \\subset \\text{Oz}$, and Oz sits inside a desert"
               }
             },
             {
@@ -154,13 +375,13 @@
                 "kind": "mcq",
                 "prompt": "In Baum's Oz, what is Munchkin Country?",
                 "choices": [
-                  { "id": "c1", "text": "A region inside the larger country of Oz" },
-                  { "id": "c2", "text": "A separate planet" },
-                  { "id": "c3", "text": "The capital city" }
+                  { "id": "c1", "text": "A region inside the larger country of Oz", "feedback": "Correct. Oz is the country and Munchkin Country is the eastern region within it, marked blue." },
+                  { "id": "c2", "text": "A separate planet", "feedback": "Misconception: treating a region as a separate world. It is a part of Oz, east of the centre, not another planet." },
+                  { "id": "c3", "text": "The capital city", "feedback": "Misconception: confusing a region with a city. The capital is the Emerald City at the centre, not Munchkin Country." }
                 ],
                 "answer": "c1",
                 "explanation": "Oz is the country and Munchkin Country is the eastern region within it.",
-                "hint": "Is it the whole, or a part of the whole?"
+                "hints": ["Is Munchkin Country the whole, or a part of the whole?", "Oz contains four regions. Where does Munchkin Country sit?"]
               }
             },
             {
@@ -169,51 +390,90 @@
                 "kind": "mcq",
                 "prompt": "Which is a region at a larger scale than Munchkin Country?",
                 "choices": [
-                  { "id": "c1", "text": "Oz itself" },
-                  { "id": "c2", "text": "One farm inside Munchkin Country" },
-                  { "id": "c3", "text": "One road through the fields" }
+                  { "id": "c1", "text": "Oz itself", "feedback": "Correct. Oz contains all its regions so it is the larger scale. A farm is a smaller portion inside." },
+                  { "id": "c2", "text": "One farm inside Munchkin Country", "feedback": "Misconception: reversing scale. A farm is a smaller portion inside the region, not larger than the region." },
+                  { "id": "c3", "text": "One road through the fields", "feedback": "Misconception: mixing a feature with a region. A road is a line inside a region, not a region that holds it." }
                 ],
                 "answer": "c1",
                 "explanation": "Oz contains all its regions so it is the larger scale. A farm is a smaller portion inside.",
-                "hint": "Which one holds all the others?"
+                "hints": ["Which one holds all the others?", "A region inside Oz is smaller than Oz itself. Which choice names the container?"]
               }
             }
           ]
         },
         {
-          "title": "The pass nobody wanted to cross",
-          "summary": "Mountains and rivers as borders and barriers, and how a traveller chooses a route.",
+          "title": "Borders you can see and borders you agree on",
+          "summary": "Some borders are rivers, some are just lines people agreed to.",
           "items": [
             {
               "type": "article",
               "content": {
-                "title": "Why the worst crossing looks tempting",
-                "body": "To reach the Emerald City, Dorothy could go straight over the mountains that ring Oz or follow the longer road that swings around them. The straight line is short on the map and terrible on the ground. Real travellers ask three questions before drawing a line.\n\n- **Barrier:** what blocks the straight path: range, river, swamp, or desert?\n- **Route:** which line avoids the barrier while still reaching the goal?\n- **Cost:** what does the choice cost in time, water, and rest?\n\nThe best route is not the shortest draw. It is the shortest that a person can actually walk."
+                "title": "Lines on the ground, lines on the map",
+                "body": "Not all borders look the same on the ground. A river border or the edge of the **deadly desert** around Oz is visible: you can see the water or the sand begin. A border between Gillikin Country in the north and Munchkin Country in the east across open farmland may be no more than a line people agreed to, marked only by posts or by a change in the colour people paint their houses. Map readers must know which kind they are looking at.\n\n- A **natural border** follows a landform such as a river, ridge, or desert edge. You can spot it without a map\n- An **agreed border** is a line people decided, which may have no wall or ditch on the ground\n- The **desert** around Oz is a natural and nearly impassable border that kept Oz isolated for the years Dorothy had only heard Kansas around her\n- On a map both kinds look like lines, so the **legend** must say which is which. A change in colour fill shows a region, and $\\text{border} = \\text{line between fills}$"
               }
             },
             {
               "type": "exercise",
               "content": {
-                "kind": "mcq",
-                "prompt": "Why is winding around mountains often faster than climbing straight over them?",
+                "kind": "multi",
+                "prompt": "Which of these are natural borders you could spot on the ground without a map? Select all that apply.",
                 "choices": [
-                  { "id": "c1", "text": "Climbing cuts speed and energy so the longer path can be quicker" },
-                  { "id": "c2", "text": "Mountains are not real on maps" },
-                  { "id": "c3", "text": "All roads must be straight" }
+                  { "id": "c1", "text": "The deadly desert that rings Oz", "feedback": "Correct. The desert is a visible band of sand that blocks travel, a classic natural border." },
+                  { "id": "c2", "text": "A wide river between two regions", "feedback": "Correct. A river is water you can see and must cross, so it is natural." },
+                  { "id": "c3", "text": "A line of painted posts across flat farmland where Gillikin meets Munchkin", "feedback": "Misconception: calling a marker a landform. Posts mark an agreed line on flat ground, not a natural feature." },
+                  { "id": "c4", "text": "A mountain ridge", "feedback": "Correct. A ridge is high ground you can see and that slows or blocks crossing." }
                 ],
-                "answer": "c1",
-                "explanation": "Steep terrain slows travel enough that a longer flat route can take less time.",
-                "hint": "Think about speed uphill versus on flat ground."
+                "answer": ["c1", "c2", "c4"],
+                "explanation": "Desert, river, and ridge are natural borders you can see. Painted posts mark an agreed border.",
+                "hints": ["Ask for each: can you see this with no map, as water, sand, or high ground?", "One of these is built by people on flat land. The other three are landforms. Which is which?"]
               }
             },
             {
               "type": "exercise",
               "content": {
                 "kind": "text",
-                "prompt": "Dorothy can climb a steep pass (short but slow) or take a long valley road (long but faster walking). In one or two sentences, say how you would decide which to take and what information you would want.",
+                "prompt": "Dorothy climbs a steep pass that is short on the map but slow on foot, or takes a long valley road that is long on the map but faster to walk. In one or two sentences, say how you would decide which to take and what information you would want.",
                 "answer": "Estimate time for each: climbing speed up the pass versus flat speed on the valley road, plus water and shelter available on each.",
                 "explanation": "Any answer that weighs time or effort alongside distance and names needed information is good.",
-                "hint": "Distance alone is not the full cost. What else matters on foot?"
+                "hints": ["Distance alone is not the full cost. What else matters on foot?", "Think speed on slope versus flat, and needs like water. What numbers would let you compare times?"]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Choosing a route across regions",
+          "summary": "Pick the path that is truly shortest for a walker.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "From east to west to south",
+                "body": "Dorothy starts in Munchkin Country in the east, walks to the **Emerald City** at the centre, then with her companions goes west into **Winkie Country** to face the Wicked Witch of the West, and finally south through **Quadling Country** before Glinda can send her home. Each leg crosses a border, and each border crossing needs a choice: which road, which pass, which ferry. The map helps compare options by distance and by what the land itself allows.\n\n- Crossing a **region border** often means a change in land or people, and sometimes a change in who keeps the roads\n- Two routes can reach the same city with different lengths, for example $80\\ km$ winding safely versus $50\\ km$ straight over mountains\n- Time matters more than length. At $5\\ km$ per hour on flat and $2\\ km$ per hour climbing, the short steep route can take longer: $50/2 = 25$ hours versus $80/5 = 16$ hours\n- A traveller checks **scale**, **barriers**, and **borders** together before choosing, and draws the chosen path so others can follow it"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "At a steady 5 km per hour on flat ground, how many hours does an 80 km valley route take?",
+                "answer": 16,
+                "explanation": "80 divided by 5 equals 16 hours of walking time.",
+                "hints": ["Time equals distance divided by speed: hours equals km divided by km per hour.", "You need 80 divided by 5. How many fives fit in 80?"]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "A mountain short cut is 50 km at 2 km per hour. A valley road is 80 km at 5 km per hour. Which is faster and why?",
+                "choices": [
+                  { "id": "c1", "text": "Valley road is faster: 16 hours versus 25 hours", "feedback": "Correct. Time is distance divided by speed, so 80 over 5 is 16 and 50 over 2 is 25. Longer can be quicker." },
+                  { "id": "c2", "text": "Mountain is faster because it is shorter", "feedback": "Misconception: using map length alone. Short on the map is not short in time when climbing cuts speed to 2 km per hour." },
+                  { "id": "c3", "text": "They are the same time", "feedback": "Misconception: ignoring the division. Different speeds make equal time impossible here. Calculate each: 50 divided by 2 versus 80 divided by 5." }
+                ],
+                "answer": "c1",
+                "explanation": "Valley 80/5=16h beats mountain 50/2=25h, so the longer flat route wins.",
+                "hints": ["Calculate each time: distance divided by speed. Which division gives the smaller number?", "50 at 2 km per hour is 25 hours. 80 at 5 km per hour is 16 hours. Which is smaller?"]
               }
             }
           ]
@@ -226,14 +486,14 @@
               "type": "article",
               "content": {
                 "title": "A map a stranger could follow",
-                "body": "Dorothy needed a map someone else had drawn with care. Now you draw one. A good **sketch map** has the same five pieces a printed map does.\n\n- A **title** and a **north arrow**\n- A **legend** with every symbol you used\n- A **scale bar** with a real number: one centimetre on your page equals so many metres or kilometres\n- **Borders or edges** people can check: a river, a fence line, a ring road\n\nCheck your map by handing it to someone who has not seen the ground. If they reach the goal, the map is good."
+                "body": "Dorothy needed a map someone else had drawn with care. Now you draw one. A good **sketch map** has the same five pieces a printed map does, whether it shows Oz or the streets near your school. Anyone who has never walked the ground should be able to use your map to reach a marked spot without you beside them.\n\n- A **title** that names where and when, and a **north arrow** that fixes direction\n- A **legend** with every symbol you used, each used consistently, for example $\\text{star} = \\text{Emerald City}$\n- A **scale bar** with a real number such as $1\\ cm : 1\\ km$ on paper equals so many metres or kilometres on the ground\n- **Borders or edges** people can check, such as a river, a fence line, a ring road, or the edge of the desert that rings Oz"
               }
             },
             {
               "type": "project",
               "content": {
                 "title": "Two maps: Oz and your neighbourhood",
-                "description": "On one page, draw a sketch map of Oz at the time of Dorothy's journey: the four regions in their compass quarters, the Emerald City at the centre, the yellow brick road from Munchkin Country to the city skirting one barrier (mountains or river) with a winding line measured along the curves. On a second page draw the streets around your home or school with the same five pieces: title, north arrow, legend, scale bar, and borders. Include a scale bar and compute one distance in real units. Ask someone who has not seen the ground to follow your second map to a spot you marked.",
+                "description": "On one page, draw a sketch map of Oz at the time of Dorothy's journey: the four regions in their compass quarters (Munchkin east blue, Winkie west yellow, Gillikin north purple, Quadling south red), the Emerald City at the centre, and the yellow brick road from Munchkin Country to the city winding around one barrier (mountains or river) with a winding line measured along the curves. On a second page draw the streets around your home or school with the same five pieces: title, north arrow, legend, scale bar, and borders. Include a scale bar and compute one distance in real units such as 3 cm times 1 km equals 3 km. Ask someone who has not seen the ground to follow your second map to a spot you marked.",
                 "rubric": "- Oz page shows four regions in correct compass quarters with the city centre, and the brick road winds around one barrier and is measured along its curves\n- Both pages have title, north arrow, legend with every symbol, and a scale bar with a number plus one computed ground distance\n- Neighbourhood page has at least four checkable borders or edges\n- A short note of what the test walker found: could they follow it?"
               }
             }

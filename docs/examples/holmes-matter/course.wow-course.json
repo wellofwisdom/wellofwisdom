@@ -21,7 +21,7 @@
               "type": "article",
               "content": {
                 "title": "What Holmes saw first",
-                "body": "At 221B Baker Street, Holmes watches a visitor for ten seconds and says what the man does for work. Watson is amazed. Holmes answers that he did not guess, he observed: ink on the cuff, chalk dust on the coat, a particular way of holding a hat. Each detail is small, each can be checked.\n\nScientists do the same. An **observation** is what you detect with your senses or a tool. An **inference** is what you think it means. Mix them and you mislead yourself.\n\n- Observation: the powder is white, grainy, dissolves in water\n- Inference: the powder might be salt\n- Good science keeps the two in separate columns, then tests the link"
+                "body": "At 221B Baker Street, Holmes watches a visitor for ten seconds and says what the man does for work. Watson is amazed. Holmes answers that he did not guess, he observed: ink on the cuff, chalk dust on the coat, a particular way of holding a hat. In the stories narrated by Dr. Watson, Holmes always starts with what can be checked.\n\nScientists do the same. An **observation** is what you detect with your senses or a tool. An **inference** is what you think it means. Mix them and you mislead yourself. A good notebook keeps the two in separate columns.\n\n- Observation: the powder is white, grainy, dissolves in water, mass $5.2\\ g$\n- Inference: the powder might be salt or sugar\n- Test: check a **physical property** that decides between them, such as whether it tastes salty in a safe lab test or how it behaves on heating\n\nThe habit is simple. Look first, write what you saw in words another person could check, and only then say what you think it means."
               }
             },
             {
@@ -30,13 +30,28 @@
                 "kind": "mcq",
                 "prompt": "Which is an observation, not an inference?",
                 "choices": [
-                  { "id": "c1", "text": "The substance left a white chalky mark on dark paper" },
-                  { "id": "c2", "text": "The substance must be classroom chalk" },
-                  { "id": "c3", "text": "The substance was made last week" }
+                  {
+                    "id": "c1",
+                    "text": "The substance left a white chalky mark on dark paper",
+                    "feedback": "Correct. This reports only what was seen and can be checked by anyone."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "The substance must be classroom chalk",
+                    "feedback": "Not correct. This jumps to what the substance must be. That is an inference that confuses a guess with what was actually observed."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "The substance was made last week",
+                    "feedback": "Not correct. Timing was not observed. This infers a history that would need separate evidence."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "A chalky white mark is what you saw. What it must be and when it was made are inferences that need testing.",
-                "hint": "Which one only says what you detected, with no guess about what it is?"
+                "hints": [
+                  "Which choice only says what your eyes detected, with no guess about identity or history?",
+                  "Look for the sentence that could be verified with a photo, not one that claims what the substance is."
+                ]
               }
             },
             {
@@ -46,7 +61,10 @@
                 "prompt": "You see a footprint in damp soil near a window. Write one observation and one inference about it, and label which is which.",
                 "answer": "Observation: the print is about 12 cm long with a ridged sole. Inference: the person who left it may have worn boots.",
                 "explanation": "Any answer that keeps a checkable sensory detail separate from a meaning is good.",
-                "hint": "Observation is what you saw. Inference is what you think it means."
+                "hints": [
+                  "Observation is what you measured or saw. Inference is what you think it means.",
+                  "Try writing one sentence that starts with 'I saw' and one that starts with 'I think this means'."
+                ]
               }
             }
           ]
@@ -59,7 +77,7 @@
               "type": "article",
               "content": {
                 "title": "The catalogue of matter",
-                "body": "Holmes keeps a catalogue of powders, inks, and tobaccos, each with its **properties**: colour, texture, odour, whether it dissolves, whether a magnet pulls it. Those properties tell him what the matter is without needing a label.\n\nAll of this is **matter**, anything that has mass and takes up space. Properties come in two kinds.\n\n- **Physical properties** can be observed or measured without changing what the substance is: colour, hardness, mass, volume, density, melting point, whether it floats\n- **Chemical properties** describe how it changes into something else: whether it burns, rusts, or reacts with vinegar\n\nHolmes cares most about physical properties first, because they answer without destroying the clue."
+                "body": "Holmes keeps a catalogue of powders, inks, and tobaccos, each with its **properties**: colour, texture, odour, whether it dissolves, whether a magnet pulls it. In stories like A Study in Scarlet, Watson describes Holmes studying such details at his Baker Street table. Those properties tell him what the matter is without needing a label.\n\nAll of this is **matter**, anything that has mass and takes up space. Properties come in two kinds.\n\n- **Physical properties** can be observed or measured without changing what the substance is: colour, hardness, mass, volume, density, melting point, whether it floats\n- **Chemical properties** describe how it changes into something else: whether it burns, rusts, or reacts with vinegar, such as $2Na + 2H_2O \\rightarrow 2NaOH + H_2$\n- Holmes cares most about physical properties first, because they answer without destroying the clue and they can be recorded as numbers with units like $g$ and $mL$"
               }
             },
             {
@@ -68,13 +86,28 @@
                 "kind": "mcq",
                 "prompt": "Which is a physical property?",
                 "choices": [
-                  { "id": "c1", "text": "The metal is pulled by a magnet" },
-                  { "id": "c2", "text": "The paper burns when held to a flame" },
-                  { "id": "c3", "text": "The milk sours after two days" }
+                  {
+                    "id": "c1",
+                    "text": "The metal is pulled by a magnet",
+                    "feedback": "Correct. Being pulled by a magnet is observable without changing the metal into a new substance."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "The paper burns when held to a flame",
+                    "feedback": "Not correct. Burning is a chemical property. It confuses changing into ash and smoke with simply observing what is there."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "The milk sours after two days",
+                    "feedback": "Not correct. Souring makes new substances. This mistakes a chemical change for a physical description."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Being pulled by a magnet can be observed without changing the metal into something else. Burning and souring change the substance.",
-                "hint": "Which one can you check without turning the material into a new material?"
+                "hints": [
+                  "Which one can you check without turning the material into a new material?",
+                  "If you have to burn or sour it, you are making something new. Which choice avoids that?"
+                ]
               }
             },
             {
@@ -83,61 +116,166 @@
                 "kind": "mcq",
                 "prompt": "A powder dissolves in water and leaves no grit. Which best describes dissolving?",
                 "choices": [
-                  { "id": "c1", "text": "The powder's particles spread evenly among water particles; no new substance is made" },
-                  { "id": "c2", "text": "The powder turns into water" },
-                  { "id": "c3", "text": "The powder disappears and its matter is gone" }
+                  {
+                    "id": "c1",
+                    "text": "The powder's particles spread evenly among water particles; no new substance is made",
+                    "feedback": "Correct. Dissolving is mixing at the particle level, not a chemical change."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "The powder turns into water",
+                    "feedback": "Not correct. This confuses dissolving with changing identity. The powder does not become water."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "The powder disappears and its matter is gone",
+                    "feedback": "Not correct. This reflects the misconception that matter vanishes when you cannot see it. The mass is still present in solution."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Dissolving spreads particles without making a new substance. The matter is still there, just mixed.",
-                "hint": "Does dissolving change what the powder is, or just where its particles are?"
+                "hints": [
+                  "Does dissolving change what the powder is, or just where its particles are?",
+                  "Think about conservation: if you evaporate the water, would you get the powder back?"
+                ]
               }
             }
           ]
         },
         {
-          "title": "Floating, sinking, and density",
-          "summary": "Density is mass for its size, and it decides what floats.",
+          "title": "Sorting clues by property",
+          "summary": "Use properties to group and identify unknown materials.",
           "items": [
             {
               "type": "article",
               "content": {
-                "title": "Why the cork floats and the iron sinks",
-                "body": "Watson once asks why a cork floats while an iron key of the same size sinks. Holmes answers with a ratio: **density** is mass divided by volume, $density = m / V$. A cork has little mass for its size. An iron key packs a lot of mass into the same space.\n\n- Density has units like $g/cm^3$ (grams per cubic centimetre)\n- Water has a density near $1\\ g/cm^3$\n- A material denser than water sinks in water. Less dense floats.\n- Shape can trap air and change the average density, which is why a steel ship floats while a steel key does not"
+                "title": "Three powders on the table",
+                "body": "A client brings Holmes three unlabeled powders from a kitchen. He does not taste them. He tests **solubility**, magnetism, and whether they dissolve or leave grit. Watson notes that Holmes records each result before naming anything.\n\nSorting by properties is how science identifies matter without guessing. A single property is rarely enough. Two or three together narrow the answer.\n\n- Powder A dissolves completely in water and is not pulled by a magnet\n- Powder B does not dissolve and is pulled by a magnet, with density about $7.8\\ g/cm^3$\n- Powder C fizzes with vinegar, a sign of a **chemical property**, and has mass $10.0\\ g$ for volume $4.0\\ cm^3$ so $density = 2.5\\ g/cm^3$\n\nHolmes groups A with salt and sugar, B with iron filings, and C with a carbonate. Each group shares a pattern of properties, not just one look."
               }
             },
             {
               "type": "exercise",
               "content": {
-                "kind": "numeric",
-                "prompt": "A block has mass 120 g and volume 40 cm^3. What is its density in g/cm^3?",
-                "answer": 3,
-                "explanation": "Density = mass / volume = 120 / 40 = 3 g/cm^3.",
-                "hint": "Divide mass by volume."
+                "kind": "multi",
+                "prompt": "Which properties are physical properties you could check without changing the substance into something new? Select all that apply.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Colour and texture observed with eyes and hands",
+                    "feedback": "Correct. Colour and texture are observed without chemical change."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Whether it is pulled by a magnet",
+                    "feedback": "Correct. Magnet attraction is a physical test that leaves the substance the same."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Whether it burns to ash in a flame",
+                    "feedback": "Not correct. Burning is a chemical property. It mistakes a chemical change for a safe physical check."
+                  },
+                  {
+                    "id": "c4",
+                    "text": "Density found from mass divided by volume $density = m / V$",
+                    "feedback": "Correct. Mass and volume are measured and divided, no new substance is made."
+                  }
+                ],
+                "answer": [
+                  "c1",
+                  "c2",
+                  "c4"
+                ],
+                "explanation": "Physical properties are measured or observed without making a new substance. Burning makes ash and is chemical.",
+                "hints": [
+                  "Ask for each choice: do I have to make a new material to see it?",
+                  "Colour, magnet pull, and density from $m/V$ leave the sample the same. Burning does not."
+                ]
               }
             },
             {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
-                "prompt": "An object has density 0.8 g/cm^3. Placed gently in water (about 1 g/cm^3), what happens?",
+                "prompt": "Holmes notes a white powder dissolves in water and a dark grit does not and is magnetic. What is the best next step?",
                 "choices": [
-                  { "id": "c1", "text": "It floats" },
-                  { "id": "c2", "text": "It sinks" },
-                  { "id": "c3", "text": "It dissolves" }
+                  {
+                    "id": "c1",
+                    "text": "Separate the magnetic grit with a magnet, then test the dissolved powder further",
+                    "feedback": "Correct. Use a physical property to separate, then test each part again."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Guess both parts are salt because they were in a kitchen",
+                    "feedback": "Not correct. This is location bias. It guesses from where it was found instead of using properties."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Heat everything until it burns to see what happens",
+                    "feedback": "Not correct. This destroys the clue. It treats a chemical change as the first test instead of the last."
+                  }
                 ],
                 "answer": "c1",
-                "explanation": "Less dense than water, so it floats. Denser than water would sink.",
-                "hint": "Is 0.8 less than or greater than 1?"
+                "explanation": "Separate by a physical property first, keep evidence intact, then test each part.",
+                "hints": [
+                  "Which step keeps the evidence and uses a property you already observed?",
+                  "Magnetism lets you pull one part away without changing either part. What does that suggest?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "States of matter in the London fog",
+          "summary": "Solid, liquid, and gas explain what the fog and clues do.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Fog, ice, and the kettle at 221B",
+                "body": "London fog hangs over Baker Street, ice forms on the step, and Mrs Hudson's kettle steams. Holmes points out they are the same substance in different **states**. Water as solid ice, liquid water, and gas as water vapour behave differently because their particles are arranged differently.\n\n- **Solid** keeps shape and volume. Particles vibrate in place, like books stacked on a shelf\n- **Liquid** keeps volume but flows to the shape of its container. Particles slide past each other, about $1.0\\ g/mL$ for water\n- **Gas** fills all available space. Particles move freely, so fog spreads through a room\n- Heating or cooling can change state without changing what the substance is. Melting and boiling are **physical changes**. Burning is not\n\nHolmes uses this to read a scene. A wet footprint that dries is liquid becoming gas. Frost on glass is gas becoming solid."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "Which describes a physical change, not a chemical change?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Ice melting to water on the Baker Street step",
+                    "feedback": "Correct. Melting changes state but the substance stays water."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Paper burning to ash in the fireplace",
+                    "feedback": "Not correct. Burning makes new substances. This confuses a chemical change with a physical one."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "An egg cooking and turning solid",
+                    "feedback": "Not correct. Cooking forms new materials. This mistakes a chemical change for melting."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Melting changes state from solid to liquid without making a new substance.",
+                "hints": [
+                  "Which one keeps the same substance before and after, just in a different state?",
+                  "If you freeze the water again, do you get ice back? Can you unburn paper?"
+                ]
               }
             },
             {
               "type": "exercise",
               "content": {
                 "kind": "text",
-                "prompt": "In one or two sentences, explain why a steel ship floats while a steel nail sinks.",
-                "answer": "The ship encloses a lot of air so its average density including the air is less than water, while the solid nail has the full density of steel which is greater than water.",
-                "explanation": "Any answer that names trapped air and average density is good.",
-                "hint": "What does the ship contain that the nail does not?"
+                "prompt": "Mrs Hudson heats water until it boils and the kettle lid rattles. Is this a change of state or a chemical change? Explain in one sentence.",
+                "answer": "It is a change of state from liquid to gas; the water becomes water vapour but is still water, no new substance is formed.",
+                "explanation": "Boiling is liquid to gas. The rattling is vapour pressure, not a new substance.",
+                "hints": [
+                  "Did the water turn into something else, or just into the gas form of water?",
+                  "Think about whether you could condense the vapour back to liquid water."
+                ]
               }
             }
           ]
@@ -155,7 +293,7 @@
               "type": "article",
               "content": {
                 "title": "The scale tells mass, the spring tells weight",
-                "body": "Holmes weighs powders on a balance scale against known masses. A balance compares **mass**, how much matter is there, in grams or kilograms. A spring scale hanging from a hook measures **weight**, the force of gravity on that mass, in newtons.\n\n- Mass does not change when you carry the object to another place. Weight does, because gravity changes.\n- On the Moon your mass is the same, your weight is about one sixth\n- A balance scale compares masses. A spring scale measures a force\n\nDetectives care about mass: it tells what is really there regardless of where you stand."
+                "body": "Holmes weighs powders on a balance scale against known masses. A balance compares **mass**, how much matter is there, in grams or kilograms. A spring scale hanging from a hook measures **weight**, the force of gravity on that mass, in newtons. Watson learns the difference when Holmes shows that a balance still matches on a ship, while a spring stretches differently.\n\n- Mass does not change when you carry the object to another place. Weight does, because gravity changes\n- On the Moon your mass is the same, your weight is about one sixth, so $weight = mass \\times g$ and $g$ is smaller there\n- A balance scale compares masses. A spring scale measures a force\n- Detectives care about mass: it tells what is really there regardless of where you stand, and density uses mass as $density = m / V$"
               }
             },
             {
@@ -164,13 +302,28 @@
                 "kind": "mcq",
                 "prompt": "An astronaut's mass on Earth is 60 kg. On the Moon, their mass is about:",
                 "choices": [
-                  { "id": "c1", "text": "60 kg" },
-                  { "id": "c2", "text": "10 kg" },
-                  { "id": "c3", "text": "360 kg" }
+                  {
+                    "id": "c1",
+                    "text": "60 kg",
+                    "feedback": "Correct. Mass is the amount of matter and does not change with location."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "10 kg",
+                    "feedback": "Not correct. This confuses mass with weight. Weight drops to about one sixth on the Moon, mass does not."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "360 kg",
+                    "feedback": "Not correct. This inverts the relationship. It treats mass as if it grows where gravity is weaker."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "Mass does not depend on gravity. Weight on the Moon would be lighter, but the amount of matter is the same.",
-                "hint": "Does the amount of matter change when gravity changes?"
+                "hints": [
+                  "Does the amount of matter change when gravity changes?",
+                  "Weight is $mass \\times g$. If $g$ gets smaller, which one changes: mass or weight?"
+                ]
               }
             },
             {
@@ -179,13 +332,28 @@
                 "kind": "mcq",
                 "prompt": "Which tool best measures mass, regardless of local gravity?",
                 "choices": [
-                  { "id": "c1", "text": "A balance scale comparing against known masses" },
-                  { "id": "c2", "text": "A spring scale hanging from a hook" },
-                  { "id": "c3", "text": "A ruler" }
+                  {
+                    "id": "c1",
+                    "text": "A balance scale comparing against known masses",
+                    "feedback": "Correct. Both sides feel the same gravity, so the comparison cancels gravity out and gives mass."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "A spring scale hanging from a hook",
+                    "feedback": "Not correct. This measures weight, the pull of gravity on the object, so it changes if gravity changes."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "A ruler",
+                    "feedback": "Not correct. A ruler measures length, not mass. This confuses volume or size with amount of matter."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "A balance compares mass to mass, so gravity pulls both sides equally and cancels out.",
-                "hint": "Which tool puts the unknown and a known mass on opposite sides of the same pull?"
+                "hints": [
+                  "Which tool puts the unknown and a known mass on opposite sides of the same pull?",
+                  "Think about what happens to each side if you take the whole scale to the Moon."
+                ]
               }
             }
           ]
@@ -198,7 +366,7 @@
               "type": "article",
               "content": {
                 "title": "The water that the key moved",
-                "body": "An irregular key will not fit a volume formula. Holmes fills a small overflow can to the spout, slides the key in, and collects what spills. The spilled water's volume equals the key's **volume**. One cubic centimetre equals one millilitre, $1\\ cm^3 = 1\\ mL$.\n\n- Volume is how much space something fills\n- Regular shapes: $V = length \\times width \\times height$ or $V = \\pi r^2 h$\n- Irregular shapes: displacement, the overflow you collect\n- Read the meniscus at eye level, bottom of the curve"
+                "body": "An irregular key will not fit a volume formula. Holmes fills a small overflow can to the spout, slides the key in, and collects what spills. The spilled water's volume equals the key's **volume**. Watson reads the collected water in a graduated cylinder. One cubic centimetre equals one millilitre, $1\\ cm^3 = 1\\ mL$.\n\n- Volume is how much space something fills\n- Regular shapes: $V = length \\times width \\times height$ or $V = \\pi r^2 h$ for a cylinder\n- Irregular shapes: displacement, the overflow you collect, then read in $mL$\n- Read the meniscus at eye level, bottom of the curve, to avoid parallax error\n- Record the number, the unit, and the tool, for example $18.0\\ mL \\pm 0.2\\ mL$"
               }
             },
             {
@@ -208,17 +376,109 @@
                 "prompt": "A key displaces 18 mL of water. What is its volume in cm^3?",
                 "answer": 18,
                 "explanation": "One mL equals one cm^3, so 18 mL is 18 cm^3.",
-                "hint": "What is the exchange between mL and cm^3?"
+                "hints": [
+                  "What is the exchange between mL and cm^3? Recall $1\\ mL = 1\\ cm^3$.",
+                  "If the overflow is 18 mL, just convert units: how many cm^3 is that?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "You measure an irregular stone by overflow and collect 45 mL. A classmate measures the same stone with a ruler as $4 \\times 3 \\times 3$ cm. Which is more reliable for this shape?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "The overflow, 45 mL, because it measures the actual space taken up regardless of shape",
+                    "feedback": "Correct. Displacement works for any shape. Length times width times height assumes a perfect block."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "The ruler product, 36 cm^3, because math is always more exact",
+                    "feedback": "Not correct. This is formula bias. The $l \\times w \\times h$ formula only fits a rectangular box, not an irregular stone."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Both are equally exact, so use either",
+                    "feedback": "Not correct. This ignores shape error. A block formula on a lumpy stone undercounts the bumps and holes."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Overflow measures true volume for irregular shapes. Ruler math assumes a regular shape.",
+                "hints": [
+                  "Does $l \\times w \\times h$ describe a stone with bumps and curves?",
+                  "Which method does not assume a shape, it just catches the water the object pushes aside?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Floating, sinking, and density",
+          "summary": "Density is mass for its size, and it decides what floats.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Why the cork floats and the iron sinks",
+                "body": "Watson once asks why a cork floats while an iron key of the same size sinks. Holmes answers with a ratio: **density** is mass divided by volume, $density = m / V$. A cork has little mass for its size. An iron key packs a lot of mass into the same space. In A Study in Scarlet and later Baker Street cases, Watson shows Holmes weighing and comparing materials this way.\n\n- Density has units like $g/cm^3$ (grams per cubic centimetre), found as $m / V$\n- Water has a density near $1\\ g/cm^3$ and $1\\ mL = 1\\ cm^3$, so $1\\ g/mL$ is the same\n- A material denser than water sinks in water. Less dense floats\n- Shape can trap air and change the average density, which is why a steel ship floats while a steel key does not, and $average\\ density = total\\ mass / total\\ volume$"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "A block has mass 120 g and volume 40 cm^3. What is its density in g/cm^3?",
+                "answer": 3,
+                "explanation": "Density = mass / volume = 120 / 40 = 3 g/cm^3.",
+                "hints": [
+                  "Write the ratio $density = m / V$, then put in $m = 120\\ g$ and $V = 40\\ cm^3$.",
+                  "Divide 120 by 40. What do you get, and what are the units?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "An object has density 0.8 g/cm^3. Placed gently in water (about 1 g/cm^3), what happens?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "It floats",
+                    "feedback": "Correct. Less dense than water, so water can support it."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "It sinks",
+                    "feedback": "Not correct. This flips the rule. It treats less dense as if it were denser than water."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "It dissolves",
+                    "feedback": "Not correct. This confuses density with solubility. Floating or sinking does not mean disappearing into solution."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Less dense than water, so it floats. Denser than water would sink.",
+                "hints": [
+                  "Is 0.8 less than or greater than 1?",
+                  "Compare the object density to $1\\ g/cm^3$. Less than water means what?"
+                ]
               }
             },
             {
               "type": "exercise",
               "content": {
                 "kind": "text",
-                "prompt": "Why must you read a water level at the bottom of the curved meniscus, at eye level?",
-                "answer": "To avoid parallax error and read the true volume where the water surface curves, not the high edge.",
-                "explanation": "Any answer mentioning reading at eye level and the bottom of the curve is good.",
-                "hint": "What happens to your reading if you look from above or from the side?"
+                "prompt": "In one or two sentences, explain why a steel ship floats while a steel nail sinks.",
+                "answer": "The ship encloses a lot of air so its average density including the air is less than water, while the solid nail has the full density of steel which is greater than water.",
+                "explanation": "Any answer that names trapped air and average density is good.",
+                "hints": [
+                  "What does the ship contain that the nail does not?",
+                  "Think about $average\\ density = total\\ mass / total\\ volume$ with air included."
+                ]
               }
             }
           ]
@@ -231,7 +491,7 @@
               "type": "article",
               "content": {
                 "title": "The notebook that makes a case",
-                "body": "Holmes solves a case once. His notebook lets the court see why. Every entry has a number, a unit, and a note about uncertainty: mass $12.4\\ g \\pm 0.1\\ g$, volume $6.0\\ mL \\pm 0.2\\ mL$. Without units a number is a riddle. Without an uncertainty note it pretends to be more exact than it was.\n\n- Record the number, the **unit** ($g$, $mL$, $cm$, $s$), and the tool used\n- Record the **range**: what the smallest mark on the tool was\n- Repeat and compare. One measure is a guess. Two that agree is evidence"
+                "body": "Holmes solves a case once. His notebook lets the court see why. Every entry has a number, a unit, and a note about uncertainty: mass $12.4\\ g \\pm 0.1\\ g$, volume $6.0\\ mL \\pm 0.2\\ mL$. Without units a number is a riddle. Without an uncertainty note it pretends to be more exact than it was. Watson, who keeps the stories, knows a record must be checkable by another person.\n\n- Record the number, the **unit** ($g$, $mL$, $cm$, $s$), and the tool used\n- Record the **range**: what the smallest mark on the tool was, for example $0.1\\ g$ on a balance\n- Repeat and compare. One measure is a guess. Two that agree is evidence, such as $12.4\\ g$ and $12.3\\ g$\n- Convert with care: $1000\\ g = 1\\ kg$ and $1\\ cm^3 = 1\\ mL$, so keep the unit with every number"
               }
             },
             {
@@ -240,21 +500,288 @@
                 "kind": "mcq",
                 "prompt": "Which notebook entry is best?",
                 "choices": [
-                  { "id": "c1", "text": "12.4 g on balance scale, smallest mark 0.1 g, two trials: 12.4 and 12.3" },
-                  { "id": "c2", "text": "12" },
-                  { "id": "c3", "text": "about twelve" }
+                  {
+                    "id": "c1",
+                    "text": "12.4 g on balance scale, smallest mark 0.1 g, two trials: 12.4 and 12.3",
+                    "feedback": "Correct. It gives number, unit, tool, precision, and a repeat so another person can judge it."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "12",
+                    "feedback": "Not correct. No unit and no tool. This makes the number unchecked and hides how precise it is."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "about twelve",
+                    "feedback": "Not correct. Vague words replace measurement. This confuses an estimate with a recorded observation."
+                  }
                 ],
                 "answer": "c1",
                 "explanation": "It gives number, unit, tool, precision, and a repeat so the reader can judge it.",
-                "hint": "Which one could another person check?"
+                "hints": [
+                  "Which one could another person check?",
+                  "Look for units, tool, smallest mark, and a second trial. Which entry has all four?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "You weigh a sample twice on a balance with smallest mark 0.1 g and get 12.4 g and 12.6 g. What is the average mass in grams? Give the number to one decimal place.",
+                "answer": 12.5,
+                "explanation": "Average is (12.4 + 12.6) / 2 = 12.5 g. Reporting to 0.1 g matches the tool.",
+                "hints": [
+                  "Add the two readings and divide by 2: $(12.4 + 12.6)/2$.",
+                  "What is $25.0 / 2$? Keep one decimal place to match the $0.1\\ g$ marks."
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Cases closed with careful measurement",
+      "lessons": [
+        {
+          "title": "The case of the mixed powders",
+          "summary": "Combine mass, volume, and density to identify and separate.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "A tin from the docks",
+                "body": "A tin from the docks holds a mix: white powder and dark grit. Holmes must tell how much of each is there. He uses a magnet to pull the grit, then a balance for **mass** and an overflow can for **volume**. Each clue becomes a number with a unit.\n\nHe finds the white powder mass $48.0\\ g$ dissolves fully, the grit mass $22.0\\ g$ does not, and the grit volume by displacement is $2.8\\ mL$. That gives the grit density $density = 22.0 / 2.8 \\approx 7.9\\ g/cm^3$, near iron.\n\n- Separate first by a physical property, here magnetism\n- Then measure each part: mass in $g$, volume in $mL$ or $cm^3$ with $1\\ mL = 1\\ cm^3$\n- Compute density $m/V$ to compare to known materials\n- Record every step so Watson or a judge can follow the chain from observation to conclusion"
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "The dark grit mass is 22.0 g and its volume is 2.8 cm^3. What is its density in g/cm^3 to one decimal place?",
+                "answer": 7.9,
+                "explanation": "Density = 22.0 / 2.8 = 7.857..., about 7.9 g/cm^3, close to iron.",
+                "hints": [
+                  "Use $density = m / V$ with $m = 22.0\\ g$ and $V = 2.8\\ cm^3$.",
+                  "Divide 22.0 by 2.8, then round to one decimal place."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "multi",
+                "prompt": "Holmes wants to prove the white powder is not iron. Which tests together give the strongest evidence? Select all that apply.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "The white powder is not pulled by a magnet",
+                    "feedback": "Correct. Iron is magnetic. Not being pulled points away from iron."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "The white powder dissolves completely in water",
+                    "feedback": "Correct. Iron filings do not dissolve. Dissolving is a different physical behavior."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "The white powder was found near a kitchen",
+                    "feedback": "Not correct. Location is not a property. This uses a story about where it was found instead of what it is."
+                  },
+                  {
+                    "id": "c4",
+                    "text": "The white powder has density about 2.2 g/cm^3, well below 7.9 g/cm^3",
+                    "feedback": "Correct. Measured density far from iron is strong evidence, since $density = m/V$ is characteristic."
+                  }
+                ],
+                "answer": [
+                  "c1",
+                  "c2",
+                  "c4"
+                ],
+                "explanation": "Magnetism, solubility, and density together separate it from iron. Location alone is not a property.",
+                "hints": [
+                  "Which choices describe testable physical properties, not a story about location?",
+                  "Magnet pull, dissolving, and $m/V$ are properties of the matter itself. Which three are those?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Listen: Watson recounts the blue powder",
+          "summary": "Use three checks to narrow what a powder might be.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "What Watson saw in the market",
+                "body": "Watson follows a porter who trades glass powders by colour. One sack holds white grain that vanishes in water. Another holds dark grit that a magnet tugs. Watson writes what he saw, not what he thinks it is.\n\nHolmes asks three checks that need no guessing.\n\n- Does it **dissolve** in water? Salt and sugar do, iron filings do not\n- Does a **magnet** pull it? Iron does, chalk and salt do not\n- What does the **balance** say? Different powders have different mass for the same spoonful\n\nOne test can mislead. Three together narrow the list. That is how a case turns from opinion to evidence."
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Watson on the blue powder",
+                "transcript": "Watson speaking. I called at 221B Baker Street and found Holmes at his table with a small heap of blue powder. He asked me what I saw. I said it was copper salt. He told me to start again, with only what I could observe. We weighed it, 15.3 grams on the balance, smallest mark 0.1 gram. We added it to water. It dissolved without fizz, leaving a clear blue solution. A magnet did not pull it. Holmes said, describe first, name later. The physical properties, colour, mass, solubility, told us what it was not, and gave us a path to what it was, without guessing."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "In the audio, what did Holmes insist Watson do before naming the powder?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Record only checkable observations: colour, mass, solubility, magnet test",
+                    "feedback": "Correct. Holmes taught describe first, name later, using observations another person could verify."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Guess copper salt because of the blue colour",
+                    "feedback": "Not correct. This is colour guessing. It mistakes one property for proof of identity."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Taste the powder to decide",
+                    "feedback": "Not correct. Tasting unknown powders is unsafe and not a good practice. It also confuses a risky guess with measurement."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Holmes asked for observations that can be checked, not a guess from colour alone.",
+                "hints": [
+                  "What did Holmes say to do first, before naming?",
+                  "Which choice lists only things you can see or measure and write with units?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "From the transcript, list two physical properties Watson actually measured or observed for the blue powder.",
+                "answer": "Mass 15.3 g on a balance and that it dissolved in water to a blue solution, and that it was not pulled by a magnet or was blue in colour.",
+                "explanation": "Any two of colour, mass, solubility, magnet test are correct.",
+                "hints": [
+                  "Listen for numbers with units and for tests with results.",
+                  "One is $15.3\\ g$ on the balance. What happened in water? What happened with the magnet?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Listen: Holmes explains the balance",
+          "summary": "Why a balance measures mass and a spring scale measures weight.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "How a balance settles an argument",
+                "body": "At the kitchen table Holmes puts the white powder on a balance against brass weights. The spring scale on the wall pulls harder when he carries it upstairs, so he does not trust it for mass. The balance does not care where it stands because gravity pulls both pans at once.\n\n- A **balance scale** compares mass to mass, gravity cancels, result is mass in grams\n- A **spring scale** measures weight, a force in newtons, which changes with place\n- Record number, unit, tool, and smallest mark, then repeat. Two measures that agree count as one fact\n\nWith mass and volume noted at eye level on the meniscus, density tells whether to expect sinking or floating before anything touches water."
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Holmes on the balance scale",
+                "transcript": "Holmes speaking. Watson thinks a scale is a scale. It is not. A balance compares mass with mass. Put 50 grams on the left, known masses on the right, and gravity pulls both pans the same, so the match tells you mass in grams. A spring scale measures weight, a force in newtons, and reads differently where gravity differs. Then there is density. Take mass, divide by volume, density equals m over V, grams per cubic centimetre. Water is about one gram per cubic centimetre. If an object is denser than water, it sinks. If less dense, it floats. A steel ship traps air, so its average density falls below water. That is the whole trick."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "In the audio, why does a balance scale give mass even if gravity changes?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Gravity pulls both pans equally, so the comparison cancels out and leaves mass",
+                    "feedback": "Correct. Both sides feel the same pull, so matching means equal masses, not equal weights alone."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "The balance measures the stretch of a spring",
+                    "feedback": "Not correct. This describes a spring scale. It confuses a balance with a spring scale."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "The balance counts volume, not matter",
+                    "feedback": "Not correct. This mixes up volume with mass. The balance compares amount of matter, not space taken up."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "A balance compares masses under the same gravity, so the result is mass regardless of local g.",
+                "hints": [
+                  "What happens to both sides if you carry the whole balance to a place with weaker gravity?",
+                  "If both pans feel the same pull, what does a match tell you about what is on them?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "numeric",
+                "prompt": "Using the audio rule, a sample mass is 60 g and volume is 20 cm^3. What is its density in g/cm^3?",
+                "answer": 3,
+                "explanation": "Density = 60 / 20 = 3 g/cm^3, denser than water so it would sink.",
+                "hints": [
+                  "The audio gives $density = m / V$. Put in $m = 60\\ g$ and $V = 20\\ cm^3$.",
+                  "Divide 60 by 20. How does the result compare to $1\\ g/cm^3$ for water?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Your Holmes field kit",
+          "summary": "Build an observation notebook and prove what you found.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The notebook that closes a case",
+                "body": "Holmes closes a case with a notebook any other person could check. Watson copies the method: one page of observations, one page of inferences and tests. No guess stands without a number, a unit, and a property that decides it.\n\nMake your own field kit on paper. You will use a kitchen balance or ruler, a glass with water, and a magnet. You will weigh, measure, and record as Holmes does in the Baker Street stories, where every claim rests on a checkable detail.\n\n- Choose three small safe household objects, for example a coin, a cork, and an eraser\n- For each, record **mass** in $g$, one length or volume in $cm$ or $mL$ with $1\\ cm^3 = 1\\ mL$, and at least two other physical properties from this course\n- Keep observations and inferences in separate columns, then design one test that would check each inference\n\nThe goal is not a right answer. It is an honest record that another grade 5 learner could repeat."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "For your field kit, which plan follows the course method?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "List observations with numbers and units, then write a separate inference and a test for each",
+                    "feedback": "Correct. This keeps what was seen separate from what it means and makes the test checkable."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Guess what each object is first, then measure only if needed",
+                    "feedback": "Not correct. This is guessing first. It reverses the order and treats inference as observation."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Record only mass, no units, no tool note, no second trial",
+                    "feedback": "Not correct. A number without units or tool cannot be checked. This hides precision and method."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Good science separates observation from inference and records enough to repeat the work.",
+                "hints": [
+                  "Which plan could another learner at another table repeat exactly?",
+                  "Look for numbers with units, tools named, and inferences kept in their own column with a test."
+                ]
               }
             },
             {
               "type": "project",
               "content": {
                 "title": "A Holmes field kit: your observation notebook",
-                "description": "Make a two page field notebook. On page one, describe three small objects in your home using only observations: colour, texture, mass on a kitchen scale, volume by ruler or water displacement if safe, whether a magnet pulls them. On page two, list one inference for each object and one test that would check it. Use correct units and note your tool's smallest mark.",
-                "rubric": "- Three objects, each with at least three physical properties, units included\n- Each object has one labelled inference separate from the observations\n- Each has one testable check that would confirm or refute the inference\n- A note of the tool and its smallest mark"
+                "description": "Make a two page field notebook. On page one, describe three small objects in your home using only observations: colour, texture, mass on a kitchen scale, volume by ruler or water displacement if safe, whether a magnet pulls them, and whether they float or dissolve where safe to test. On page two, list one inference for each object and one test that would check it. Use correct units and note your tool's smallest mark. Use numbers like $12.4\\ g \\pm 0.1\\ g$ and $18\\ mL$ as models.",
+                "rubric": "- Three objects, each with at least three physical properties, units included (g, mL, cm) and tool plus smallest mark noted\n- Each object has one labelled inference separate from the observations, and one testable check that would confirm or refute the inference\n- At least one density calculation shown as $density = m / V$ with units g/cm^3 and a note of floats or sinks vs water at 1 g/cm^3\n- Notebook is clear enough for another learner to repeat, with sections, bold headings, and bullets where helpful"
               }
             }
           ]
