@@ -406,8 +406,15 @@ async function generateCourse(spec, userId, familyId) {
   return { courseId, title: course.title, counts };
 }
 
+
+// ---------- Generator v2: outline first, lesson by lesson ----------
+// Helpers live in server/lib/coursegen.v2.js to keep this file merge-clean.
+// Re-exports are appended at end of file after module.exports.
 module.exports = {
   generateCourse, normalizeCourse, normalizeItem, normalizeExercise, normalizeAudio, itemProblem, missingAnswers, mapChoices,
   buildUserPrompt, persistCourse, MAX_CHOICES, MAX_VIDEO_QUESTIONS,
   MAX_UNITS, LESSONS_SCANNED, MAX_LESSONS, MAX_ITEMS,
 };
+
+// Re-export Generator v2 helpers so require('./coursegen') stays the single entry point.
+try { Object.assign(module.exports, require("./coursegen.v2")); } catch {}
