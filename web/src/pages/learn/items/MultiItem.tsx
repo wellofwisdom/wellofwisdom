@@ -109,11 +109,6 @@ export default function MultiItem({
   const correct = result?.correct === true;
   const pickedArray = Array.from(picked);
   const feedbackMap: Record<string, string> = (result?.reveal?.feedback as Record<string, string>) || {};
-  const serverChoicesFeedback: Record<string, string> = {};
-  for (const ch of choices) {
-    if (ch.feedback) serverChoicesFeedback[ch.id] = ch.feedback;
-  }
-  const mergedFeedback = { ...serverChoicesFeedback, ...feedbackMap };
 
   return (
     <section className={`litem exercise${isSolved ? " solved" : ""}`} aria-labelledby={`multi-prompt-${item.id}`}>
@@ -187,10 +182,10 @@ export default function MultiItem({
             <span aria-hidden="true">{correct ? "✅" : "❌"}</span> {correct ? t("exercise.correct") : t("exercise.notQuite")}
           </strong>
           {result.reveal?.explanation && <p>{result.reveal.explanation}</p>}
-          {pickedArray.length > 0 && Object.keys(mergedFeedback).length > 0 && (
+          {pickedArray.length > 0 && Object.keys(feedbackMap).length > 0 && (
             <div style={{ marginTop: 8 }}>
               {pickedArray.map((id) => {
-                const fb = mergedFeedback[id];
+                const fb = feedbackMap[id];
                 if (!fb) return null;
                 const ch = choices.find((x) => x.id === id);
                 return (
