@@ -57,6 +57,29 @@ async function destroySession(token) {
   await db.query("delete from sessions where token_hash = $1", [tokenHash(token)]);
 }
 
+/**
+ * The user object every authenticated request carries, session or API token
+ * alike. lookupToken in lib/apiTokens builds its user with this same
+ * function, so /api/me answers identically by cookie and by bearer token:
+ * same fields, same value shapes.
+ */
+function buildUser(row) {
+  return {
+    id: row.id,
+    role: row.role,
+    name: row.name,
+    familyId: row.family_id,
+    familyName: row.family_name,
+    joinCode: row.join_code,
+    prefs: row.prefs || {},
+    gradeLevel: row.grade_level,
+    interests: row.interests || [],
+    // A parent with no guide_role predates roles entirely. Treat them as an
+    // owner: nobody who could do something yesterday loses it today.
+    guideRole: row.role === "parent" ? (row.guide_role || "owner") : null,
+  };
+}
+
 /** Resolve a session token to its user (or null). Joins family for convenience. */
 async function userForToken(token) {
   if (!token) return null;
@@ -73,20 +96,7 @@ async function userForToken(token) {
   );
   const row = rows[0];
   if (!row || !row.valid) return null;
-  return {
-    id: row.id,
-    role: row.role,
-    name: row.name,
-    familyId: row.family_id,
-    familyName: row.family_name,
-    joinCode: row.join_code,
-    prefs: row.prefs || {},
-    gradeLevel: row.grade_level,
-    interests: row.interests || [],
-    // A parent with no guide_role predates roles entirely. Treat them as an
-    // owner: nobody who could do something yesterday loses it today.
-    guideRole: row.role === "parent" ? (row.guide_role || "owner") : null,
-  };
+  return buildUser(row);
 }
 
 // ---- cookies (no extra dependency) ----
@@ -114,8 +124,26 @@ function cookies(req, _res, next) {
   next();
 }
 
-async function attachUser(req, _res, next) {
+async function attachUser(req, res, next) {
   try {
+    const bearer = String(req.headers.authorization || "").trim();
+    const m = /^Bearer\s+(.+)$/i.exec(bearer);
+    if (m) {
+      const raw = m[1].trim();
+      // wow_ tokens are API tokens (MCP/integrations), not session tokens
+      if (raw.startsWith("wow_")) {
+        const at = require("./apiTokens");
+        const found = await at.lookupToken(raw);
+        if (!found) return res.status(401).json({ error: "auth_required" });
+        const lim = at.tokenLimit(found.tokenHash);
+        if (!lim.ok) return res.status(429).json({ error: "too_many_attempts", retryAfterSec: lim.retryAfterSec });
+        if (!at.tokenAllows(req, found.scopes)) return res.status(403).json({ error: "not_allowed" });
+        req.user = found.user;
+        req.apiToken = { id: found.tokenId, scopes: found.scopes, hash: found.tokenHash };
+        at.touchLastUsed(found.tokenId);
+        return next();
+      }
+    }
     req.user = await userForToken(req.cookies[COOKIE_NAME]);
   } catch (err) {
     req.user = null; // db down / not configured → treated as logged out
@@ -207,6 +235,7 @@ module.exports = {
   tokenHash,
   createSession,
   destroySession,
+  buildUser,
   userForToken,
   sessionCookie,
   parseCookies,

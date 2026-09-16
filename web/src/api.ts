@@ -113,6 +113,8 @@ const NICE: Record<string, string> = {
   source_url_invalid: "One of the source links cannot be fetched from here. Use a public http or https address.",
   source_fetch_failed: "One of the source links could not be read. Check it opens in a browser, or paste its text instead.",
   learner_not_found: "That learner is not in this group.",
+  read_only: "Observers can view but not change anything. Ask an owner or guide if you need this.",
+  demo_forbidden: "The shared demo family cannot do this. Use \"Save and keep everything\" in the demo banner to set up your own login, then try again.",
 };
 
 export function niceError(err: unknown): string {
