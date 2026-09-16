@@ -2,7 +2,8 @@
 // Server-side grading. Answers NEVER go to the learner's browser. The client
 // sends an answer, the server compares, records the attempt, returns the verdict.
 
-// Parse kid-typed numbers: "5/8" → 0.625, "1 3/4" → 1.75, "$3.50" → 3.5, "2.5" → 2.5.
+// parseNumeric is kept here for external callers; per-kind grading lives in
+// server/lib/items/kinds/* and this file just delegates to that registry.
 function parseNumeric(v) {
   if (typeof v === "number") return v;
   const s = String(v ?? "").replace(/[$,\s]/g, "");
@@ -19,13 +20,17 @@ function parseNumeric(v) {
   return parseFloat(s);
 }
 
-// mcq: answer = choice id. numeric: answer = number (0.5% tolerance).
-// text: self-check: model answer is shown, learner judges themselves (null).
-// A question with no answer key is null too, never false: marking a learner
-// wrong against a key nobody wrote is worse than not marking them. A course
-// with such a question cannot be published (coursegen.missingAnswers), so this
-// is the last line, for a key that went missing some other way.
+// A kind is defined once, in server/lib/items/kinds/*. grading here is not a
+// second place to add a new kind. doc/COURSE-BUILDER-V2.md principle 5.
 function gradeExercise(item, learnerAnswer) {
+  if (!item || typeof item !== "object") return null;
+  if (item.kind != null) {
+    try {
+      const exercise = require("./items/exercise");
+      const h = exercise.REGISTRY && exercise.REGISTRY[item.kind];
+      if (h && typeof h.grade === "function") return h.grade(item, learnerAnswer);
+    } catch {}
+  }
   const keyless = item.answer == null || String(item.answer).trim() === "";
   switch (item.kind) {
     case "mcq": {
@@ -86,7 +91,7 @@ function safeSourceUrl(raw) {
   return url;
 }
 
-// HTML → readable text (rough and safe: tags stripped, entities decoded).
+// HTML -> readable text (rough and safe: tags stripped, entities decoded).
 function htmlToText(html) {
   return String(html || "")
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
