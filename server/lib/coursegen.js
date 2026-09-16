@@ -218,35 +218,10 @@ function normalizeAudio(content) {
 
 function normalizeItem(item) {
   if (!item || typeof item !== "object") return null;
-  const type = item.type;
-  const content = item.content || {};
-  if (type === "article") {
-    const body = str(content.body, 20000);
-    if (!body) return null;
-    return { type, content: { title: clean(content.title, 300) || "Lesson", body } };
-  }
-  if (type === "exercise") {
-    const ex = normalizeExercise(content);
-    return ex ? { type, content: ex } : null;
-  }
-  if (type === "video") {
-    const v = normalizeVideo(content);
-    return v ? { type, content: v } : null;
-  }
-  if (type === "audio") {
-    const a = normalizeAudio(content);
-    return a ? { type, content: a } : null;
-  }
-  if (type === "project") {
-    const title = clean(content.title, 300);
-    const description = str(content.description, 5000);
-    if (!title || !description) return null;
-    const p = { title, description };
-    const rubric = str(content.rubric, 3000);
-    if (rubric) p.rubric = rubric;
-    return { type, content: p };
-  }
-  return null;
+  const m = require("./items").forType(item.type);
+  if (!m) return null;
+  const out = m.normalize(item.content || {});
+  return out ? { type: item.type, content: out } : null;
 }
 
 /**
@@ -264,65 +239,9 @@ function itemProblem(item) {
   if (!item || typeof item !== "object") return "content_required";
   const c = item.content && typeof item.content === "object" ? item.content : null;
   if (!c) return "content_required";
-  const choiceTexts = (list) => (Array.isArray(list) ? list : [])
-    .map((x) => (x && typeof x === "object" ? clean(x.text, 500) : ""))
-    .filter(Boolean);
-
-  if (item.type === "article") return str(c.body, 20000) ? null : "body_required";
-
-  if (item.type === "exercise") {
-    if (!clean(c.prompt, 2000)) return "prompt_required";
-    const kind = ["mcq", "numeric", "text"].includes(c.kind) ? c.kind : "mcq";
-    if (kind === "mcq") {
-      const texts = choiceTexts(c.choices);
-      if (texts.length < 2) return "choices_required";
-      if (texts.length > MAX_CHOICES) return "too_many_choices";
-      if (!hasValue(c.answer)) return "answer_required";
-      // mapChoices carries the answer to its new id; if it cannot, the
-      // answer names no choice at all.
-      return mapChoices(c.choices, c.answer).answer ? null : "answer_invalid";
-    }
-    if (kind === "numeric") {
-      const n = Number(String(c.answer ?? "").replace(/[^0-9.\-]/g, ""));
-      return String(c.answer ?? "").trim() && Number.isFinite(n) ? null : "answer_required";
-    }
-    return str(c.answer, 2000) ? null : "answer_required";
-  }
-
-  if (item.type === "audio") {
-    const rawAudioUrl = typeof c.audioUrl === "string" ? c.audioUrl.trim() : "";
-    const rawUrl = typeof c.url === "string" ? c.url.trim() : "";
-    // Any provided URL that is not local /media/ is rejected, so an imported
-    // package cannot smuggle a third-party fetch onto a learner path.
-    if (rawAudioUrl && !isLocalMediaUrl(rawAudioUrl)) return "audio_source_required";
-    if (rawUrl && !isLocalMediaUrl(rawUrl)) return "audio_source_required";
-    const a = normalizeAudio(c);
-    if (!a) return "audio_source_required";
-    if (!a.transcript || !a.transcript.trim()) return "audio_transcript_required";
-    return null;
-  }
-
-  if (item.type === "video") {
-    if (!normalizeVideo({ ...c, questions: [] })) return "video_source_required";
-    const qs = Array.isArray(c.questions) ? c.questions : [];
-    if (qs.length > MAX_VIDEO_QUESTIONS) return "too_many_questions";
-    for (const q of qs) {
-      if (!q || typeof q !== "object" || !clean(q.prompt, 1000)) return "question_incomplete";
-      const texts = choiceTexts(q.choices);
-      if (texts.length < 2) return "question_incomplete";
-      if (texts.length > MAX_CHOICES) return "too_many_choices";
-      if (!hasValue(q.answer)) return "answer_required";
-      if (!mapChoices(q.choices, q.answer).answer) return "answer_invalid";
-    }
-    return null;
-  }
-
-  if (item.type === "project") {
-    if (!clean(c.title, 300)) return "title_required";
-    return str(c.description, 5000) ? null : "description_required";
-  }
-
-  return "type_invalid";
+  const m = require("./items").forType(item.type);
+  if (!m) return "type_invalid";
+  return m.problem(c);
 }
 
 /**
@@ -332,17 +251,20 @@ function itemProblem(item) {
  * zero, because an unanswerable question marks every learner wrong.
  */
 function missingAnswers(items) {
-  const keyed = (choices, answer) => Array.isArray(choices) && choices.some((c) => c && c.id === answer);
   let n = 0;
   for (const i of items || []) {
     const c = (i && i.content) || {};
-    if (i.type === "exercise") {
-      if (c.kind === "numeric") n += hasValue(c.answer) && Number.isFinite(Number(c.answer)) ? 0 : 1;
-      else if (c.kind === "text") n += hasValue(c.answer) ? 0 : 1;
-      else n += keyed(c.choices, c.answer) ? 0 : 1;
+    if (i.type === "exercise" && typeof c === "object") {
+      const p = require("./items/exercise").problem(c);
+      if (p === "answer_required" || p === "answer_invalid") n += 1;
     } else if (i.type === "video" && Array.isArray(c.questions)) {
-      for (const q of c.questions) n += q && keyed(q.choices, q.answer) ? 0 : 1;
-    } // audio has no answer key; a missing transcript is audio_transcript_required, not missingAnswers
+      const p = require("./items/video").problem(c);
+      if (p === "answer_required" || p === "answer_invalid" || p === "question_incomplete") {
+        // Count per-question gaps like the old loop did.
+        const keyed = (choices, answer) => Array.isArray(choices) && choices.some((x) => x && x.id === answer);
+        for (const q of c.questions) n += q && keyed(q.choices, q.answer) ? 0 : 1;
+      }
+    }
   }
   return n;
 }
