@@ -3,6 +3,9 @@ const mcq = require("./mcq");
 const numeric = require("./numeric");
 const text = require("./text");
 const multi = require("./multi");
+const order = require("./order");
+const match = require("./match");
+const categorize = require("./categorize");
 const hotspot = require("./hotspot");
 const plot = require("./plot");
 const scenario = require("./scenario");
@@ -13,6 +16,9 @@ const REGISTRY = {
   numeric,
   text,
   multi,
+  order,
+  match,
+  categorize,
   hotspot,
   plot,
   scenario,
