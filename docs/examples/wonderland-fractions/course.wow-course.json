@@ -25,6 +25,35 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "A round tart cut into 8 equal wedges, 3 wedges highlighted",
+                "caption": "One tart cut into 8 equal parts. The 3 highlighted wedges show 3 out of 8.",
+                "prompt": "A round fruit tart viewed from above cut into 8 equal wedges with 3 wedges highlighted in warm colour, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: name the share",
+                "problem": "Alice cuts a tart into 4 equal slices and eats 1. What fraction did she eat? Keep the pieces equal.",
+                "steps": [
+                  {
+                    "text": "Name the whole: one tart, cut into equal parts."
+                  },
+                  {
+                    "text": "Count the parts: the tart was cut into 4, so denominator is 4."
+                  },
+                  {
+                    "text": "Count the eaten parts: she ate 1 slice, so numerator is 1."
+                  },
+                  {
+                    "text": "Write the fraction: 1 out of 4 equal parts is one quarter."
+                  }
+                ]
+              }
+            },
+            {
               "type": "audio",
               "content": {
                 "title": "Listen: Alice at the tiny door",
@@ -55,7 +84,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "The tart was cut into 8 equal parts and she ate 3, so the fraction is 3 out of 8.",
-                "hints": ["Count how many equal parts the whole tart was cut into. That number is the denominator on the bottom.", "Now count how many of those parts Alice ate. That number is the numerator on the top."]
+                "hints": [
+                  "Count how many equal parts the whole tart was cut into. That number is the denominator on the bottom.",
+                  "Now count how many of those parts Alice ate. That number is the numerator on the top."
+                ]
               }
             },
             {
@@ -65,7 +97,10 @@
                 "prompt": "A whole cake cut into 6 equal pieces: how many sixths make the whole cake?",
                 "answer": 6,
                 "explanation": "Six sixths is the whole: $\\frac{6}{6} = 1$.",
-                "hints": ["How many equal pieces was the whole divided into? Read the denominator.", "To make the whole you need every piece. How many sixths are in one whole?"]
+                "hints": [
+                  "How many equal pieces was the whole divided into? Read the denominator.",
+                  "To make the whole you need every piece. How many sixths are in one whole?"
+                ]
               }
             }
           ]
@@ -79,6 +114,49 @@
               "content": {
                 "title": "The Dormouse and the fair share",
                 "body": "At the tea party the Dormouse, the Hatter, and the March Hare argue about who has more tart. The table is crowded with teacups, and the Hatter says it is always six o clock so the tea never stops. Today the tarts are all cut into eighths, so every piece is the same size. The Dormouse has 3 eighths and the Hare has 5 eighths.\n\nWhen the **denominator** is the same, the pieces match. Then the bigger **numerator** tells you the bigger fraction, because you are counting the same size pieces. Size is set by the bottom number, amount is set by the top.\n\n- $\\frac{5}{8} > \\frac{3}{8}$ because 5 pieces beats 3 pieces of the same size\n- $\\frac{2}{6} < \\frac{4}{6}$ for the same reason\n- $\\frac{7}{10} > \\frac{4}{10}$ when the whole is cut into tenths\n\nThe trick is to check the bottom numbers first. If they match, just compare the tops. The pool of tears Alice cried earlier was one whole puddle, but fractions let us compare parts of a whole fairly."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Two identical tarts side by side, one with 5 of 8 slices shaded and the other with 3 of 8 shaded",
+                "caption": "Same size pieces, different counts. Five eighths covers more than three eighths.",
+                "prompt": "Two identical round tarts side by side each cut into 8 slices, one with 5 slices shaded one with 3 slices shaded, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: compare same size pieces",
+                "problem": "Which is larger: five eighths or three eighths?",
+                "steps": [
+                  {
+                    "text": "Check denominators: both are 8, so the pieces are the same size."
+                  },
+                  {
+                    "text": "Since the size matches, compare numerators: 5 versus 3."
+                  },
+                  {
+                    "text": "5 is more than 3, so five eighths is larger than three eighths."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "predict",
+              "content": {
+                "prompt": "If you cut a tart into 10 equal slices and eat 6, do you have more or less than one half?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "More than one half"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Less than one half"
+                  }
+                ],
+                "reveal": "Six tenths is more than one half, because one half is five tenths. So 6 out of 10 is more than half the tart."
               }
             },
             {
@@ -105,7 +183,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "Tenths are the same size, and 7 tenths is more than 4 tenths.",
-                "hints": ["Look at the denominators first. Are the piece sizes the same?", "If denominators match, which numerator is bigger?"]
+                "hints": [
+                  "Look at the denominators first. Are the piece sizes the same?",
+                  "If denominators match, which numerator is bigger?"
+                ]
               }
             },
             {
@@ -115,7 +196,10 @@
                 "prompt": "Order these from smallest to largest and write only the middle value's numerator: $\\frac{2}{8}$, $\\frac{6}{8}$, $\\frac{5}{8}$",
                 "answer": 5,
                 "explanation": "From smallest: 2 eighths, 5 eighths, 6 eighths. The middle numerator is 5.",
-                "hints": ["All three have the same denominator. What does that tell you about piece size?", "Order by the numerators from smallest to largest to find the middle."]
+                "hints": [
+                  "All three have the same denominator. What does that tell you about piece size?",
+                  "Order by the numerators from smallest to largest to find the middle."
+                ]
               }
             },
             {
@@ -141,13 +225,42 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "A tart cut into 6 equal slices, 2 slices marked for the Hatter and 3 for the Hare, then combined into 5",
+                "caption": "Two sixths plus three sixths makes five sixths. Keep the piece size.",
+                "prompt": "A round tart cut into 6 slices with 2 slices in one colour and 3 slices in another combining to 5, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: add sixths",
+                "problem": "Add two sixths plus three sixths.",
+                "steps": [
+                  {
+                    "text": "Check denominators: both are 6, so keep 6 on the bottom."
+                  },
+                  {
+                    "text": "Add numerators: 2 plus 3 is 5."
+                  },
+                  {
+                    "text": "Keep the denominator: five sixths. The piece size did not change."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
                 "prompt": "What is $\\frac{2}{8} + \\frac{3}{8}$? Give the numerator of the answer in lowest terms if needed, but here the answer is already in eighths so just give the numerator.",
                 "answer": 5,
                 "explanation": "$\\frac{2}{8} + \\frac{3}{8} = \\frac{5}{8}$. The numerator is 5.",
-                "hints": ["Check the denominators. They are both 8, so keep 8 as the denominator.", "Add only the numerators on top: 2 plus 3."]
+                "hints": [
+                  "Check the denominators. They are both 8, so keep 8 as the denominator.",
+                  "Add only the numerators on top: 2 plus 3."
+                ]
               }
             },
             {
@@ -174,7 +287,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "Adding denominators would mean the pieces got smaller to twelfths, but you were counting sixths. Keep the denominator.",
-                "hints": ["What happened to the bottom numbers in the wrong answer? Did they stay as sixths?", "When denominators match, do we add them or keep them?"]
+                "hints": [
+                  "What happened to the bottom numbers in the wrong answer? Did they stay as sixths?",
+                  "When denominators match, do we add them or keep them?"
+                ]
               }
             },
             {
@@ -184,7 +300,10 @@
                 "prompt": "Alice gives away $\\frac{1}{6}$ to the Dormouse and $\\frac{2}{6}$ to the Hatter. How many sixths did she give in total? Give the numerator.",
                 "answer": 3,
                 "explanation": "$\\frac{1}{6} + \\frac{2}{6} = \\frac{3}{6}$, which also equals $\\frac{1}{2}$.",
-                "hints": ["Denominators are both 6, so keep 6 on the bottom.", "Add the numerators: 1 plus 2."]
+                "hints": [
+                  "Denominators are both 6, so keep 6 on the bottom.",
+                  "Add the numerators: 1 plus 2."
+                ]
               }
             }
           ]
@@ -201,13 +320,42 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "A tart with 7 of 8 slices present and 3 slices being removed leaving 4",
+                "caption": "Seven eighths minus three eighths leaves four eighths. The denominator stays 8.",
+                "prompt": "A tart with 7 of 8 slices visible and 3 slices being lifted away leaving 4, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: take away eighths",
+                "problem": "Find seven eighths minus three eighths.",
+                "steps": [
+                  {
+                    "text": "Denominators match at 8, so the piece size stays 8."
+                  },
+                  {
+                    "text": "Subtract numerators: 7 minus 3 is 4."
+                  },
+                  {
+                    "text": "Keep denominator 8: four eighths, which is one half if you simplify."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
                 "prompt": "What is $\\frac{7}{8} - \\frac{3}{8}$? Give the numerator of the answer (denominator stays 8).",
                 "answer": 4,
                 "explanation": "$\\frac{7}{8} - \\frac{3}{8} = \\frac{4}{8}$, which simplifies to $\\frac{1}{2}$.",
-                "hints": ["Denominators match at 8, so keep 8 on the bottom.", "Subtract only the numerators: 7 minus 3."]
+                "hints": [
+                  "Denominators match at 8, so keep 8 on the bottom.",
+                  "Subtract only the numerators: 7 minus 3."
+                ]
               }
             },
             {
@@ -234,7 +382,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "$\\frac{5}{6} - \\frac{2}{6} = \\frac{3}{6}$, which is one half.",
-                "hints": ["Is this an addition or subtraction story? What is left means subtract.", "Keep the denominator 6 and work only with the numerators."]
+                "hints": [
+                  "Is this an addition or subtraction story? What is left means subtract.",
+                  "Keep the denominator 6 and work only with the numerators."
+                ]
               }
             },
             {
@@ -265,6 +416,32 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "One tart cut into 3 large slices beside the same tart cut into 6 smaller slices, showing one third larger than one sixth",
+                "caption": "Fewer pieces means bigger pieces. One third is larger than one sixth.",
+                "prompt": "One tart cut into 3 large slices next to same size tart cut into 6 small slices, comparing one third larger than one sixth, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: one third versus one sixth",
+                "problem": "Which is larger: one third or one sixth?",
+                "steps": [
+                  {
+                    "text": "Denominators differ, so pieces differ in size. 3 pieces makes larger pieces than 6."
+                  },
+                  {
+                    "text": "One third is one large piece, one sixth is one small piece."
+                  },
+                  {
+                    "text": "So one third is larger than one sixth. Fewer pieces means bigger pieces."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "mcq",
@@ -288,7 +465,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "Thirds are larger than sixths because the whole is cut into fewer pieces.",
-                "hints": ["Which denominator cuts the whole into fewer pieces?", "Fewer pieces means each piece is larger. Which has fewer pieces?"]
+                "hints": [
+                  "Which denominator cuts the whole into fewer pieces?",
+                  "Fewer pieces means each piece is larger. Which has fewer pieces?"
+                ]
               }
             },
             {
@@ -315,7 +495,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "Thirds and quarters are different size pieces, so you must rename to a common denominator first.",
-                "hints": ["Do thirds and quarters have the same piece size? Look at the denominators.", "Can you compare numerators fairly when the units differ?"]
+                "hints": [
+                  "Do thirds and quarters have the same piece size? Look at the denominators.",
+                  "Can you compare numerators fairly when the units differ?"
+                ]
               }
             }
           ]
@@ -332,6 +515,49 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Three bars showing one half equals two quarters equals three sixths",
+                "caption": "Equivalent fractions name the same amount with different cuts.",
+                "prompt": "Three horizontal bars subdivided to show one half equals two quarters equals three sixths, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: rename three quarters to twelfths",
+                "problem": "Write three quarters with denominator 12.",
+                "steps": [
+                  {
+                    "text": "Ask: what times 4 makes 12? Four times three is 12."
+                  },
+                  {
+                    "text": "Multiply top and bottom by 3 to keep the value."
+                  },
+                  {
+                    "text": "Three times three is nine, so three quarters equals nine twelfths."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "predict",
+              "content": {
+                "prompt": "You have five eighths and three quarters. Without calculating, which do you think is larger?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Five eighths"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Three quarters"
+                  }
+                ],
+                "reveal": "Three quarters is larger. As eighths, three quarters is six eighths which is one eighth more than five eighths."
+              }
+            },
+            {
               "type": "audio",
               "content": {
                 "title": "Listen: The Cheshire Cat's renaming trick",
@@ -345,7 +571,10 @@
                 "prompt": "Write $\\frac{3}{4}$ with denominator 12. What is the new numerator?",
                 "answer": 9,
                 "explanation": "Multiply top and bottom by 3: $\\frac{3}{4} = \\frac{9}{12}$.",
-                "hints": ["What number times 4 equals 12? That is your multiplier.", "Multiply the numerator 3 by that same multiplier to keep the value equal."]
+                "hints": [
+                  "What number times 4 equals 12? That is your multiplier.",
+                  "Multiply the numerator 3 by that same multiplier to keep the value equal."
+                ]
               }
             },
             {
@@ -372,7 +601,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "$\\frac{2}{3} = \\frac{10}{15}$ and $\\frac{3}{5} = \\frac{9}{15}$, and 10 fifteenths beats 9 fifteenths.",
-                "hints": ["To get denominator 15, how many times does 3 go into 15? Multiply both top and bottom of $\\frac{2}{3}$ by that.", "How many times does 5 go into 15? Do the same for $\\frac{3}{5}$ and compare numerators."]
+                "hints": [
+                  "To get denominator 15, how many times does 3 go into 15? Multiply both top and bottom of $\\frac{2}{3}$ by that.",
+                  "How many times does 5 go into 15? Do the same for $\\frac{3}{5}$ and compare numerators."
+                ]
               }
             },
             {
@@ -395,6 +627,32 @@
               "content": {
                 "title": "The Queen counts the tarts",
                 "body": "The Queen of Hearts loves tarts and counts them constantly, but her tarts are cut in different ways. One tray holds thirds, another holds quarters, and another holds eighths. To know which tray has more, she must use a **common denominator**, a shared piece size that both fractions can be renamed to.\n\nA common denominator is a number that both denominators divide into. Twelve works for thirds and quarters because 12 is divisible by 3 and by 4. Rename each fraction to that size, then compare the numerators.\n\n- Compare $\\frac{3}{4}$ and $\\frac{5}{8}$: rename $\\frac{3}{4} = \\frac{6}{8}$, and $\\frac{6}{8} > \\frac{5}{8}$\n- Compare $\\frac{2}{3}$ and $\\frac{7}{12}$: rename $\\frac{2}{3} = \\frac{8}{12}$, and $\\frac{8}{12} > \\frac{7}{12}$\n\nThe Knave of Hearts, on trial for stealing the tarts, would need this trick to prove his share. Common denominators make unfair cuts fair to compare."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Number line from 0 to 1 marked in twelfths with two thirds at 8 twelfths and three quarters at 9 twelfths",
+                "caption": "Renaming to twelfths makes comparing honest. Eight twelfths versus nine twelfths.",
+                "prompt": "A number line from 0 to 1 marked in twelfths with points at 8 twelfths and 9 twelfths, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: compare three quarters and five eighths",
+                "problem": "Compare three quarters and five eighths.",
+                "steps": [
+                  {
+                    "text": "Pick a common denominator. 8 works because 4 divides 8."
+                  },
+                  {
+                    "text": "Rename three quarters as six eighths (multiply by 2)."
+                  },
+                  {
+                    "text": "Now compare: six eighths is more than five eighths, so three quarters is more."
+                  }
+                ]
               }
             },
             {
@@ -421,7 +679,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "Six eighths is more than five eighths, so three quarters is more.",
-                "hints": ["Can you rename $\\frac{3}{4}$ as eighths? What times 4 makes 8?", "Multiply top and bottom of $\\frac{3}{4}$ by that number, then compare to $\\frac{5}{8}$."]
+                "hints": [
+                  "Can you rename $\\frac{3}{4}$ as eighths? What times 4 makes 8?",
+                  "Multiply top and bottom of $\\frac{3}{4}$ by that number, then compare to $\\frac{5}{8}$."
+                ]
               }
             },
             {
@@ -451,9 +712,16 @@
                     "feedback": "Not equivalent. Two thirds is larger than one half. Renaming shows $\\frac{2}{3} = \\frac{4}{6}$ which is more than $\\frac{3}{6}$."
                   }
                 ],
-                "answer": ["c1", "c2", "c3"],
+                "answer": [
+                  "c1",
+                  "c2",
+                  "c3"
+                ],
                 "explanation": "Two quarters, three sixths, and four eighths all equal one half when you multiply top and bottom by the same number.",
-                "hints": ["Check each choice: can you multiply top and bottom of $\\frac{1}{2}$ to get that fraction?", "Which choices keep the value the same after multiplying numerator and denominator equally?"]
+                "hints": [
+                  "Check each choice: can you multiply top and bottom of $\\frac{1}{2}$ to get that fraction?",
+                  "Which choices keep the value the same after multiplying numerator and denominator equally?"
+                ]
               }
             },
             {
@@ -463,7 +731,10 @@
                 "prompt": "Compare $\\frac{2}{3}$ and $\\frac{3}{4}$ by writing both over 12. How many twelfths larger is the bigger fraction? Give the difference in twelfths as the numerator (e.g., if difference is $\\frac{1}{12}$ give 1).",
                 "answer": 1,
                 "explanation": "$\\frac{2}{3} = \\frac{8}{12}$ and $\\frac{3}{4} = \\frac{9}{12}$. The difference is $\\frac{1}{12}$.",
-                "hints": ["Rename $\\frac{2}{3}$ to twelfths: multiply top and bottom by 4. Rename $\\frac{3}{4}$ by 3.", "Subtract the numerators once they share denominator 12."]
+                "hints": [
+                  "Rename $\\frac{2}{3}$ to twelfths: multiply top and bottom by 4. Rename $\\frac{3}{4}$ by 3.",
+                  "Subtract the numerators once they share denominator 12."
+                ]
               }
             }
           ]
@@ -480,13 +751,42 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Two trays: one third of a tart as two sixths and one sixth added to make three sixths",
+                "caption": "Rename first, then add. One third becomes two sixths, then add one sixth.",
+                "prompt": "Two tart trays showing one third converted to two sixths plus one sixth equals three sixths, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: one third plus one sixth",
+                "problem": "Find one third plus one sixth.",
+                "steps": [
+                  {
+                    "text": "Rename one third as sixths: one third equals two sixths."
+                  },
+                  {
+                    "text": "Now add sixths: two sixths plus one sixth is three sixths."
+                  },
+                  {
+                    "text": "Simplify if you can: three sixths equals one half."
+                  }
+                ]
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
                 "prompt": "What is $\\frac{1}{3} + \\frac{1}{6}$? Give the numerator when the answer is written with denominator 6.",
                 "answer": 3,
                 "explanation": "$\\frac{1}{3} = \\frac{2}{6}$, so $\\frac{2}{6} + \\frac{1}{6} = \\frac{3}{6}$.",
-                "hints": ["Rename $\\frac{1}{3}$ as sixths first. What is $\\frac{1}{3}$ in sixths?", "Now add the sixths: numerators only, denominator stays 6."]
+                "hints": [
+                  "Rename $\\frac{1}{3}$ as sixths first. What is $\\frac{1}{3}$ in sixths?",
+                  "Now add the sixths: numerators only, denominator stays 6."
+                ]
               }
             },
             {
@@ -513,7 +813,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "One half is two quarters, so the sum is three quarters.",
-                "hints": ["What is $\\frac{1}{2}$ as quarters? Multiply top and bottom by 2.", "Now both fractions are quarters, so add the numerators."]
+                "hints": [
+                  "What is $\\frac{1}{2}$ as quarters? Multiply top and bottom by 2.",
+                  "Now both fractions are quarters, so add the numerators."
+                ]
               }
             },
             {
@@ -543,9 +846,16 @@
                     "feedback": "Correct. $\\frac{3}{8} + \\frac{3}{8} = \\frac{6}{8} = \\frac{3}{4}$."
                   }
                 ],
-                "answer": ["c1", "c2", "c4"],
+                "answer": [
+                  "c1",
+                  "c2",
+                  "c4"
+                ],
                 "explanation": "First, second, and fourth sums all rename to three quarters. The third is only one quarter.",
-                "hints": ["Try renaming each sum to a common denominator and add.", "Simplify each result and see which equal $\\frac{3}{4}$."]
+                "hints": [
+                  "Try renaming each sum to a common denominator and add.",
+                  "Simplify each result and see which equal $\\frac{3}{4}$."
+                ]
               }
             }
           ]
@@ -564,6 +874,32 @@
               "content": {
                 "title": "Alice's line from small to tall",
                 "body": "When Alice grows and shrinks after the Eat Me cake and the Drink Me bottle, she passes every size in between. Fractions live on a **number line** from 0 to 1 the same way. Mark halves, quarters, and eighths all on one line and you can see which fraction is bigger without any calculation.\n\nOn a number line, 0 is no cake and 1 is the whole cake. Between them you place fractions by how much of the whole they are. Halves sit in the middle, quarters divide each half, eighths divide each quarter.\n\n- $\\frac{1}{4}$, $\\frac{1}{2}$, $\\frac{3}{4}$ sit evenly spaced from 0 to 1\n- $\\frac{3}{8}$ sits halfway between $\\frac{1}{4}$ and $\\frac{1}{2}$\n- $\\frac{7}{8}$ is one eighth before 1\n\nA number line turns comparing into seeing. That is why mapmakers and carpenters love it, and why Alice could have used it to picture her changing height."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Number line from 0 to 1 marked in eighths with points at 3 eighths, one half, and 3 quarters",
+                "caption": "Placing 3 eighths, one half, and 3 quarters on one line from 0 to 1.",
+                "prompt": "A number line from 0 to 1 marked in eighths with points at 3 eighths, one half and 3 quarters highlighted, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: place three eighths",
+                "problem": "Where does three eighths sit on a 0 to 1 line marked in quarters?",
+                "steps": [
+                  {
+                    "text": "Rename quarters as eighths: one quarter equals two eighths and one half equals four eighths."
+                  },
+                  {
+                    "text": "Three eighths is one eighth after two eighths and one before four eighths."
+                  },
+                  {
+                    "text": "So it sits between one quarter and one half."
+                  }
+                ]
               }
             },
             {
@@ -597,7 +933,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "Three eighths is 0.375, which is between one quarter (0.25) and one half (0.5).",
-                "hints": ["Convert to decimals or rename to eighths: where are $\\frac{1}{4}$ and $\\frac{1}{2}$ in eighths?", "$\\frac{1}{4} = \\frac{2}{8}$ and $\\frac{1}{2} = \\frac{4}{8}$. Where does $\\frac{3}{8}$ sit between them?"]
+                "hints": [
+                  "Convert to decimals or rename to eighths: where are $\\frac{1}{4}$ and $\\frac{1}{2}$ in eighths?",
+                  "$\\frac{1}{4} = \\frac{2}{8}$ and $\\frac{1}{2} = \\frac{4}{8}$. Where does $\\frac{3}{8}$ sit between them?"
+                ]
               }
             },
             {
@@ -607,7 +946,10 @@
                 "prompt": "On a number line marked in eighths from 0 to 1, how many eighth-steps from 0 is $\\frac{5}{8}$?",
                 "answer": 5,
                 "explanation": "Five eighths is five steps of one eighth from 0.",
-                "hints": ["Each mark is one eighth. Count the jumps from 0.", "The numerator tells how many eighth steps you have taken."]
+                "hints": [
+                  "Each mark is one eighth. Count the jumps from 0.",
+                  "The numerator tells how many eighth steps you have taken."
+                ]
               }
             },
             {
@@ -633,13 +975,59 @@
               }
             },
             {
+              "type": "figure",
+              "content": {
+                "alt": "Number line from 0 to 2 showing wholes at 4 quarters and 8 quarters, with 5 quarters at one and one quarter",
+                "caption": "Past one whole, count quarters: 4 quarters is 1, 5 quarters is one and one quarter.",
+                "prompt": "A number line from 0 to 2 marked in quarters showing 4 quarters at 1 and 5 quarters at one and one quarter, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: six quarters as a mixed number",
+                "problem": "Write six quarters as a mixed number.",
+                "steps": [
+                  {
+                    "text": "Four quarters makes one whole."
+                  },
+                  {
+                    "text": "Subtract the whole: six minus four is two quarters left."
+                  },
+                  {
+                    "text": "So six quarters is one and two quarters, which is one and one half."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "predict",
+              "content": {
+                "prompt": "Alice is 10 cm tall and grows to seven quarters of that height. Do you predict she will be shorter or taller than 15 cm?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Shorter than 15 cm"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Taller than 15 cm"
+                  }
+                ],
+                "reveal": "Seven quarters is one and three quarters, so 10 times 1.75 is 17.5 cm, taller than 15 cm. More than one whole means taller."
+              }
+            },
+            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
                 "prompt": "How many quarters are in $1\\frac{1}{2}$? Give the number of quarters.",
                 "answer": 6,
                 "explanation": "One whole is 4 quarters, plus 2 quarters for the half, so 6 quarters is $\\frac{6}{4}$.",
-                "hints": ["How many quarters make one whole? That is 4 quarters.", "Add two more quarters for the half. How many in total?"]
+                "hints": [
+                  "How many quarters make one whole? That is 4 quarters.",
+                  "Add two more quarters for the half. How many in total?"
+                ]
               }
             },
             {
@@ -666,7 +1054,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "Five quarters is one whole and one quarter.",
-                "hints": ["How many quarters make one whole? Subtract that from 5 quarters to find the leftover.", "One whole is $\\frac{4}{4}$. What remains from $\\frac{5}{4}$?"]
+                "hints": [
+                  "How many quarters make one whole? Subtract that from 5 quarters to find the leftover.",
+                  "One whole is $\\frac{4}{4}$. What remains from $\\frac{5}{4}$?"
+                ]
               }
             },
             {
@@ -676,7 +1067,10 @@
                 "prompt": "Write $\\frac{7}{4}$ as a mixed number and give only the fractional numerator (the top of the fraction part). For $1\\frac{3}{4}$ the answer would be 3.",
                 "answer": 3,
                 "explanation": "$\\frac{7}{4} = 1\\frac{3}{4}$, so the fractional numerator is 3.",
-                "hints": ["How many whole sets of 4 quarters are in 7 quarters?", "7 divided by 4 is 1 with remainder 3. That remainder is the new numerator."]
+                "hints": [
+                  "How many whole sets of 4 quarters are in 7 quarters?",
+                  "7 divided by 4 is 1 with remainder 3. That remainder is the new numerator."
+                ]
               }
             }
           ]
@@ -690,6 +1084,32 @@
               "content": {
                 "title": "Stories from the endless table",
                 "body": "At the tea party the Hatter, the March Hare, and the Dormouse share three tarts. The Hatter says it is always six o clock, so no one ever leaves and every crumb must be shared fairly. Alice uses fractions to keep the sharing honest and to settle arguments.\n\nStory problems hide fractions in words. Look for the whole, look for the piece size, and look for whether you are combining, taking away, or comparing. Draw a bar or a number line if it helps.\n\n- The Hatter ate $\\frac{1}{4}$ and the Hare ate $\\frac{2}{4}$. Together that is $\\frac{3}{4}$ of a tart.\n- A tart cut into 12 slices with $\\frac{1}{3}$ taken leaves $\\frac{8}{12}$ because $\\frac{1}{3} = \\frac{4}{12}$\n- Two tarts each cut into halves make $\\frac{4}{2}$, which is two wholes\n\nReading carefully is half the work. Underlining the fractions and the words more than, left, and altogether tells you which operation to use."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Tea table scene with Hatter, Hare and Dormouse sharing tarts, thought bubbles showing fractions",
+                "caption": "Story problems hide fractions in words. Look for the whole, the piece size, and the operation.",
+                "prompt": "A whimsical tea table with Hatter Hare and Dormouse sharing tarts with small fraction thought bubbles, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: add quarters in a story",
+                "problem": "Hatter ate one quarter and Hare ate two quarters. How much together?",
+                "steps": [
+                  {
+                    "text": "Identify the whole: one tart. Piece size: quarters, denominator 4 for both."
+                  },
+                  {
+                    "text": "Operation: together means add. Denominators match, so keep 4."
+                  },
+                  {
+                    "text": "Add numerators: one plus two is three, so three quarters together."
+                  }
+                ]
               }
             },
             {
@@ -716,7 +1136,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "Quarters plus quarters stays as quarters: $\\frac{1}{4} + \\frac{2}{4} = \\frac{3}{4}$.",
-                "hints": ["Are the piece sizes the same? What is the denominator for both?", "Do you add denominators when they match, or keep them?"]
+                "hints": [
+                  "Are the piece sizes the same? What is the denominator for both?",
+                  "Do you add denominators when they match, or keep them?"
+                ]
               }
             },
             {
@@ -726,7 +1149,10 @@
                 "prompt": "A tart is cut into 12 equal slices. Alice takes $\\frac{1}{3}$ of the tart. How many twelfths did she take? Give the numerator over 12.",
                 "answer": 4,
                 "explanation": "$\\frac{1}{3} = \\frac{4}{12}$, so she took 4 twelfths.",
-                "hints": ["Rename one third as twelfths. What times 3 makes 12?", "Multiply the numerator 1 by that same number to get the new numerator."]
+                "hints": [
+                  "Rename one third as twelfths. What times 3 makes 12?",
+                  "Multiply the numerator 1 by that same number to get the new numerator."
+                ]
               }
             },
             {
@@ -749,6 +1175,32 @@
               "content": {
                 "title": "Who stole the tarts?",
                 "body": "In the final chapters Alice watches the trial of the Knave of Hearts, accused of stealing the Queen's tarts. The King acts as judge, the White Rabbit as clerk, and the Queen shouts sentence before verdict. The evidence is a mess of crumbs and claims about how much was taken.\n\nFractions bring order to the courtroom. To judge fairly, Alice must check if pieces match, rename when they do not, and place shares on a number line to see the truth. She must also spot when a witness adds denominators by mistake.\n\n- If the Knave took $\\frac{1}{4}$ and $\\frac{1}{4}$ more, that is $\\frac{2}{4}$ or $\\frac{1}{2}$\n- If one witness says $\\frac{2}{3}$ and another says $\\frac{3}{4}$, the second is larger because $\\frac{9}{12} > \\frac{8}{12}$\n- On a line from 0 to 1, the larger fraction sits farther to the right\n\nAlice learns that Wonderland only makes sense when shares are measured honestly. Your final project builds that honest Wonderland tart table for yourself."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Courtroom scene with King, Queen, Knave and Alice holding a tart cut into eighths, number line on scroll",
+                "caption": "The trial evidence on a number line. Who took what share, and what adds correctly?",
+                "prompt": "A whimsical courtroom with King Queen Knave and Alice holding a tart cut into eighths and a scroll with a number line, soft watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: spot the denominator mistake",
+                "problem": "Witness says two sixths plus two sixths equals four twelfths. Find the error.",
+                "steps": [
+                  {
+                    "text": "Piece size: both are sixths, so keep denominator 6."
+                  },
+                  {
+                    "text": "Add numerators: two plus two is four, so correct is four sixths."
+                  },
+                  {
+                    "text": "The witness added denominators to 12, wrongly shrinking the pieces to twelfths."
+                  }
+                ]
               }
             },
             {
@@ -775,7 +1227,10 @@
                 ],
                 "answer": "c1",
                 "explanation": "Sixths keep denominator 6: $\\frac{2}{6} + \\frac{2}{6} = \\frac{4}{6}$.",
-                "hints": ["What should the denominator be when adding sixths and sixths?", "Did the witness keep the denominator or change it?"]
+                "hints": [
+                  "What should the denominator be when adding sixths and sixths?",
+                  "Did the witness keep the denominator or change it?"
+                ]
               }
             },
             {
@@ -785,7 +1240,10 @@
                 "prompt": "The Queen says the Knave took $\\frac{3}{8}$ and then $\\frac{2}{8}$ more. How many eighths did he take in total? Give the numerator.",
                 "answer": 5,
                 "explanation": "$\\frac{3}{8} + \\frac{2}{8} = \\frac{5}{8}$.",
-                "hints": ["Both fractions are eighths, so keep denominator 8.", "Add the numerators: 3 plus 2."]
+                "hints": [
+                  "Both fractions are eighths, so keep denominator 8.",
+                  "Add the numerators: 3 plus 2."
+                ]
               }
             },
             {

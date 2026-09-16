@@ -6,6 +6,9 @@ const multi = require("./multi");
 const order = require("./order");
 const match = require("./match");
 const categorize = require("./categorize");
+const hotspot = require("./hotspot");
+const plot = require("./plot");
+const scenario = require("./scenario");
 const common = require("./common");
 
 const REGISTRY = {
@@ -16,6 +19,9 @@ const REGISTRY = {
   order,
   match,
   categorize,
+  hotspot,
+  plot,
+  scenario,
 };
 
 function forKind(kind) {

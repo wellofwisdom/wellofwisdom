@@ -836,11 +836,34 @@ router.get("/:id/answer-key", async (req, res, next) => {
             const ids = Array.isArray(c.answer) ? c.answer : [];
             const texts = ids.map((id) => ((c.choices || []).find((ch) => ch.id === id) || {}).text).filter(Boolean);
             answerText = texts.length ? texts.join(", ") : null;
+          } else if (c.kind === "order") {
+            const ids = Array.isArray(c.answer) ? c.answer : [];
+            const texts = ids.map((id) => ((c.items || []).find((it) => it.id === id) || {}).text).filter(Boolean);
+            answerText = texts.length ? texts.join(" -> ") : null;
+          } else if (c.kind === "match") {
+            const pairs = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? Object.entries(c.answer) : [];
+            answerText = pairs.length ? pairs.map(([l, r]) => `${l}->${r}`).join(", ") : null;
+          } else if (c.kind === "categorize") {
+            const placed = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? Object.entries(c.answer) : [];
+            answerText = placed.length ? placed.map(([card, bucket]) => `${card}->${bucket}`).join(", ") : null;
+          } else if (c.kind === "hotspot") {
+            const ids = Array.isArray(c.answer) ? c.answer : [];
+            answerText = ids.length ? ids.join(", ") : null;
+          } else if (c.kind === "plot") {
+            const pts = Array.isArray(c.answer) ? c.answer : [];
+            answerText = pts.length ? pts.map((p) => `(${p.x},${p.y})`).join(", ") : null;
+          } else if (c.kind === "scenario") {
+            const good = Array.isArray(c.good) ? c.good : [];
+            answerText = good.length ? good.join(", ") : null;
           } else answerText = c.answer;
           // Worth surfacing: an exercise with no answer cannot be graded, and
           // the generator does occasionally produce one.
-          if (c.kind === "multi") {
-            if (!Array.isArray(c.answer) || !c.answer.length) missingAnswers++;
+          if (c.kind === "multi" || c.kind === "order" || c.kind === "hotspot" || c.kind === "plot" || c.kind === "scenario") {
+            const key = c.kind === "scenario" ? c.good : c.answer;
+            if (!Array.isArray(key) || !key.length) missingAnswers++;
+          } else if (c.kind === "match" || c.kind === "categorize") {
+            const key = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? Object.keys(c.answer) : [];
+            if (!key.length) missingAnswers++;
           } else if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
           const hints = Array.isArray(c.hints) ? c.hints : c.hint ? [String(c.hint)] : [];
           return {

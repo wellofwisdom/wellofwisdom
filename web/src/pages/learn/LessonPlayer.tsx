@@ -17,6 +17,9 @@ import FigureItem from "./items/FigureItem";
 import StepsItem from "./items/StepsItem";
 import PredictItem from "./items/PredictItem";
 import FlashcardsItem from "./items/FlashcardsItem";
+import ClozeItem from "./items/ClozeItem";
+import NumberlineItem from "./items/NumberlineItem";
+import FractionItem from "./items/FractionItem";
 
 export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   lessonId: number; onNavigate: (hash: string) => void; onLogout: () => void;
@@ -161,5 +164,8 @@ function LessonItem({ item, solved, onSolved, submission, onSubmission }: {
   if (kind === "order") return <OrderItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "match") return <MatchItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "categorize") return <CategorizeItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "cloze") return <ClozeItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "numberline") return <NumberlineItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "fraction") return <FractionItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
   return <ExerciseItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} question={null} />;
 }
