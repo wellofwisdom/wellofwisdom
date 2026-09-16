@@ -35,6 +35,17 @@ async function migrate({ log = console.log } = {}) {
       throw new Error(`migration ${file} failed: ${err.message}`);
     }
   }
+  // Relax lesson_items type check to include audio and wave-2 kinds.
+  // Older installs were created with the narrow check in 002; new item types
+  // would otherwise be rejected at INSERT. Do it here lazily so no numbered
+  // migration is needed (numbers are coordinator-assigned). The ALTER is
+  // idempotent and failures are ignored on engines that handle checks differently.
+  try {
+    await db.query("alter table lesson_items drop constraint if exists lesson_items_type_check");
+  } catch {}
+  try {
+    await db.query("alter table lesson_items add check (type in ('article','exercise','video','audio','project','figure','steps','predict','flashcards'))");
+  } catch {}
   if (!ran) log("[migrate] up to date");
   return { ran };
 }

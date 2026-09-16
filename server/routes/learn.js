@@ -295,6 +295,16 @@ router.post("/attempt", async (req, res, next) => {
       const q = c.questions[qIdx];
       correct = gradeExercise({ kind: "mcq", choices: q.choices, answer: q.answer }, answer);
       reveal = { kind: "mcq", explanation: null };
+    } else if (row.type === "predict") {
+      const reg = require("../lib/items/predict");
+      correct = reg.grade(c, answer);
+      reveal = { reveal: c.reveal || null };
+    } else if (row.type === "flashcards") {
+      const cards = Array.isArray(c.cards) ? c.cards : [];
+      if (qIdx < 0 || qIdx >= cards.length) return bad(res, "question_index_invalid");
+      const reg = require("../lib/items/flashcards");
+      correct = reg.grade(c, answer, qIdx);
+      reveal = { card: cards[qIdx] || null };
     } else {
       return bad(res, "not_gradable");
     }
@@ -308,6 +318,9 @@ router.post("/attempt", async (req, res, next) => {
     // An ungraded answer (no key) is not evidence either way, so it does not
     // move the review schedule.
     if (row.type === "exercise" && c.kind && c.kind !== "text" && correct !== null) {
+      review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
+    }
+    if (row.type === "flashcards" && correct !== null) {
       review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
     }
 

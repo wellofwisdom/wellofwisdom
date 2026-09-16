@@ -64,14 +64,14 @@ async function dueForLearner(learnerId, familyId, { limit = 25 } = {}) {
                join courses c2 on c2.id = un2.course_id
               where rs2.learner_id = $1 and rs2.due_at <= now()
                 and c2.status = 'published' and (c2.learner_id is null or c2.learner_id = $1)
-                and i2.type = 'exercise')::int as due_total
+                and i2.type in ('exercise','flashcards'))::int as due_total
        from review_schedule rs
        join lesson_items i on i.id = rs.item_id
        join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id
        join courses c on c.id = un.course_id
       where rs.learner_id = $1 and rs.due_at <= now()
         and c.status = 'published' and (c.learner_id is null or c.learner_id = $1)
-        and i.type = 'exercise'
+        and i.type in ('exercise','flashcards')
       order by rs.due_at asc
       limit $2`,
     [learnerId, limit]

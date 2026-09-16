@@ -7,6 +7,10 @@ const exercise = require("./exercise");
 const video = require("./video");
 const audio = require("./audio");
 const project = require("./project");
+const figure = require("./figure");
+const steps = require("./steps");
+const predict = require("./predict");
+const flashcards = require("./flashcards");
 
 const REGISTRY = {
   article,
@@ -14,6 +18,10 @@ const REGISTRY = {
   video,
   audio,
   project,
+  figure,
+  steps,
+  predict,
+  flashcards,
 };
 
 function registry() { return REGISTRY; }

@@ -582,7 +582,7 @@ router.post("/lessons/:lessonId/items", async (req, res, next) => {
     const lessonId = Number(req.params.lessonId);
     if (!Number.isInteger(lessonId)) return bad(res, "id_invalid");
     const { type, content } = req.body || {};
-    if (!["article", "exercise", "video", "project"].includes(type)) return bad(res, "type_invalid");
+    if (!["article", "exercise", "video", "project", "figure", "steps", "predict", "flashcards"].includes(type)) return bad(res, "type_invalid");
 
     const owns = await db.query(
       `select l.id from lessons l join units un on un.id = l.unit_id
