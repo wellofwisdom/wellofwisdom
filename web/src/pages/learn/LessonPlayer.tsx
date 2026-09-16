@@ -11,7 +11,7 @@ import TutorChat from "./TutorChat";
 
 interface AttemptResponse {
   correct: boolean | null;
-  reveal: { kind: string; explanation: string | null; hint: string | null; answer: string | null };
+  reveal: { kind: string; explanation: string | null; hint: string | null; answer: string | null; choice?: string | null; body?: string | null };
 }
 
 export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
@@ -416,7 +416,7 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question, rewind }: 
     setErr("");
     setExplain("");
     try {
-      const body = { itemId: item.id, questionIndex: qIdx, answer: kind === "mcq" ? mcqId : answer };
+      const body = { itemId: item.id, questionIndex: qIdx, answer: kind === "mcq" || kind === "branch" ? mcqId : answer };
       const d = await api<AttemptResponse>("/api/learn/attempt", { method: "POST", body });
       setResult(d);
       setRevealed(d);
@@ -494,6 +494,31 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question, rewind }: 
         </div>
       )}
 
+      {!result && kind === "branch" && (
+        <div className="choices">
+          {((c as Record<string, any>).branches || []).map((b: { id: string; text: string }) => (
+            <button
+              key={b.id}
+              type="button"
+              className={`choice branchchoice${picked === b.id ? " picked" : ""}`}
+              disabled={busy}
+              onClick={() => submit(b.id)}
+            >
+              <span className="branchglyph" aria-hidden="true">🧭</span>
+              <MathText text={b.text} />
+            </button>
+          ))}
+          <div className="row">
+            {c.hint && !hint && <button className="btn ghost" type="button" onClick={() => setHint(c.hint)}>💡 Hint</button>}
+          </div>
+          {isSolved && (
+            <p className="muted small" style={{ marginTop: 6 }}>
+              You already chose a path. Pick another to see where it leads.
+            </p>
+          )}
+        </div>
+      )}
+
       {!result && kind === "numeric" && (
         <div className="row wrap">
           <input
@@ -544,7 +569,26 @@ function ExerciseItem({ item, solved, onSolved, qKey, qIdx, question, rewind }: 
         </div>
       )}
 
-      {result && (
+      {result && kind === "branch" && (
+        // The fork has no verdict: the reveal is the story that follows the
+        // pick. Telling a learner "Correct!" for choosing a path would be a
+        // lie dressed as encouragement.
+        <div className="branchbox" role="status" aria-live="polite">
+          <h3>
+            <span aria-hidden="true">📖</span> {result.reveal?.choice || "Your path"}
+          </h3>
+          <RichText text={result.reveal?.body || ""} />
+          <button
+            className="btn ghost"
+            type="button"
+            onClick={() => { setResult(null); setRevealed(null); setPicked(null); }}
+          >
+            ↩ Try another path
+          </button>
+        </div>
+      )}
+
+      {result && kind !== "branch" && (
         // role="status" announces the verdict without stealing focus, so a
         // screen reader user hears "Correct" instead of silence. The emoji is
         // hidden from readers: they already hear the word.

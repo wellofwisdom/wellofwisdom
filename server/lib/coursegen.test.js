@@ -120,6 +120,44 @@ test("itemProblem: answers the normalizer maps correctly are accepted", () => {
   assert.equal(cg.normalizeItem(mcq({ choices: noIds, answer: "c2" })).content.answer, "c2");
 });
 
+const branch = (extra = []) => ({
+  type: "exercise",
+  content: {
+    kind: "branch",
+    prompt: "The gate guards stir. What do you do?",
+    branches: [
+      { id: "x", text: "Show the letter", body: "The captain reads it twice and waves you through." },
+      { id: "y", text: "Climb the wall", body: "You drop into the courtyard, unseen." },
+      ...extra,
+    ],
+  },
+});
+
+test("branch items normalize: ids renumbered b1..bN, keyless bodies kept whole", () => {
+  const out = cg.normalizeItem(branch());
+  assert.equal(out.content.kind, "branch");
+  assert.deepEqual(out.content.branches.map((b) => b.id), ["b1", "b2"]);
+  assert.equal(out.content.branches[0].body, "The captain reads it twice and waves you through.");
+  // A branch with a label but no story is dropped, not kept as a dead end.
+  const hollow = cg.normalizeItem(branch([{ id: "z", text: "Wait", body: "   " }]));
+  assert.deepEqual(hollow.content.branches.map((b) => b.id), ["b1", "b2"]);
+  // One survivor is not a fork.
+  const lone = cg.normalizeItem({ type: "exercise", content: { kind: "branch", prompt: "p", branches: [{ text: "Go", body: "You go." }] } });
+  assert.equal(lone, null);
+});
+
+test("itemProblem: branch edits are checked by name", () => {
+  assert.equal(cg.itemProblem(branch()), null);
+  assert.equal(cg.itemProblem({ type: "exercise", content: { kind: "branch", prompt: "p", branches: [{ text: "Go", body: "You go." }] } }), "branches_required");
+  assert.equal(cg.itemProblem({ type: "exercise", content: { kind: "branch", prompt: "p", branches: [] } }), "branches_required");
+  const six = [1, 2, 3, 4, 5, 6].map((n) => ({ text: `Path ${n}`, body: "Something happens." }));
+  assert.equal(cg.itemProblem({ type: "exercise", content: { kind: "branch", prompt: "p", branches: six } }), "too_many_branches");
+});
+
+test("missingAnswers: a branch fork has no key to miss", () => {
+  assert.equal(cg.missingAnswers([branch()]), 0);
+});
+
 test("itemProblem: a fifth video question is refused rather than dropped", () => {
   const q = { prompt: "What?", choices: [{ id: "c1", text: "a" }, { id: "c2", text: "b" }], answer: "c1" };
   const content = { youtubeId: "dQw4w9WgXcQ", questions: [q, q, q, q, q] };

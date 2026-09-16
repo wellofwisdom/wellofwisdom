@@ -620,6 +620,18 @@ a:hover { text-decoration: underline; }
 .choice.picked { border-color: var(--accent); box-shadow: var(--focus); }
 .exercise .row { margin-top: 12px; }
 
+/* A story fork: choices read as paths, not answers, and the reveal reads as
+   the next scene. Glyph is hidden from screen readers; the label says it. */
+.branchchoice { display: flex; gap: 10px; align-items: baseline; border-style: dashed; }
+.branchchoice:hover { transform: translateX(3px); }
+.branchglyph { flex: none; }
+.branchbox {
+  margin-top: 12px; border-radius: 12px; padding: 14px 16px;
+  background: var(--accent-soft); border: 1px solid var(--accent);
+}
+.branchbox h3 { margin: 0 0 8px; font-size: 16.5px; }
+.branchbox .btn { margin-top: 10px; }
+
 .hintbox { background: var(--panel-2); border-left: 3px solid var(--warn); padding: 10px 14px; border-radius: 8px; margin-top: 10px; font-size: 14.5px; }
 .feedback { margin-top: 12px; border-radius: 12px; padding: 14px 16px; font-size: 15px; }
 .feedback.good { background: color-mix(in srgb, var(--good) 12%, transparent); border: 1px solid var(--good); }

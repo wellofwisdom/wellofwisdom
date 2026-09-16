@@ -21,6 +21,8 @@ function parseNumeric(v) {
 
 // mcq: answer = choice id. numeric: answer = number (0.5% tolerance).
 // text: self-check: model answer is shown, learner judges themselves (null).
+// branch: a story fork. Every offered path is a real path, so a valid pick is
+// true and there is no wrong: the pick is recorded, the story continues.
 // A question with no answer key is null too, never false: marking a learner
 // wrong against a key nobody wrote is worse than not marking them. A course
 // with such a question cannot be published (coursegen.missingAnswers), so this
@@ -28,6 +30,11 @@ function parseNumeric(v) {
 function gradeExercise(item, learnerAnswer) {
   const keyless = item.answer == null || String(item.answer).trim() === "";
   switch (item.kind) {
+    case "branch": {
+      const branches = item.branches || [];
+      if (!branches.length) return null;
+      return branches.some((b) => b.id === String(learnerAnswer ?? "")) ? true : null;
+    }
     case "mcq": {
       if (keyless || !(item.choices || []).some((c) => c.id === item.answer)) return null;
       const id = String(learnerAnswer ?? "");

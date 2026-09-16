@@ -489,10 +489,18 @@ function ItemPreview({ item, onEdit, onDelete }: { item: ItemNode; onEdit: () =>
             <>
               <MathText text={c.prompt} />
               <div className="small muted" style={{ marginTop: 2 }}>
-                {c.kind === "mcq" ? `multiple choice · answer: ${answerText(c)}`
+                {c.kind === "branch" ? `choice · ${((c.branches || []) as any[]).length} paths`
+                  : c.kind === "mcq" ? `multiple choice · answer: ${answerText(c)}`
                   : c.kind === "numeric" ? `number · answer: ${unanswered ? "?" : c.answer}`
                   : "written · self-check"}
               </div>
+              {c.kind === "branch" && (
+                <div className="small muted" style={{ marginTop: 2 }}>
+                  {((c.branches || []) as any[]).map((b: any, i: number) => (
+                    <div key={i}>→ {b.text}</div>
+                  ))}
+                </div>
+              )}
             </>
           )}
           {item.type === "video" && (
@@ -536,6 +544,7 @@ function lacksAnswer(item: ItemNode): boolean {
   const has = (v: unknown) => v != null && String(v).trim() !== "";
   const keyed = (choices: any[], answer: unknown) => Array.isArray(choices) && choices.some((x) => x && x.id === answer);
   if (item.type === "exercise") {
+    if (c.kind === "branch") return !Array.isArray(c.branches) || c.branches.length < 2;
     if (c.kind === "numeric") return !(has(c.answer) && Number.isFinite(Number(c.answer)));
     if (c.kind === "text") return !has(c.answer);
     return !keyed(c.choices, c.answer);
@@ -777,6 +786,13 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [textAnswer, setTextAnswer] = useState(c.kind === "text" ? String(c.answer ?? "") : "");
   const [explanation, setExplanation] = useState(c.explanation ?? "");
   const [hint, setHint] = useState(c.hint ?? "");
+  // branch: story fork. No answer key, each path carries its own continuation
+  // as body. Stored as c.branches b1..bN via the normalizer, edited line by line.
+  type BranchDraft = { text: string; body: string };
+  function toBranchDrafts(list: any[]): BranchDraft[] {
+    return (Array.isArray(list) ? list : []).map((b) => ({ text: b.text ?? "", body: b.body ?? "" }));
+  }
+  const [branchDrafts, setBranchDrafts] = useState<BranchDraft[]>(() => toBranchDrafts(c.branches));
   // video
   const [vTitle, setVTitle] = useState(c.title ?? "");
   const [vId, setVId] = useState(c.youtubeId ?? "");
@@ -793,7 +809,12 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
     if (item.type === "article") content = { title: aTitle, body: aBody };
     else if (item.type === "exercise") {
       content = { prompt, kind };
-      if (kind === "mcq") {
+      if (kind === "branch") {
+        const kept = branchDrafts.filter((b) => b.text.trim() && b.body.trim());
+        if (kept.length < 2) { setError("A story choice needs at least 2 paths, each with a label and what happens next."); setBusy(false); return; }
+        if (kept.length > MAX_CHOICES) { setError(`At most ${MAX_CHOICES} paths.`); setBusy(false); return; }
+        content.branches = kept.map((b, i) => ({ id: `b${i + 1}`, text: b.text.trim(), body: b.body.trim() }));
+      } else if (kind === "mcq") {
         const lines = choices.split("\n").map((s) => s.trim()).filter(Boolean);
         if (lines.length < 2) { setError("Need at least 2 choices."); setBusy(false); return; }
         if (lines.length > MAX_CHOICES) { setError(`At most ${MAX_CHOICES} choices. Remove one.`); setBusy(false); return; }
@@ -869,8 +890,26 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
               <option value="mcq">Multiple choice</option>
               <option value="numeric">Number</option>
               <option value="text">Written (self-check)</option>
+              <option value="branch">Story choice</option>
             </select>
           </Field>
+          {kind === "branch" && (
+            <>
+              <p className="small muted" style={{ marginTop: -6 }}>Every path is a real path. The learner picks one and the story continues. No right answer, no grading.</p>
+              {branchDrafts.map((b, i) => (
+                <div key={i} className="lessonitem" style={{ paddingTop: 8 }}>
+                  <Field label={`Path ${i + 1} label`} hint="What the learner sees on the button">
+                    <input className="input" value={b.text} onChange={(e) => setBranchDrafts(branchDrafts.map((x, xi) => xi === i ? { ...x, text: e.target.value } : x))} />
+                  </Field>
+                  <Field label="What happens next" hint="Shown after they pick this path">
+                    <textarea className="input" rows={3} value={b.body} onChange={(e) => setBranchDrafts(branchDrafts.map((x, xi) => xi === i ? { ...x, body: e.target.value } : x))} />
+                  </Field>
+                  <button className="btn ghost small-btn" type="button" onClick={() => setBranchDrafts(branchDrafts.filter((_, xi) => xi !== i))}>Remove path</button>
+                </div>
+              ))}
+              <button className="btn ghost small-btn" type="button" disabled={branchDrafts.length >= MAX_CHOICES} onClick={() => setBranchDrafts([...branchDrafts, { text: "", body: "" }])}>+ Add path</button>
+            </>
+          )}
           {kind === "mcq" && (
             <>
               <Field label="Choices (one per line)">

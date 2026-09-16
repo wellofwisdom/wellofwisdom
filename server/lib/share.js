@@ -47,6 +47,12 @@ function publicItem(item) {
   if (item.type === "exercise") {
     const out = { prompt: c.prompt, kind: c.kind };
     if (c.choices) out.choices = c.choices;
+    // A branch is a story fork. The public page shows the choice labels so a
+    // visitor can read what kind of course this is, but not what happens next:
+    // the body is story content that stays for the learner who picks it.
+    if (c.kind === "branch" && Array.isArray(c.branches)) {
+      out.branches = c.branches.map((b) => ({ id: b.id, text: b.text }));
+    }
     return { type: item.type, position: item.position, content: out };
   }
   if (item.type === "video") {
@@ -177,8 +183,13 @@ function courseText(tree, opts = {}) {
           push(`ARTICLE: ${c.title || "Lesson"}`);
           if (c.body) push(c.body);
         } else if (it.type === "exercise") {
-          push(`EXERCISE (${c.kind || "mcq"}): ${c.prompt || ""}`);
-          (c.choices || []).forEach((ch) => push(`  - ${ch.text}`));
+          if (c.kind === "branch") {
+            push(`CHOICE: ${c.prompt || ""}`);
+            (c.branches || []).forEach((b) => push(`  - ${b.text}`));
+          } else {
+            push(`EXERCISE (${c.kind || "mcq"}): ${c.prompt || ""}`);
+            (c.choices || []).forEach((ch) => push(`  - ${ch.text}`));
+          }
         } else if (it.type === "video") {
           let where = "Uploaded video";
           if (c.youtubeId) where = `https://www.youtube.com/watch?v=${c.youtubeId}`;

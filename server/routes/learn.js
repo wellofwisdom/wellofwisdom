@@ -22,6 +22,9 @@ function learnerItem(item) {
   if (item.type === "exercise") {
     const out = { prompt: c.prompt, kind: c.kind };
     if (c.choices) out.choices = c.choices;
+    // A branch fork shows its labels here; what happens next comes from the
+    // attempt response once the learner picks, so the story stays a reveal.
+    if (c.branches) out.branches = c.branches.map((b) => ({ id: b.id, text: b.text }));
     return { id: item.id, type: item.type, position: item.position, content: out };
   }
   if (item.type === "video") {
@@ -297,8 +300,21 @@ router.post("/attempt", async (req, res, next) => {
     let reveal = null;
     if (row.type === "exercise") {
       correct = gradeExercise(c, answer);
-      reveal = { kind: c.kind, explanation: c.explanation || null, hint: c.hint || null, answer: c.kind === "text" ? c.answer : null };
-      if (c.kind === "mcq" && correct === true) reveal.answer = null; // never leak future answers; mcq self-evident
+      if (c.kind === "branch") {
+        // The pick is the answer; the reveal is the story that follows it.
+        const picked = (c.branches || []).find((b) => b.id === String(answer ?? ""));
+        reveal = {
+          kind: "branch",
+          explanation: null,
+          hint: c.hint || null,
+          answer: null,
+          choice: picked ? picked.text : null,
+          body: picked ? picked.body : null,
+        };
+      } else {
+        reveal = { kind: c.kind, explanation: c.explanation || null, hint: c.hint || null, answer: c.kind === "text" ? c.answer : null };
+        if (c.kind === "mcq" && correct === true) reveal.answer = null; // never leak future answers; mcq self-evident
+      }
     } else if (row.type === "video" && Array.isArray(c.questions) && c.questions[qIdx]) {
       const q = c.questions[qIdx];
       correct = gradeExercise({ kind: "mcq", choices: q.choices, answer: q.answer }, answer);
@@ -314,8 +330,9 @@ router.post("/attempt", async (req, res, next) => {
 
     // Spaced review: every graded exercise feeds the scheduler (fail-open).
     // An ungraded answer (no key) is not evidence either way, so it does not
-    // move the review schedule.
-    if (row.type === "exercise" && c.kind && c.kind !== "text" && correct !== null) {
+    // move the review schedule. A branch pick is a story choice, not a fact
+    // worth drilling, so it stays out of the queue too.
+    if (row.type === "exercise" && c.kind && c.kind !== "text" && c.kind !== "branch" && correct !== null) {
       review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
     }
 

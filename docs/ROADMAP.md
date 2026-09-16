@@ -604,7 +604,7 @@ against the existing `media.js` spend path, same shape you already run.
 5. **Chapter music loops via kie Suno** (SHIPPED: `server/lib/providers/kie-music.js`; cache plus spend path; Suno at $0.06 per loop; one per chapter; mood swap on `kind`; duck under narration; no autoplay before tap).
 6. **Scene transitions plus sound cues** (SHIPPED: `SceneTransition.tsx` fade plus `prefers-reduced-motion`; sound cues muted by default).
 7. **Quest log plus map overview** (SHIPPED: `QuestLog.tsx` reusing `upcoming` plus `returned` plus `reviewsDue`; `DailiesBoard` plus `WeekliesBoard` with `Weeklies` progress bar; `CollectionGallery` with lore).
-8. **Game loop additions** (SHIPPED without migration: stamina for boss (`StaminaBar`), doors plus keys on path (`pathdoor` plus `has-key`), companion reactions (`CompanionLine`), dailies plus weeklies plus mastery stars; choice branches and photo finish remain as follow-up polish). Guides set voice plus music level per learner, learner owns mute.
+8. **Game loop additions** (SHIPPED without migration: stamina for boss (`StaminaBar`), doors plus keys on path (`pathdoor` plus `has-key`), companion reactions (`CompanionLine`), dailies plus weeklies plus mastery stars, photo finish on lesson complete, choice branches (`branch` exercise kind: a story fork where the pick is revealed from the server, never graded wrong; authoring in the item editor; musketeers example ships one)). Guides set voice plus music level per learner, learner owns mute.
 
 ### Guardrails while building
 

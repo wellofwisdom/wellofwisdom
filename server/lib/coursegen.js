@@ -117,15 +117,29 @@ function mapChoices(rawChoices, rawAnswer) {
   return { choices, answer: at >= 0 ? choices[at].id : null };
 }
 
+// Branch choices are renumbered b1..bN the same way mapChoices renumbers mcq
+// choices. The body (what happens when picked) is story, not an answer key,
+// but it is the reason the branch exists, so a branch without one is dropped.
+function mapBranches(rawBranches) {
+  const kept = (Array.isArray(rawBranches) ? rawBranches : [])
+    .filter((b) => b && typeof b === "object" && clean(b.text, 500) && str(b.body, 5000))
+    .slice(0, MAX_CHOICES);
+  return kept.map((b, i) => ({ id: `b${i + 1}`, text: clean(b.text, 500), body: str(b.body, 5000) }));
+}
+
 function normalizeExercise(content) {
-  const kind = ["mcq", "numeric", "text"].includes(content.kind) ? content.kind : "mcq";
+  const kind = ["mcq", "numeric", "text", "branch"].includes(content.kind) ? content.kind : "mcq";
   const prompt = clean(content.prompt, 2000);
   if (!prompt) return null;
   const ex = { prompt, kind };
   // An absent answer stays absent, whatever the kind. Inventing one (choice
   // one, or a numeric 0) turns a question into a wrong answer key; a missing
   // key is visible and blocks publishing until a person supplies it.
-  if (kind === "mcq") {
+  if (kind === "branch") {
+    const branches = mapBranches(content.branches);
+    if (branches.length < 2) return null;
+    ex.branches = branches;
+  } else if (kind === "mcq") {
     const { choices, answer } = mapChoices(content.choices, content.answer);
     if (choices.length < 2) return null;
     ex.choices = choices;
@@ -241,7 +255,15 @@ function itemProblem(item) {
 
   if (item.type === "exercise") {
     if (!clean(c.prompt, 2000)) return "prompt_required";
-    const kind = ["mcq", "numeric", "text"].includes(c.kind) ? c.kind : "mcq";
+    const kind = ["mcq", "numeric", "text", "branch"].includes(c.kind) ? c.kind : "mcq";
+    if (kind === "branch") {
+      const branches = (Array.isArray(c.branches) ? c.branches : []).filter(
+        (b) => b && typeof b === "object" && clean(b.text, 500) && str(b.body, 5000)
+      );
+      if (branches.length < 2) return "branches_required";
+      if (branches.length > MAX_CHOICES) return "too_many_branches";
+      return null;
+    }
     if (kind === "mcq") {
       const texts = choiceTexts(c.choices);
       if (texts.length < 2) return "choices_required";
@@ -293,6 +315,8 @@ function missingAnswers(items) {
   for (const i of items || []) {
     const c = (i && i.content) || {};
     if (i.type === "exercise") {
+      // A branch item has no key to miss: every path is a real path.
+      if (c.kind === "branch") continue;
       if (c.kind === "numeric") n += hasValue(c.answer) && Number.isFinite(Number(c.answer)) ? 0 : 1;
       else if (c.kind === "text") n += hasValue(c.answer) ? 0 : 1;
       else n += keyed(c.choices, c.answer) ? 0 : 1;

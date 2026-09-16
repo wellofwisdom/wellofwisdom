@@ -70,6 +70,31 @@
             {
               "type": "exercise",
               "content": {
+                "kind": "branch",
+                "prompt": "Scene: Paris, first light. A cardinal's guard blocks the staircase of the Hotel de Treville and asks whose man you are. In this France your answer is your oath, and an oath is a constitution you speak aloud. What do you say?",
+                "hint": "There is no wrong door. Pick the path you would actually walk, then read where it leads, and try another after.",
+                "branches": [
+                  {
+                    "id": "b1",
+                    "text": "\"I serve the King's Musketeers, as my father served.\"",
+                    "body": "The guard steps aside at the name. A known household is a key: you have inherited a place in a web of favours, and its friends must now be your friends, its enemies your enemies. This is **personal power** at its warmest and its most brittle: it borrows strength from the man above you."
+                  },
+                  {
+                    "id": "b2",
+                    "text": "\"I serve no one who has not earned it.\"",
+                    "body": "The guard calls it insolence. From the staircase, two musketeers listening over their morning wine call it spine. You have refused inherited loyalty and promised only what must be re-earned daily, which is a harder oath: no patron shields you, and every day you must be worth your place again."
+                  },
+                  {
+                    "id": "b3",
+                    "text": "Say nothing and let your sword answer.",
+                    "body": "The courtyard empties, and not in your favour. Duelling is banned in Paris, so the law now hunts you for the fight the guard provoked. Personal power that skips words spends itself fast: you made an enemy and gained nothing that outlives the afternoon."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
                 "kind": "text",
                 "prompt": "Name your oath for one page ,  for example with classmates, teammates, or family. Say in one sentence who is bound, in one what is promised, and in one at what cost you would still hold it or release it.",
                 "answer": "We four are bound; we will share work evenly and not leave one to carry the load; at the cost of saying no to an easier plan that breaks fairness.",

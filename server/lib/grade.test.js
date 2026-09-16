@@ -35,6 +35,15 @@ test("grading: text exercises are self-check (null)", () => {
   assert.equal(gradeExercise({ kind: "text", answer: "model" }, "anything"), null);
 });
 
+test("grading: branch picks are never wrong, only in or out of the story", () => {
+  const fork = { kind: "branch", branches: [{ id: "b1", text: "Knock", body: "..." }, { id: "b2", text: "Sneak", body: "..." }] };
+  assert.equal(gradeExercise(fork, "b1"), true);
+  assert.equal(gradeExercise(fork, "b2"), true);
+  assert.equal(gradeExercise(fork, "b99"), null); // not a offered path: no evidence, not wrong
+  assert.equal(gradeExercise(fork, null), null);
+  assert.equal(gradeExercise({ kind: "branch", branches: [] }, "b1"), null);
+});
+
 test("youtube ids: bare, watch, share, shorts, and garbage", () => {
   assert.equal(youtubeId("dQw4w9WgXcQ"), "dQw4w9WgXcQ");
   assert.equal(youtubeId("https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=2s"), "dQw4w9WgXcQ");

@@ -103,7 +103,9 @@ function checkPackage(pkg, { requireOpenLicense = false, allowMissingAnswers = f
         const changed = cg.itemProblem(item);
         if (changed && !/^answer_(required|invalid)$/.test(changed)) err(at, `(${type}) loses content on import: ${changed}`);
         const missing = cg.missingAnswers([clean]);
-        const questions = clean.type === "exercise" ? 1 : clean.type === "video" ? (clean.content.questions || []).length : 0;
+        // A branch fork is a story choice, not a question, so it stays out of
+        // the question count as well as out of missingAnswers.
+        const questions = clean.type === "exercise" && clean.content.kind !== "branch" ? 1 : clean.type === "video" ? (clean.content.questions || []).length : 0;
         lessonStats.items++;
         lessonStats.questions += questions;
         lessonStats.missing += missing;
