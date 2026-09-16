@@ -3,7 +3,7 @@ import { LegalChrome } from "./LegalLayout";
 
 export default function Children() {
   return (
-    <LegalChrome path="children" title="Children's data" updated="13 September 2026">
+    <LegalChrome path="children" title="Children's data" updated="16 September 2026">
       <p><strong>Plain English.</strong> Well of Wisdom is built for children. A parent is in charge, and less data is better.</p>
 
       <h2>What we store about a child</h2>
@@ -34,7 +34,7 @@ export default function Children() {
       <p>On self-host you are the host and you control the database and uploads volume. On managed hosting we store the same data on your behalf, we back it up [placeholder: Kevin to confirm schedule], and we delete it within 30 days when you close the account [placeholder: Kevin to confirm retention period].</p>
 
       <h2>Contact</h2>
-      <p>If you have a question about a child's data, contact the guide who runs the family. For the hosted service, email privacy@wellofwisdom.app [placeholder: Kevin to confirm private contact address].</p>
+      <p>If you have a question about a child's data, contact the guide who runs the family. For the hosted service, email privacy@wellofwisdom.app.</p>
     </LegalChrome>
   );
 }
