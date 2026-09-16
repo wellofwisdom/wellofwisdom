@@ -143,11 +143,7 @@ function problem(content) {
 function strip(content) {
   const out = { prompt: content.prompt, kind: content.kind };
   if (Array.isArray(content.choices)) {
-    out.choices = content.choices.map((c) => {
-      const o = { id: c.id, text: c.text };
-      if (c.feedback) o.feedback = str(c.feedback, 500).trim().slice(0, 500);
-      return o;
-    });
+    out.choices = content.choices.map((c) => ({ id: c.id, text: c.text }));
   }
   if (Array.isArray(content.hints) && content.hints.length) {
     out.hints = content.hints.map((v) => str(v, 500).trim()).filter(Boolean).slice(0, MAX_HINTS);
@@ -157,10 +153,7 @@ function strip(content) {
   } else if (Array.isArray(content.hints)) {
     out.hints = [];
   }
-  if (content.explanation) {
-    // explanation is not stripped here for learner visibility? It is shown after attempt, not before.
-    // Keep it out of the learner projection; learn.js reveal sends it separately.
-  }
+  // explanation stays server-side; shown only in learn.js reveal after an attempt.
   return out;
 }
 

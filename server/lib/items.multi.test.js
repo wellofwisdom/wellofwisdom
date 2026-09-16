@@ -122,8 +122,9 @@ test("strip: no key field survives the learner projection", () => {
       assert.ok(pub.content.hints, "hints must survive the projection");
       assert.ok(!("hint" in pub.content), "legacy single hint key must not appear");
     }
+    // choice feedback is an answer-key signal: it stays stored but never survives strip
     if (content.choices && content.choices.some((c) => c.feedback)) {
-      assert.ok(pub.content.choices[0].feedback, "choice feedback is learner-visible and must survive");
+      for (const ch of pub.content.choices) assert.ok(!("feedback" in ch), "choice feedback leaked to learner projection");
     }
   }
 });
@@ -179,23 +180,39 @@ test("grading: multi deduplicates and ignores invalid ids in the learner answer"
   assert.equal(r.score, 1);
 });
 
-test("choice feedback on mcq: stored and returned on strip", () => {
-  const normalized = exercise.normalize({ prompt: "p", kind: "mcq", choices: [{ text: "A", feedback: "because A is wrong" }, { text: "B" }], answer: "c1" });
+test("choice feedback on mcq: stored but does not survive strip; reveal carries picked-only feedback", () => {
+  const normalized = exercise.normalize({ prompt: "p", kind: "mcq", choices: [{ text: "A", feedback: "because A is wrong" }, { text: "B", feedback: "nice" }], answer: "c1" });
   assert.ok(normalized);
   assert.equal(normalized.choices[0].feedback, "because A is wrong");
+  assert.equal(normalized.choices[1].feedback, "nice");
   const pub = share.publicItem({ type: "exercise", position: 0, content: normalized });
-  assert.equal(pub.content.choices[0].feedback, "because A is wrong");
+  for (const ch of pub.content.choices) assert.ok(!("feedback" in ch), "feedback leaked in public projection");
   assert.ok(!("answer" in pub.content));
+  const js = JSON.stringify(pub);
+  assert.doesNotMatch(js, /because A is wrong/);
+  assert.doesNotMatch(js, /nice/);
+  // the server still has it and will return only the picked choice's feedback in the attempt reveal;
+  // a direct check here that the stored content still holds it
+  assert.equal(normalized.choices[0].feedback, "because A is wrong");
 });
 
-test("video choice feedback: strip keeps it, grade does not need it", () => {
+test("video choice feedback: stored but does not survive strip or public text; reveal carries picked-only", () => {
   const video = require("./items/video");
-  const normalized = video.normalize({ youtubeId: "dQw4w9WgXcQ", questions: [{ prompt: "q", choices: [{ text: "A", feedback: "try again" }, { text: "B" }], answer: "c2" }] });
+  const normalized = video.normalize({ youtubeId: "dQw4w9WgXcQ", questions: [{ prompt: "q", choices: [{ text: "A", feedback: "try again" }, { text: "B", feedback: "great" }], answer: "c2" }] });
   assert.ok(normalized);
   assert.equal(normalized.questions[0].choices[0].feedback, "try again");
+  assert.equal(normalized.questions[0].choices[1].feedback, "great");
   const pub = share.publicItem({ type: "video", position: 0, content: normalized });
-  assert.equal(pub.content.questions[0].choices[0].feedback, "try again");
+  for (const ch of pub.content.questions[0].choices) assert.ok(!("feedback" in ch), "video choice feedback leaked");
   assert.ok(!("answer" in pub.content.questions[0]));
+  assert.doesNotMatch(JSON.stringify(pub), /try again/);
+  const text = share.courseText({
+    title: "T", topic: "t", lens: null, grade_level: null, description: null,
+    public_slug: "t", license: "CC-BY-4.0", author_name: null, published_at: new Date(),
+    units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items: [{ type: "video", position: 0, content: normalized }] }] }],
+  });
+  assert.doesNotMatch(text, /try again/);
+  assert.doesNotMatch(text, /great/);
 });
 
 test("publish gating: multi empty answer is a missing key", () => {

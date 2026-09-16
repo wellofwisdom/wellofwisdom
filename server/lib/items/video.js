@@ -90,11 +90,7 @@ function strip(content) {
   Object.keys(out).forEach((k) => out[k] === undefined && delete out[k]);
   if (content.questions) out.questions = content.questions.map((q) => ({
     prompt: q.prompt,
-    choices: (q.choices || []).map((c) => {
-      const o = { id: c.id, text: c.text };
-      if (c.feedback) o.feedback = String(c.feedback).trim().slice(0, 500);
-      return o;
-    }),
+    choices: (q.choices || []).map((c) => ({ id: c.id, text: c.text })),
     atSec: q.atSec,
   }));
   if (out.questions) out.questions.forEach((q) => q.atSec === undefined && delete q.atSec);

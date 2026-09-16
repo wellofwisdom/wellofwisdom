@@ -297,31 +297,32 @@ router.post("/attempt", async (req, res, next) => {
         graded = out;
       }
       const hints = Array.isArray(c.hints) ? c.hints.slice(0, 3) : c.hint ? [String(c.hint).trim()].filter(Boolean) : [];
-      const feedback = {};
-      for (const ch of (c.choices || [])) if (ch.feedback) feedback[ch.id] = String(ch.feedback).slice(0, 500);
+      const pickedIds = Array.isArray(answer)
+        ? answer.map((v) => String(v ?? "").trim()).filter(Boolean)
+        : answer != null && String(answer).trim() ? [String(answer).trim()] : [];
+      const pickedFeedback = {};
+      for (const id of pickedIds) {
+        const ch = (c.choices || []).find((x) => String(x.id) === id);
+        if (ch && ch.feedback) pickedFeedback[id] = String(ch.feedback).slice(0, 500);
+      }
       reveal = {
         kind: c.kind,
         explanation: c.explanation || null,
         hints: hints.length ? hints : null,
         hint: hints[0] || null,
         answer: c.kind === "text" ? c.answer : null,
-        feedback: Object.keys(feedback).length ? feedback : null,
+        feedback: Object.keys(pickedFeedback).length ? pickedFeedback : null,
       };
       if (c.kind === "mcq" && graded === true) reveal.answer = null; // never leak future answers; mcq self-evident
-      if (c.kind === "multi" && Array.isArray(c.choices)) {
-        const picked = Array.isArray(answer) ? answer.map((v) => String(v ?? "").trim()).filter(Boolean) : [];
-        const pickedFeedback = {};
-        for (const id of picked) {
-          const ch = c.choices.find((x) => String(x.id) === id);
-          if (ch && ch.feedback) pickedFeedback[id] = String(ch.feedback).slice(0, 500);
-        }
-        if (Object.keys(pickedFeedback).length) reveal.feedback = pickedFeedback;
-      }
     } else if (row.type === "video" && Array.isArray(c.questions) && c.questions[qIdx]) {
       const q = c.questions[qIdx];
       graded = gradeExercise({ kind: "mcq", choices: q.choices, answer: q.answer }, answer);
+      const pickedIds = answer != null && String(answer).trim() ? [String(answer).trim()] : [];
       const qFeedback = {};
-      for (const ch of (q.choices || [])) if (ch.feedback) qFeedback[ch.id] = String(ch.feedback).slice(0, 500);
+      for (const id of pickedIds) {
+        const ch = (q.choices || []).find((x) => String(x.id) === id);
+        if (ch && ch.feedback) qFeedback[id] = String(ch.feedback).slice(0, 500);
+      }
       reveal = { kind: "mcq", explanation: null, feedback: Object.keys(qFeedback).length ? qFeedback : null };
     } else {
       return bad(res, "not_gradable");
