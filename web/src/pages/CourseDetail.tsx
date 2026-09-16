@@ -8,6 +8,9 @@ import { MathText } from "../lib/rich";
 import { IconPencil, IconTrash, IconCheck } from "../components/Icons";
 import { AdventureDialog, AdventuresPanel, CoverButton, WorldBuilders } from "../components/AdventureUI";
 import StandardsTags from "../components/StandardsTags";
+import InlineRename from "../components/course-editor/InlineRename";
+import LessonPreview from "../components/course-editor/LessonPreview";
+import VersionHistory from "../components/course-editor/VersionHistory";
 import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from "../components/VideoUI";
 import { RecordButton } from "../components/RecordButton";
 import type { UploadRow } from "../components/VideoUI";
@@ -286,6 +289,10 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
   const [editing, setEditing] = useState<ItemNode | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [advOpen, setAdvOpen] = useState(false);
+  const [previewLesson, setPreviewLesson] = useState<number | null>(null);
+  const [showVersions, setShowVersions] = useState(false);
+  const [confirmUnit, setConfirmUnit] = useState<number | null>(null);
+  const [confirmLesson, setConfirmLesson] = useState<number | null>(null);
 
   const load = useCallback(() =>
     api<{ course: CourseTree; missingAnswers?: number }>(`/api/courses/${courseId}`)
@@ -321,6 +328,33 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
     } catch (e) {
       setError(niceError(e));
     }
+  }
+
+  async function patchUnit(unitId: number, title: string) {
+    try { await api(`/api/courses/units/${unitId}`, { method: "PATCH", body: { title } }); load(); } catch (e) { setError(niceError(e)); }
+  }
+  async function addUnit() {
+    try { await api(`/api/courses/${courseId}/units`, { method: "POST", body: { title: "New unit" } }); load(); } catch (e) { setError(niceError(e)); }
+  }
+  async function moveUnit(unitId: number, direction: "up" | "down") {
+    try { await api(`/api/courses/units/${unitId}/move`, { method: "POST", body: { direction } }); load(); } catch (e) { setError(niceError(e)); }
+  }
+  async function confirmDeleteUnit() {
+    if (confirmUnit == null) return;
+    try { await api(`/api/courses/units/${confirmUnit}`, { method: "DELETE" }); setConfirmUnit(null); load(); } catch (e) { setError(niceError(e)); }
+  }
+  async function addLesson(unitId: number) {
+    try { await api(`/api/courses/units/${unitId}/lessons`, { method: "POST", body: { title: "New lesson" } }); load(); } catch (e) { setError(niceError(e)); }
+  }
+  async function confirmDeleteLesson() {
+    if (confirmLesson == null) return;
+    try { await api(`/api/courses/lessons/${confirmLesson}`, { method: "DELETE" }); setConfirmLesson(null); load(); } catch (e) { setError(niceError(e)); }
+  }
+  async function moveLesson(lessonId: number, direction: "up" | "down") {
+    try { await api(`/api/courses/lessons/${lessonId}/move`, { method: "POST", body: { direction } }); load(); } catch (e) { setError(niceError(e)); }
+  }
+  async function moveItem(itemId: number, direction: "up" | "down") {
+    try { await api(`/api/courses/items/${itemId}/move`, { method: "POST", body: { direction } }); load(); } catch (e) { setError(niceError(e)); }
   }
 
   if (error && !course) {
@@ -397,32 +431,41 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
       </Panel>
 
       {course.units.map((u, ui) => (
-        <Panel key={u.id} title={`Unit ${ui + 1}: ${u.title}`}>
+        <Panel key={u.id} title={<InlineRename value={u.title} label={`unit ${ui + 1}`} onSave={(t) => patchUnit(u.id, t)} /> } side={<UnitControls unitId={u.id} isFirst={ui === 0} isLast={ui === course.units.length - 1} onMove={moveUnit} onDelete={() => setConfirmUnit(u.id)} />}>
           {u.lessons.map((l, li) => (
             <details key={l.id} style={{ marginBottom: 10 }} open={ui === 0 && li === 0}>
               <summary style={{ cursor: "pointer", fontWeight: 600, padding: "4px 0" }}>
-                Lesson {ui + 1}.{li + 1}: {l.title}
+                <InlineRename value={l.title} label={`lesson ${ui + 1}.${li + 1}`} onSave={(t) => patchLesson(l.id, { title: t })} />
+                <span className="muted small" style={{ marginLeft: 8 }}>Lesson {ui + 1}.{li + 1}</span>
               </summary>
-              <div className="row" style={{ margin: "6px 0" }}>
-                <button className="btn ghost small-btn" type="button" onClick={() => {
-                  const title = window.prompt("Lesson title", l.title);
-                  if (title && title.trim()) patchLesson(l.id, { title: title.trim() });
-                }}>✏️ Rename lesson</button>
-                <button className="btn ghost small-btn" type="button"
-                  onClick={() => window.open(`/print/lesson/${l.id}`, "_blank")}>🖨️ Worksheet</button>
+              <div className="row wrap" style={{ margin: "6px 0", gap: 6, alignItems: "center" }}>
+                <button className="btn ghost small-btn" type="button" aria-label={`Move lesson ${l.title} up`} disabled={li === 0} onClick={() => moveLesson(l.id, "up")}>↑</button>
+                <button className="btn ghost small-btn" type="button" aria-label={`Move lesson ${l.title} down`} disabled={li === u.lessons.length - 1} onClick={() => moveLesson(l.id, "down")}>↓</button>
+                <button className="btn ghost small-btn" type="button" onClick={() => setPreviewLesson(l.id)}>👁 Preview</button>
+                <button className="btn ghost small-btn" type="button" onClick={() => window.open(`/print/lesson/${l.id}`, "_blank")}>🖨️ Worksheet</button>
+                <button className="btn ghost small-btn" type="button" onClick={() => setConfirmLesson(l.id)}>🗑 Delete lesson</button>
               </div>
               {l.summary && <p className="muted small" style={{ margin: "4px 0 10px" }}>{l.summary}</p>}
               <StandardsTags value={l.standards || []} onChange={(next) => patchLesson(l.id, { standards: next })} />
-              {l.items.map((item) => (
-                <ItemPreview key={item.id} item={item} onEdit={() => setEditing(item)}
-                  onDelete={() => {
-                    if (window.confirm("Remove this item from the lesson?")) deleteItem(item.id);
-                  }} />
+              {l.items.map((item, ii) => (
+                <div key={item.id} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}><ItemPreview item={item} onEdit={() => setEditing(item)} onDelete={() => { if (window.confirm("Remove this item from the lesson?")) deleteItem(item.id); }} /></div>
+                  <div className="row" style={{ flexDirection: "column", gap: 2, flexShrink: 0 }}>
+                    <button className="btn ghost small-btn" type="button" aria-label="Move item up" disabled={ii === 0} onClick={() => moveItem(item.id, "up")}>↑</button>
+                    <button className="btn ghost small-btn" type="button" aria-label="Move item down" disabled={ii === l.items.length - 1} onClick={() => moveItem(item.id, "down")}>↓</button>
+                  </div>
+                </div>
               ))}
             </details>
           ))}
+          <div className="row" style={{ marginTop: 8 }}>
+            <button className="btn ghost small-btn" type="button" onClick={() => addLesson(u.id)}>+ Add lesson</button>
+          </div>
         </Panel>
       ))}
+      <div className="row" style={{ marginBottom: 12 }}>
+        <button className="btn" type="button" onClick={() => addUnit()}>+ Add unit</button>
+      </div>
 
       <VideoPanel
         courseId={courseId}
@@ -452,6 +495,28 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
             load();
           }}
         />
+      )}
+      {previewLesson != null && <LessonPreview lessonId={previewLesson} onClose={() => setPreviewLesson(null)} />}
+      <Panel title="Version history" side={<button className="btn ghost small-btn" type="button" onClick={() => setShowVersions((v) => !v)}>{showVersions ? "Hide" : "Show"}</button>}>
+        {showVersions && <VersionHistory courseId={courseId} onRestored={load} />}
+      </Panel>
+      {confirmUnit != null && (
+        <Modal title="Delete this unit?" onClose={() => setConfirmUnit(null)}>
+          <p className="muted" style={{ marginBottom: 16 }}>The unit and all its lessons and items are removed. This cannot be undone.</p>
+          <div className="row">
+            <button className="btn" type="button" onClick={() => setConfirmUnit(null)}>Cancel</button>
+            <button className="btn danger" type="button" onClick={confirmDeleteUnit}>Delete unit</button>
+          </div>
+        </Modal>
+      )}
+      {confirmLesson != null && (
+        <Modal title="Delete this lesson?" onClose={() => setConfirmLesson(null)}>
+          <p className="muted" style={{ marginBottom: 16 }}>The lesson and all its items are removed. This cannot be undone.</p>
+          <div className="row">
+            <button className="btn" type="button" onClick={() => setConfirmLesson(null)}>Cancel</button>
+            <button className="btn danger" type="button" onClick={confirmDeleteLesson}>Delete lesson</button>
+          </div>
+        </Modal>
       )}
       {confirmDelete && (
         <Modal title="Delete this course?" onClose={() => setConfirmDelete(false)}>
@@ -932,5 +997,15 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
         <button className="btn primary" type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</button>
       </div>
     </Modal>
+  );
+}
+
+function UnitControls({ unitId, isFirst, isLast, onMove, onDelete }: { unitId: number; isFirst: boolean; isLast: boolean; onMove: (id: number, dir: "up" | "down") => void; onDelete: () => void }) {
+  return (
+    <span className="row" style={{ gap: 4, alignItems: "center" }}>
+      <button className="btn ghost small-btn" type="button" aria-label="Move unit up" disabled={isFirst} onClick={() => onMove(unitId, "up")}>↑</button>
+      <button className="btn ghost small-btn" type="button" aria-label="Move unit down" disabled={isLast} onClick={() => onMove(unitId, "down")}>↓</button>
+      <button className="btn ghost small-btn" type="button" aria-label="Delete unit" onClick={onDelete}>🗑</button>
+    </span>
   );
 }
