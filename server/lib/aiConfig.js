@@ -136,7 +136,11 @@ async function status() {
   const hasKie = Boolean(cfg && (cfg.kieKey || String(process.env.KIE_API_KEY || "").trim()));
   const hasVoice = Boolean(cfg && cfg.googleTtsOnKie);
   const hasMusic = Boolean(cfg && cfg.sunoMusicOnKie);
-  const hasStt = Boolean(cfg && (cfg.sttBaseUrl || (cfg.aiRoutes && cfg.aiRoutes.stt)));
+  // Speech input needs an endpoint to post to, not just a key: a key alone
+  // would show a microphone that fails on the first press. The stt task in
+  // the routing table does not count: stt.js reads the stt vault fields, not
+  // aiRoutes, so a route alone cannot make the microphone work.
+  const hasStt = Boolean(cfg && cfg.sttBaseUrl);
   return {
     configured: hasAi || hasKie,
     hasAi,
