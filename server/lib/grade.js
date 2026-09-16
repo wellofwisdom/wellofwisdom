@@ -2,7 +2,7 @@
 // Server-side grading. Answers NEVER go to the learner's browser. The client
 // sends an answer, the server compares, records the attempt, returns the verdict.
 
-// Parse kid-typed numbers: "5/8" → 0.625, "1 3/4" → 1.75, "$3.50" → 3.5, "2.5" → 2.5.
+// Parse kid-typed numbers: "5/8" -> 0.625, "1 3/4" -> 1.75, "$3.50" -> 3.5, "2.5" -> 2.5.
 function parseNumeric(v) {
   if (typeof v === "number") return v;
   const s = String(v ?? "").replace(/[$,\s]/g, "");
@@ -21,13 +21,35 @@ function parseNumeric(v) {
 
 // mcq: answer = choice id. numeric: answer = number (0.5% tolerance).
 // text: self-check: model answer is shown, learner judges themselves (null).
+// multi: answer = string[] of choice ids. Correct when sets match; score is
+// share of correct decisions across all choices.
 // A question with no answer key is null too, never false: marking a learner
 // wrong against a key nobody wrote is worse than not marking them. A course
 // with such a question cannot be published (coursegen.missingAnswers), so this
 // is the last line, for a key that went missing some other way.
 function gradeExercise(item, learnerAnswer) {
+  if (!item || typeof item !== "object") return null;
+  const kind = item.kind;
+  if (kind === "multi") {
+    if (!Array.isArray(item.answer) || item.answer.length === 0) return null;
+    const choiceIds = new Set((item.choices || []).map((c) => String(c.id)));
+    const answerSet = new Set(item.answer.map((v) => String(v)));
+    for (const id of answerSet) if (!choiceIds.has(id)) return null;
+    if (!choiceIds.size) return null;
+    const givenRaw = Array.isArray(learnerAnswer) ? learnerAnswer.map((v) => String(v ?? "").trim()).filter(Boolean) : [];
+    const givenSet = new Set([...new Set(givenRaw)].filter((id) => choiceIds.has(id)));
+    const correct = answerSet.size === givenSet.size && [...answerSet].every((id) => givenSet.has(id));
+    let correctDecisions = 0;
+    for (const cid of choiceIds) {
+      const inAnswer = answerSet.has(cid);
+      const inGiven = givenSet.has(cid);
+      if (inAnswer === inGiven) correctDecisions++;
+    }
+    const score = correctDecisions / choiceIds.size;
+    return { correct, score };
+  }
   const keyless = item.answer == null || String(item.answer).trim() === "";
-  switch (item.kind) {
+  switch (kind) {
     case "mcq": {
       if (keyless || !(item.choices || []).some((c) => c.id === item.answer)) return null;
       const id = String(learnerAnswer ?? "");
@@ -86,7 +108,7 @@ function safeSourceUrl(raw) {
   return url;
 }
 
-// HTML → readable text (rough and safe: tags stripped, entities decoded).
+// HTML -> readable text (rough and safe: tags stripped, entities decoded).
 function htmlToText(html) {
   return String(html || "")
     .replace(/<script[\s\S]*?<\/script>/gi, " ")

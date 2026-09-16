@@ -173,7 +173,14 @@ function courseText(tree, opts = {}) {
           if (c.body) push(c.body);
         } else if (it.type === "exercise") {
           push(`EXERCISE (${c.kind || "mcq"}): ${c.prompt || ""}`);
-          (c.choices || []).forEach((ch) => push(`  - ${ch.text}`));
+          (c.choices || []).forEach((ch) => {
+            let line = `  - ${ch.text}`;
+            if (ch.feedback) line += ` [note: ${ch.feedback}]`;
+            push(line);
+          });
+          if (Array.isArray(c.hints) && c.hints.length) {
+            for (const h of c.hints) push(`  Hint: ${h}`);
+          }
         } else if (it.type === "video") {
           let where = "Uploaded video";
           if (c.youtubeId) where = `https://www.youtube.com/watch?v=${c.youtubeId}`;

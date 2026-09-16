@@ -285,20 +285,49 @@ router.post("/attempt", async (req, res, next) => {
     const row = item.rows[0];
     const c = row.content || {};
 
-    let correct = null;
+    let graded = null;
     let reveal = null;
+    let score = null;
     if (row.type === "exercise") {
-      correct = gradeExercise(c, answer);
-      reveal = { kind: c.kind, explanation: c.explanation || null, hint: c.hint || null, answer: c.kind === "text" ? c.answer : null };
-      if (c.kind === "mcq" && correct === true) reveal.answer = null; // never leak future answers; mcq self-evident
+      const out = gradeExercise(c, answer);
+      if (out !== null && typeof out === "object" && "correct" in out) {
+        graded = out.correct;
+        score = typeof out.score === "number" ? out.score : null;
+      } else {
+        graded = out;
+      }
+      const hints = Array.isArray(c.hints) ? c.hints.slice(0, 3) : c.hint ? [String(c.hint).trim()].filter(Boolean) : [];
+      const feedback = {};
+      for (const ch of (c.choices || [])) if (ch.feedback) feedback[ch.id] = String(ch.feedback).slice(0, 500);
+      reveal = {
+        kind: c.kind,
+        explanation: c.explanation || null,
+        hints: hints.length ? hints : null,
+        hint: hints[0] || null,
+        answer: c.kind === "text" ? c.answer : null,
+        feedback: Object.keys(feedback).length ? feedback : null,
+      };
+      if (c.kind === "mcq" && graded === true) reveal.answer = null; // never leak future answers; mcq self-evident
+      if (c.kind === "multi" && Array.isArray(c.choices)) {
+        const picked = Array.isArray(answer) ? answer.map((v) => String(v ?? "").trim()).filter(Boolean) : [];
+        const pickedFeedback = {};
+        for (const id of picked) {
+          const ch = c.choices.find((x) => String(x.id) === id);
+          if (ch && ch.feedback) pickedFeedback[id] = String(ch.feedback).slice(0, 500);
+        }
+        if (Object.keys(pickedFeedback).length) reveal.feedback = pickedFeedback;
+      }
     } else if (row.type === "video" && Array.isArray(c.questions) && c.questions[qIdx]) {
       const q = c.questions[qIdx];
-      correct = gradeExercise({ kind: "mcq", choices: q.choices, answer: q.answer }, answer);
-      reveal = { kind: "mcq", explanation: null };
+      graded = gradeExercise({ kind: "mcq", choices: q.choices, answer: q.answer }, answer);
+      const qFeedback = {};
+      for (const ch of (q.choices || [])) if (ch.feedback) qFeedback[ch.id] = String(ch.feedback).slice(0, 500);
+      reveal = { kind: "mcq", explanation: null, feedback: Object.keys(qFeedback).length ? qFeedback : null };
     } else {
       return bad(res, "not_gradable");
     }
 
+    const correct = graded;
     await db.query(
       "insert into attempts (family_id, learner_id, item_id, question_index, correct, answer) values ($1,$2,$3,$4,$5,$6)",
       [req.user.familyId, req.user.id, id, qIdx, correct, JSON.stringify(answer ?? null)]
@@ -325,7 +354,9 @@ router.post("/attempt", async (req, res, next) => {
         [id, req.user.id, req.user.familyId]
       ).catch(() => {});
     }
-    res.json({ correct, reveal });
+    const resp = { correct, reveal };
+    if (score !== null) resp.score = score;
+    res.json(resp);
   } catch (err) {
     next(err);
   }

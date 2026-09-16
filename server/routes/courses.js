@@ -809,12 +809,19 @@ router.get("/:id/answer-key", async (req, res, next) => {
           const c = i.content || {};
           if (i.type !== "exercise") return { type: i.type, content: c };
           exercises++;
-          const answerText = c.kind === "mcq"
-            ? ((c.choices || []).find((ch) => ch.id === c.answer) || {}).text || null
-            : c.answer;
+          let answerText = null;
+          if (c.kind === "mcq") answerText = ((c.choices || []).find((ch) => ch.id === c.answer) || {}).text || null;
+          else if (c.kind === "multi") {
+            const ids = Array.isArray(c.answer) ? c.answer : [];
+            const texts = ids.map((id) => ((c.choices || []).find((ch) => ch.id === id) || {}).text).filter(Boolean);
+            answerText = texts.length ? texts.join(", ") : null;
+          } else answerText = c.answer;
           // Worth surfacing: an exercise with no answer cannot be graded, and
           // the generator does occasionally produce one.
-          if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
+          if (c.kind === "multi") {
+            if (!Array.isArray(c.answer) || !c.answer.length) missingAnswers++;
+          } else if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
+          const hints = Array.isArray(c.hints) ? c.hints : c.hint ? [String(c.hint)] : [];
           return {
             type: i.type,
             content: {
@@ -825,6 +832,7 @@ router.get("/:id/answer-key", async (req, res, next) => {
               answerText,
               explanation: c.explanation || null,
               hint: c.hint || null,
+              hints: hints.length ? hints : null,
             },
           };
         }),

@@ -12,7 +12,12 @@ function mapChoices(rawChoices, rawAnswer) {
   const kept = (Array.isArray(rawChoices) ? rawChoices : [])
     .filter((c) => c && typeof c === "object" && clean(c.text, 500))
     .slice(0, MAX_CHOICES);
-  const choices = kept.map((c, i) => ({ id: `c${i + 1}`, text: clean(c.text, 500) }));
+  const choices = kept.map((c, i) => {
+    const out = { id: `c${i + 1}`, text: clean(c.text, 500) };
+    const fb = (typeof c.feedback === "string" ? c.feedback.trim().slice(0, 500) : "");
+    if (fb) out.feedback = fb;
+    return out;
+  });
   if (!hasValue(rawAnswer)) return { choices, answer: null };
   const raw = String(rawAnswer).trim();
   let at = kept.findIndex((c) => c.id != null && String(c.id) === raw);
@@ -83,7 +88,15 @@ function strip(content) {
   };
   // Remove undefined keys so the key check is honest.
   Object.keys(out).forEach((k) => out[k] === undefined && delete out[k]);
-  if (content.questions) out.questions = content.questions.map((q) => ({ prompt: q.prompt, choices: q.choices, atSec: q.atSec }));
+  if (content.questions) out.questions = content.questions.map((q) => ({
+    prompt: q.prompt,
+    choices: (q.choices || []).map((c) => {
+      const o = { id: c.id, text: c.text };
+      if (c.feedback) o.feedback = String(c.feedback).trim().slice(0, 500);
+      return o;
+    }),
+    atSec: q.atSec,
+  }));
   if (out.questions) out.questions.forEach((q) => q.atSec === undefined && delete q.atSec);
   return out;
 }
