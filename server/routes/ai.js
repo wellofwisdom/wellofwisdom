@@ -3,7 +3,8 @@
 // Instance-wide (server_settings key ai), env fallback, masked GET.
 // Spend vault: usage, daily/monthly sums, limits, and a pretty chart
 // the family can read. Limits live in the same ai key and are checked
-// before generation, not inside grading.
+// before generation, not inside grading. Providers + per-task routes live
+// here too, so an admin can keep learner data on a no-training host.
 const express = require("express");
 const auth = require("../lib/auth");
 const db = require("../lib/db");
@@ -19,6 +20,7 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
+const TASK_KEYS = ["course-gen", "lesson-content", "exercise-gen", "lens", "tutor", "hint", "grading", "rubric", "translate", "stt"];
 const ALLOWED_KEYS = [
   "aiProvider", "aiBaseUrl", "aiApiKey", "aiModelPro", "aiModelFlash",
   "aiVisionModel", "aiPrices", "kieKey", "openaiKey",
@@ -40,7 +42,8 @@ router.get("/config", requireInstanceAdmin, async (_req, res, next) => {
     res.json({
       config: aiConfig.mask(cfg),
       providers: ["openai", "anthropic", "gemini"],
-      tasks: ["course-gen", "lesson-content", "exercise-gen", "lens", "tutor", "hint", "grading", "rubric", "translate"],
+      providerKinds: ["openai-compatible", "anthropic", "gemini"],
+      tasks: TASK_KEYS,
     });
   } catch (err) { next(err); }
 });
@@ -98,6 +101,96 @@ router.put("/config", requireInstanceAdmin, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.get("/providers", requireInstanceAdmin, async (_req, res, next) => {
+  try {
+    const cfg = await aiConfig.resolveConfig();
+    const providers = Array.isArray(cfg && cfg.aiProviders) ? cfg.aiProviders : [];
+    const routes = cfg && cfg.aiRoutes && typeof cfg.aiRoutes === "object" ? cfg.aiRoutes : {};
+    res.json({
+      providers: providers.map((p) => {
+        const out = { ...p };
+        if (out.apiKey) out.apiKey = "•••••" + String(out.apiKey).slice(-4);
+        return out;
+      }),
+      routes,
+      tasks: TASK_KEYS,
+      kinds: ["openai-compatible", "anthropic", "gemini"],
+    });
+  } catch (err) { next(err); }
+});
+
+router.put("/providers", requireInstanceAdmin, async (req, res, next) => {
+  try {
+    const b = req.body || {};
+    if (!db.configured()) return bad(res, "db_required", 503);
+    const prevRow = await db.query("select value from server_settings where key = 'ai'");
+    const prev = (prevRow.rows[0] && prevRow.rows[0].value) || {};
+    const prevProviders = Array.isArray(prev.aiProviders) ? prev.aiProviders : [];
+
+    let nextProviders = prevProviders;
+    if (b.providers !== undefined) {
+      if (!Array.isArray(b.providers)) return bad(res, "providers_invalid");
+      if (b.providers.length > 20) return bad(res, "too_many_providers");
+      const normalized = [];
+      const seen = new Set();
+      for (const p of b.providers) {
+        if (!p || typeof p !== "object") return bad(res, "providers_invalid");
+        const id = String(p.id || "").trim().slice(0, 80);
+        if (!id || !/^[a-z0-9_-]+$/i.test(id)) return bad(res, "provider_id_invalid");
+        if (seen.has(id)) return bad(res, "duplicate_provider_id");
+        seen.add(id);
+        const name = String(p.name || id).trim().slice(0, 120);
+        if (!name) return bad(res, "provider_name_required");
+        const kind = String(p.kind || "").trim().toLowerCase();
+        if (!["openai-compatible", "openai", "anthropic", "gemini"].includes(kind)) return bad(res, "provider_kind_invalid");
+        const baseUrl = String(p.baseUrl || "").trim().slice(0, 500);
+        if (baseUrl) {
+          try { const u = new URL(baseUrl); if (!["http:", "https:"].includes(u.protocol)) throw new Error("bad"); } catch { return bad(res, "provider_url_invalid"); }
+        }
+        let apiKey = typeof p.apiKey === "string" ? p.apiKey.slice(0, 500) : "";
+        const prevMatch = prevProviders.find((q) => q.id === id);
+        if (/^•••••/.test(apiKey) && prevMatch && prevMatch.apiKey) apiKey = prevMatch.apiKey;
+        if (!apiKey && !baseUrl && kind === "openai-compatible") { /* local Ollama may have neither */ }
+        const trainsOnData = Boolean(p.trainsOnData ?? p.trains_on_data);
+        const models = Array.isArray(p.models) ? p.models.map((m) => String(m).trim().slice(0, 120)).filter(Boolean).slice(0, 20) : [];
+        normalized.push({ id, name, kind, baseUrl, apiKey, trainsOnData, models });
+      }
+      nextProviders = normalized;
+    }
+
+    let nextRoutes = prev.aiRoutes && typeof prev.aiRoutes === "object" ? { ...prev.aiRoutes } : {};
+    if (b.routes !== undefined) {
+      if (b.routes === null) nextRoutes = {};
+      else {
+        if (!b.routes || typeof b.routes !== "object" || Array.isArray(b.routes)) return bad(res, "routes_invalid");
+        const allowedTasks = new Set(TASK_KEYS);
+        const seenTasks = new Set();
+        const cleaned = {};
+        const ids = new Set(nextProviders.map((p) => p.id));
+        for (const [task, r] of Object.entries(b.routes)) {
+          if (!allowedTasks.has(task)) return bad(res, "unknown_task");
+          if (seenTasks.has(task)) return bad(res, "duplicate_task");
+          seenTasks.add(task);
+          if (!r || typeof r !== "object" || Array.isArray(r)) return bad(res, "routes_invalid");
+          const providerId = String(r.providerId || r.provider || "").trim().slice(0, 80);
+          if (!providerId || !ids.has(providerId)) return bad(res, "route_provider_unknown");
+          const model = r.model != null && String(r.model).trim() ? String(r.model).trim().slice(0, 120) : null;
+          cleaned[task] = { providerId, model };
+        }
+        nextRoutes = cleaned;
+      }
+    }
+
+    const merged = { ...prev, aiProviders: nextProviders, aiRoutes: nextRoutes };
+    await db.query(
+      `insert into server_settings (key, value, updated_at) values ('ai', $1, now()) on conflict (key) do update set value = $1, updated_at = now()`,
+      [JSON.stringify(merged)]
+    );
+    aiConfig.invalidateCache();
+    res.json({ ok: true, providers: nextProviders.map((p) => ({ ...p, apiKey: p.apiKey ? "•••••" + String(p.apiKey).slice(-4) : "" })), routes: nextRoutes });
+  } catch (err) { next(err); }
+});
+
 // Spend vault: richer than the plain month summary.
 router.get("/spend", async (req, res, next) => {
   try {
@@ -119,6 +212,7 @@ router.get("/spend", async (req, res, next) => {
          from ai_usage where family_id = $1 group by 1 order by cost desc limit 8`,
       [fam]
     ).catch(() => ({ rows: [] }));
+    const byProvider = summary.byProvider || [];
     res.json({
       ...summary,
       limits: lim,
@@ -126,6 +220,7 @@ router.get("/spend", async (req, res, next) => {
       daySpend: dSpend,
       daily: bars.rows,
       byModel: byModel.rows,
+      byProvider,
     });
   } catch (err) { next(err); }
 });

@@ -1,0 +1,22 @@
+{
+  "name": "@wellofwisdom/mcp",
+  "version": "0.0.1",
+  "description": "Well of Wisdom MCP server: courses and learners over stdio",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "bin": {
+    "wellofwisdom-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3",
+    "@types/node": "^20.14.0"
+  }
+}

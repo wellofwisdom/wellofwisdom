@@ -22,7 +22,7 @@ function bad(res, msg, code = 400) {
 // {type:'url',title,url}: URLs are fetched + stripped to text here (SSRF-guarded).
 router.post("/generate", async (req, res, next) => {
   try {
-    const { topic, learnerId, lens, gradeLevel, notes, sources } = req.body || {};
+    const { topic, learnerId, lens, gradeLevel, notes, sources, openPublish } = req.body || {};
     if (!String(topic || "").trim() || String(topic).length < 3) return bad(res, "topic_required");
     if (!ai.configured()) return bad(res, "ai_not_configured", 503);
     const grade = gradeLevel == null || gradeLevel === "" ? null : Number(gradeLevel);
@@ -69,6 +69,7 @@ router.post("/generate", async (req, res, next) => {
       learnerNotes: learnerProfile && learnerProfile.ai_notes ? String(learnerProfile.ai_notes) : null,
       notes: String(notes || "").trim().slice(0, 1000) || null,
       sources: resolved,
+      openPublish: !learnerId && Boolean(openPublish),
     };
     const jobId = await jobs.enqueue(req.user.familyId, "course", spec, req.user.id);
     res.status(202).json({ jobId });
