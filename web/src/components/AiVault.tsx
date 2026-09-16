@@ -267,7 +267,7 @@ function ProvidersCard() {
             <div className="grow"><Field label="Base URL"><input className="input" value={draft.baseUrl} onChange={(e) => setDraft((d) => ({ ...d, baseUrl: e.target.value }))} placeholder="https://api.deepseek.com/v1" /></Field></div>
           </div>
           <Field label="API key" hint="Stored in the vault. Reads come back masked."><input className="input" type={isMasked(draft.apiKey) ? "text" : "password"} value={draft.apiKey} onChange={(e) => setDraft((d) => ({ ...d, apiKey: e.target.value }))} placeholder={isMasked(draft.apiKey) ? "saved. Paste new to change" : "sk-…"} /></Field>
-          <Field label="Models (comma separated)" hint="For reference. The routing table picks the model per task."><input className="input" value={draft.models.join(", ")} onChange={(e) => setDraft((d) => ({ ...d, models: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) }))} placeholder="deepseek-chat, deepseek-reasoner" /></Field>
+          <Field label="Models (comma separated)" hint="Used when a route sets no model: first for pro tasks, second for flash."><input className="input" value={draft.models.join(", ")} onChange={(e) => setDraft((d) => ({ ...d, models: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) }))} placeholder="deepseek-chat, deepseek-reasoner" /></Field>
           <label className="row small" style={{ gap: 8 }}><input type="checkbox" checked={draft.trainsOnData} onChange={(e) => setDraft((d) => ({ ...d, trainsOnData: e.target.checked }))} /> This provider trains on data</label>
           <div className="row">
             <button className="btn primary" type="button" disabled={busy} onClick={saveDraft}>{busy ? "Saving…" : editing ? "Save provider" : "Add provider"}</button>

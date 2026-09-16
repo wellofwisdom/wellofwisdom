@@ -184,6 +184,63 @@ test("aiConfig env fallback still provides default provider via fromEnv", async 
   aiConfig.invalidateCache();
 });
 
+test("chat: a route with no model and no provider models is a config error, not a wrong-provider guess", async () => {
+  const aiConfig = require("./aiConfig");
+  const orig = aiConfig.resolveConfig;
+  aiConfig.resolveConfig = async () => ({
+    aiBaseUrl: "https://default.example/v1",
+    aiApiKey: "sk-default",
+    aiModelPro: "model-pro",
+    aiModelFlash: "model-flash",
+    aiProviders: [{ id: "bare", name: "Bare", kind: "openai-compatible", baseUrl: "https://bare.example/v1", apiKey: "sk-bare", trainsOnData: false, models: [] }],
+    aiRoutes: { hint: { providerId: "bare", model: null } },
+  });
+  try {
+    await assert.rejects(
+      () => ai.chat("hint", []),
+      (err) => err.code === "ai_no_model" && String(err.message).includes("bare")
+    );
+  } finally {
+    aiConfig.resolveConfig = orig;
+  }
+});
+
+test("chat: a route with no model sends the provider's own model, never the default's", async () => {
+  const http = require("node:http");
+  const seen = [];
+  const srv = http.createServer((req, res) => {
+    let d = "";
+    req.on("data", (x) => { d += x; });
+    req.on("end", () => {
+      seen.push(JSON.parse(d));
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ choices: [{ message: { content: "hi" }, finish_reason: "stop" }], usage: { prompt_tokens: 1, completion_tokens: 1 }, model: "sentinel" }));
+    });
+  });
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const { port } = srv.address();
+  const aiConfig = require("./aiConfig");
+  const orig = aiConfig.resolveConfig;
+  aiConfig.resolveConfig = async () => ({
+    aiBaseUrl: "https://default.example/v1",
+    aiApiKey: "sk-default",
+    aiModelPro: "model-pro",
+    aiModelFlash: "model-flash",
+    aiProviders: [{ id: "local", name: "Local", kind: "openai-compatible", baseUrl: `http://127.0.0.1:${port}/v1`, apiKey: "", trainsOnData: false, models: ["ollama-big", "ollama-small"] }],
+    aiRoutes: { hint: { providerId: "local", model: null } },
+  });
+  try {
+    const out = await ai.chat("hint", [{ role: "user", content: "hello" }]);
+    assert.equal(out.content, "hi");
+    assert.equal(seen.length, 1);
+    assert.equal(seen[0].model, "ollama-small", "flash tier uses the provider's second model");
+    assert.notEqual(seen[0].model, "model-flash", "the default provider's model name must never be sent to another provider");
+  } finally {
+    aiConfig.resolveConfig = orig;
+    srv.close();
+  }
+});
+
 test("learner data never leaves via a trains-on-data provider (acceptance shape)", () => {
   const vault = {
     aiBaseUrl: "https://default.example/v1",

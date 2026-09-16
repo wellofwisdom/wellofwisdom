@@ -262,13 +262,20 @@ async function chat(task, messages, opts = {}) {
         fallbackWarning: routed.fallbackWarning,
       };
     }
+    // A routed provider never inherits the default provider's model names:
+    // those models live on the default host and usually do not exist here, so
+    // sending them is a guaranteed error from the provider. The route's model
+    // wins; without one, the provider's own models list supplies it, first
+    // model for pro tasks and second for flash (one model serves both), the
+    // same [pro, flash] order the default provider's pair uses.
+    const own = (Array.isArray(entry.models) ? entry.models : []).filter(Boolean);
     return {
       provider: providerName,
       baseUrl: entry.baseUrl || vaultDefault.baseUrl || "",
       apiKey: entry.apiKey || "",
-      modelPro: vaultDefault.modelPro,
-      modelFlash: vaultDefault.modelFlash,
-      vision: vaultDefault.vision,
+      modelPro: own[0] || "",
+      modelFlash: own[1] || own[0] || "",
+      vision: "",
       providerId: entry.id,
       fallbackWarning: routed.fallbackWarning,
     };
@@ -293,9 +300,12 @@ async function chat(task, messages, opts = {}) {
   const tm = resolveRoute(task);
   const wantPro = tm.tier === "pro";
   const vaultModel = wantPro ? (cfg.modelPro || "") : (cfg.modelFlash || "");
-  const effModel = modelOverride || vaultModel || tm.model || null;
+  // The env tier models (AI_MODEL_PRO / AI_MODEL_FLASH) are the DEFAULT
+  // provider's names, so they are never sent to a routed provider: a missing
+  // model there is a configuration error, not a cross-provider guess.
+  const effModel = modelOverride || vaultModel || (entry.id === "__default" ? tm.model : null);
   if (!effModel) {
-    const err = new Error(`ai_no_model: task "${task}" resolved to tier with no model. Set models in the AI vault or AI_MODEL_PRO/AI_MODEL_FLASH`);
+    const err = new Error(`ai_no_model: task "${task}" is routed to provider "${entry.id}" which has no model. Set a model on the route, or add models to the provider, in the AI vault`);
     err.code = "ai_no_model";
     throw err;
   }
