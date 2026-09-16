@@ -117,12 +117,24 @@ async function touchLastUsed(tokenId) {
   await db.query("update api_tokens set last_used_at = now() where id = $1", [Number(tokenId)]).catch(() => {});
 }
 
-// Rate limit per token hash, 120 per minute.
+// Rate limit per token hash, 120 per minute. Expired entries are pruned on
+// the way in and the map is hard-capped, so a long-lived process cannot keep
+// one entry per token hash it has ever seen. Same shape as loginLimit.
 const tokenHits = new Map();
-function tokenLimit(tokenHash, { max = 120, windowMs = 60 * 1000 } = {}) {
+function tokenLimit(tokenHash, { max = 120, windowMs = 60 * 1000, maxEntries = 10000 } = {}) {
   const now = Date.now();
   const rec = tokenHits.get(tokenHash);
   if (!rec || now > rec.reset) {
+    tokenHits.delete(tokenHash); // re-insert at the end so eviction stays oldest-first
+    if (tokenHits.size >= maxEntries) {
+      // Sweep the expired first, so a busy map does not evict live counters
+      // while stale ones sit in it.
+      for (const [k, v] of tokenHits) {
+        if (v.reset < now) tokenHits.delete(k);
+        if (tokenHits.size < maxEntries) break;
+      }
+      while (tokenHits.size >= maxEntries) tokenHits.delete(tokenHits.keys().next().value);
+    }
     tokenHits.set(tokenHash, { n: 1, reset: now + windowMs });
     return { ok: true };
   }

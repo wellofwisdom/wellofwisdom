@@ -39,6 +39,26 @@ test("tokenLimit allows burst then blocks", () => {
   assert.equal(apiTokens.tokenLimit(key).ok, false);
 });
 
+test("tokenLimit prunes expired entries instead of evicting live counters", async () => {
+  const live = { max: 1, windowMs: 30_000, maxEntries: 3 };
+  assert.equal(apiTokens.tokenLimit("prune-live", live).ok, true);
+  assert.equal(apiTokens.tokenLimit("prune-live", live).ok, false); // at its cap
+  // A flood of unique, immediately-expiring keys passes through the map.
+  // Room is made by sweeping expired entries, never by evicting a live
+  // counter: naive oldest-first eviction would drop "prune-live" first and
+  // hand it a fresh window on the final call.
+  const fast = { max: 1, windowMs: 5, maxEntries: 3 };
+  for (let i = 0; i < 6; i++) {
+    apiTokens.tokenLimit(`prune-junk-${i}`, fast);
+    await new Promise((r) => setTimeout(r, 6));
+  }
+  assert.equal(
+    apiTokens.tokenLimit("prune-live", live).ok,
+    false,
+    "still at its cap: the live counter was never evicted"
+  );
+});
+
 test("tokenAllows checks scopes", () => {
   function req(method, path) { return { method, path }; }
   assert.equal(apiTokens.tokenAllows(req("GET", "/api/courses/1"), ["read"]), true);
