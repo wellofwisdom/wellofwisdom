@@ -313,6 +313,23 @@ const es: Record<TranslationKey, string> = {
   "scenario.choicesLabel": "Opciones",
   "scenario.step": "Paso {n}",
   "scenario.startOver": "Empezar de nuevo",
+  "lesson.progress": "{done} de {total} completadas",
+  "lesson.progressLabel": "Progreso de la leccion",
+  "lesson.combo": "{count} seguidos",
+  "lesson.comboLong": "Llevas {count} seguidos!",
+  "lesson.warmupTitle": "Calentamiento",
+  "lesson.warmupHint": "Repaso rapido de lecciones anteriores",
+  "lesson.warmupSkip": "Saltar calentamiento",
+  "lesson.warmupDone": "Calentamiento listo",
+  "lesson.masteryTitle": "Prueba de dominio",
+  "lesson.masteryHint": "Un repaso corto de esta unidad",
+  "lesson.masteryPass": "Dominado!",
+  "lesson.masteryStarHint": "Conseguiste la estrella de dominio",
+  "lesson.masteryRetry": "Intentar de nuevo",
+  "lesson.masteryStart": "Empezar prueba",
+  "lesson.companionSays": "{name} dice",
+  "lesson.companionHelp": "Tu companero esta aqui para ayudar",
+
 };
 
 export default es;

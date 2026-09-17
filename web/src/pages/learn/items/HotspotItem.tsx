@@ -59,12 +59,14 @@ export default function HotspotItem({
   item,
   solved,
   onSolved,
+  onWrong: _onWrong,
   qKey,
   qIdx,
 }: {
   item: ItemNode;
   solved: Record<string, boolean>;
   onSolved: (key: string, correct: boolean | null) => void;
+  onWrong?: (feedback: string, name?: string) => void;
   qKey: string;
   qIdx: number;
 }) {

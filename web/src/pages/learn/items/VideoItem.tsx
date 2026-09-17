@@ -6,8 +6,8 @@ import ExerciseItem from "./ExerciseItem";
 
 const REWIND_SEC = 10;
 
-export default function VideoItem({ item, solved, onSolved }: {
-  item: ItemNode; solved: Record<string, boolean>; onSolved: (key: string, correct: boolean | null) => void;
+export default function VideoItem({ item, solved, onSolved, onWrong }: {
+  item: ItemNode; solved: Record<string, boolean>; onSolved: (key: string, correct: boolean | null) => void; onWrong?: (f: string, n?: string) => void;
 }) {
   const c = item.content || {};
   const questions: any[] = c.questions || [];
@@ -26,7 +26,7 @@ export default function VideoItem({ item, solved, onSolved }: {
       {c.note && <p className="muted">{c.note}</p>}
       <VideoPlayer content={{ youtubeId: c.youtubeId, uploadId: c.uploadId, title: c.title }} videoRef={videoRef} />
       {questions.map((q: any, i: number) => (
-        <ExerciseItem key={i} item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:${i}`} qIdx={i} question={q} rewind={rewind} />
+        <ExerciseItem key={i} item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:${i}`} qIdx={i} question={q} rewind={rewind} />
       ))}
     </section>
   );
