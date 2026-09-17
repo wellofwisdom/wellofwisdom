@@ -40,12 +40,14 @@ export default function FractionItem({
   item,
   solved,
   onSolved,
+  onWrong,
   qKey,
   qIdx,
 }: {
   item: ItemNode;
   solved: Record<string, boolean>;
   onSolved: (key: string, correct: boolean | null) => void;
+  onWrong?: (feedback: string, name?: string) => void;
   qKey: string;
   qIdx: number;
 }) {
@@ -128,6 +130,10 @@ export default function FractionItem({
       const d = await api<AttemptResponse>("/api/learn/attempt", { method: "POST", body: { itemId: item.id, questionIndex: qIdx, answer } });
       setResult(d);
       onSolved(qKey, d.correct);
+      if (d.correct === false && onWrong) {
+        const fb = (d as any).reveal?.feedback ? Object.values((d as any).reveal.feedback as Record<string, string>)[0] : (d as any).reveal?.explanation;
+        if (fb && String(fb).trim()) onWrong(String(fb).slice(0, 500));
+      }
       if (d.correct === true) triggerRumble("hit");
     } catch (e) {
       setErr(niceError(e));
