@@ -7,13 +7,22 @@ function kindOf(content) {
   return REGISTRY[k] ? k : "mcq";
 }
 
+const PROMPTLESS_KINDS = new Set(["cloze"]);
+
+function hasPrompt(content) {
+  if (PROMPTLESS_KINDS.has(content && content.kind)) {
+    const t = content.text;
+    return typeof t === "string" && clean(t, 4000) !== "";
+  }
+  return clean(content.prompt, 2000) !== "";
+}
+
 function normalize(content) {
   if (!content || typeof content !== "object") return null;
   const kind = kindOf(content);
   const handler = forKind(kind);
   if (!handler) return null;
-  const promptStr = clean(content.prompt, 2000);
-  if (!promptStr) return null;
+  if (!hasPrompt(content)) return null;
   const out = handler.normalize(content);
   if (!out) return null;
   const explanation = str(content.explanation, 3000);
@@ -25,7 +34,11 @@ function normalize(content) {
 
 function problem(content) {
   if (!content || typeof content !== "object") return "content_required";
-  if (!clean(content.prompt, 2000)) return "prompt_required";
+  if (!hasPrompt(content)) {
+    const kind = kindOf(content);
+    if (kind === "cloze") return clean(content.text, 4000) ? null : "text_required";
+    return "prompt_required";
+  }
   if (Array.isArray(content.hints)) {
     const filtered = content.hints.map((v) => str(v, 500).trim()).filter(Boolean);
     if (filtered.length > MAX_HINTS) return "too_many_hints";
@@ -34,7 +47,11 @@ function problem(content) {
   const kind = kindOf(content);
   const handler = forKind(kind);
   if (!handler) return "type_invalid";
-  return handler.problem(content);
+  const prob = handler.problem(content);
+  if (prob === "prompt_required" && PROMPTLESS_KINDS.has(kind)) {
+    return hasPrompt(content) ? prob : "text_required";
+  }
+  return prob;
 }
 
 function strip(content) {
@@ -50,7 +67,6 @@ function strip(content) {
   } else if (Array.isArray(content.hints)) {
     base.hints = [];
   }
-  // explanation stays server-side; shown only in learn.js reveal after an attempt.
   return base;
 }
 

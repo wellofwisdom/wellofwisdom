@@ -3,6 +3,9 @@ const mcq = require("./mcq");
 const numeric = require("./numeric");
 const text = require("./text");
 const multi = require("./multi");
+const cloze = require("./cloze");
+const numberline = require("./numberline");
+const fraction = require("./fraction");
 const order = require("./order");
 const match = require("./match");
 const categorize = require("./categorize");
@@ -16,6 +19,9 @@ const REGISTRY = {
   numeric,
   text,
   multi,
+  cloze,
+  numberline,
+  fraction,
   order,
   match,
   categorize,

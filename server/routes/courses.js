@@ -872,6 +872,18 @@ router.get("/:id/answer-key", async (req, res, next) => {
           } else if (c.kind === "scenario") {
             const good = Array.isArray(c.good) ? c.good : [];
             answerText = good.length ? good.join(", ") : null;
+          } else if (c.kind === "cloze") {
+            const blanks = Array.isArray(c.blanks) ? c.blanks : [];
+            const parts = blanks.map((b) => {
+              const acc = Array.isArray(b.accept) ? b.accept : [];
+              return `${b.id}: ${acc.join(" / ")}`;
+            });
+            answerText = parts.length ? parts.join("; ") : null;
+          } else if (c.kind === "numberline") {
+            answerText = c.answer != null ? String(c.answer) : null;
+          } else if (c.kind === "fraction") {
+            const a = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? c.answer : null;
+            answerText = a ? `${a.numerator}/${a.denominator}` : null;
           } else answerText = c.answer;
           // Worth surfacing: an exercise with no answer cannot be graded, and
           // the generator does occasionally produce one.
@@ -881,6 +893,15 @@ router.get("/:id/answer-key", async (req, res, next) => {
           } else if (c.kind === "match" || c.kind === "categorize") {
             const key = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? Object.keys(c.answer) : [];
             if (!key.length) missingAnswers++;
+          } else if (c.kind === "cloze") {
+            const blanks = Array.isArray(c.blanks) ? c.blanks : [];
+            const hasKeys = blanks.length > 0 && blanks.every((b) => Array.isArray(b.accept) && b.accept.length > 0);
+            if (!hasKeys) missingAnswers++;
+          } else if (c.kind === "fraction") {
+            const a = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? c.answer : null;
+            if (!a || a.numerator == null || a.denominator == null) missingAnswers++;
+          } else if (c.kind === "numberline") {
+            if (c.answer == null || c.answer === "") missingAnswers++;
           } else if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
           const hints = Array.isArray(c.hints) ? c.hints : c.hint ? [String(c.hint)] : [];
           return {
