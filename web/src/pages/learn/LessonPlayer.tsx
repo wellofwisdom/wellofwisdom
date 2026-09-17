@@ -20,6 +20,9 @@ import FlashcardsItem from "./items/FlashcardsItem";
 import ClozeItem from "./items/ClozeItem";
 import NumberlineItem from "./items/NumberlineItem";
 import FractionItem from "./items/FractionItem";
+import HotspotItem from "./items/HotspotItem";
+import PlotItem from "./items/PlotItem";
+import ScenarioItem from "./items/ScenarioItem";
 
 export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   lessonId: number; onNavigate: (hash: string) => void; onLogout: () => void;
@@ -167,5 +170,8 @@ function LessonItem({ item, solved, onSolved, submission, onSubmission }: {
   if (kind === "cloze") return <ClozeItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "numberline") return <NumberlineItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "fraction") return <FractionItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "hotspot") return <HotspotItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "plot") return <PlotItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "scenario") return <ScenarioItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} />;
   return <ExerciseItem item={item} solved={solved} onSolved={onSolved} qKey={`${item.id}:0`} qIdx={0} question={null} />;
 }
