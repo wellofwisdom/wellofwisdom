@@ -11,6 +11,7 @@ import StandardsTags from "../components/StandardsTags";
 import InlineRename from "../components/course-editor/InlineRename";
 import LessonPreview from "../components/course-editor/LessonPreview";
 import VersionHistory from "../components/course-editor/VersionHistory";
+import { VerificationFlags } from "../components/course-editor/EditorSupplementals";
 import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from "../components/VideoUI";
 import { RecordButton } from "../components/RecordButton";
 import type { UploadRow } from "../components/VideoUI";
@@ -295,9 +296,10 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
   const [confirmUnit, setConfirmUnit] = useState<number | null>(null);
   const [confirmLesson, setConfirmLesson] = useState<number | null>(null);
 
+  const [verificationPending, setVerificationPending] = useState(0);
   const load = useCallback(() =>
-    api<{ course: CourseTree; missingAnswers?: number }>(`/api/courses/${courseId}`)
-      .then((d) => { setCourse(d.course); setMissing(d.missingAnswers || 0); setError(""); })
+    api<{ course: CourseTree; missingAnswers?: number; verificationPending?: number }>(`/api/courses/${courseId}`)
+      .then((d) => { setCourse(d.course); setMissing(d.missingAnswers || 0); setVerificationPending(d.verificationPending || 0); setError(""); })
       .catch((e) => setError(niceError(e))), [courseId]);
 
   useEffect(() => {
@@ -380,7 +382,7 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
         {course.status === "published" ? (
           <button className="btn" type="button" onClick={() => patch({ status: "draft" })}>Unpublish</button>
         ) : (
-          <button className="btn primary" type="button" onClick={() => patch({ status: "published" })}>
+          <button className="btn primary" type="button" disabled={verificationPending > 0} title={verificationPending > 0 ? `Fix or dismiss ${verificationPending} verification flag${verificationPending === 1 ? "" : "s"} before publishing.` : undefined} onClick={() => patch({ status: "published" })}>
             <IconCheck /> Publish to learners
           </button>
         )}
@@ -414,6 +416,11 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
           one and pick its answer. A course imported from a package shared without answers arrives like this.
         </div>
       )}
+      {verificationPending > 0 && (
+        <div className="formerror" role="status">
+          <b>{verificationPending} answer{verificationPending === 1 ? "" : "s"} flagged for review.</b> The verifier re-solved them and got a different answer. Fix or dismiss each flag before publishing.
+        </div>
+      )}
 
       <Panel title={course.title} side="review everything before publishing">
         {course.description && <p className="muted" style={{ marginBottom: 6 }}>{course.description}</p>}
@@ -445,12 +452,16 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
                 <button className="btn ghost small-btn" type="button" onClick={() => setPreviewLesson(l.id)}>👁 Preview</button>
                 <button className="btn ghost small-btn" type="button" onClick={() => window.open(`/print/lesson/${l.id}`, "_blank")}>🖨️ Worksheet</button>
                 <button className="btn ghost small-btn" type="button" onClick={() => setConfirmLesson(l.id)}>🗑 Delete lesson</button>
+                <LessonSupplementalControls lessonId={l.id} lessonTitle={l.title} onRefresh={load} courseId={courseId} />
               </div>
               {l.summary && <p className="muted small" style={{ margin: "4px 0 10px" }}>{l.summary}</p>}
               <StandardsTags value={l.standards || []} onChange={(next) => patchLesson(l.id, { standards: next })} />
               {l.items.map((item, ii) => (
                 <div key={item.id} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}><ItemPreview item={item} onEdit={() => setEditing(item)} onDelete={() => { if (window.confirm("Remove this item from the lesson?")) deleteItem(item.id); }} /></div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <ItemPreview item={item} onEdit={() => setEditing(item)} onDelete={() => { if (window.confirm("Remove this item from the lesson?")) deleteItem(item.id); }} />
+                    <ItemSupplementalControls itemId={item.id} item={item} lessonId={l.id} onRefresh={load} />
+                  </div>
                   <div className="row" style={{ flexDirection: "column", gap: 2, flexShrink: 0 }}>
                     <button className="btn ghost small-btn" type="button" aria-label="Move item up" disabled={ii === 0} onClick={() => moveItem(item.id, "up")}>↑</button>
                     <button className="btn ghost small-btn" type="button" aria-label="Move item down" disabled={ii === l.items.length - 1} onClick={() => moveItem(item.id, "down")}>↓</button>
@@ -498,6 +509,7 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
         />
       )}
       {previewLesson != null && <LessonPreview lessonId={previewLesson} onClose={() => setPreviewLesson(null)} />}
+      <VerificationFlags courseId={courseId} onRefresh={load} />
       <Panel title="Version history" side={<button className="btn ghost small-btn" type="button" onClick={() => setShowVersions((v) => !v)}>{showVersions ? "Hide" : "Show"}</button>}>
         {showVersions && <VersionHistory courseId={courseId} onRestored={load} />}
       </Panel>
@@ -1054,5 +1066,108 @@ function UnitControls({ unitId, isFirst, isLast, onMove, onDelete }: { unitId: n
       <button className="btn ghost small-btn" type="button" aria-label="Move unit down" disabled={isLast} onClick={() => onMove(unitId, "down")}>↓</button>
       <button className="btn ghost small-btn" type="button" aria-label="Delete unit" onClick={onDelete}>🗑</button>
     </span>
+  );
+}
+
+function LessonSupplementalControls({ lessonId, lessonTitle: _lessonTitle, onRefresh, courseId: _courseId }: { lessonId: number; lessonTitle: string; onRefresh: () => void; courseId: number }) {
+  const [regenInstruction, setRegenInstruction] = useState("");
+  const [regenBusy, setRegenBusy] = useState(false);
+  const [regenMsg, setRegenMsg] = useState("");
+  const [makeBusy, setMakeBusy] = useState(false);
+  const [makeMsg, setMakeMsg] = useState("");
+  const [showRegen, setShowRegen] = useState(false);
+  const [showMake, setShowMake] = useState(false);
+  async function regenerateLesson() {
+    const ins = String(regenInstruction).trim().slice(0, 500);
+    if (!ins) { setRegenMsg("Give an instruction first."); return; }
+    setRegenBusy(true); setRegenMsg("");
+    try {
+      const d = await api<{ jobId: number }>(`/api/courses/lessons/${lessonId}/regenerate`, { method: "POST", body: { instruction: ins } });
+      setRegenMsg(`Draft job ${d.jobId} queued. Polling...`);
+      for (let i = 0; i < 40; i++) {
+        await new Promise((r) => setTimeout(r, 1500));
+        const j = await api<{ job: { status: string; error?: string } }>(`/api/courses/jobs/${d.jobId}`);
+        if (j.job.status === "done") { setRegenMsg("Done. Checking drafts..."); await new Promise((r) => setTimeout(r, 500)); onRefresh(); setShowRegen(false); setRegenInstruction(""); break; }
+        if (j.job.status === "error") { setRegenMsg(niceError({ code: j.job.error } as any) || String(j.job.error)); break; }
+      }
+    } catch (e) { setRegenMsg(niceError(e)); } finally { setRegenBusy(false); }
+  }
+  async function makeInteractive() {
+    setMakeBusy(true); setMakeMsg("");
+    try {
+      const d = await api<{ jobId: number }>(`/api/courses/lessons/${lessonId}/make-interactive`, { method: "POST" });
+      for (let i = 0; i < 40; i++) {
+        await new Promise((r) => setTimeout(r, 1500));
+        const j = await api<{ job: { status: string; error?: string } }>(`/api/courses/jobs/${d.jobId}`);
+        if (j.job.status === "done") { setMakeMsg("Converted to interactive shape."); onRefresh(); break; }
+        if (j.job.status === "error") { setMakeMsg(niceError({ code: j.job.error } as any) || String(j.job.error)); break; }
+      }
+    } catch (e) { setMakeMsg(niceError(e)); } finally { setMakeBusy(false); }
+  }
+  return (
+    <>
+      <button className="btn ghost small-btn" type="button" onClick={() => setShowRegen((v) => !v)}>↻ Regenerate</button>
+      <button className="btn ghost small-btn" type="button" onClick={() => setShowMake((v) => !v)}>✨ Make interactive</button>
+      {showRegen && (
+        <div className="row wrap" style={{ gap: 6, marginTop: 4 }}>
+          <input className="input" style={{ minWidth: 180, flex: 1 }} value={regenInstruction} maxLength={500} placeholder="make it harder, use the horse lens" onChange={(e) => setRegenInstruction(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") regenerateLesson(); }} />
+          <button className="btn ghost small-btn" type="button" disabled={regenBusy || !regenInstruction.trim()} onClick={regenerateLesson}>{regenBusy ? "Drafting…" : "Go"}</button>
+          {regenMsg && <span className="small muted">{regenMsg}</span>}
+        </div>
+      )}
+      {showMake && (
+        <div className="row wrap" style={{ gap: 6, marginTop: 4 }}>
+          <button className="btn primary small-btn" type="button" disabled={makeBusy} onClick={makeInteractive}>{makeBusy ? "Converting…" : "Convert to section 6 shape"}</button>
+          {makeMsg && <span className="small muted">{makeMsg}</span>}
+        </div>
+      )}
+    </>
+  );
+}
+
+function ItemSupplementalControls({ itemId, item, lessonId: _lessonId, onRefresh }: { itemId: number; item: ItemNode; lessonId: number; onRefresh: () => void }) {
+  const c = item.content || {};
+  const hasVerification = Boolean(c.verification && (c.verification as any).flag === "check_this_answer" && !(c.verification as any).dismissed);
+  const [regenInstruction, setRegenInstruction] = useState("");
+  const [regenBusy, setRegenBusy] = useState(false);
+  const [regenMsg, setRegenMsg] = useState("");
+  const [showRegen, setShowRegen] = useState(false);
+  const [dismissMsg, setDismissMsg] = useState("");
+  async function dismissVerification() {
+    try { await api(`/api/courses/items/${itemId}/verification/dismiss`, { method: "POST" }); onRefresh(); } catch (e) { setDismissMsg(niceError(e)); }
+  }
+  async function regenerateItem() {
+    const ins = String(regenInstruction).trim().slice(0, 500);
+    if (!ins) { setRegenMsg("Give an instruction first."); return; }
+    setRegenBusy(true); setRegenMsg("");
+    try {
+      const d = await api<{ item: ItemNode }>(`/api/courses/items/${itemId}/regenerate`, { method: "POST", body: { instruction: ins } });
+      setRegenMsg(`Draft item ${d.item.id} created. Accept or discard it.`);
+      onRefresh();
+      setShowRegen(false); setRegenInstruction("");
+    } catch (e) { setRegenMsg(niceError(e)); } finally { setRegenBusy(false); }
+  }
+  return (
+    <div style={{ marginTop: 4 }}>
+      {hasVerification && (
+        <div className="formerror small" role="status" style={{ marginBottom: 4 }}>
+          Verification flagged: got {(c.verification as any).got ?? "?"}. Resolve by editing the answer, or dismiss.
+          <div className="row" style={{ gap: 6, marginTop: 4 }}>
+            <button className="btn ghost small-btn" type="button" onClick={dismissVerification}>Dismiss flag</button>
+            {dismissMsg && <span className="small muted">{dismissMsg}</span>}
+          </div>
+        </div>
+      )}
+      <div className="row wrap" style={{ gap: 6 }}>
+        <button className="btn ghost small-btn" type="button" onClick={() => setShowRegen((v) => !v)}>↻ Regenerate item</button>
+      </div>
+      {showRegen && (
+        <div className="row wrap" style={{ gap: 6, marginTop: 4 }}>
+          <input className="input" style={{ minWidth: 160, flex: 1 }} value={regenInstruction} maxLength={500} placeholder="shorter, add a manipulative" onChange={(e) => setRegenInstruction(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") regenerateItem(); }} />
+          <button className="btn ghost small-btn" type="button" disabled={regenBusy || !regenInstruction.trim()} onClick={regenerateItem}>{regenBusy ? "Drafting…" : "Go"}</button>
+          {regenMsg && <span className="small muted">{regenMsg}</span>}
+        </div>
+      )}
+    </div>
   );
 }
