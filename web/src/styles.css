@@ -695,6 +695,14 @@ a:hover { text-decoration: underline; }
 .noanswer-banner .tag.noanswer { margin: 0; vertical-align: baseline; }
 summary::marker { color: var(--muted); }
 
+
+/* Engagement: lesson progress, combo, companion, warm-up, mastery */
+.lesson-progress { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.combo-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft, #eef6f1); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; }
+.companion-bubble { background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
+.companion-bubble-head { display: flex; align-items: center; gap: 8px; }
+.warmup-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-top: 8px; }
+
 /* ---------- print worksheet ---------- */
 
 .printpage { max-width: 720px; margin: 0 auto; padding: 24px 18px; background: #fff; color: #111; }

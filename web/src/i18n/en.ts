@@ -301,6 +301,24 @@ const en = {
   "fraction.partEmpty": "Part {index} empty",
   "fraction.shadedCount": "{count} of {total} shaded",
   "fraction.clear": "Clear",
+  // Engagement (Well 3: progress, combo, warm-up, mastery, companion)
+  "lesson.progress": "{done} of {total} completed",
+  "lesson.progressLabel": "Lesson progress",
+  "lesson.combo": "{count} in a row",
+  "lesson.comboLong": "{count} in a row!",
+  "lesson.warmupTitle": "Warm-up",
+  "lesson.warmupHint": "Quick review from earlier lessons",
+  "lesson.warmupSkip": "Skip warm-up",
+  "lesson.warmupDone": "Warm-up done",
+  "lesson.masteryTitle": "Unit mastery check",
+  "lesson.masteryHint": "A short mix from this unit",
+  "lesson.masteryPass": "Mastered!",
+  "lesson.masteryStarHint": "You earned the mastery star",
+  "lesson.masteryRetry": "Try again",
+  "lesson.masteryStart": "Start check",
+  "lesson.companionSays": "{name} says",
+  "lesson.companionHelp": "Your companion is here to help",
+
 } as const;
 
 export type TranslationKey = keyof typeof en;
