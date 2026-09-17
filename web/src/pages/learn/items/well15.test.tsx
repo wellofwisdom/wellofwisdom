@@ -229,13 +229,37 @@ describe("FlashcardsItem", () => {
     expect(container.textContent).toContain("Front 2");
   });
 
-  it("does not post an answer (no api call)", () => {
+  it("does not post before grading (flip only)", () => {
     mockApi.mockClear();
     const { container } = render(tWrap(<FlashcardsItem item={fixture} />));
     const card = container.querySelector('[role="button"]') as HTMLElement;
     fireEvent.click(card!);
-    fireEvent.click(screen.getByRole("button", { name: /flashcards\.next/ }));
     expect(mockApi).not.toHaveBeenCalled();
+  });
+
+  it("flip then Got it posts correct for that card and advances queue", async () => {
+    mockApi.mockClear();
+    mockApi.mockResolvedValue({});
+    const { container } = render(tWrap(<FlashcardsItem item={fixture} />));
+    fireEvent.click(container.querySelector('[role="button"]') as HTMLElement);
+    fireEvent.click(screen.getByRole("button", { name: /flashcards\.gotIt/ }));
+    await vi.waitFor(() => expect(mockApi).toHaveBeenCalled());
+    expect((mockApi.mock.calls[0][1] as { body: Record<string, unknown> }).body.answer).toBe("correct");
+    expect((mockApi.mock.calls[0][1] as { body: Record<string, unknown> }).body.questionIndex).toBe(0);
+    expect(container.textContent).toContain("Front 2");
+  });
+
+  it("grading keeps keyboard and data-nav", async () => {
+    mockApi.mockResolvedValue({});
+    const { container } = render(tWrap(<FlashcardsItem item={fixture} />));
+    fireEvent.click(container.querySelector('[role="button"]') as HTMLElement);
+    const gotIt = screen.getByRole("button", { name: /flashcards\.gotIt/ });
+    const again = screen.getByRole("button", { name: /flashcards\.again/ });
+    expect(gotIt).toHaveAttribute("data-nav");
+    expect(again).toHaveAttribute("data-nav");
+    again.focus();
+    fireEvent.keyDown(again, { key: "Enter" });
+    await vi.waitFor(() => expect(mockApi).toHaveBeenCalled());
   });
 
   it("degrades when cards missing", () => {

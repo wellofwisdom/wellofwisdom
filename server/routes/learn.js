@@ -364,13 +364,13 @@ router.post("/attempt", async (req, res, next) => {
     );
 
     // Spaced review: every graded exercise feeds the scheduler (fail-open).
-    // An ungraded answer (no key) is not evidence either way, so it does not
-    // move the review schedule.
+    // Per-card flashcards use the flashcard_reviews table so one card correct
+    // does not move another card's schedule.
     if (row.type === "exercise" && c.kind && c.kind !== "text" && correct !== null) {
       review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
     }
     if (row.type === "flashcards" && correct !== null) {
-      review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
+      review.recordFlashcardAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, cardIndex: qIdx, correct: correct === true });
     }
 
     // Badges: check after any attempt (fail-open)
