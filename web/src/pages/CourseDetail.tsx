@@ -11,9 +11,11 @@ import StandardsTags from "../components/StandardsTags";
 import InlineRename from "../components/course-editor/InlineRename";
 import LessonPreview from "../components/course-editor/LessonPreview";
 import VersionHistory from "../components/course-editor/VersionHistory";
+import { VerificationFlags } from "../components/course-editor/EditorSupplementals";
 import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from "../components/VideoUI";
 import { RecordButton } from "../components/RecordButton";
 import type { UploadRow } from "../components/VideoUI";
+import * as KindForms from "../components/course-editor/kinds";
 
 const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️", video: "▶️", audio: "🔊", project: "🛠️" };
 
@@ -294,9 +296,10 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
   const [confirmUnit, setConfirmUnit] = useState<number | null>(null);
   const [confirmLesson, setConfirmLesson] = useState<number | null>(null);
 
+  const [verificationPending, setVerificationPending] = useState(0);
   const load = useCallback(() =>
-    api<{ course: CourseTree; missingAnswers?: number }>(`/api/courses/${courseId}`)
-      .then((d) => { setCourse(d.course); setMissing(d.missingAnswers || 0); setError(""); })
+    api<{ course: CourseTree; missingAnswers?: number; verificationPending?: number }>(`/api/courses/${courseId}`)
+      .then((d) => { setCourse(d.course); setMissing(d.missingAnswers || 0); setVerificationPending(d.verificationPending || 0); setError(""); })
       .catch((e) => setError(niceError(e))), [courseId]);
 
   useEffect(() => {
@@ -379,7 +382,7 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
         {course.status === "published" ? (
           <button className="btn" type="button" onClick={() => patch({ status: "draft" })}>Unpublish</button>
         ) : (
-          <button className="btn primary" type="button" onClick={() => patch({ status: "published" })}>
+          <button className="btn primary" type="button" disabled={verificationPending > 0} title={verificationPending > 0 ? `Fix or dismiss ${verificationPending} verification flag${verificationPending === 1 ? "" : "s"} before publishing.` : undefined} onClick={() => patch({ status: "published" })}>
             <IconCheck /> Publish to learners
           </button>
         )}
@@ -413,6 +416,11 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
           one and pick its answer. A course imported from a package shared without answers arrives like this.
         </div>
       )}
+      {verificationPending > 0 && (
+        <div className="formerror" role="status">
+          <b>{verificationPending} answer{verificationPending === 1 ? "" : "s"} flagged for review.</b> The verifier re-solved them and got a different answer. Fix or dismiss each flag before publishing.
+        </div>
+      )}
 
       <Panel title={course.title} side="review everything before publishing">
         {course.description && <p className="muted" style={{ marginBottom: 6 }}>{course.description}</p>}
@@ -444,12 +452,16 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
                 <button className="btn ghost small-btn" type="button" onClick={() => setPreviewLesson(l.id)}>👁 Preview</button>
                 <button className="btn ghost small-btn" type="button" onClick={() => window.open(`/print/lesson/${l.id}`, "_blank")}>🖨️ Worksheet</button>
                 <button className="btn ghost small-btn" type="button" onClick={() => setConfirmLesson(l.id)}>🗑 Delete lesson</button>
+                <LessonSupplementalControls lessonId={l.id} lessonTitle={l.title} onRefresh={load} courseId={courseId} />
               </div>
               {l.summary && <p className="muted small" style={{ margin: "4px 0 10px" }}>{l.summary}</p>}
               <StandardsTags value={l.standards || []} onChange={(next) => patchLesson(l.id, { standards: next })} />
               {l.items.map((item, ii) => (
                 <div key={item.id} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}><ItemPreview item={item} onEdit={() => setEditing(item)} onDelete={() => { if (window.confirm("Remove this item from the lesson?")) deleteItem(item.id); }} /></div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <ItemPreview item={item} onEdit={() => setEditing(item)} onDelete={() => { if (window.confirm("Remove this item from the lesson?")) deleteItem(item.id); }} />
+                    <ItemSupplementalControls itemId={item.id} item={item} lessonId={l.id} onRefresh={load} />
+                  </div>
                   <div className="row" style={{ flexDirection: "column", gap: 2, flexShrink: 0 }}>
                     <button className="btn ghost small-btn" type="button" aria-label="Move item up" disabled={ii === 0} onClick={() => moveItem(item.id, "up")}>↑</button>
                     <button className="btn ghost small-btn" type="button" aria-label="Move item down" disabled={ii === l.items.length - 1} onClick={() => moveItem(item.id, "down")}>↓</button>
@@ -497,6 +509,7 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
         />
       )}
       {previewLesson != null && <LessonPreview lessonId={previewLesson} onClose={() => setPreviewLesson(null)} />}
+      <VerificationFlags courseId={courseId} onRefresh={load} />
       <Panel title="Version history" side={<button className="btn ghost small-btn" type="button" onClick={() => setShowVersions((v) => !v)}>{showVersions ? "Hide" : "Show"}</button>}>
         {showVersions && <VersionHistory courseId={courseId} onRestored={load} />}
       </Panel>
@@ -826,8 +839,6 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [rwBusy, setRwBusy] = useState(false);
   const [rwMsg, setRwMsg] = useState("");
 
-  // Draft the article at a different reading level. It replaces the body in the
-  // editor; the guide reviews it and Saves (or Cancels to keep the original).
   async function rewrite() {
     if (!aBody.trim()) return;
     setRwMsg("");
@@ -842,13 +853,10 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       setRwBusy(false);
     }
   }
-  // exercise
+  // exercise :  base kinds still owned here; the ten new kinds use KindForms
   const [prompt, setPrompt] = useState(c.prompt ?? "");
   const [kind, setKind] = useState(c.kind ?? "mcq");
   const [choices, setChoices] = useState<string>((c.choices ?? []).map((x: any) => x.text).join("\n"));
-  // "" means no answer chosen. A question with no key (imported without
-  // answers) must not open with choice one quietly selected, or saving any
-  // other change would write a key the guide never picked.
   const [answerIdx, setAnswerIdx] = useState<string>(() => {
     if (c.kind !== "mcq" || !Array.isArray(c.choices)) return "";
     const i = c.choices.findIndex((x: any) => x.id === c.answer);
@@ -858,6 +866,16 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [textAnswer, setTextAnswer] = useState(c.kind === "text" ? String(c.answer ?? "") : "");
   const [explanation, setExplanation] = useState(c.explanation ?? "");
   const [hint, setHint] = useState(c.hint ?? "");
+  // kind-form harness for the ten new kinds
+  const [kindBuilt, setKindBuilt] = useState<Record<string, any> | null>(null);
+  const [kindProblem, setKindProblem] = useState<string | null>(null);
+  const previewRef = useState<ItemNode | null>(null);
+  const [, setPreviewItem] = previewRef;
+  const hintList: string[] = (() => {
+    if (Array.isArray((c as any).hints)) return (c as any).hints as string[];
+    if ((c as any).hint) return [String((c as any).hint)];
+    return [];
+  })();
   // video
   const [vTitle, setVTitle] = useState(c.title ?? "");
   const [vId, setVId] = useState(c.youtubeId ?? "");
@@ -867,36 +885,44 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [pDesc, setPDesc] = useState(c.description ?? "");
   const [rubric, setRubric] = useState(c.rubric ?? "");
 
+  const isNewKind = ["multi", "order", "match", "categorize", "hotspot", "plot", "scenario", "cloze", "numberline", "fraction"].includes(kind);
+
   async function save() {
     setBusy(true);
     setError("");
     let content: Record<string, unknown>;
     if (item.type === "article") content = { title: aTitle, body: aBody };
     else if (item.type === "exercise") {
-      content = { prompt, kind };
-      if (kind === "mcq") {
-        const lines = choices.split("\n").map((s) => s.trim()).filter(Boolean);
-        if (lines.length < 2) { setError("Need at least 2 choices."); setBusy(false); return; }
-        if (lines.length > MAX_CHOICES) { setError(`At most ${MAX_CHOICES} choices. Remove one.`); setBusy(false); return; }
-        // No silent fallback: an unpicked answer, or one whose choice was just
-        // deleted, is asked for again rather than moved onto another choice.
-        const idx = answerIdx === "" ? -1 : Number(answerIdx);
-        if (!(idx >= 0 && idx < lines.length)) { setError("Pick the correct answer."); setBusy(false); return; }
-        content.choices = lines.map((text, i) => ({ id: `c${i + 1}`, text }));
-        content.answer = `c${idx + 1}`;
-      } else if (kind === "numeric") {
-        const n = Number(numericAnswer.replace(/[^0-9.\-]/g, ""));
-        if (!Number.isFinite(n)) { setError("Numeric answer must be a number."); setBusy(false); return; }
-        content.answer = n;
+      if (isNewKind) {
+        if (kindProblem) { setError(niceError({ code: kindProblem } as any) || kindProblem); setBusy(false); return; }
+        if (!kindBuilt) { setError("Fix the problem above, then Save."); setBusy(false); return; }
+        content = kindBuilt;
+        if (explanation) content.explanation = explanation;
+        const hs = (kindBuilt as any).hints as string[] | undefined;
+        if (!hs || !hs.length) {
+          if (explanation) (content as any).explanation = explanation;
+        }
       } else {
-        content.answer = textAnswer;
+        content = { prompt, kind };
+        if (kind === "mcq") {
+          const lines = choices.split("\n").map((s) => s.trim()).filter(Boolean);
+          if (lines.length < 2) { setError("Need at least 2 choices."); setBusy(false); return; }
+          if (lines.length > MAX_CHOICES) { setError(`At most ${MAX_CHOICES} choices. Remove one.`); setBusy(false); return; }
+          const idx = answerIdx === "" ? -1 : Number(answerIdx);
+          if (!(idx >= 0 && idx < lines.length)) { setError("Pick the correct answer."); setBusy(false); return; }
+          content.choices = lines.map((text, i) => ({ id: `c${i + 1}`, text }));
+          content.answer = `c${idx + 1}`;
+        } else if (kind === "numeric") {
+          const n = Number(numericAnswer.replace(/[^0-9.\-]/g, ""));
+          if (!Number.isFinite(n)) { setError("Numeric answer must be a number."); setBusy(false); return; }
+          content.answer = n;
+        } else {
+          content.answer = textAnswer;
+        }
+        if (explanation) content.explanation = explanation;
+        if (hint) content.hint = hint;
       }
-      if (explanation) content.explanation = explanation;
-      if (hint) content.hint = hint;
     } else if (item.type === "video") {
-      // Keep every source field the item already had. Only youtubeId is edited
-      // here, and an empty box means "no YouTube id", not an empty one: an
-      // uploaded video would otherwise pick up a blank id it never had.
       const unpicked = unpickedQuestion(vQuestions);
       if (unpicked) { setError(`Pick the correct answer for question ${unpicked}.`); setBusy(false); return; }
       content = { ...c, title: vTitle };
@@ -915,6 +941,11 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       setError(niceError(e));
       setBusy(false);
     }
+  }
+
+  function KindPreview() {
+    if (!isNewKind || !kindBuilt) return null;
+    return <div className="muted small" style={{ marginTop: 8 }}>Preview beside the form shows the learner view.</div>;
   }
 
   return (
@@ -944,15 +975,37 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       )}
       {item.type === "exercise" && (
         <>
-          <Field label="Prompt"><textarea className="input" rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} /></Field>
+          <Field label="Prompt" hint={isNewKind ? "Prompt is edited inside the kind form below." : undefined}>
+            <textarea className="input" rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} disabled={isNewKind} />
+          </Field>
           <Field label="Kind">
-            <select className="input" value={kind} onChange={(e) => setKind(e.target.value)}>
+            <select className="input" value={kind} onChange={(e) => { setKind(e.target.value); setKindBuilt(null); setKindProblem(null); setPreviewItem(null); }}>
               <option value="mcq">Multiple choice</option>
+              <option value="multi">Multi-select</option>
               <option value="numeric">Number</option>
               <option value="text">Written (self-check)</option>
+              <option value="order">Order</option>
+              <option value="match">Match</option>
+              <option value="categorize">Categorize</option>
+              <option value="cloze">Cloze</option>
+              <option value="numberline">Number line</option>
+              <option value="fraction">Fraction</option>
+              <option value="hotspot">Hotspot</option>
+              <option value="plot">Plot</option>
+              <option value="scenario">Scenario</option>
             </select>
           </Field>
-          {kind === "mcq" && (
+          {kind === "multi" && <KindForms.MultiForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "order" && <KindForms.OrderForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "match" && <KindForms.MatchForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "categorize" && <KindForms.CategorizeForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "cloze" && <KindForms.ClozeForm content={{ prompt, text: (c as any).text ?? prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "numberline" && <KindForms.NumberlineForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "fraction" && <KindForms.FractionForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "hotspot" && <KindForms.HotspotForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "plot" && <KindForms.PlotForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "scenario" && <KindForms.ScenarioForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {!isNewKind && kind === "mcq" && (
             <>
               <Field label="Choices (one per line)">
                 <textarea className="input" rows={4} value={choices} onChange={(e) => setChoices(e.target.value)} />
@@ -967,10 +1020,16 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
               </Field>
             </>
           )}
-          {kind === "numeric" && <Field label="Answer (number)"><input className="input" value={numericAnswer} onChange={(e) => setNumericAnswer(e.target.value)} /></Field>}
-          {kind === "text" && <Field label="Model answer"><textarea className="input" rows={3} value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)} /></Field>}
-          <Field label="Explanation (shown after answering)"><textarea className="input" rows={2} value={explanation} onChange={(e) => setExplanation(e.target.value)} /></Field>
-          <Field label="Hint (a nudge, not the answer)"><input className="input" value={hint} onChange={(e) => setHint(e.target.value)} /></Field>
+          {!isNewKind && kind === "numeric" && <Field label="Answer (number)"><input className="input" value={numericAnswer} onChange={(e) => setNumericAnswer(e.target.value)} /></Field>}
+          {!isNewKind && kind === "text" && <Field label="Model answer"><textarea className="input" rows={3} value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)} /></Field>}
+          {!isNewKind && <Field label="Explanation (shown after answering)"><textarea className="input" rows={2} value={explanation} onChange={(e) => setExplanation(e.target.value)} /></Field>}
+          {!isNewKind && <Field label="Hint (a nudge, not the answer)"><input className="input" value={hint} onChange={(e) => setHint(e.target.value)} /></Field>}
+          {isNewKind && (
+            <>
+              <KindPreview />
+              {kindProblem && <p className="formerror small" role="alert">{niceError({ code: kindProblem } as any) || kindProblem}</p>}
+            </>
+          )}
         </>
       )}
       {item.type === "video" && (
@@ -994,7 +1053,7 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       )}
       <div className="row">
         <button className="btn" type="button" onClick={onClose}>Cancel</button>
-        <button className="btn primary" type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</button>
+        <button className="btn primary" type="button" disabled={busy || Boolean(isNewKind && kindProblem)} onClick={save}>{busy ? "Saving…" : "Save"}</button>
       </div>
     </Modal>
   );
@@ -1007,5 +1066,108 @@ function UnitControls({ unitId, isFirst, isLast, onMove, onDelete }: { unitId: n
       <button className="btn ghost small-btn" type="button" aria-label="Move unit down" disabled={isLast} onClick={() => onMove(unitId, "down")}>↓</button>
       <button className="btn ghost small-btn" type="button" aria-label="Delete unit" onClick={onDelete}>🗑</button>
     </span>
+  );
+}
+
+function LessonSupplementalControls({ lessonId, lessonTitle: _lessonTitle, onRefresh, courseId: _courseId }: { lessonId: number; lessonTitle: string; onRefresh: () => void; courseId: number }) {
+  const [regenInstruction, setRegenInstruction] = useState("");
+  const [regenBusy, setRegenBusy] = useState(false);
+  const [regenMsg, setRegenMsg] = useState("");
+  const [makeBusy, setMakeBusy] = useState(false);
+  const [makeMsg, setMakeMsg] = useState("");
+  const [showRegen, setShowRegen] = useState(false);
+  const [showMake, setShowMake] = useState(false);
+  async function regenerateLesson() {
+    const ins = String(regenInstruction).trim().slice(0, 500);
+    if (!ins) { setRegenMsg("Give an instruction first."); return; }
+    setRegenBusy(true); setRegenMsg("");
+    try {
+      const d = await api<{ jobId: number }>(`/api/courses/lessons/${lessonId}/regenerate`, { method: "POST", body: { instruction: ins } });
+      setRegenMsg(`Draft job ${d.jobId} queued. Polling...`);
+      for (let i = 0; i < 40; i++) {
+        await new Promise((r) => setTimeout(r, 1500));
+        const j = await api<{ job: { status: string; error?: string } }>(`/api/courses/jobs/${d.jobId}`);
+        if (j.job.status === "done") { setRegenMsg("Done. Checking drafts..."); await new Promise((r) => setTimeout(r, 500)); onRefresh(); setShowRegen(false); setRegenInstruction(""); break; }
+        if (j.job.status === "error") { setRegenMsg(niceError({ code: j.job.error } as any) || String(j.job.error)); break; }
+      }
+    } catch (e) { setRegenMsg(niceError(e)); } finally { setRegenBusy(false); }
+  }
+  async function makeInteractive() {
+    setMakeBusy(true); setMakeMsg("");
+    try {
+      const d = await api<{ jobId: number }>(`/api/courses/lessons/${lessonId}/make-interactive`, { method: "POST" });
+      for (let i = 0; i < 40; i++) {
+        await new Promise((r) => setTimeout(r, 1500));
+        const j = await api<{ job: { status: string; error?: string } }>(`/api/courses/jobs/${d.jobId}`);
+        if (j.job.status === "done") { setMakeMsg("Converted to interactive shape."); onRefresh(); break; }
+        if (j.job.status === "error") { setMakeMsg(niceError({ code: j.job.error } as any) || String(j.job.error)); break; }
+      }
+    } catch (e) { setMakeMsg(niceError(e)); } finally { setMakeBusy(false); }
+  }
+  return (
+    <>
+      <button className="btn ghost small-btn" type="button" onClick={() => setShowRegen((v) => !v)}>↻ Regenerate</button>
+      <button className="btn ghost small-btn" type="button" onClick={() => setShowMake((v) => !v)}>✨ Make interactive</button>
+      {showRegen && (
+        <div className="row wrap" style={{ gap: 6, marginTop: 4 }}>
+          <input className="input" style={{ minWidth: 180, flex: 1 }} value={regenInstruction} maxLength={500} placeholder="make it harder, use the horse lens" onChange={(e) => setRegenInstruction(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") regenerateLesson(); }} />
+          <button className="btn ghost small-btn" type="button" disabled={regenBusy || !regenInstruction.trim()} onClick={regenerateLesson}>{regenBusy ? "Drafting…" : "Go"}</button>
+          {regenMsg && <span className="small muted">{regenMsg}</span>}
+        </div>
+      )}
+      {showMake && (
+        <div className="row wrap" style={{ gap: 6, marginTop: 4 }}>
+          <button className="btn primary small-btn" type="button" disabled={makeBusy} onClick={makeInteractive}>{makeBusy ? "Converting…" : "Convert to section 6 shape"}</button>
+          {makeMsg && <span className="small muted">{makeMsg}</span>}
+        </div>
+      )}
+    </>
+  );
+}
+
+function ItemSupplementalControls({ itemId, item, lessonId: _lessonId, onRefresh }: { itemId: number; item: ItemNode; lessonId: number; onRefresh: () => void }) {
+  const c = item.content || {};
+  const hasVerification = Boolean(c.verification && (c.verification as any).flag === "check_this_answer" && !(c.verification as any).dismissed);
+  const [regenInstruction, setRegenInstruction] = useState("");
+  const [regenBusy, setRegenBusy] = useState(false);
+  const [regenMsg, setRegenMsg] = useState("");
+  const [showRegen, setShowRegen] = useState(false);
+  const [dismissMsg, setDismissMsg] = useState("");
+  async function dismissVerification() {
+    try { await api(`/api/courses/items/${itemId}/verification/dismiss`, { method: "POST" }); onRefresh(); } catch (e) { setDismissMsg(niceError(e)); }
+  }
+  async function regenerateItem() {
+    const ins = String(regenInstruction).trim().slice(0, 500);
+    if (!ins) { setRegenMsg("Give an instruction first."); return; }
+    setRegenBusy(true); setRegenMsg("");
+    try {
+      const d = await api<{ item: ItemNode }>(`/api/courses/items/${itemId}/regenerate`, { method: "POST", body: { instruction: ins } });
+      setRegenMsg(`Draft item ${d.item.id} created. Accept or discard it.`);
+      onRefresh();
+      setShowRegen(false); setRegenInstruction("");
+    } catch (e) { setRegenMsg(niceError(e)); } finally { setRegenBusy(false); }
+  }
+  return (
+    <div style={{ marginTop: 4 }}>
+      {hasVerification && (
+        <div className="formerror small" role="status" style={{ marginBottom: 4 }}>
+          Verification flagged: got {(c.verification as any).got ?? "?"}. Resolve by editing the answer, or dismiss.
+          <div className="row" style={{ gap: 6, marginTop: 4 }}>
+            <button className="btn ghost small-btn" type="button" onClick={dismissVerification}>Dismiss flag</button>
+            {dismissMsg && <span className="small muted">{dismissMsg}</span>}
+          </div>
+        </div>
+      )}
+      <div className="row wrap" style={{ gap: 6 }}>
+        <button className="btn ghost small-btn" type="button" onClick={() => setShowRegen((v) => !v)}>↻ Regenerate item</button>
+      </div>
+      {showRegen && (
+        <div className="row wrap" style={{ gap: 6, marginTop: 4 }}>
+          <input className="input" style={{ minWidth: 160, flex: 1 }} value={regenInstruction} maxLength={500} placeholder="shorter, add a manipulative" onChange={(e) => setRegenInstruction(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") regenerateItem(); }} />
+          <button className="btn ghost small-btn" type="button" disabled={regenBusy || !regenInstruction.trim()} onClick={regenerateItem}>{regenBusy ? "Drafting…" : "Go"}</button>
+          {regenMsg && <span className="small muted">{regenMsg}</span>}
+        </div>
+      )}
+    </div>
   );
 }
