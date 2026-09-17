@@ -22,6 +22,9 @@ import FlashcardsItem from "./items/FlashcardsItem";
 import ClozeItem from "./items/ClozeItem";
 import NumberlineItem from "./items/NumberlineItem";
 import FractionItem from "./items/FractionItem";
+import HotspotItem from "./items/HotspotItem";
+import PlotItem from "./items/PlotItem";
+import ScenarioItem from "./items/ScenarioItem";
 
 type CourseUnit = { id: number; title: string; lessons: { id: number; title: string }[] };
 type CourseForUnits = { id: number; units: CourseUnit[] };
@@ -516,6 +519,9 @@ function LessonItem({ item, solved, onSolved, onWrong, submission, onSubmission 
   if ((item.type as string) === "predict") return <PredictItem item={item as unknown as never} />;
   if ((item.type as string) === "flashcards") return <FlashcardsItem item={item as unknown as never} />;
   const kind = (item.content as Record<string, unknown>)?.kind;
+  if (kind === "hotspot") return <HotspotItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "plot") return <PlotItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "scenario") return <ScenarioItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "multi") return <MultiItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "order") return <OrderItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "match") return <MatchItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
