@@ -1,0 +1,510 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Spanish A1: First Words, Listening, Speaking, and a Story",
+  "topic": "Spanish A1 greetings, classroom, family, and everyday life",
+  "lens": null,
+  "gradeLevel": 5,
+  "description": "Four gentle lessons for true beginners in Spanish. Learn greetings and introductions, classroom words and colors, family and home, then read and hear a short market story in simple Spanish. Every lesson uses listening, speaking aloud, and short checks you can do on paper or out loud.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Begin in Spanish",
+      "lessons": [
+        {
+          "title": "Hola! Greetings and introductions",
+          "summary": "Say hello, say your name, and answer how you are, with polite and friendly forms.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Hello and nice to meet you",
+                "body": "In Spanish you choose how formal to be. With a friend you say **hola** (hello) and **como estas** (how are you, friendly). With an adult you do not know well you say **como esta usted** (how are you, polite). To give your name you say **me llamo** (I am called) plus your name, for example **me llamo Ana**. The answer to **mucho gusto** (nice to meet you) is **igualmente** (likewise) or again **mucho gusto**. At the end you say **adios** (goodbye) or **hasta luego** (see you later). The question mark in Spanish opens upside down at the start: **como te llamas?**\n\n- **Hola** hello\n- **Buenos dias** good morning, **buenas tardes** good afternoon, **buenas noches** good night\n- **Me llamo ...** My name is ...\n- **Mucho gusto** Nice to meet you"
+              }
+            },
+            {
+              "type": "flashcards",
+              "content": {
+                "cards": [
+                  { "front": "hola", "back": "hello" },
+                  { "front": "buenos dias", "back": "good morning" },
+                  { "front": "buenas tardes", "back": "good afternoon" },
+                  { "front": "buenas noches", "back": "good evening / good night" },
+                  { "front": "me llamo", "back": "my name is (I am called)" },
+                  { "front": "como te llamas?", "back": "what is your name? (friendly)" },
+                  { "front": "mucho gusto", "back": "nice to meet you" },
+                  { "front": "adios / hasta luego", "back": "goodbye / see you later" }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match the Spanish greeting to its English use.",
+                "left": [
+                  { "text": "hola" },
+                  { "text": "buenos dias" },
+                  { "text": "buenas noches" },
+                  { "text": "mucho gusto" }
+                ],
+                "right": [
+                  { "text": "hello (any time)" },
+                  { "text": "good morning" },
+                  { "text": "good night" },
+                  { "text": "nice to meet you" }
+                ],
+                "answer": { "l1": "r1", "l2": "r2", "l3": "r3", "l4": "r4" },
+                "explanation": "Each Spanish phrase has one steady English partner. Listen for hola as the general hello.",
+                "hints": ["Buenos dias is for the morning. Buenas noches is for the night."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort the phrases into Friendly (tu) or Polite (usted).",
+                "buckets": [
+                  { "label": "Friendly (tu) - with friends and peers" },
+                  { "label": "Polite (usted) - with adults you do not know well" }
+                ],
+                "cards": [
+                  { "text": "como te llamas?" },
+                  { "text": "como se llama usted?" },
+                  { "text": "como estas?" },
+                  { "text": "como esta usted?" }
+                ],
+                "answer": { "d1": "b1", "d2": "b2", "d3": "b1", "d4": "b2" },
+                "feedback": {
+                  "d1": "Te is the friendly you, so como te llamas is friendly.",
+                  "d2": "Usted is the polite you, so this goes to polite.",
+                  "d3": "Estas with tu is friendly.",
+                  "d4": "Esta usted is the polite form."
+                },
+                "explanation": "Tu is for friends and peers. Usted is the polite you for adults and formal moments.",
+                "hints": ["Look for te versus usted in the phrase."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "You meet a new classmate your own age. What do you say to ask their name?",
+                "choices": [
+                  { "id": "c1", "text": "Como te llamas?" },
+                  { "id": "c2", "text": "Como se llama usted?" },
+                  { "id": "c3", "text": "Buenas noches" }
+                ],
+                "answer": "c1",
+                "explanation": "With a peer you use the friendly tu form: como te llamas?",
+                "hints": ["Your classmate is your age, so tu is right."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "multi",
+                "prompt": "Which are correct ways to answer mucho gusto? Select all that apply.",
+                "choices": [
+                  { "id": "c1", "text": "Igualmente" },
+                  { "id": "c2", "text": "Mucho gusto" },
+                  { "id": "c3", "text": "Buenas noches" },
+                  { "id": "c4", "text": "Me llamo Ana, mucho gusto" }
+                ],
+                "answer": ["c1", "c2", "c4"],
+                "explanation": "Igualmente, repeating mucho gusto, or giving your name with mucho gusto are all good answers. Buenas noches is a greeting, not an answer to mucho gusto.",
+                "hints": ["Mucho gusto needs an answer about meeting you, not about the time of day."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the words in order to introduce yourself politely: Me llamo Ana. Mucho gusto.",
+                "items": [
+                  { "text": "Me" },
+                  { "text": "llamo" },
+                  { "text": "Ana." },
+                  { "text": "Mucho" },
+                  { "text": "gusto." }
+                ],
+                "answer": ["o1", "o2", "o3", "o4", "o5"],
+                "explanation": "Me llamo Ana comes first, then Mucho gusto as the polite add-on.",
+                "hints": ["Start with me, then the verb llamo."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Speaking prompt: say out loud in Spanish: Hello, I am called [your name]. Nice to meet you. Then write what you said in Spanish. A short answer like Hola, me llamo Sam. Mucho gusto. is perfect.",
+                "answer": "Hola, me llamo Sam. Mucho gusto.",
+                "explanation": "Any answer that says hola, gives me llamo plus a name, and adds mucho gusto counts.",
+                "hints": ["Try: Hola, me llamo ___. Mucho gusto."]
+              }
+            }
+          ]
+        },
+        {
+          "title": "En el aula: classroom and colors",
+          "summary": "Name classroom things and colors, listen for them, and describe what you see.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "What is in the classroom?",
+                "body": "In a Spanish classroom you hear **el libro** (the book), **la mesa** (the table), **la silla** (the chair), **la puerta** (the door), **la ventana** (the window), and **el lapiz** (the pencil). Colors tell which one: **rojo** (red), **azul** (blue), **verde** (green), **amarillo** (yellow), **blanco** (white), **negro** (black). To say the book is red you say **el libro es rojo**. To say the chair is blue you say **la silla es azul**. The word **es** means is.\n\nListen first, then match what you heard to what you see.\n\n- **el libro es rojo** the book is red\n- **la silla es azul** the chair is blue\n- **la mesa es verde** the table is green"
+              }
+            },
+            {
+              "type": "flashcards",
+              "content": {
+                "cards": [
+                  { "front": "el libro", "back": "the book" },
+                  { "front": "la silla", "back": "the chair" },
+                  { "front": "la mesa", "back": "the table" },
+                  { "front": "la puerta / la ventana", "back": "the door / the window" },
+                  { "front": "rojo / azul / verde", "back": "red / blue / green" },
+                  { "front": "amarillo / blanco / negro", "back": "yellow / white / black" },
+                  { "front": "el libro es rojo", "back": "the book is red" },
+                  { "front": "es", "back": "is" }
+                ]
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Listen: the teacher names colors",
+                "transcript": "Teacher speaking, slow and clear. Escucha. El libro es rojo. La silla es azul. La mesa es verde. El lapiz es amarillo. Repite despues de mi. El libro es rojo. La silla es azul."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "In the audio the teacher says El libro es rojo. What does that mean?",
+                "choices": [
+                  { "id": "c1", "text": "The book is red" },
+                  { "id": "c2", "text": "The chair is blue" },
+                  { "id": "c3", "text": "The table is green" }
+                ],
+                "answer": "c1",
+                "explanation": "El libro is the book and rojo is red, so el libro es rojo means the book is red.",
+                "hints": ["Libro is book. Rojo is red."]
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Listen: two classmates talk about the room",
+                "transcript": "Ana speaking. Hola, Carlos. Que color es la puerta? Carlos speaking. La puerta es blanca. La ventana es azul. Ana speaking. Y el libro? Carlos speaking. El libro es rojo y el lapiz es amarillo."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "multi",
+                "prompt": "From the second audio, which statements are true? Select all that apply.",
+                "choices": [
+                  { "id": "c1", "text": "La puerta es blanca (the door is white)" },
+                  { "id": "c2", "text": "La ventana es azul (the window is blue)" },
+                  { "id": "c3", "text": "El libro es verde" },
+                  { "id": "c4", "text": "El lapiz es amarillo (the pencil is yellow)" }
+                ],
+                "answer": ["c1", "c2", "c4"],
+                "explanation": "Carlos says the door is white, the window is blue, and the pencil is yellow. He says the book is red, not green.",
+                "hints": ["Listen for blanca, azul, rojo, amarillo."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the words in order: La silla es azul.",
+                "items": [
+                  { "text": "La" },
+                  { "text": "silla" },
+                  { "text": "es" },
+                  { "text": "azul." }
+                ],
+                "answer": ["o1", "o2", "o3", "o4"],
+                "explanation": "Spanish order here is La (the) silla (chair) es (is) azul (blue).",
+                "hints": ["Start with La, then the thing, then es."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each word into its color. You can tell by the ending of the example sentences you just heard.",
+                "buckets": [
+                  { "label": "rojo (red)" },
+                  { "label": "azul (blue)" },
+                  { "label": "verde (green)" }
+                ],
+                "cards": [
+                  { "text": "el libro es ___ (the book)" },
+                  { "text": "la silla es ___ (the chair)" },
+                  { "text": "la mesa es ___ (the table)" },
+                  { "text": "el lapiz amarillo (already yellow, not these three)" }
+                ],
+                "answer": { "d1": "b1", "d2": "b2", "d3": "b3", "d4": "b1" },
+                "feedback": {
+                  "d1": "In the audio el libro was rojo, so this goes to rojo.",
+                  "d2": "La silla was azul.",
+                  "d3": "La mesa was verde.",
+                  "d4": "Trick check. Amarillo was the pencil, so this is not azul or verde. For this sort it sits with the red column as the odd one out to practice careful listening."
+                },
+                "explanation": "Match each object to the color the teacher gave it. The last card is a check that you listened for amarillo.",
+                "hints": ["El libro es rojo, la silla es azul, la mesa es verde. Where does each belong?"]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Mi familia y mi casa",
+          "summary": "Talk about family and rooms at home, and hold a short polite dialogue.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "People at home",
+                "body": "Your **familia** (family) lives in a **casa** (house). Key people: **la madre** (mother), **el padre** (father), **la hermana** (sister), **el hermano** (brother), **la abuela** (grandmother), **el abuelo** (grandfather). Rooms: **la cocina** (kitchen), **el dormitorio** (bedroom), **el bano** (bathroom), **la sala** (living room). Two useful sentences: **Vivo con mi familia** (I live with my family) and **Mi casa es pequena pero bonita** (my house is small but pretty). The word **mi** means my, **con** means with.\n\n- **mi madre / mi padre** my mother / my father\n- **mi hermana / mi hermano** my sister / my brother\n- **Vivo en la casa azul** I live in the blue house"
+              }
+            },
+            {
+              "type": "flashcards",
+              "content": {
+                "cards": [
+                  { "front": "la familia / la casa", "back": "the family / the house" },
+                  { "front": "la madre / el padre", "back": "the mother / the father" },
+                  { "front": "la hermana / el hermano", "back": "the sister / the brother" },
+                  { "front": "la abuela / el abuelo", "back": "the grandmother / the grandfather" },
+                  { "front": "la cocina / el dormitorio", "back": "the kitchen / the bedroom" },
+                  { "front": "Vivo con mi familia", "back": "I live with my family" },
+                  { "front": "Mi casa es bonita", "back": "My house is pretty" },
+                  { "front": "con / mi / es", "back": "with / my / is" }
+                ]
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Listen: Lucia introduces her family",
+                "transcript": "Lucia speaking, warm and slow. Hola, me llamo Lucia. Vivo con mi madre, mi padre y mi hermano. Mi hermana vive con mi abuela. Nuestra casa es pequena pero bonita. La cocina es amarilla y el dormitorio es blanco."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match the Spanish family word to its English meaning.",
+                "left": [
+                  { "text": "la madre" },
+                  { "text": "el hermano" },
+                  { "text": "la abuela" },
+                  { "text": "el padre" }
+                ],
+                "right": [
+                  { "text": "mother" },
+                  { "text": "brother" },
+                  { "text": "grandmother" },
+                  { "text": "father" }
+                ],
+                "answer": { "l1": "r1", "l2": "r2", "l3": "r3", "l4": "r4" },
+                "explanation": "Madre is mother, hermano is brother, abuela is grandmother, padre is father.",
+                "hints": ["Abuela has the same root as abuelo, the grandparent pair."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "In Lucia's audio, who lives with Lucia directly?",
+                "choices": [
+                  { "id": "c1", "text": "Su madre, su padre y su hermano" },
+                  { "id": "c2", "text": "Solo su hermana" },
+                  { "id": "c3", "text": "Su abuela en la misma casa" }
+                ],
+                "answer": "c1",
+                "explanation": "Lucia says Vivo con mi madre, mi padre y mi hermano. Her sister lives with the grandmother elsewhere.",
+                "hints": ["Listen for Vivo con, I live with, who is named right after."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "scenario",
+                "prompt": "You meet a neighbor. Choose a friendly, correct path through the chat.",
+                "start": "start",
+                "nodes": {
+                  "start": {
+                    "text": "Vecina: Hola! Como te llamas?",
+                    "choices": [
+                      { "text": "Me llamo Alex. Y tu, como te llamas?", "next": "a1" },
+                      { "text": "Adios.", "next": "bad1" }
+                    ]
+                  },
+                  "a1": {
+                    "text": "Vecina: Me llamo Sofia. Mucho gusto! Donde vives?",
+                    "choices": [
+                      { "text": "Vivo con mi familia en la casa azul.", "next": "good" },
+                      { "text": "La silla es azul.", "next": "bad2" }
+                    ]
+                  },
+                  "good": {
+                    "text": "Vecina: Que bonita! Hasta luego, Alex!",
+                    "choices": []
+                  },
+                  "bad1": {
+                    "text": "That ends the chat before it starts. A name first is kinder.",
+                    "choices": []
+                  },
+                  "bad2": {
+                    "text": "That is a correct sentence but not an answer about where you live.",
+                    "choices": []
+                  }
+                },
+                "good": ["good"],
+                "explanation": "A friendly chat gives your name, returns the question, and answers where you live.",
+                "hints": ["Answer the question asked with a sentence about your home."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "Speaking prompt: say out loud in Spanish two sentences about your home or family. Use Vivo con... or Mi casa es... Then write them here. Example: Vivo con mi madre y mi hermano. Mi casa es pequena.",
+                "answer": "Vivo con mi madre y mi hermano. Mi casa es pequena pero bonita.",
+                "explanation": "Any two sentences using the taught words about family or rooms count. Speaking out loud is the real practice.",
+                "hints": ["Start one sentence with Vivo con and one with Mi casa es."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the words in order: Vivo con mi familia en la casa azul.",
+                "items": [
+                  { "text": "Vivo" },
+                  { "text": "con mi familia" },
+                  { "text": "en" },
+                  { "text": "la casa" },
+                  { "text": "azul." }
+                ],
+                "answer": ["o1", "o2", "o3", "o4", "o5"],
+                "explanation": "Vivo (I live) con mi familia (with my family) en (in) la casa (the house) azul (blue).",
+                "hints": ["Start with Vivo, then who you live with, then where."]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Leer y escuchar: Un dia en el mercado",
+          "summary": "Read and listen to a short story in simple Spanish, then show what you understood.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Un dia en el mercado (A1 graded reader)",
+                "body": "Buenos dias! Me llamo Lucia. Hoy es sabado. Voy al mercado con mi madre.\n\nEn el mercado hay frutas, pan y flores. Veo manzanas rojas y platanos amarillos. Mi madre compra pan. Yo compro flores blancas para mi abuela.\n\nHablo con el vendedor. Digo: Buenos dias, cuanto cuesta el pan? El dice: Un euro. Digo: Gracias!\n\nVuelvo a casa con mi familia. Comemos juntos. Mi casa es pequena pero bonita. Estoy contenta.\n\nWords to help you:\n- **hoy es sabado** today is Saturday\n- **voy al mercado** I go to the market\n- **veo** I see, **compro** I buy, **cuanto cuesta** how much does it cost\n- **vuelvo a casa** I return home, **comemos juntos** we eat together, **estoy contenta** I am happy"
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "caption": "A sunny market with red apples, yellow bananas, bread, and white flowers on a table. A girl and her mother talk with the seller.",
+                "prompt": "A sunny outdoor market with red apples yellow bananas bread and white flowers on a table, a girl and her mother talking with a seller, soft watercolour, no text",
+                "alt": "Market table with red apples, yellow bananas, bread, and white flowers, a girl with her mother at the stall"
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Listen: Lucia reads Un dia en el mercado",
+                "transcript": "Lucia reading, slow and clear. Buenos dias. Me llamo Lucia. Hoy es sabado. Voy al mercado con mi madre. En el mercado hay frutas, pan y flores. Veo manzanas rojas y platanos amarillos. Mi madre compra pan. Yo compro flores blancas para mi abuela. Hablo con el vendedor. Digo, Buenos dias, cuanto cuesta el pan? El dice, Un euro. Digo, Gracias. Vuelvo a casa con mi familia. Comemos juntos. Mi casa es pequena pero bonita. Estoy contenta."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "In the story, who does Lucia go to the market with?",
+                "choices": [
+                  { "id": "c1", "text": "Con su madre" },
+                  { "id": "c2", "text": "Con su hermano" },
+                  { "id": "c3", "text": "Sola (alone)" }
+                ],
+                "answer": "c1",
+                "explanation": "Lucia says Voy al mercado con mi madre, I go to the market with my mother.",
+                "hints": ["The first paragraph names her companion. Who is it?"]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "multi",
+                "prompt": "What does Lucia see or buy at the market? Select all that apply.",
+                "choices": [
+                  { "id": "c1", "text": "Manzanas rojas (red apples)" },
+                  { "id": "c2", "text": "Platanos amarillos (yellow bananas)" },
+                  { "id": "c3", "text": "Flores blancas para su abuela (white flowers for grandmother)" },
+                  { "id": "c4", "text": "Un coche rojo (a red car)" }
+                ],
+                "answer": ["c1", "c2", "c3"],
+                "explanation": "The text names red apples, yellow bananas, and white flowers for her grandmother. No car is mentioned.",
+                "hints": ["Three of these appear in Veo... and Compro... One does not appear at all."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort the words from the story into the right group.",
+                "buckets": [
+                  { "label": "Food at the market" },
+                  { "label": "People in the story" }
+                ],
+                "cards": [
+                  { "text": "manzanas" },
+                  { "text": "pan" },
+                  { "text": "madre" },
+                  { "text": "vendedor" }
+                ],
+                "answer": { "d1": "b1", "d2": "b1", "d3": "b2", "d4": "b2" },
+                "feedback": {
+                  "d1": "Manzanas are apples, food.",
+                  "d2": "Pan is bread, food.",
+                  "d3": "Madre is mother, a person.",
+                  "d4": "Vendedor is seller, a person."
+                },
+                "explanation": "Manzanas and pan are food. Madre and vendedor are people.",
+                "hints": ["Which two can you eat? Which two are people Lucia talks with?"]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In English, write one sentence in your own words about what happens in the story. Example: Lucia goes to the market with her mother and buys flowers.",
+                "answer": "Lucia goes to the market with her mother, buys white flowers for her grandmother, asks the price of bread, and returns home happy.",
+                "explanation": "Any sentence that names going to the market, buying something, and returning home is good.",
+                "hints": ["What are the three big steps: going, buying or asking, returning?"]
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "My market diary: four sentences in Spanish",
+                "description": "Write four short sentences in Spanish about a market day, real or imagined. Use words from this course: greetings, colors, family, food, and cuanto cuesta. Say who you went with, what you saw, what you bought, and how you felt. Keep each sentence short. Example start: Hoy voy al mercado con ... Veo ... Compro ... Estoy contenta / contento.",
+                "rubric": "- Four sentences in Spanish, each a simple present sentence\n- Names a companion with con, at least one color word, at least one food word\n- One question or polite phrase like cuanto cuesta or gracias\n- Understandable to a friendly Spanish-speaking reader even with small errors"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
