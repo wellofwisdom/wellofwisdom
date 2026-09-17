@@ -92,16 +92,10 @@ function CompanionBubble({ state, onDismiss }: { state: CompanionState; onDismis
 
 function WarmupBlock({
   items: warmItems,
-  unitLessons,
-  courseUnits,
-  lessonId,
   onReviewSolved,
   onSkip,
 }: {
   items: { item_id: number; course_id: number; lesson_title: string; course_title: string; content: { prompt?: string; kind?: string; choices?: { id: string; text: string }[] } }[];
-  unitLessons: Set<number>;
-  courseUnits: CourseUnit[];
-  lessonId: number;
   onReviewSolved: () => void;
   onSkip: () => void;
 }) {
@@ -247,6 +241,7 @@ function MasteryBlock({
     setBusy(false);
   }
   function nextMastery() {
+    if (!items) return;
     setFeedback(null);
     setPicked(null);
     setAnswer("");
@@ -317,7 +312,6 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
   const [warmItems, setWarmItems] = useState<{ item_id: number; course_id: number; lesson_title: string; course_title: string; content: { prompt?: string; kind?: string; choices?: { id: string; text: string }[] } }[] | null>(null);
   const [warmDone, setWarmDone] = useState(false);
   const [showMastery, setShowMastery] = useState(false);
-  const [unitLessonIds, setUnitLessonIds] = useState<Set<number>>(new Set());
   const completionLogged = useRef(false);
 
   const load = useCallback(() =>
@@ -341,7 +335,6 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
             for (const u of c.course.units) {
               if (u.lessons.some((l) => l.id === lessonId)) {
                 setUnitId(u.id);
-                setUnitLessonIds(new Set(u.lessons.map((l) => l.id)));
                 break;
               }
             }
@@ -460,9 +453,6 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
         {warmToShow && (
           <WarmupBlock
             items={warmToShow}
-            unitLessons={unitLessonIds}
-            courseUnits={courseUnits || []}
-            lessonId={lessonId}
             onReviewSolved={() => setWarmDone(true)}
             onSkip={() => setWarmDone(true)}
           />
