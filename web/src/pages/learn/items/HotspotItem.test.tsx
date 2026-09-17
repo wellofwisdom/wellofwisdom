@@ -121,6 +121,15 @@ describe("HotspotItem", () => {
     expect(container.textContent!.trim().length).toBeGreaterThan(0);
   });
 
+  it("stage is described by the live status line", () => {
+    const item = { ...base, content: { kind: "hotspot", prompt: "Tap the cave", regions } } as unknown as never;
+    render(tWrap(<HotspotItem item={item} solved={{}} onSolved={vi.fn()} qKey="809:0" qIdx={0} />));
+    const stage = document.querySelector("[data-hotspot-stage]") as HTMLElement;
+    const describedBy = stage.getAttribute("aria-describedby");
+    expect(describedBy).toBeTruthy();
+    expect(document.getElementById(describedBy!)).toBeTruthy();
+  });
+
   it("hides explanation before submit", () => {
     const item = { ...base, content: { kind: "hotspot", prompt: "Tap the cave", regions } } as unknown as never;
     const { container } = render(tWrap(<HotspotItem item={item} solved={{}} onSolved={vi.fn()} qKey="808:0" qIdx={0} />));

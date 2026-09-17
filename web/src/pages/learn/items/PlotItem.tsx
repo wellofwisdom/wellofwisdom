@@ -36,6 +36,9 @@ function parseGrid(raw: unknown): Grid {
   if (xmin > xmax) [xmin, xmax] = [xmax, xmin];
   if (ymin > ymax) [ymin, ymax] = [ymax, ymin];
   if (step <= 0) step = 1;
+  // a zero-span axis would divide by zero when mapping to pixels, so widen it by one step
+  if (xmax <= xmin) xmax = xmin + step;
+  if (ymax <= ymin) ymax = ymin + step;
   return { xmin, xmax, ymin, ymax, step };
 }
 

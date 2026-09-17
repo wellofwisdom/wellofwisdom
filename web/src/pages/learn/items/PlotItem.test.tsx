@@ -114,6 +114,21 @@ describe("PlotItem", () => {
     expect(container.querySelector("[data-plot-grid]")).toBeFalsy();
   });
 
+  it("survives a zero-span grid and still posts a point", async () => {
+    const item = { ...base, content: { kind: "plot", prompt: "Tiny grid", grid: { xmin: 5, xmax: 5, ymin: 2, ymax: 2, step: 1 } } } as unknown as never;
+    render(tWrap(<PlotItem item={item} solved={{}} onSolved={vi.fn()} qKey="818:0" qIdx={0} />));
+    const el = document.querySelector("[data-plot-grid]") as HTMLElement;
+    expect(el).toBeTruthy();
+    const place = screen.getByRole("button", { name: /^plot\.place/ });
+    fireEvent.click(place);
+    fireEvent.click(screen.getByRole("button", { name: /exercise\.check/ }));
+    await vi.waitFor(() => expect(mockApi).toHaveBeenCalled());
+    const body = (mockApi.mock.calls[0][1] as { body: { answer: { x: number; y: number }[] } }).body;
+    expect(body.answer.length).toBe(1);
+    expect(Number.isFinite(body.answer[0].x)).toBe(true);
+    expect(Number.isFinite(body.answer[0].y)).toBe(true);
+  });
+
   it("hides explanation before submit", () => {
     const item = { ...base, content: { kind: "plot", prompt: "Plot it", grid } } as unknown as never;
     const { container } = render(tWrap(<PlotItem item={item} solved={{}} onSolved={vi.fn()} qKey="817:0" qIdx={0} />));

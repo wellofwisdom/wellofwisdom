@@ -177,6 +177,7 @@ export default function HotspotItem({
             data-nav
             data-hotspot-stage
             aria-label={t("hotspot.stageLabel")}
+            aria-describedby={`hotspot-status-${item.id}`}
             data-say={statusText}
             onClick={handleStageClick}
             style={{
