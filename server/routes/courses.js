@@ -373,6 +373,8 @@ router.patch("/:id", async (req, res, next) => {
       if (status === "published") {
         const missing = await unansweredIn(id, req.user.familyId);
         if (missing) return res.status(409).json({ error: "answers_missing", count: missing });
+        const pendingVerify = await pendingVerification(id, req.user.familyId).catch(() => 0);
+        if (pendingVerify) return res.status(409).json({ error: "verification_pending", count: pendingVerify });
       }
       add("status", status);
     }
@@ -739,6 +741,8 @@ router.post("/:id/publish", auth.requirePerm("share_course"), async (req, res, n
     // Publishing also makes the course live to this family's learners.
     const missing = await unansweredIn(id, req.user.familyId);
     if (missing) return res.status(409).json({ error: "answers_missing", count: missing });
+    const pendingVerify2 = await pendingVerification(id, req.user.familyId).catch(() => 0);
+    if (pendingVerify2) return res.status(409).json({ error: "verification_pending", count: pendingVerify2 });
     const slug = cur.rows[0].public_slug || (await share.uniqueSlug(cur.rows[0].title, id));
 
     const { rows } = await db.query(
@@ -1186,6 +1190,156 @@ router.post("/:courseId/versions/:versionId/restore", siblingEdit(), async (req,
     if (err.code === "course_unparseable") return bad(res, "course_unparseable", 400);
     next(err);
   }
+});
+
+// Editor supplementals: regenerate-with-instruction, verification dismiss,
+// and make-lesson-interactive. Each reuses existing generation routes where
+// possible; the editor just drives the job and renders draft beside original.
+
+router.post("/items/:itemId/verification/dismiss", siblingEdit(), async (req, res, next) => {
+  try {
+    const itemId = Number(req.params.itemId);
+    if (!Number.isInteger(itemId)) return bad(res, "id_invalid");
+    const found = await db.query(
+      `select i.id, i.content, un.course_id from lesson_items i join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id join courses c on c.id = un.course_id where i.id = $1 and c.family_id = $2`,
+      [itemId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const content = found.rows[0].content || {};
+    const ver = content.verification;
+    if (!ver || ver.flag !== "check_this_answer" || ver.dismissed) return bad(res, "verification_not_found", 404);
+    const nextContent = { ...content, verification: { ...ver, dismissed: true } };
+    await db.query("update lesson_items set content = $2 where id = $1", [itemId, JSON.stringify(nextContent)]);
+    await snapshotAfterMutate(req, Number(found.rows[0].course_id));
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+router.post("/lessons/:lessonId/regenerate", siblingEdit(), async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    const instruction = String((req.body && req.body.instruction) || "").trim().slice(0, 500);
+    if (!instruction) return bad(res, "instruction_required");
+    if (!Number.isInteger(lessonId)) return bad(res, "id_invalid");
+    const found = await db.query(
+      `select l.id, l.unit_id, c.id as course_id, c.topic, c.lens, c.grade_level, c.learner_id from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const courseId = Number(found.rows[0].course_id);
+    const spec = { topic: found.rows[0].topic, lens: found.rows[0].lens, gradeLevel: found.rows[0].grade_level, learnerId: found.rows[0].learner_id, notes: instruction, openPublish: !found.rows[0].learner_id };
+    const jobId = await require("../lib/jobs").enqueue(req.user.familyId, "course-lesson", { courseId, lessonId, spec, lessonPlan: { title: found.rows[0].topic, objective: instruction }, outlineContext: instruction }, req.user.id);
+    res.status(202).json({ jobId });
+  } catch (err) { next(err); }
+});
+
+router.post("/items/:itemId/regenerate", siblingEdit(), async (req, res, next) => {
+  try {
+    const itemId = Number(req.params.itemId);
+    const instruction = String((req.body && req.body.instruction) || "").trim().slice(0, 500);
+    if (!instruction) return bad(res, "instruction_required");
+    if (!Number.isInteger(itemId)) return bad(res, "id_invalid");
+    const found = await db.query(
+      `select i.id, i.type, i.content, l.id as lesson_id, c.id as course_id, c.topic from lesson_items i join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id join courses c on c.id = un.course_id where i.id = $1 and c.family_id = $2`,
+      [itemId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const row = found.rows[0];
+    const courseId = Number(row.course_id);
+    const lessonId = Number(row.lesson_id);
+    const ai = require("../lib/ai");
+    if (!ai.configured()) return bad(res, "ai_not_configured", 503);
+    const kindMenu = require("../lib/coursegen.v2").buildKindMenu();
+    const spec = { topic: row.topic, lens: null, gradeLevel: null, notes: instruction };
+    const cg = require("../lib/coursegen");
+    const out = await ai.chatJson("lesson-content", [
+      { role: "system", content: `You regenerate one exercise item with this instruction: ${instruction}. Schema: { type: "exercise", content: { prompt, kind, choices, answer, explanation, hints } }. Kind menu: ${kindMenu}. Return only JSON.` },
+      { role: "user", content: `Original kind ${row.type === "exercise" ? row.content.kind : row.type}: ${JSON.stringify(row.content).slice(0, 4000)}\nInstruction: ${instruction}` },
+    ], { maxTokens: 2000, temperature: 0.7, usage: { familyId: req.user.familyId, note: `regen-item:${itemId}` } });
+    const rawItem = out.json && out.json.type ? out.json : { type: "exercise", content: out.json };
+    const normalized = cg.normalizeItem(rawItem);
+    if (!normalized) return bad(res, "content_invalid");
+    const draftKey = `draft:${itemId}:${Date.now()}`;
+    const draftContent = { ...normalized.content, draft: true, draftOf: itemId, instruction };
+    const { rows } = await db.query(
+      "insert into lesson_items (lesson_id, type, position, content) values ($1,$2,$3,$4) returning id, type, position, content",
+      [lessonId, normalized.type, 9999, JSON.stringify(draftContent)]
+    );
+    await snapshotAfterMutate(req, courseId);
+    res.json({ item: { id: Number(rows[0].id), type: rows[0].type, position: Number(rows[0].position), content: rows[0].content } });
+  } catch (err) { next(err); }
+});
+
+router.get("/lessons/:lessonId/draft", async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    if (!Number.isInteger(lessonId)) return bad(res, "id_invalid");
+    const found = await db.query(
+      `select l.id from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const items = await db.query("select id, type, position, content from lesson_items where lesson_id = $1 and content->>'draft' = 'true' order by position, id", [lessonId]);
+    res.json({ lesson: { id: lessonId, items: items.rows.map((r) => ({ id: Number(r.id), type: r.type, position: Number(r.position), content: r.content })) } });
+  } catch (err) { next(err); }
+});
+
+router.post("/lessons/:lessonId/make-interactive", siblingEdit(), async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    if (!Number.isInteger(lessonId)) return bad(res, "id_invalid");
+    const found = await db.query(
+      `select l.id, l.unit_id, c.id as course_id, c.topic, c.lens, c.grade_level, c.learner_id from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const courseId = Number(found.rows[0].course_id);
+    const spec = { topic: found.rows[0].topic, lens: found.rows[0].lens, gradeLevel: found.rows[0].grade_level, learnerId: found.rows[0].learner_id, notes: "Make this lesson interactive: convert a read-then-quiz lesson into the section 6 shape, keeping the guide's own text.", openPublish: !found.rows[0].learner_id };
+    const jobId = await require("../lib/jobs").enqueue(req.user.familyId, "course-lesson", { courseId, lessonId, spec, lessonPlan: { title: found.rows[0].topic, objective: "Make interactive" }, outlineContext: "section 6 shape" }, req.user.id);
+    res.status(202).json({ jobId });
+  } catch (err) { next(err); }
+});
+
+router.post("/lessons/:lessonId/draft/:draftId/accept", siblingEdit(), async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    const draftId = Number(req.params.draftId);
+    const found = await db.query(
+      `select l.id, un.course_id from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const courseId = Number(found.rows[0].course_id);
+    const draft = await db.query("select id, type, content from lesson_items where id = $1 and lesson_id = $2 and content->>'draft' = 'true'", [draftId, lessonId]);
+    if (!draft.rows[0]) return bad(res, "not_found", 404);
+    const draftOf = draft.rows[0].content.draftOf;
+    const cleanContent = { ...draft.rows[0].content };
+    delete cleanContent.draft;
+    delete cleanContent.draftOf;
+    delete cleanContent.instruction;
+    if (draftOf) {
+      await db.query("update lesson_items set content = $2 where id = $1", [Number(draftOf), JSON.stringify(cleanContent)]);
+      await db.query("delete from lesson_items where id = $1", [draftId]);
+    } else {
+      await db.query("update lesson_items set content = $2 where id = $1", [draftId, JSON.stringify(cleanContent)]);
+    }
+    await snapshotAfterMutate(req, courseId);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+router.post("/lessons/:lessonId/draft/:draftId/discard", siblingEdit(), async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    const draftId = Number(req.params.draftId);
+    const found = await db.query(
+      `select l.id from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    await db.query("delete from lesson_items where id = $1 and lesson_id = $2 and content->>'draft' = 'true'", [draftId, lessonId]);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
 });
 
 // Preview one lesson as the learner sees it, without switching the session.
