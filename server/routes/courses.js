@@ -14,6 +14,12 @@ const standards = require("../lib/standards");
 const router = express.Router();
 router.use(auth.parentOnly);
 
+// Generator v2 routes (outline, per-lesson, verify, media) live in
+// _v2_routes.js to keep this file readable. A load failure here must be
+// loud: silently missing generation routes are worse than a boot error.
+require("./_v2_routes")(router, { db, jobs, ai, safeFetch, safeSourceUrl, htmlToText });
+
+
 function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
@@ -144,6 +150,16 @@ async function courseTree(courseId, familyId) {
  *  a course live to learners (a status change and publishing to /c/), because
  *  an unanswerable question marks every learner wrong, or leaves them ungraded
  *  with no idea why. The guide gets a count and the course page lists them. */
+
+async function pendingVerification(courseId, familyId) {
+  const u = await db.query("select id from units where course_id = $1", [courseId]);
+  if (!u.rows.length) return 0;
+  const l = await db.query("select id from lessons where unit_id = any($1::bigint[])", [u.rows.map(x=>x.id)]);
+  if (!l.rows.length) return 0;
+  const it = await db.query("select content from lesson_items where lesson_id = any($1::bigint[]) and content->>'verification' is not null and (content->'verification'->>'dismissed')::boolean is not true and content->'verification'->>'flag' = 'check_this_answer'", [l.rows.map(x=>x.id)]);
+  return it.rows.length;
+}
+
 async function unansweredIn(courseId, familyId) {
   const { rows } = await db.query(
     `select i.type, i.content from lesson_items i
@@ -314,7 +330,8 @@ router.get("/:id", async (req, res, next) => {
     const tree = await courseTree(Number(req.params.id), req.user.familyId);
     if (!tree) return bad(res, "not_found", 404);
     const { missingAnswers } = require("../lib/coursegen");
-    res.json({ course: tree, missingAnswers: missingAnswers(allItems(tree)) });
+    const verificationPending = await pendingVerification(Number(req.params.id), req.user.familyId).catch(()=>0);
+    res.json({ course: tree, missingAnswers: missingAnswers(allItems(tree)), verificationPending });
   } catch (err) {
     next(err);
   }
@@ -836,11 +853,34 @@ router.get("/:id/answer-key", async (req, res, next) => {
             const ids = Array.isArray(c.answer) ? c.answer : [];
             const texts = ids.map((id) => ((c.choices || []).find((ch) => ch.id === id) || {}).text).filter(Boolean);
             answerText = texts.length ? texts.join(", ") : null;
+          } else if (c.kind === "order") {
+            const ids = Array.isArray(c.answer) ? c.answer : [];
+            const texts = ids.map((id) => ((c.items || []).find((it) => it.id === id) || {}).text).filter(Boolean);
+            answerText = texts.length ? texts.join(" -> ") : null;
+          } else if (c.kind === "match") {
+            const pairs = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? Object.entries(c.answer) : [];
+            answerText = pairs.length ? pairs.map(([l, r]) => `${l}->${r}`).join(", ") : null;
+          } else if (c.kind === "categorize") {
+            const placed = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? Object.entries(c.answer) : [];
+            answerText = placed.length ? placed.map(([card, bucket]) => `${card}->${bucket}`).join(", ") : null;
+          } else if (c.kind === "hotspot") {
+            const ids = Array.isArray(c.answer) ? c.answer : [];
+            answerText = ids.length ? ids.join(", ") : null;
+          } else if (c.kind === "plot") {
+            const pts = Array.isArray(c.answer) ? c.answer : [];
+            answerText = pts.length ? pts.map((p) => `(${p.x},${p.y})`).join(", ") : null;
+          } else if (c.kind === "scenario") {
+            const good = Array.isArray(c.good) ? c.good : [];
+            answerText = good.length ? good.join(", ") : null;
           } else answerText = c.answer;
           // Worth surfacing: an exercise with no answer cannot be graded, and
           // the generator does occasionally produce one.
-          if (c.kind === "multi") {
-            if (!Array.isArray(c.answer) || !c.answer.length) missingAnswers++;
+          if (c.kind === "multi" || c.kind === "order" || c.kind === "hotspot" || c.kind === "plot" || c.kind === "scenario") {
+            const key = c.kind === "scenario" ? c.good : c.answer;
+            if (!Array.isArray(key) || !key.length) missingAnswers++;
+          } else if (c.kind === "match" || c.kind === "categorize") {
+            const key = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? Object.keys(c.answer) : [];
+            if (!key.length) missingAnswers++;
           } else if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
           const hints = Array.isArray(c.hints) ? c.hints : c.hint ? [String(c.hint)] : [];
           return {

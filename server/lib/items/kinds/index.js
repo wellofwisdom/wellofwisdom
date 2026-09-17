@@ -6,6 +6,12 @@ const multi = require("./multi");
 const cloze = require("./cloze");
 const numberline = require("./numberline");
 const fraction = require("./fraction");
+const order = require("./order");
+const match = require("./match");
+const categorize = require("./categorize");
+const hotspot = require("./hotspot");
+const plot = require("./plot");
+const scenario = require("./scenario");
 const common = require("./common");
 
 const REGISTRY = {
@@ -16,6 +22,12 @@ const REGISTRY = {
   cloze,
   numberline,
   fraction,
+  order,
+  match,
+  categorize,
+  hotspot,
+  plot,
+  scenario,
 };
 
 function forKind(kind) {

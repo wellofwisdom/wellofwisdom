@@ -256,7 +256,7 @@ function missingAnswers(items) {
     const c = (i && i.content) || {};
     if (i.type === "exercise" && typeof c === "object") {
       const p = require("./items/exercise").problem(c);
-      if (p === "answer_required" || p === "answer_invalid") n += 1;
+      if (p === "answer_required" || p === "answer_invalid" || p === "good_required" || p === "good_invalid" || p === "nodes_required" || p === "start_required" || p === "start_invalid" || p === "regions_required") n += 1;
     } else if (i.type === "video" && Array.isArray(c.questions)) {
       const p = require("./items/video").problem(c);
       if (p === "answer_required" || p === "answer_invalid" || p === "question_incomplete") {
@@ -406,8 +406,15 @@ async function generateCourse(spec, userId, familyId) {
   return { courseId, title: course.title, counts };
 }
 
+
+// ---------- Generator v2: outline first, lesson by lesson ----------
+// Helpers live in server/lib/coursegen.v2.js to keep this file merge-clean.
+// Re-exports are appended at end of file after module.exports.
 module.exports = {
   generateCourse, normalizeCourse, normalizeItem, normalizeExercise, normalizeAudio, itemProblem, missingAnswers, mapChoices,
   buildUserPrompt, persistCourse, MAX_CHOICES, MAX_VIDEO_QUESTIONS,
   MAX_UNITS, LESSONS_SCANNED, MAX_LESSONS, MAX_ITEMS,
 };
+
+// Re-export Generator v2 helpers so require('./coursegen') stays the single entry point.
+try { Object.assign(module.exports, require("./coursegen.v2")); } catch {}

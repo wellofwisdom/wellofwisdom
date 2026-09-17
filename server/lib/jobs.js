@@ -101,6 +101,26 @@ const HANDLERS = {
       userId: spec.created_by,
     });
   },
+  "course-outline": async (job) => {
+    const spec = job.payload;
+    const { generateOutline } = require("./coursegen.v2");
+    return generateOutline(spec, job.family_id);
+  },
+  "course-lesson": async (job) => {
+    const spec = job.payload;
+    const { generateLesson } = require("./coursegen.v2");
+    return generateLesson({ courseId: Number(spec.courseId), lessonId: Number(spec.lessonId), spec, lessonPlan: spec.lessonPlan, outlineContext: spec.outlineContext, familyId: job.family_id });
+  },
+  "course-verify": async (job) => {
+    const spec = job.payload;
+    const { verifyCourse } = require("./coursegen.v2");
+    return verifyCourse(Number(spec.courseId), job.family_id);
+  },
+  "course-media": async (job) => {
+    const spec = job.payload;
+    const { runMediaPass } = require("./coursegen.v2");
+    return runMediaPass(Number(spec.courseId), job.family_id);
+  },
   "plan-outline": async (job) => {
     const spec = job.payload;
     const { generateOutline } = require("./plangen");
