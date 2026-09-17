@@ -5,7 +5,7 @@ import { api, niceError } from "../../../api";
 import { useT } from "../../../i18n";
 import { MathText } from "../../../lib/rich";
 type PredictChoice = { id: string; text: string };
-type PredictContent = { prompt?: string; choices?: PredictChoice[]; reveal?: string; };
+type PredictContent = { prompt?: string; choices?: PredictChoice[]; };
 type PredictItemNode = ItemNode & { content: Record<string, unknown> };
 type AttemptResponse = { correct: boolean | null; score?: number | null; reveal: { explanation: string | null; answer?: string | null } | null; };
 export default function PredictItem({ item }: { item: PredictItemNode }) {
@@ -13,7 +13,6 @@ export default function PredictItem({ item }: { item: PredictItemNode }) {
   const c = (item.content || {}) as unknown as PredictContent;
   const prompt = String(c.prompt || "").trim();
   const choices: PredictChoice[] = Array.isArray(c.choices) ? (c.choices as unknown[]).filter((ch) => ch && typeof ch === "object" && String((ch as PredictChoice).text || "").trim()).map((ch) => ({ id: String((ch as PredictChoice).id), text: String((ch as PredictChoice).text || "").trim() })) : [];
-  const staticReveal = String(c.reveal || "").trim();
   const [picked, setPicked] = useState<string | null>(null);
   const [revealText, setRevealText] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -24,10 +23,10 @@ export default function PredictItem({ item }: { item: PredictItemNode }) {
     setBusy(true); setErr(""); setPicked(id);
     try {
       const d = await api<AttemptResponse>("/api/learn/attempt", { method: "POST", body: { itemId: item.id, questionIndex: 0, answer: id } });
-      const text = (d.reveal as { explanation?: string | null; reveal?: string | null })?.explanation || (d.reveal as { reveal?: string | null })?.reveal || staticReveal || t("predict.revealFallback");
+      const text = (d.reveal as { explanation?: string | null; reveal?: string | null })?.explanation || (d.reveal as { reveal?: string | null })?.reveal || t("predict.revealFallback");
       setRevealText(text);
     } catch (e) {
-      if (staticReveal) setRevealText(staticReveal); else setErr(niceError(e));
+      setErr(niceError(e));
     } finally { setBusy(false); }
   }
   function onChoiceKeyDown(e: React.KeyboardEvent, id: string) {
@@ -45,7 +44,7 @@ export default function PredictItem({ item }: { item: PredictItemNode }) {
     }
   }
   if (!prompt && choices.length === 0) {
-    return (<section className="litem predict" aria-label={t("predict.label")}><p className="muted small">{t("predict.empty")}</p>{staticReveal && <p>{staticReveal}</p>}</section>);
+    return (<section className="litem predict" aria-label={t("predict.label")}><p className="muted small">{t("predict.empty")}</p></section>);
   }
   return (
     <section className="litem predict" aria-label={t("predict.label")}>
