@@ -53,6 +53,28 @@ async function recordAttempt({ familyId, learnerId, itemId, correct }) {
   }
 }
 
+/** Per-card scheduler for flashcards. One row per (learner, item, card_index). */
+async function recordFlashcardAttempt({ familyId, learnerId, itemId, cardIndex, correct }) {
+  try {
+    const idx = Number(cardIndex);
+    if (!Number.isInteger(idx) || idx < 0) return;
+    const { rows } = await db.query(
+      "select ease, interval_days, reps, lapses from flashcard_reviews where learner_id = $1 and item_id = $2 and card_index = $3",
+      [learnerId, itemId, idx]
+    );
+    const next = nextSchedule(rows[0], correct);
+    await db.query(
+      `insert into flashcard_reviews (family_id, learner_id, item_id, card_index, ease, interval_days, reps, lapses, due_at, updated_at)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9, now())
+       on conflict (learner_id, item_id, card_index)
+       do update set ease = $5, interval_days = $6, reps = $7, lapses = $8, due_at = $9, updated_at = now()`,
+      [familyId, learnerId, itemId, idx, next.ease, next.interval_days, next.reps, next.lapses, dueDate(next.interval_days)]
+    );
+  } catch (err) {
+    console.error(`[review] flashcard schedule update failed (ignored): ${err.message}`);
+  }
+}
+
 /** Exercises due for review across the learner's published courses. */
 async function dueForLearner(learnerId, familyId, { limit = 25 } = {}) {
   const { rows } = await db.query(
@@ -64,14 +86,14 @@ async function dueForLearner(learnerId, familyId, { limit = 25 } = {}) {
                join courses c2 on c2.id = un2.course_id
               where rs2.learner_id = $1 and rs2.due_at <= now()
                 and c2.status = 'published' and (c2.learner_id is null or c2.learner_id = $1)
-                and i2.type in ('exercise','flashcards'))::int as due_total
+                and i2.type = 'exercise')::int as due_total
        from review_schedule rs
        join lesson_items i on i.id = rs.item_id
        join lessons l on l.id = i.lesson_id join units un on un.id = l.unit_id
        join courses c on c.id = un.course_id
       where rs.learner_id = $1 and rs.due_at <= now()
         and c.status = 'published' and (c.learner_id is null or c.learner_id = $1)
-        and i.type in ('exercise','flashcards')
+        and i.type = 'exercise'
       order by rs.due_at asc
       limit $2`,
     [learnerId, limit]
@@ -79,4 +101,4 @@ async function dueForLearner(learnerId, familyId, { limit = 25 } = {}) {
   return rows;
 }
 
-module.exports = { nextSchedule, recordAttempt, dueForLearner };
+module.exports = { nextSchedule, recordAttempt, recordFlashcardAttempt, dueForLearner };

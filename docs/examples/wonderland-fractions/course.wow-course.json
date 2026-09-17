@@ -208,7 +208,11 @@
                 "kind": "text",
                 "prompt": "In one sentence, explain why $\\frac{3}{4} > \\frac{1}{4}$ without calculating.",
                 "answer": "Both are quarters so the pieces are the same size, and 3 pieces is more than 1 piece.",
-                "explanation": "Any sentence that says the pieces match and compares the numerators is good."
+                "explanation": "Any sentence that says the pieces match and compares the numerators is good.",
+                "hints": [
+                  "Denominators match at 4, so the pieces are quarters. What does matching size tell you about comparing?",
+                  "Compare the numerators 3 and 1. Which counts more same-size pieces?"
+                ]
               }
             }
           ]
@@ -394,7 +398,11 @@
                 "kind": "text",
                 "prompt": "Explain in one sentence how to subtract $\\frac{9}{10} - \\frac{4}{10}$ and why you do not change the denominator.",
                 "answer": "Both are tenths so the pieces match, subtract 9 minus 4 to get 5 tenths and keep the denominator 10 because the piece size stays the same.",
-                "explanation": "Any answer that says keep the denominator because the piece size does not change and subtract the numerators is good."
+                "explanation": "Any answer that says keep the denominator because the piece size does not change and subtract the numerators is good.",
+                "hints": [
+                  "Denominators are both 10, so keep 10 on the bottom. The piece size does not change.",
+                  "Subtract only the tops: 9 minus 4. How many tenths remain?"
+                ]
               }
             }
           ]
@@ -613,7 +621,11 @@
                 "kind": "text",
                 "prompt": "Explain in one or two sentences how you know $\\frac{1}{2} < \\frac{3}{4}$ by making the pieces match.",
                 "answer": "Rename one half as two quarters. Two quarters is less than three quarters, so one half is less than three quarters.",
-                "explanation": "Any explanation that renames to a common denominator and then compares is good."
+                "explanation": "Any explanation that renames to a common denominator and then compares is good.",
+                "hints": [
+                  "Rename one half as quarters: how many quarters is one half?",
+                  "Two quarters versus three quarters: which collection is larger?"
+                ]
               }
             }
           ]
@@ -958,7 +970,11 @@
                 "kind": "text",
                 "prompt": "In one sentence, describe where $\\frac{2}{3}$ sits on a 0 to 1 number line relative to $\\frac{1}{2}$ and 1.",
                 "answer": "Two thirds sits between one half and one whole, closer to one half than to one.",
-                "explanation": "Any sentence that places two thirds between one half and one and notes it is greater than one half is good."
+                "explanation": "Any sentence that places two thirds between one half and one and notes it is greater than one half is good.",
+                "hints": [
+                  "Locate one half at 0.5 and 1 at 1.0 on the 0 to 1 line.",
+                  "Two thirds is about 0.66. Is that to the left or right of one half? How close to 1?"
+                ]
               }
             }
           ]
@@ -1161,7 +1177,11 @@
                 "kind": "text",
                 "prompt": "Write a one sentence story where Alice compares $\\frac{2}{3}$ and $\\frac{3}{4}$ of two identical tarts and says which is larger, using a common denominator in your reasoning.",
                 "answer": "Alice saw that two thirds is eight twelfths and three quarters is nine twelfths, so three quarters is larger by one twelfth.",
-                "explanation": "Any story that correctly renames both to twelfths and states which is larger is good."
+                "explanation": "Any story that correctly renames both to twelfths and states which is larger is good.",
+                "hints": [
+                  "Rename both fractions to twelfths: how many twelfths is two thirds? How many is three quarters?",
+                  "Eight twelfths versus nine twelfths: which is one twelfth larger? Write that as a story sentence."
+                ]
               }
             }
           ]

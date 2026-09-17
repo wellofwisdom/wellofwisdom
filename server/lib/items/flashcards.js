@@ -34,6 +34,14 @@ function strip(content) {
   }) };
 }
 
-function grade() { return null; }
+// Self-graded: learner says got it or not. Truthy "correct" strings count as true.
+function grade(_content, answer) {
+  const s = String(answer == null ? "" : answer).trim().toLowerCase();
+  if (s === "true" || s === "1" || s === "got_it" || s === "correct" || s === "know" || s === "yes") return true;
+  if (s === "false" || s === "0" || s === "again" || s === "wrong" || s === "dont_know" || s === "no") return false;
+  if (answer === true) return true;
+  if (answer === false) return false;
+  return null;
+}
 
 module.exports = { normalize, problem, strip, grade, MAX_CARDS };
