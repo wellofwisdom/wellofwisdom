@@ -14,6 +14,7 @@ import VersionHistory from "../components/course-editor/VersionHistory";
 import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from "../components/VideoUI";
 import { RecordButton } from "../components/RecordButton";
 import type { UploadRow } from "../components/VideoUI";
+import * as KindForms from "../components/course-editor/kinds";
 
 const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️", video: "▶️", audio: "🔊", project: "🛠️" };
 
@@ -826,8 +827,6 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [rwBusy, setRwBusy] = useState(false);
   const [rwMsg, setRwMsg] = useState("");
 
-  // Draft the article at a different reading level. It replaces the body in the
-  // editor; the guide reviews it and Saves (or Cancels to keep the original).
   async function rewrite() {
     if (!aBody.trim()) return;
     setRwMsg("");
@@ -842,13 +841,10 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       setRwBusy(false);
     }
   }
-  // exercise
+  // exercise :  base kinds still owned here; the ten new kinds use KindForms
   const [prompt, setPrompt] = useState(c.prompt ?? "");
   const [kind, setKind] = useState(c.kind ?? "mcq");
   const [choices, setChoices] = useState<string>((c.choices ?? []).map((x: any) => x.text).join("\n"));
-  // "" means no answer chosen. A question with no key (imported without
-  // answers) must not open with choice one quietly selected, or saving any
-  // other change would write a key the guide never picked.
   const [answerIdx, setAnswerIdx] = useState<string>(() => {
     if (c.kind !== "mcq" || !Array.isArray(c.choices)) return "";
     const i = c.choices.findIndex((x: any) => x.id === c.answer);
@@ -858,6 +854,16 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [textAnswer, setTextAnswer] = useState(c.kind === "text" ? String(c.answer ?? "") : "");
   const [explanation, setExplanation] = useState(c.explanation ?? "");
   const [hint, setHint] = useState(c.hint ?? "");
+  // kind-form harness for the ten new kinds
+  const [kindBuilt, setKindBuilt] = useState<Record<string, any> | null>(null);
+  const [kindProblem, setKindProblem] = useState<string | null>(null);
+  const previewRef = useState<ItemNode | null>(null);
+  const [, setPreviewItem] = previewRef;
+  const hintList: string[] = (() => {
+    if (Array.isArray((c as any).hints)) return (c as any).hints as string[];
+    if ((c as any).hint) return [String((c as any).hint)];
+    return [];
+  })();
   // video
   const [vTitle, setVTitle] = useState(c.title ?? "");
   const [vId, setVId] = useState(c.youtubeId ?? "");
@@ -867,36 +873,44 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [pDesc, setPDesc] = useState(c.description ?? "");
   const [rubric, setRubric] = useState(c.rubric ?? "");
 
+  const isNewKind = ["multi", "order", "match", "categorize", "hotspot", "plot", "scenario", "cloze", "numberline", "fraction"].includes(kind);
+
   async function save() {
     setBusy(true);
     setError("");
     let content: Record<string, unknown>;
     if (item.type === "article") content = { title: aTitle, body: aBody };
     else if (item.type === "exercise") {
-      content = { prompt, kind };
-      if (kind === "mcq") {
-        const lines = choices.split("\n").map((s) => s.trim()).filter(Boolean);
-        if (lines.length < 2) { setError("Need at least 2 choices."); setBusy(false); return; }
-        if (lines.length > MAX_CHOICES) { setError(`At most ${MAX_CHOICES} choices. Remove one.`); setBusy(false); return; }
-        // No silent fallback: an unpicked answer, or one whose choice was just
-        // deleted, is asked for again rather than moved onto another choice.
-        const idx = answerIdx === "" ? -1 : Number(answerIdx);
-        if (!(idx >= 0 && idx < lines.length)) { setError("Pick the correct answer."); setBusy(false); return; }
-        content.choices = lines.map((text, i) => ({ id: `c${i + 1}`, text }));
-        content.answer = `c${idx + 1}`;
-      } else if (kind === "numeric") {
-        const n = Number(numericAnswer.replace(/[^0-9.\-]/g, ""));
-        if (!Number.isFinite(n)) { setError("Numeric answer must be a number."); setBusy(false); return; }
-        content.answer = n;
+      if (isNewKind) {
+        if (kindProblem) { setError(niceError({ code: kindProblem } as any) || kindProblem); setBusy(false); return; }
+        if (!kindBuilt) { setError("Fix the problem above, then Save."); setBusy(false); return; }
+        content = kindBuilt;
+        if (explanation) content.explanation = explanation;
+        const hs = (kindBuilt as any).hints as string[] | undefined;
+        if (!hs || !hs.length) {
+          if (explanation) (content as any).explanation = explanation;
+        }
       } else {
-        content.answer = textAnswer;
+        content = { prompt, kind };
+        if (kind === "mcq") {
+          const lines = choices.split("\n").map((s) => s.trim()).filter(Boolean);
+          if (lines.length < 2) { setError("Need at least 2 choices."); setBusy(false); return; }
+          if (lines.length > MAX_CHOICES) { setError(`At most ${MAX_CHOICES} choices. Remove one.`); setBusy(false); return; }
+          const idx = answerIdx === "" ? -1 : Number(answerIdx);
+          if (!(idx >= 0 && idx < lines.length)) { setError("Pick the correct answer."); setBusy(false); return; }
+          content.choices = lines.map((text, i) => ({ id: `c${i + 1}`, text }));
+          content.answer = `c${idx + 1}`;
+        } else if (kind === "numeric") {
+          const n = Number(numericAnswer.replace(/[^0-9.\-]/g, ""));
+          if (!Number.isFinite(n)) { setError("Numeric answer must be a number."); setBusy(false); return; }
+          content.answer = n;
+        } else {
+          content.answer = textAnswer;
+        }
+        if (explanation) content.explanation = explanation;
+        if (hint) content.hint = hint;
       }
-      if (explanation) content.explanation = explanation;
-      if (hint) content.hint = hint;
     } else if (item.type === "video") {
-      // Keep every source field the item already had. Only youtubeId is edited
-      // here, and an empty box means "no YouTube id", not an empty one: an
-      // uploaded video would otherwise pick up a blank id it never had.
       const unpicked = unpickedQuestion(vQuestions);
       if (unpicked) { setError(`Pick the correct answer for question ${unpicked}.`); setBusy(false); return; }
       content = { ...c, title: vTitle };
@@ -915,6 +929,11 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       setError(niceError(e));
       setBusy(false);
     }
+  }
+
+  function KindPreview() {
+    if (!isNewKind || !kindBuilt) return null;
+    return <div className="muted small" style={{ marginTop: 8 }}>Preview beside the form shows the learner view.</div>;
   }
 
   return (
@@ -944,15 +963,37 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       )}
       {item.type === "exercise" && (
         <>
-          <Field label="Prompt"><textarea className="input" rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} /></Field>
+          <Field label="Prompt" hint={isNewKind ? "Prompt is edited inside the kind form below." : undefined}>
+            <textarea className="input" rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} disabled={isNewKind} />
+          </Field>
           <Field label="Kind">
-            <select className="input" value={kind} onChange={(e) => setKind(e.target.value)}>
+            <select className="input" value={kind} onChange={(e) => { setKind(e.target.value); setKindBuilt(null); setKindProblem(null); setPreviewItem(null); }}>
               <option value="mcq">Multiple choice</option>
+              <option value="multi">Multi-select</option>
               <option value="numeric">Number</option>
               <option value="text">Written (self-check)</option>
+              <option value="order">Order</option>
+              <option value="match">Match</option>
+              <option value="categorize">Categorize</option>
+              <option value="cloze">Cloze</option>
+              <option value="numberline">Number line</option>
+              <option value="fraction">Fraction</option>
+              <option value="hotspot">Hotspot</option>
+              <option value="plot">Plot</option>
+              <option value="scenario">Scenario</option>
             </select>
           </Field>
-          {kind === "mcq" && (
+          {kind === "multi" && <KindForms.MultiForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "order" && <KindForms.OrderForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "match" && <KindForms.MatchForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "categorize" && <KindForms.CategorizeForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "cloze" && <KindForms.ClozeForm content={{ prompt, text: (c as any).text ?? prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "numberline" && <KindForms.NumberlineForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "fraction" && <KindForms.FractionForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "hotspot" && <KindForms.HotspotForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "plot" && <KindForms.PlotForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "scenario" && <KindForms.ScenarioForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {!isNewKind && kind === "mcq" && (
             <>
               <Field label="Choices (one per line)">
                 <textarea className="input" rows={4} value={choices} onChange={(e) => setChoices(e.target.value)} />
@@ -967,10 +1008,16 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
               </Field>
             </>
           )}
-          {kind === "numeric" && <Field label="Answer (number)"><input className="input" value={numericAnswer} onChange={(e) => setNumericAnswer(e.target.value)} /></Field>}
-          {kind === "text" && <Field label="Model answer"><textarea className="input" rows={3} value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)} /></Field>}
-          <Field label="Explanation (shown after answering)"><textarea className="input" rows={2} value={explanation} onChange={(e) => setExplanation(e.target.value)} /></Field>
-          <Field label="Hint (a nudge, not the answer)"><input className="input" value={hint} onChange={(e) => setHint(e.target.value)} /></Field>
+          {!isNewKind && kind === "numeric" && <Field label="Answer (number)"><input className="input" value={numericAnswer} onChange={(e) => setNumericAnswer(e.target.value)} /></Field>}
+          {!isNewKind && kind === "text" && <Field label="Model answer"><textarea className="input" rows={3} value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)} /></Field>}
+          {!isNewKind && <Field label="Explanation (shown after answering)"><textarea className="input" rows={2} value={explanation} onChange={(e) => setExplanation(e.target.value)} /></Field>}
+          {!isNewKind && <Field label="Hint (a nudge, not the answer)"><input className="input" value={hint} onChange={(e) => setHint(e.target.value)} /></Field>}
+          {isNewKind && (
+            <>
+              <KindPreview />
+              {kindProblem && <p className="formerror small" role="alert">{niceError({ code: kindProblem } as any) || kindProblem}</p>}
+            </>
+          )}
         </>
       )}
       {item.type === "video" && (
@@ -994,7 +1041,7 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
       )}
       <div className="row">
         <button className="btn" type="button" onClick={onClose}>Cancel</button>
-        <button className="btn primary" type="button" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</button>
+        <button className="btn primary" type="button" disabled={busy || Boolean(isNewKind && kindProblem)} onClick={save}>{busy ? "Saving…" : "Save"}</button>
       </div>
     </Modal>
   );
