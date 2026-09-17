@@ -345,7 +345,11 @@
                 "kind": "text",
                 "prompt": "Write one sentence describing a place by a creek using one specific sight and one specific sound. Keep it under 25 words.",
                 "answer": "Willow shadow fell on still water while a moorhen chattered among the reeds.",
-                "explanation": "Any sentence that names one clear visual and one audible, concrete detail is good. Short is fine."
+                "explanation": "Any sentence that names one clear visual and one audible, concrete detail is good. Short is fine.",
+                "hints": [
+                  "Pick a specific visual you could photograph, like willow shadow on still water.",
+                  "Add a sound you could record, like moorhen chatter. Keep the sentence under 25 words."
+                ]
               }
             }
           ]
@@ -622,8 +626,8 @@
                 "answer": "c1",
                 "explanation": "Small, local, written, and tended beats grand and abandoned.",
                 "hints": [
-                  "Reread the article before choosing.",
-                  "Which choice matches the article's definition?"
+                  "The article names a small patch with local plants, one named waterer, and a written plan as the durable choice.",
+                  "Which plan lists local plants, assigned care, and a record to hand on?"
                 ]
               }
             },
@@ -633,7 +637,11 @@
                 "kind": "text",
                 "prompt": "Name one seasonal change on a creek you could observe and one question you would ask after seeing it.",
                 "answer": "Autumn leaf fall darkened the water. Question: do more leaf eating insects appear after leaves fall?",
-                "explanation": "Any real seasonal observation plus a question it naturally raises is good."
+                "explanation": "Any real seasonal observation plus a question it naturally raises is good.",
+                "hints": [
+                  "Name one autumn input like leaf fall that clouds and feeds the water.",
+                  "Turn that observation into a question about what comes next, for example insects after leaves."
+                ]
               }
             }
           ]
@@ -707,8 +715,8 @@
                 "answer": "c1",
                 "explanation": "Grahame sets the sunny, social riverbank against the enclosed, sheltered Wild Wood.",
                 "hints": [
-                  "Reread the article before choosing.",
-                  "Which choice matches the article's definition?"
+                  "The article contrasts Wild Wood shade with riverbank light and openness.",
+                  "Wild Wood has Badger setts and close canopy; riverbank has Rat boating and open reeds. Which choice lists that contrast?"
                 ]
               }
             },
@@ -737,8 +745,8 @@
                 "answer": "c1",
                 "explanation": "Edges mix resources from two habitats, so more species can use them.",
                 "hints": [
-                  "Reread the article before choosing.",
-                  "Which choice matches the article's definition?"
+                  "Edges overlap two habitats, so food and shelter from both sides are available there.",
+                  "Which choice says creatures from both feed there, not that none visit?"
                 ]
               }
             }
@@ -806,8 +814,8 @@
                 "answer": "c1",
                 "explanation": "Erosion shows as bare cuts, exposed roots, and cloudiness after rain.",
                 "hints": [
-                  "Reread the article before choosing.",
-                  "Which choice matches the article's definition?"
+                  "Erosion exposes raw soil and roots; soil washes in after rain and clouds the water.",
+                  "Clear water with steady glide and shading willows is the opposite of erosion. Which choice has raw cuts and cloudiness?"
                 ]
               }
             },
@@ -819,8 +827,8 @@
                 "answer": 25,
                 "explanation": "45 minus 20 equals 25 cm. The drop shows soil carried in after rain.",
                 "hints": [
-                  "Reread the article before choosing.",
-                  "Which choice matches the article's definition?"
+                  "First reading 45 cm is clearer than 20 cm after rain.",
+                  "Subtract the after-rain depth from the clear-day depth: 45 minus 20."
                 ]
               }
             },
@@ -969,8 +977,8 @@
                 ],
                 "explanation": "Multiple producers and multiple consumers at each level create redundancy.",
                 "hints": [
-                  "Reread the article before choosing.",
-                  "Which choice matches the article's definition?"
+                  "A web holds several producers at the base, not just one thread.",
+                  "Multiple consumers at each level give alternate routes around a missing prey. Which two add redundancy?"
                 ]
               }
             }
@@ -1038,8 +1046,8 @@
                 "answer": 5,
                 "explanation": "50 percent of 10 metres is 5 metres. Half the channel shaded helps keep water cooler.",
                 "hints": [
-                  "Shade keeps water cooler.",
-                  "Cooler water holds more dissolved oxygen."
+                  "50 percent of 10 m is half: how many metres is that?",
+                  "Half the channel shaded helps keep water cooler for fish."
                 ]
               }
             },
@@ -1068,8 +1076,8 @@
                 "answer": "c1",
                 "explanation": "Canopy cover over the channel at midday is the direct shade check.",
                 "hints": [
-                  "Shade keeps water cooler.",
-                  "Cooler water holds more dissolved oxygen."
+                  "Shade percent at midday near 50 percent keeps water cooler and oxygen higher.",
+                  "Which answer asks for percent canopy cover over the channel at noon?"
                 ]
               }
             }
@@ -1137,8 +1145,8 @@
                 "answer": "c1",
                 "explanation": "Description first grounds observation, measures then check and extend it, the question carries the learning forward.",
                 "hints": [
-                  "Reread the article before choosing.",
-                  "Which choice matches the article's definition?"
+                  "A good visit starts with words before numbers, then ends with a question.",
+                  "Which order starts with description, then measures, then a question about what the numbers mean?"
                 ]
               }
             },
@@ -1148,7 +1156,11 @@
                 "kind": "text",
                 "prompt": "After one rock lift on a creek visit, you saw 6 mayfly nymphs, 2 snails, and 1 small yabbie. Write one sentence that reports the tally exactly and asks one follow up question.",
                 "answer": "Under one rock I found 6 mayfly nymphs, 2 snails, and 1 yabbie. Are there more nymphs on shaded rocks?",
-                "explanation": "Any sentence with an exact tally plus a testable next question is good."
+                "explanation": "Any sentence with an exact tally plus a testable next question is good.",
+                "hints": [
+                  "List the counts exactly as seen: 6 mayfly nymphs, 2 snails, 1 yabbie, with the words under one rock.",
+                  "Then write one question that compares places, such as shaded versus sunny rocks."
+                ]
               }
             }
           ]
