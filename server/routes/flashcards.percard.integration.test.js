@@ -50,7 +50,16 @@ describe("flashcards per-card integration", () => {
     assert.equal(r0.status, 200, r0.text);
     assert.equal(r0.json.correct, true);
 
-    const row0 = await db.query("select card_index, interval_days, due_at from flashcard_reviews where learner_id=$1 and item_id=$2 order by card_index", [learnerId, itemId]);
+    // recordFlashcardAttempt is fail-open and not awaited in the route, so poll briefly
+    async function waitForCards(n) {
+      for (let i = 0; i < 20; i++) {
+        const q = await db.query("select card_index, interval_days, due_at from flashcard_reviews where learner_id=$1 and item_id=$2 order by card_index", [learnerId, itemId]);
+        if (q.rows.length === n) return q;
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      return db.query("select card_index, interval_days, due_at from flashcard_reviews where learner_id=$1 and item_id=$2 order by card_index", [learnerId, itemId]);
+    }
+    const row0 = await waitForCards(1);
     assert.equal(row0.rows.length, 1);
     assert.equal(Number(row0.rows[0].card_index), 0);
     assert.equal(Number(row0.rows[0].interval_days), 1);
@@ -59,7 +68,15 @@ describe("flashcards per-card integration", () => {
     assert.equal(r1.status, 200, r1.text);
     assert.equal(r1.json.correct, false);
 
-    const rows = await db.query("select card_index, interval_days from flashcard_reviews where learner_id=$1 and item_id=$2 order by card_index", [learnerId, itemId]);
+    async function waitForCards2(n) {
+      for (let i = 0; i < 20; i++) {
+        const q = await db.query("select card_index, interval_days from flashcard_reviews where learner_id=$1 and item_id=$2 order by card_index", [learnerId, itemId]);
+        if (q.rows.length === n) return q;
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      return db.query("select card_index, interval_days from flashcard_reviews where learner_id=$1 and item_id=$2 order by card_index", [learnerId, itemId]);
+    }
+    const rows = await waitForCards2(2);
     assert.equal(rows.rows.length, 2);
     assert.equal(Number(rows.rows[0].card_index), 0);
     assert.equal(Number(rows.rows[0].interval_days), 1);
