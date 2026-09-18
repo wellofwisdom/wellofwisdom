@@ -8,15 +8,24 @@
 //
 // Two tables, never mixed:
 //   review_schedule     one row per (learner, item_id) for exercises.
-//                       Vocab_card, listen_choice and listen_repeat are
-//                       exercise kinds, so they use this table. The kind
-//                       text is self-check and never reaches the scheduler.
+//                       All language exercise kinds feed this table when
+//                       graded: vocab_card, listen_choice, listen_repeat,
+//                       translate (en_to_es, es_to_en, en_to_fr, fr_to_en)
+//                       and dialogue. kind text is self-check and never
+//                       reaches the scheduler. graded_reader is type
+//                       graded_reader (not exercise) and never scheduled.
 //   flashcard_reviews   one row per (learner, item_id, card_index) for
 //                       flashcard decks. A deck holds many cards, so card 0
-//                       correct must not move card 1.
+//                       correct must not move card 1. vocab_card is an
+//                       exercise, never a flashcard, so the two tables cannot
+//                       collide even when a French lesson mixes drills and
+//                       decks.
 //
 // Self-check kind text is excluded before any scheduler write (see
 // routes/learn.js). A keyless or null grade also never writes.
+// French pack: translate and dialogue grade to {correct, score} and feed
+// review_schedule via the same exercise lane; graded_reader grades to null
+// and is excluded by type. Per-card isolation is by (item, card_index).
 const db = require("./db");
 
 const LADDER = [1, 3, 7];

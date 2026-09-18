@@ -108,4 +108,49 @@ test("flashcard card_index validation: recordFlashcardAttempt guards are reflect
   const next = nextSchedule(afterWrong, true);
   assert.equal(next.interval_days, 1);
 });
+test("french kinds translate and dialogue feed scheduler, graded_reader never does", () => {
+  const grade = require("./grade");
+  const exercise = require("./items/exercise");
+  const itemsMod = require("./items");
+  // translate fr both directions
+  const tFR = exercise.normalize({ prompt: "Traduis en francais", kind: "translate", direction: "en_to_fr", expected: "Bonjour" });
+  assert.ok(tFR);
+  const tFR2 = exercise.normalize({ prompt: "Traduis en anglais", kind: "translate", direction: "fr_to_en", expected: "hello" });
+  assert.ok(tFR2);
+  const outFR = grade.gradeExercise(tFR, "Bonjour");
+  assert.equal(outFR.correct, true);
+  assert.equal(outFR.score, 1);
+  let s = null;
+  s = require("./review").nextSchedule(s, outFR.correct === true);
+  assert.equal(s.interval_days, 1);
+  // dialogue grades to {correct,score}
+  const dItem = { kind: "dialogue", prompt: "p", scene: "Tu rencontres Sophie.", turns: 3 };
+  const dOut = grade.gradeExercise(dItem, { turns: ["Bonjour", "Je m'appelle Lucie", "J'habite ici"] });
+  assert.equal(dOut.correct, true);
+  assert.equal(dOut.score, 1);
+  let sd = null;
+  sd = require("./review").nextSchedule(sd, dOut.correct === true);
+  assert.equal(sd.interval_days, 1);
+  // graded_reader is a separate type, never scheduled via exercise lane
+  const gr = itemsMod.forType("graded_reader");
+  assert.ok(gr);
+  assert.equal(gr.grade({ title: "Reader", body: "Bonjour", level: "A1" }, "anything"), null);
+});
+
+test("translate fr_to_en and en_to_fr directions normalize and do not collide in scheduler", () => {
+  const exercise = require("./items/exercise");
+  const grade = require("./grade");
+  const a = exercise.normalize({ prompt: "p", kind: "translate", direction: "en_to_fr", expected: "Bonjour" });
+  const b = exercise.normalize({ prompt: "p", kind: "translate", direction: "fr_to_en", expected: "hello" });
+  assert.ok(a && b);
+  assert.equal(a.direction, "en_to_fr");
+  assert.equal(b.direction, "fr_to_en");
+  // Both feed separately: independent ladder states
+  let sa = null; let sb = null;
+  sa = require("./review").nextSchedule(sa, grade.gradeExercise(a, "Bonjour").correct === true);
+  sb = require("./review").nextSchedule(sb, grade.gradeExercise(b, "wrong").correct === true);
+  assert.equal(sa.interval_days, 1);
+  assert.equal(sb.interval_days, 0);
+  assert.equal(sb.lapses, 1);
+});
 
