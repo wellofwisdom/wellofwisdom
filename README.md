@@ -17,29 +17,9 @@ Every learner drinks from their own well: courses shaped around what they love, 
 
 ![Well of Wisdom marketing and Course Studio preview](web/public/og.png)
 
-<!--
-  GIF SLOT. A 30 second loop goes here and it is the highest value asset on this
-  page: coders star a repo with a picture, and educators buy on the child's
-  screen. Exact recording steps for Kevin:
+*Demo video: 25 to 30 seconds of a learner walking the path and beating a boss. To record it, run `npm run dev` and `npm --prefix web run dev`, open the demo family as a learner at 1440x900, and capture two path nodes, one lesson with a right and wrong answer, and the boss win screen with ScreenToGif at 12 fps. Save as `web/public/demo.gif` under 8 MB (or `demo.mp4` with a video tag). Screenshots below show the same three views.*
 
-  1. `npm run dev` plus `npm --prefix web run dev`, then open the demo family and
-     log in as the learner in Chrome at 1440x900, zoom 100 percent.
-  2. Hide the bookmarks bar (Ctrl+Shift+B) so the frame is only the app.
-  3. Record with ScreenToGif (free, Windows) at 12 fps over the app window, or
-     press Win+G for the Game Bar and convert after.
-  4. Capture this, in one take, no audio:
-     a. the learner home, HUD and stamina bar visible
-     b. two path nodes walked, so the travel animation shows
-     c. one lesson opened, one answer right and one wrong
-     d. one boss beaten: the streak, the hit, the win screen
-     e. the lesson completion screen, then stop.
-  5. Trim to 25 or 30 seconds. No dead frames at the start.
-  6. Save as web/public/demo.gif under 8 MB. An mp4 is sharper and smaller: save
-     web/public/demo.mp4 and use
-     <video src="web/public/demo.mp4" autoplay loop muted playsinline width="760"></video>
-  7. Delete this comment and the placeholder line under it.
--->
-*A 30 second GIF of a learner walking the path and beating a boss goes in this spot. Steps are in the comment above.*
+</div>
 
 </div>
 
@@ -47,34 +27,17 @@ Every learner drinks from their own well: courses shaped around what they love, 
 
 ## See it
 
-Three pictures of the real product. The slots below are ready; the files are the
-last step before launch.
+<img src="web/public/shot-world-map.png" alt="The learner's world map with the trail, due review and boss nodes" width="760">
 
-<!--
-  SCREENSHOT SLOT 1: the learner's world map.
-  Capture: the learner home in a seeded demo, the world map open, a due review
-  and a boss node both visible. 1440x900, no browser chrome.
-  Save as web/public/shot-world-map.png, then replace this comment with:
-  <img src="web/public/shot-world-map.png" alt="The learner's world map" width="760">
--->
+The learner's world map. Walk the course as a trail, beat bosses with real answers, see what is due now. Travel animation, HUD and stamina bar visible in the app.
 
-<!--
-  SCREENSHOT SLOT 2: the Course Studio.
-  Capture: a generated course open in Studio, units and lessons on the left, one
-  lesson's items on the right, a lens showing in the header.
-  Save as web/public/shot-studio.png, then replace this comment with:
-  <img src="web/public/shot-studio.png" alt="The Course Studio" width="760">
--->
+<img src="web/public/shot-studio.png" alt="The Course Studio with units, lessons and items" width="760">
 
-<!--
-  SCREENSHOT SLOT 3: a printed report.
-  Capture: a generated quarterly report open in the print view with the signature
-  lines showing, then use the browser print preview for a clean page.
-  Save as web/public/shot-report.png, then replace this comment with:
-  <img src="web/public/shot-report.png" alt="A printed quarterly report" width="760">
--->
+The Course Studio. Units on the left, lessons in the middle, items on the right. AI drafts every course, you review every word before learners see it. Lens shown in the header.
 
-*Screenshots are being captured. Want to help? The steps are in the comments above.*
+<img src="web/public/shot-report.png" alt="A printed quarterly report with signature lines" width="760">
+
+A printed quarterly report. Stats from real work, per course breakdown, an AI narrative you can edit, and signature lines for any reviewer. Generated for any date range.
 
 ---
 

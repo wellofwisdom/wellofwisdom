@@ -256,7 +256,7 @@ function missingAnswers(items) {
     const c = (i && i.content) || {};
     if (i.type === "exercise" && typeof c === "object") {
       const p = require("./items/exercise").problem(c);
-      if (p === "answer_required" || p === "answer_invalid" || p === "good_required" || p === "good_invalid" || p === "nodes_required" || p === "start_required" || p === "start_invalid" || p === "regions_required" || p === "lemma_required" || p === "gloss_required" || p === "expected_required") n += 1;
+      if (p === "answer_required" || p === "answer_invalid" || p === "good_required" || p === "good_invalid" || p === "nodes_required" || p === "start_required" || p === "start_invalid" || p === "regions_required" || p === "lemma_required" || p === "gloss_required" || p === "expected_required" || p === "scene_required") n += 1;
     } else if (i.type === "video" && Array.isArray(c.questions)) {
       const p = require("./items/video").problem(c);
       if (p === "answer_required" || p === "answer_invalid" || p === "question_incomplete") {

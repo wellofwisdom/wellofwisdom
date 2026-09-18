@@ -3,8 +3,20 @@
 // spaced repetition. (An FSRS adapter can slot in behind this same interface
 // later; the schema already stores everything it needs.)
 //
-// Right answer: 1 day → 3 days → 7 days → interval × ease (ease drifts up).
+// Right answer: 1 day -> 3 days -> 7 days -> interval * ease (ease drifts up).
 // Wrong answer: comes back today, ease drifts down. Ease clamped [1.3, 3.0].
+//
+// Two tables, never mixed:
+//   review_schedule     one row per (learner, item_id) for exercises.
+//                       Vocab_card, listen_choice and listen_repeat are
+//                       exercise kinds, so they use this table. The kind
+//                       text is self-check and never reaches the scheduler.
+//   flashcard_reviews   one row per (learner, item_id, card_index) for
+//                       flashcard decks. A deck holds many cards, so card 0
+//                       correct must not move card 1.
+//
+// Self-check kind text is excluded before any scheduler write (see
+// routes/learn.js). A keyless or null grade also never writes.
 const db = require("./db");
 
 const LADDER = [1, 3, 7];
@@ -53,7 +65,10 @@ async function recordAttempt({ familyId, learnerId, itemId, correct }) {
   }
 }
 
-/** Per-card scheduler for flashcards. One row per (learner, item, card_index). */
+/** Per-card scheduler for flashcards. One row per (learner, item, card_index).
+ *  Card indices are validated: non-integer, negative, or non-finite values are
+ *  ignored so a bad questionIndex cannot create a phantom row that collides
+ *  with a real card. */
 async function recordFlashcardAttempt({ familyId, learnerId, itemId, cardIndex, correct }) {
   try {
     const idx = Number(cardIndex);
@@ -75,7 +90,10 @@ async function recordFlashcardAttempt({ familyId, learnerId, itemId, cardIndex, 
   }
 }
 
-/** Exercises due for review across the learner's published courses. */
+/** Exercises due for review across the learner's published courses.
+ *  Only i.type = 'exercise' is considered, so flashcards (type flashcards)
+ *  and projects never appear here. The caller in routes/learn.js further
+ *  hides kind text from the scheduler at write time. */
 async function dueForLearner(learnerId, familyId, { limit = 25 } = {}) {
   const { rows } = await db.query(
     `select rs.item_id, rs.reps, rs.lapses,
@@ -101,4 +119,4 @@ async function dueForLearner(learnerId, familyId, { limit = 25 } = {}) {
   return rows;
 }
 
-module.exports = { nextSchedule, recordAttempt, recordFlashcardAttempt, dueForLearner };
+module.exports = { nextSchedule, recordAttempt, recordFlashcardAttempt, dueForLearner, LADDER, dueDate };

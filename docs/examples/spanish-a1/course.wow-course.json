@@ -578,67 +578,40 @@
             {
               "type": "exercise",
               "content": {
-                "kind": "scenario",
-                "prompt": "You meet a neighbor. Choose a friendly, correct path through the chat.",
-                "start": "start",
-                "nodes": {
-                  "start": {
-                    "text": "Vecina: Hola! Como te llamas?",
-                    "choices": [
-                      {
-                        "text": "Me llamo Alex. Y tu, como te llamas?",
-                        "next": "a1"
-                      },
-                      {
-                        "text": "Adios.",
-                        "next": "bad1"
-                      }
-                    ]
-                  },
-                  "a1": {
-                    "text": "Vecina: Me llamo Sofia. Mucho gusto! Donde vives?",
-                    "choices": [
-                      {
-                        "text": "Vivo con mi familia en la casa azul.",
-                        "next": "good"
-                      },
-                      {
-                        "text": "La silla es azul.",
-                        "next": "bad2"
-                      }
-                    ]
-                  },
-                  "good": {
-                    "text": "Vecina: Que bonita! Hasta luego, Alex!",
-                    "choices": []
-                  },
-                  "bad1": {
-                    "text": "That ends the chat before it starts. A name first is kinder.",
-                    "choices": []
-                  },
-                  "bad2": {
-                    "text": "That is a correct sentence but not an answer about where you live.",
-                    "choices": []
-                  }
-                },
-                "good": [
-                  "good"
+                "kind": "translate",
+                "prompt": "Translate to Spanish: I live with my family in the blue house.",
+                "direction": "en_to_es",
+                "expected": "Vivo con mi familia en la casa azul.",
+                "alternatives": [
+                  "Vivo con mi familia en la casa azul",
+                  "Vivo con mi familia en casa azul"
                 ],
-                "explanation": "A friendly chat gives your name, returns the question, and answers where you live.",
+                "rubric": "Includes Vivo con mi familia, mentions la casa azul, close enough for a friendly reader.",
+                "explanation": "Vivo con mi familia en la casa azul means I live with my family in the blue house.",
                 "hints": [
-                  "Answer the question asked with a sentence about your home."
+                  "Start with Vivo con mi familia."
                 ]
               }
             },
             {
               "type": "exercise",
               "content": {
-                "kind": "text",
-                "prompt": "Speaking prompt: say out loud in Spanish two sentences about your home or family. Use Vivo con... or Mi casa es... Then write them here. Example: Vivo con mi madre y mi hermano. Mi casa es pequena.",
-                "answer": "Vivo con mi madre y mi hermano. Mi casa es pequena pero bonita.",
-                "explanation": "Any two sentences using the taught words about family or rooms count. Speaking out loud is the real practice.",
+                "kind": "dialogue",
+                "prompt": "Greet your neighbour and answer where you live.",
+                "scene": "You meet Sofia at the door. She says: Hola! Como te llamas?",
+                "turns": 3,
+                "goals": [
+                  "greet back",
+                  "give your name",
+                  "say where you live"
+                ],
+                "goodEndings": [
+                  "used polite form",
+                  "asked a question back"
+                ],
+                "explanation": "A friendly dialogue gives your name, returns the question, and answers where you live.",
                 "hints": [
-                  "Start one sentence with Vivo con and one with Mi casa es."
+                  "Answer with your name and where you live."
                 ]
               }
             },

@@ -9,3 +9,5 @@ export { default as ScenarioForm } from "./ScenarioForm";
 export { default as ClozeForm } from "./ClozeForm";
 export { default as NumberlineForm } from "./NumberlineForm";
 export { default as FractionForm } from "./FractionForm";
+export { default as TranslateForm } from "./TranslateForm";
+export { default as DialogueForm } from "./DialogueForm";

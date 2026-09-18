@@ -31,7 +31,7 @@ export default function Children() {
       </ul>
 
       <h2>Hosting</h2>
-      <p>On self-host you are the host and you control the database and uploads volume. On managed hosting we store the same data on your behalf, we back it up [placeholder: Kevin to confirm schedule], and we delete it within 30 days when you close the account [placeholder: Kevin to confirm retention period].</p>
+      <p>On self-host you are the host and you control the database and uploads volume. On managed hosting we store the same data on your behalf, we back it up nightly at 04:10 server time and keep seven daily copies (uploads on a separate persistent volume), and we delete the family data within 30 days when you close the account. Backed up copies age out as the seven day rotation expires.</p>
 
       <h2>Contact</h2>
       <p>If you have a question about a child's data, contact the guide who runs the family. For the hosted service, email privacy@wellofwisdom.app.</p>

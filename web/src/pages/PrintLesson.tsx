@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Printable worksheet for a lesson: worksheet mode and lesson-plan mode.
-// Worksheet: articles + exercises with answer lines. Lesson plan: objectives,
-// standards, materials, timing, and exercises with answers for the guide.
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { CourseTree, LearnLesson } from "../types";
@@ -21,22 +19,28 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
           const d = await api<{ lesson: LearnLesson }>(`/api/learn/lessons/${lessonId}`);
           const s = (d.lesson as unknown as { standards?: string[] }).standards || [];
           setData({ title: d.lesson.title, courseTitle: d.lesson.course_title, summary: d.lesson.summary || null, standards: s, items: d.lesson.items });
-        } else {
-          const trees = await api<{ courses: { id: number }[] }>("/api/courses");
-          for (const c of trees.courses) {
-            const d = await api<{ course: CourseTree }>(`/api/courses/${c.id}`);
-            for (const u of d.course.units) {
-              for (const l of u.lessons) {
-                if (l.id === lessonId) {
-                  const s = (l as unknown as { standards?: string[] }).standards || [];
-                  setData({ title: l.title, courseTitle: d.course.title, summary: (l as unknown as { summary?: string | null }).summary || null, standards: s, items: l.items });
-                  return;
-                }
+          return;
+        }
+        try {
+          const d = await api<{ lesson: { id: number; course_id: number; course_title: string; title: string; summary: string | null; standards: string[]; items: any[] } }>(`/api/courses/lessons/${lessonId}`);
+          setData({ title: d.lesson.title, courseTitle: d.lesson.course_title, summary: d.lesson.summary || null, standards: d.lesson.standards || [], items: d.lesson.items });
+          return;
+        } catch {
+        }
+        const trees = await api<{ courses: { id: number }[] }>("/api/courses");
+        for (const c of trees.courses) {
+          const d = await api<{ course: CourseTree }>(`/api/courses/${c.id}`);
+          for (const u of d.course.units) {
+            for (const l of u.lessons) {
+              if (l.id === lessonId) {
+                const s = (l as unknown as { standards?: string[] }).standards || [];
+                setData({ title: l.title, courseTitle: d.course.title, summary: (l as unknown as { summary?: string | null }).summary || null, standards: s, items: l.items });
+                return;
               }
             }
           }
-          setError("Lesson not found.");
         }
+        setError("Lesson not found.");
       } catch {
         setError("Could not load this lesson.");
       }
@@ -58,6 +62,16 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
   }
 
   let exNum = 0;
+  const hasFraction = data.items.some((it) => it.type === "exercise" && (it.content?.kind === "fraction" || String(it.content?.prompt || "").includes("$")));
+  const firstFractionAnswer = (() => {
+    for (const it of data.items) {
+      if (it.type !== "exercise" || it.content?.kind !== "fraction") continue;
+      const ans = it.content?.answer;
+      const keyed = ans && typeof ans === "object" && !Array.isArray(ans) ? `${(ans as any).numerator ?? ""}/${(ans as any).denominator ?? ""}` : "";
+      if (keyed && keyed !== "/") return keyed;
+    }
+    return null;
+  })();
   return (
     <div className="printpage">
       <div className="noprint row" style={{ marginBottom: 12, gap: 8 }}>
@@ -69,6 +83,12 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
       <p className="printsub">{data.courseTitle} - Well of Wisdom - {new Date().toLocaleDateString()}</p>
       <p className="printsub">Name: ______________________________</p>
       {data.standards.length > 0 && <p className="printsub">Standards: {data.standards.join(", ")}</p>}
+
+      {firstFractionAnswer && (
+        <div className="printexplain" role="note" aria-label="How to do it">
+          <strong>How to do it - fractions.</strong> Shade the parts. For example {firstFractionAnswer} means shade {(() => { const p = String(firstFractionAnswer).split("/"); return `${p[0]} of ${p[1]}`; })()} equal parts.
+        </div>
+      )}
 
       {data.items.map((item) => {
         if (item.type === "article") {
@@ -82,6 +102,32 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
         if (item.type === "exercise") {
           const c = item.content;
           exNum++;
+          if (c.kind === "fraction") {
+            const parts = Number(c.parts ?? c.denominator ?? 4);
+            const denom = Number.isFinite(parts) && parts >= 2 && parts <= 12 ? parts : 4;
+            const answer = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? c.answer as { numerator?: number; denominator?: number } : null;
+            return (
+              <section key={item.id} className="printsection printex">
+                <div className="printprompt"><strong>{exNum}.</strong> <MathText text={c.prompt} /></div>
+                <div className="printfrac" aria-label={`Fraction diagram with ${denom} parts${answer ? `, answer ${answer.numerator}/${answer.denominator}` : ""}`}>
+                  <div className="printfracbar" role="img" aria-label={`Bar with ${denom} equal parts`}>
+                    {Array.from({ length: denom }, (_, i) => (
+                      <span key={i} className="printfracseg">{i + 1}</span>
+                    ))}
+                  </div>
+                  <div className="printfraccirc" role="img" aria-label={`Circle with ${denom} equal parts`}>
+                    {Array.from({ length: denom }, (_, i) => (
+                      <span key={i} className="printfrslice">{i + 1}</span>
+                    ))}
+                  </div>
+                </div>
+                {c.explanation && <div className="printexplain"><strong>Why:</strong> {c.explanation}</div>}
+                <div className="printlines">
+                  <div /><div />
+                </div>
+              </section>
+            );
+          }
           return (
             <section key={item.id} className="printsection printex">
               <div className="printprompt"><strong>{exNum}.</strong> <MathText text={c.prompt} /></div>
@@ -96,6 +142,7 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
                   <div /><div />
                 </div>
               )}
+              {c.explanation && <div className="printexplain"><strong>Why:</strong> {c.explanation}</div>}
             </section>
           );
         }
@@ -116,12 +163,28 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
         }
         return null;
       })}
+      {hasFraction && (
+        <section className="printsection" aria-label="Practice">
+          <h2>Try on your own</h2>
+          <table className="printpractice" aria-label="Practice rows">
+            <thead><tr><th>#</th><th>Shade</th><th>Write</th></tr></thead>
+            <tbody>
+              {[1,2,3,4,5].map((n) => (
+                <tr key={n}>
+                  <td>{n}</td>
+                  <td className="printcellbar"><span className="printfracbar small"><span className="printfracseg" /><span className="printfracseg" /><span className="printfracseg" /><span className="printfracseg" /></span></td>
+                  <td className="printcellwrite">____ / ____</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
     </div>
   );
 }
 
 function LessonPlan({ data, onMode }: { data: LessonData; onMode: (m: "worksheet" | "plan") => void }) {
-  // Timing: articles 5 min, exercises 2 min each, videos by length (fallback 8), projects 20 min
   function estimate() {
     let mins = 0;
     for (const it of data.items) {
@@ -185,7 +248,9 @@ function LessonPlan({ data, onMode }: { data: LessonData; onMode: (m: "worksheet
             const c = it.content || {};
             const answerText = c.kind === "mcq"
               ? ((c.choices || []).find((ch: any) => ch.id === c.answer) || {}).text || String(c.answer || "")
-              : String(c.answer ?? "");
+              : c.kind === "fraction" && c.answer && typeof c.answer === "object" && !Array.isArray(c.answer)
+                ? `${(c.answer as any).numerator}/${(c.answer as any).denominator}`
+                : String(c.answer ?? "");
             return (
               <div key={it.id} style={{ marginBottom: 12 }}>
                 <div><strong>{idx + 1}.</strong> <MathText text={c.prompt || ""} /></div>
@@ -195,6 +260,11 @@ function LessonPlan({ data, onMode }: { data: LessonData; onMode: (m: "worksheet
                       <li key={i} style={{ fontWeight: ch.id === c.answer ? 700 : 400 }}><MathText text={ch.text} /></li>
                     ))}
                   </ol>
+                )}
+                {c.kind === "fraction" && (
+                  <div className="printfrac small" aria-hidden="true">
+                    <span className="printfracbar small">{Array.from({ length: Math.min(12, Math.max(2, Number(c.parts ?? c.denominator ?? 4))) }, (_, i) => <span key={i} className="printfracseg" />)}</span>
+                  </div>
                 )}
                 {c.answer != null && String(c.answer).trim() !== "" && <p><strong>Answer:</strong> <MathText text={answerText} /></p>}
                 {c.explanation && <p className="muted small">Why: {c.explanation}</p>}

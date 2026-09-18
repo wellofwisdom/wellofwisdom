@@ -42,7 +42,13 @@ async function uniqueSlug(title, courseId) {
 }
 
 /** Strip answer keys for the public browse page. Allowlist, not blocklist
- *  a new field on an exercise must be opted in, never leak by default. */
+ *  a new field on an exercise must be opted in, never leak by default.
+ *  Delegates to the kind registry, so a new kind never means editing an
+ *  allowlist here. Language kinds (vocab_card gloss/alternatives,
+ *  listen_choice answer, listen_repeat expected/alternatives) are all
+ *  stripped by their kind handlers: publicItem on them returns no key
+ *  field, and courseText never sees answerText because it is built from
+ *  the public projection. */
 function publicItem(item) {
   const reg = require("./items").forType(item.type);
   if (reg && typeof reg.strip === "function") {
@@ -129,7 +135,9 @@ const LICENSE_LABEL = {
 /** Render a published course as plain text for research tools and readers with
  *  no JavaScript. Built from publicCourse(), never the raw tree, so it can only
  *  ever see the answer-stripped projection: a new content field cannot leak into
- *  the text any more than it can into the page. */
+ *  the text any more than it can into the page. No answerText is ever emitted
+ *  here: that helper lives only on the guide-only answer-key route in
+ *  server/routes/courses.js, which is never reachable by a learner. */
 function courseText(tree, opts = {}) {
   const pub = publicCourse(tree);
   const stats = courseStats(tree);
@@ -204,7 +212,7 @@ function courseText(tree, opts = {}) {
   return L.join("\n") + "\n";
 }
 
-/** Counts for the public card: "3 units · 9 lessons · 27 exercises". */
+/** Counts for the public card: "3 units, 9 lessons, 27 exercises". */
 function courseStats(tree) {
   let lessons = 0;
   let exercises = 0;

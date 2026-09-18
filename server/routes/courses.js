@@ -897,6 +897,12 @@ router.get("/:id/answer-key", async (req, res, next) => {
           } else if (c.kind === "listen_repeat") {
             answerText = c.expected || null;
             if (Array.isArray(c.alternatives) && c.alternatives.length) answerText = [c.expected].concat(c.alternatives).join(" / ");
+          } else if (c.kind === "translate") {
+            answerText = c.expected || null;
+            if (Array.isArray(c.alternatives) && c.alternatives.length) answerText = [c.expected].concat(c.alternatives).join(" / ");
+          } else if (c.kind === "dialogue") {
+            const goals = Array.isArray(c.goals) ? c.goals : [];
+            answerText = goals.length ? goals.join(", ") : (c.scene || "dialogue");
           } else answerText = c.answer;
           // Worth surfacing: an exercise with no answer cannot be graded, and
           // the generator does occasionally produce one.
@@ -921,6 +927,11 @@ router.get("/:id/answer-key", async (req, res, next) => {
             if (!c.answer || !String(c.answer).trim()) missingAnswers++;
           } else if (c.kind === "listen_repeat") {
             if (!c.expected || !String(c.expected).trim()) missingAnswers++;
+          } else if (c.kind === "translate") {
+            if (!c.expected || !String(c.expected).trim()) missingAnswers++;
+          } else if (c.kind === "dialogue") {
+            if (!c.scene || !String(c.scene).trim()) missingAnswers++;
+            else if (!c.prompt || !String(c.prompt).trim()) missingAnswers++;
           } else if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
           const hints = Array.isArray(c.hints) ? c.hints : c.hint ? [String(c.hint)] : [];
           return {
@@ -1375,6 +1386,33 @@ router.post("/lessons/:lessonId/draft/:draftId/discard", siblingEdit(), async (r
     if (!found.rows[0]) return bad(res, "not_found", 404);
     await db.query("delete from lesson_items where id = $1 and lesson_id = $2 and content->>'draft' = 'true'", [draftId, lessonId]);
     res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+// Direct lesson fetch for print (both roles, same shape as preview but with course tree stamps).
+// Used by PrintLesson first; falls back to course scan. Must be above any :id routes.
+router.get("/lessons/:lessonId", async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    const found = await db.query(
+      `select l.id, l.title, l.summary, c.id as course_id, c.title as course_title, coalesce(l.standards,'{}') as standards
+         from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id
+        where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const items = await db.query("select id, type, position, content from lesson_items where lesson_id = $1 order by position, id", [lessonId]);
+    res.json({
+      lesson: {
+        id: Number(found.rows[0].id),
+        course_id: Number(found.rows[0].course_id),
+        course_title: found.rows[0].course_title,
+        title: found.rows[0].title,
+        summary: found.rows[0].summary,
+        standards: found.rows[0].standards || [],
+        items: items.rows,
+      },
+    });
   } catch (err) { next(err); }
 });
 

@@ -108,7 +108,7 @@ export default function DemoBanner({ onKept }: { onKept?: () => void }) {
         {!open ? (
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <button className="btn primary small-btn" type="button" onClick={() => setOpen(true)}>Keep this. Make it mine</button>
-            <a className="btn ghost small-btn" href="#pricing">See pricing</a>
+            <a className="btn ghost small-btn" href="/#pricing">See pricing</a>
           </div>
         ) : (
           <div className="panel" style={{ minWidth: 320, maxWidth: 420, margin: 0, padding: 16 }}>

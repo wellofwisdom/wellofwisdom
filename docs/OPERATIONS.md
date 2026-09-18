@@ -55,9 +55,11 @@ Two gotchas learned the hard way:
 
 ## Backups and restore
 
-- Nightly `pg_dump` to `/root/wow-backups`, gzipped, seven days kept. Uploads live on the `/app/data` volume and are not in the dump; back the volume up separately.
+- Nightly `pg_dump` to `/root/wow-backups`, gzipped, seven days kept (run at 04:10 server time). Uploads live on the `/app/data` volume and are not in the dump; back the volume up separately. On the hosted service this is automatic: seven daily database copies plus the persistent uploads volume.
+- Deletion on hosted: email privacy@wellofwisdom.app to close a family account. The live data is removed within 30 days and ages out of the seven day backup rotation as it expires. Self-host deletion is immediate because you own the database and volume. Waitlist emails are removed on request the same way.
+- Contact for delete or restore: privacy@wellofwisdom.app for data requests, support@wellofwisdom.app for a restore. General questions: kevin@wellofwisdom.app.
 - A restore drill is: create a scratch database, `gunzip -c` the dump into it, boot the app against it with a scratch `UPLOAD_DIR`, sign in, open a course. Do this before any migration that touches existing rows.
-- Whole-family export from the app is on the roadmap (Well 9). Until it ships, the dump is the family's only complete copy.
+- Whole-family export from the app is on the roadmap (Well 9). Until it ships, the dump is the family's only complete copy. The Privacy and Children's data pages state the same 30 day wording in plain language.
 
 ## Recurring jobs
 

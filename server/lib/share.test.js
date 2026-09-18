@@ -274,3 +274,70 @@ test("importTarget: every link a guide might paste becomes the JSON behind it", 
   assert.equal(t("https://raw.githubusercontent.com/o/r/main/x.json"), "https://raw.githubusercontent.com/o/r/main/x.json");
   assert.equal(t("https://files.example.org/latin.wow-course.json"), "https://files.example.org/latin.wow-course.json");
 });
+test("publicItem: vocab gloss and alternatives never leak, lesson cues survive", () => {
+  const exercise = require("./items/exercise");
+  const n = exercise.normalize({ prompt: "p", kind: "vocab_card", lemma: "hola", gloss: "hello", alternatives: ["hi"], level: "A1", example: "Hola mundo", audioText: "hola" });
+  const pub = share.publicItem({ type: "exercise", position: 0, content: n });
+  const json = JSON.stringify(pub.content);
+  assert.ok(!("gloss" in pub.content), "gloss leaked");
+  assert.ok(!("alternatives" in pub.content), "alternatives leaked");
+  assert.doesNotMatch(json, /hello/);
+  assert.doesNotMatch(json, /\"alternatives\"/);
+  assert.equal(pub.content.lemma, "hola");
+  assert.equal(pub.content.level, "A1");
+  assert.equal(pub.content.example, "Hola mundo");
+});
+
+test("publicItem: listen_choice answer never leaks, choices and audio survive", () => {
+  const exercise = require("./items/exercise");
+  const n = exercise.normalize({ prompt: "p", kind: "listen_choice", audioText: "hi", choices: [{ text: "A" }, { text: "B" }], answer: "c1" });
+  const pub = share.publicItem({ type: "exercise", position: 0, content: n });
+  assert.ok(!("answer" in pub.content), "answer leaked");
+  assert.doesNotMatch(JSON.stringify(pub), /"answer"/);
+  assert.equal(pub.content.choices.length, 2);
+  assert.equal(pub.content.audioText, "hi");
+});
+
+test("publicItem: listen_repeat expected and alternatives never leak", () => {
+  const exercise = require("./items/exercise");
+  const n = exercise.normalize({ prompt: "p", kind: "listen_repeat", expected: "hello there", audioText: "hi", alternatives: ["hi there"] });
+  const pub = share.publicItem({ type: "exercise", position: 0, content: n });
+  assert.ok(!("expected" in pub.content), "expected leaked");
+  assert.ok(!("alternatives" in pub.content), "alternatives leaked");
+  assert.doesNotMatch(JSON.stringify(pub), /hello there/);
+  assert.equal(pub.content.prompt, "p");
+  assert.equal(pub.content.audioText, "hi");
+});
+
+test("courseText: language kinds with no key field never produce answerText", () => {
+  const exercise = require("./items/exercise");
+  const v = exercise.normalize({ prompt: "p", kind: "vocab_card", lemma: "hola", gloss: "hello" });
+  const lc = exercise.normalize({ prompt: "p", kind: "listen_choice", audioText: "hi", choices: [{ text: "A" }, { text: "B" }], answer: "c1" });
+  const lr = exercise.normalize({ prompt: "p", kind: "listen_repeat", expected: "hello", audioText: "hi" });
+  for (const n of [v, lc, lr]) {
+    const tree = {
+      title: "T", topic: "t", lens: null, grade_level: null, description: null,
+      public_slug: "t", license: "CC-BY-4.0", author_name: null, published_at: new Date(),
+      units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items: [{ type: "exercise", position: 0, content: n }] }] }],
+    };
+    const txt = share.courseText(tree);
+    assert.doesNotMatch(txt, /answerText/, "courseText emitted answerText");
+    assert.doesNotMatch(JSON.stringify(share.publicCourse(tree)), /"gloss"|"expected"|"alternatives"/);
+  }
+});
+
+test("publicCourse: language kinds via publicCourse still strip keys and courseText never leaks", () => {
+  const exercise = require("./items/exercise");
+  const v = exercise.normalize({ prompt: "p", kind: "vocab_card", lemma: "hola", gloss: "hello", alternatives: ["hi"] });
+  const tree = {
+    title: "T", topic: "t", lens: null, grade_level: null, description: null,
+    public_slug: "t", license: "CC-BY-4.0", author_name: null, published_at: new Date(),
+    units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items: [{ type: "exercise", position: 0, content: v }] }] }],
+  };
+  const pub = share.publicCourse(tree);
+  const json = JSON.stringify(pub);
+  assert.doesNotMatch(json, /hello/);
+  assert.doesNotMatch(json, /alternatives/);
+  assert.doesNotMatch(share.courseText(tree), /hello/);
+});
+

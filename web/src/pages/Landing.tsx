@@ -43,10 +43,14 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
   }, []);
 
   useEffect(() => {
-    const hash = window.location.hash.slice(1);
-    if (!hash) return;
-    const t = window.setTimeout(() => document.getElementById(hash)?.scrollIntoView({ block: "start" }), 60);
-    return () => window.clearTimeout(t);
+    function scrollHash() {
+      const hash = window.location.hash.slice(1);
+      if (!hash) return;
+      window.setTimeout(() => document.getElementById(hash)?.scrollIntoView({ block: "start" }), 60);
+    }
+    scrollHash();
+    window.addEventListener("hashchange", scrollHash);
+    return () => window.removeEventListener("hashchange", scrollHash);
   }, []);
 
   const goStart = (which: Tab) => {
@@ -128,7 +132,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
                 <p>Learners walk the course as a trail, beat bosses with real answers, and collect loot with lore. Hints nudge before they tell, and "Why was I wrong?" walks from the mistake to the idea. A tutor asks questions instead of handing over answers.</p>
                 <ul className="s-act-list">
                   <li><CheckIcon /><span>Story, dungeon crawl, RPG party or choose your own path</span></li>
-                  <li><CheckIcon /><span>Real maths notation, video with questions, projects and read aloud</span></li>
+                  <li><CheckIcon /><span>Real maths notation, vocabulary cards, listening and repetition, video with questions, projects and read aloud</span></li>
                   <li><CheckIcon /><span>Dailies, streaks and badges earned only from real work</span></li>
                 </ul>
               </div>
@@ -363,7 +367,7 @@ function Pricing() {
               <li><CheckIcon /><span>Many families or classes under one account</span></li>
               <li><CheckIcon /><span>Pilot programmes with teachers in the loop</span></li>
             </ul>
-            <a className="s-btn s-btn-quiet" href="#pricing" onClick={() => { setInterest("coop"); window.setTimeout(() => document.getElementById("wait-email")?.focus(), 30); }}>Tell us about your school</a>
+            <a className="s-btn s-btn-quiet" href="/#pricing" onClick={(e) => { e.preventDefault(); setInterest("coop"); document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "start" }); window.setTimeout(() => document.getElementById("wait-email")?.focus(), 320); }}>Tell us about your school</a>
           </div>
         </div>
       </div>
