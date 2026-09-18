@@ -28,6 +28,16 @@ The learner-facing app is the first surface that is translated. The console, mar
 - Not translated: `LessonPlayer.tsx` and `web/src/pages/learn/items/**`. Well 3 owns those files and is moving them. The keys they will need are already in `en.ts` / `es.ts` under `lesson.*`, so Well 3 can switch those files to `t()` without adding new keys.
 - Course content, lesson titles and lesson bodies are never translated automatically. They are what the guide wrote.
 
+## Language lesson kinds
+
+The platform now has vocabulary and listening kinds inside normal lessons:
+
+- **vocab_card**: word, form, gloss, example, CEFR level A1 to B2, optional image and audioText, alternatives accepted, spaced review per card.
+- **listen_choice**: hear audioText or a local clip at `/media/` then choose one of up to six options. The answer is a choice id graded on the server.
+- **listen_repeat**: hear the expected phrase then repeat. Grading folds accents, strips punctuation and counts words correct in order. You can type the transcript or use STT. Alternatives are accepted and partial credit is scored as words matched divided by words expected.
+
+These kinds appear in generated courses when a target language is set (for example `language: "es"` at A1). They use the same attempt endpoint as other items, so `normalizeLang` and `prefs.lang` still control only the chrome language, not the course target language.
+
 ## Checks
 
 - `npm --prefix web test` runs `web/src/i18n/i18n.test.tsx`, which fails if keys drift.
