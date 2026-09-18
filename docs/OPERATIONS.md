@@ -89,6 +89,22 @@ Any key that has appeared in a chat transcript, a log, a screenshot or a commit 
 - Env: `POST /api/v1/applications/{uuid}/envs`, one key per call.
 - The deployment queue query needs `a.id::text = q.application_id`.
 
+## Install verification (generator v2)
+
+After a fresh install or a database reset, confirm the generator path works without an AI key:
+
+```
+npm run verify:install
+```
+
+It boots the server with `DB_DRIVER=pglite` against a fresh temp dir, runs migrations, and exercises the outline then per-lesson generation end to end with mocked AI. It also proves language plumbing: `language=es cefr=A1` surfaces `vocab_card`, `listen_choice`, `listen_repeat` in the kind menu while a non-language course still produces the same 1-unit shapes. The temp dir is removed on exit.
+
+For a full pglite test sweep:
+
+```
+npm run test:pglite
+```
+
 ## House rules that bite in production
 
 - Every outbound server fetch goes through `fetchT`; a bare `fetch` hangs forever when a provider stalls.

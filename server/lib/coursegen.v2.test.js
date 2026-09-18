@@ -82,26 +82,9 @@ test("buildLessonPrompt: includes lesson plan objective and kind menu", () => {
   assert.match(prompt, /Kind menu/);
 });
 
-test("outline route validation: existence asserted from source", () => {
-  const fs = require("node:fs"), path = require("node:path");
-  const srcA = fs.readFileSync(path.join(__dirname, "../routes/courses.js"), "utf8");
-  const srcB = fs.existsSync(path.join(__dirname, "../routes/_v2_routes.js")) ? fs.readFileSync(path.join(__dirname, "../routes/_v2_routes.js"), "utf8") : "";
-  const src = srcA + srcB;
-  assert.match(src, /generate-outline/);
-  assert.match(src, /generate-from-outline/);
-  assert.match(src, /verify/);
-  assert.match(src, /verification/);
-  assert.match(src, /media-pass/);
-});
-
-test("jobs wiring: outline/lesson/verify/media handlers exist", () => {
-  const fs = require("node:fs"), path = require("node:path");
-  const src = fs.readFileSync(path.join(__dirname, "jobs.js"), "utf8");
-  assert.match(src, /"course-outline"/);
-  assert.match(src, /"course-lesson"/);
-  assert.match(src, /"course-verify"/);
-  assert.match(src, /"course-media"/);
-});
+// Outline and job wiring are covered by route-level integration tests in
+// server/routes/courses.v2.integration.test.js; source-text assertions pass
+// even when behaviour is broken, so they are not kept here.
 
 test("verification storage: flagged items stored as content.verification with check_this_answer", async () => {
   // This test documents the contract: verification is stored inline on lesson_items.content.verification
@@ -122,6 +105,30 @@ test("media pass: figure.prompt items are the only ones that queue", () => {
   assert.ok(figDone && figDone.content.uploadId);
   // runMediaPass checks content.prompt and skips when uploadId/url present; covered via unit test above
   assert.equal(typeof v2.runMediaPass, "function");
+});
+
+
+test("language plumbing: outline and lesson prompts include target language when set", () => {
+  const withLang = v2.buildOutlinePrompt({ topic: "Basics", gradeLevel: 4, language: "es", cefr: "A1", lens: null, interests: [], learnerNotes: null, notes: null }, "", { units: 1, lessonsPerUnit: 1 });
+  assert.match(withLang, /Target language: es/i);
+  assert.match(withLang, /A1/i);
+  const withoutLang = v2.buildOutlinePrompt({ topic: "Basics", gradeLevel: 4, language: null, cefr: null, lens: null, interests: [], learnerNotes: null, notes: null }, "", { units: 1, lessonsPerUnit: 1 });
+  assert.ok(!/Target language/i.test(withoutLang));
+  const kindMenuLang = v2.buildKindMenu("es");
+  assert.match(kindMenuLang, /vocab_card/);
+  assert.match(kindMenuLang, /listen_choice/);
+  assert.match(kindMenuLang, /listen_repeat/);
+  const kindMenuPlain = v2.buildKindMenu(null);
+  assert.ok(!/vocab_card/.test(kindMenuPlain), "non-language menu must not mention language kinds");
+  assert.ok(!/listen_choice/.test(kindMenuPlain));
+  const lp = v2.buildLessonPrompt({ topic: "Basics", language: "es", cefr: "A1" }, { title: "Greetings" }, kindMenuLang, "", "{}");
+  assert.match(lp, /Target language: es/i);
+  assert.match(lp, /vocab_card|listen_choice/);
+  // normalizers
+  assert.equal(v2.normalizeLanguage("ES"), "es");
+  assert.equal(v2.normalizeLanguage("xx-bad!"), null);
+  assert.equal(v2.normalizeCefr("a1"), "A1");
+  assert.equal(v2.normalizeCefr("Z9"), null);
 });
 
 test("publicContent pattern: generateOutline passes publicContent only when spec.openPublish true", async () => {
