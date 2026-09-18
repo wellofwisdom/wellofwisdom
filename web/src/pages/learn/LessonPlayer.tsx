@@ -6,6 +6,7 @@ import type { ItemNode, LearnLesson, Submission } from "../../types";
 import { linkProps } from "../../router";
 import { useT } from "../../i18n";
 import { speakWithLang, currentLang } from "../../i18n";
+import { preloadKatex } from "../../lib/rich";
 import ArticleItem from "./items/ArticleItem";
 import ExerciseItem from "./items/ExerciseItem";
 import MultiItem from "./items/MultiItem";
@@ -357,6 +358,7 @@ export default function LessonPlayer({ lessonId, onNavigate, onLogout }: {
 
   useEffect(() => {
     load();
+    preloadKatex().catch(() => {});
   }, [load]);
 
   const onSolved = (key: string, correct: boolean | null) => {

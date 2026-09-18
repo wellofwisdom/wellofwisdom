@@ -1378,6 +1378,33 @@ router.post("/lessons/:lessonId/draft/:draftId/discard", siblingEdit(), async (r
   } catch (err) { next(err); }
 });
 
+// Direct lesson fetch for print (both roles, same shape as preview but with course tree stamps).
+// Used by PrintLesson first; falls back to course scan. Must be above any :id routes.
+router.get("/lessons/:lessonId", async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.lessonId);
+    const found = await db.query(
+      `select l.id, l.title, l.summary, c.id as course_id, c.title as course_title, coalesce(l.standards,'{}') as standards
+         from lessons l join units un on un.id = l.unit_id join courses c on c.id = un.course_id
+        where l.id = $1 and c.family_id = $2`,
+      [lessonId, req.user.familyId]
+    );
+    if (!found.rows[0]) return bad(res, "not_found", 404);
+    const items = await db.query("select id, type, position, content from lesson_items where lesson_id = $1 order by position, id", [lessonId]);
+    res.json({
+      lesson: {
+        id: Number(found.rows[0].id),
+        course_id: Number(found.rows[0].course_id),
+        course_title: found.rows[0].course_title,
+        title: found.rows[0].title,
+        summary: found.rows[0].summary,
+        standards: found.rows[0].standards || [],
+        items: items.rows,
+      },
+    });
+  } catch (err) { next(err); }
+});
+
 // Preview one lesson as the learner sees it, without switching the session.
 // Stripped the same way routes/learn strips, so no answers leak.
 router.get("/lessons/:lessonId/preview", async (req, res, next) => {
