@@ -37,6 +37,8 @@ describe("courses v2 integration: generator routes through harness", () => {
   it("generate-outline validates and enqueues course-outline job", async () => {
     if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
     const a = await app(); const fam = await signup(a, "outlineA");
+    const ai = require("../lib/ai"); const orig = ai.configured; ai.configured = () => true;
+    try {
     const badTopic = await http(a, "/api/courses/generate-outline", { cookie: fam.jar, body: {} });
     assert.equal(badTopic.status, 400, badTopic.text);
     assert.match(badTopic.text, /topic_required/);
@@ -51,8 +53,6 @@ describe("courses v2 integration: generator routes through harness", () => {
     const badCefr = await http(a, "/api/courses/generate-outline", { cookie: fam.jar, body: { topic: "Spanish basics", cefr: "Z9" } });
     assert.equal(badCefr.status, 400, badCefr.text);
     assert.match(badCefr.text, /cefr_invalid/);
-    const ai = require("../lib/ai"); const orig = ai.configured; ai.configured = () => true;
-    try {
       const ok = await http(a, "/api/courses/generate-outline", { cookie: fam.jar, body: { topic: "Fractions through baking for grade 4", language: "es", cefr: "A1", size: { units: 1, lessonsPerUnit: 1 } } });
       assert.equal(ok.status, 202, ok.text);
       assert.ok(ok.json.jobId);
