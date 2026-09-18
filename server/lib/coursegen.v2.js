@@ -114,6 +114,7 @@ function buildKindMenu(language) {
         else if (k === "multi") entries.push("- exercise kind multi: content { prompt, kind: 'multi', choices, answer: ['c1','c3'] } -- sets match exactly");
         else if (k === "numeric") entries.push("- exercise kind numeric: content { prompt, kind: 'numeric', answer: number|string, explanation, hints[] } -- 0.5% tolerance");
         else if (k === "text") entries.push("- exercise kind text: content { prompt, kind: 'text', answer: string (model answer, self-check) }");
+        else if (!language && (k === "vocab_card" || k === "listen_choice" || k === "listen_repeat")) { /* language-only, skip when no language */ }
         else entries.push("- exercise kind " + k);
       }
     } else if (t === "article") entries.push("- article: { title, body } -- body 120-220 words, math, bold, bullets");
