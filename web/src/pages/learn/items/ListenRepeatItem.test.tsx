@@ -10,6 +10,7 @@ vi.mock("../../../api", () => ({
 }));
 vi.mock("../../../lib/gamepad", () => ({ triggerRumble: () => {} }));
 vi.mock("../TutorChat", () => ({ default: () => null }));
+vi.mock("../../../components/PushToTalk", () => ({ PushToTalk: () => null }));
 
 import ListenRepeatItem from "./ListenRepeatItem";
 

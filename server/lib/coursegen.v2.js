@@ -114,7 +114,7 @@ function buildKindMenu(language) {
         else if (k === "multi") entries.push("- exercise kind multi: content { prompt, kind: 'multi', choices, answer: ['c1','c3'] } -- sets match exactly");
         else if (k === "numeric") entries.push("- exercise kind numeric: content { prompt, kind: 'numeric', answer: number|string, explanation, hints[] } -- 0.5% tolerance");
         else if (k === "text") entries.push("- exercise kind text: content { prompt, kind: 'text', answer: string (model answer, self-check) }");
-        else if (!language && (k === "vocab_card" || k === "listen_choice" || k === "listen_repeat")) { /* language-only, skip when no language */ }
+        else if (!language && (k === "vocab_card" || k === "listen_choice" || k === "listen_repeat" || k === "translate" || k === "dialogue")) { /* language-only, skip when no language */ }
         else entries.push("- exercise kind " + k);
       }
     } else if (t === "article") entries.push("- article: { title, body } -- body 120-220 words, math, bold, bullets");
@@ -133,6 +133,9 @@ function buildKindMenu(language) {
       entries.push("- exercise kind vocab_card: content { prompt, kind: 'vocab_card', lemma, gloss, example, alternatives[] } -- vocabulary word with gloss, spaced review");
       entries.push("- exercise kind listen_choice: content { prompt, kind: 'listen_choice', audioText, audioUrl, choices[{id,text}], answer: 'c1' } -- listen then pick");
       entries.push("- exercise kind listen_repeat: content { prompt, kind: 'listen_repeat', expected, audioText, audioUrl, hints[] } -- listen and repeat, STT scored");
+      entries.push("- exercise kind translate: content { prompt, kind: 'translate', direction: 'en_to_es', expected, alternatives[], rubric } -- translate, exact match or rubric");
+      entries.push("- exercise kind dialogue: content { prompt, kind: 'dialogue', scene, turns, goals[], goodEndings[] } -- short role-play dialogue, completeness graded");
+      entries.push("- graded_reader: { title, body, level (A1-C2), glosses {word:gloss} } -- short CEFR reader, not graded, followed by checks");
     }
   }
   if (!entries.length) return "Available kinds: article, exercise (mcq, numeric, text), video, audio, project.";

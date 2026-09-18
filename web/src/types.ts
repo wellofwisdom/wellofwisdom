@@ -61,7 +61,7 @@ export interface CourseSummary {
 
 export interface ItemNode {
   id: number;
-  type: "article" | "exercise" | "video" | "audio" | "project";
+  type: "article" | "graded_reader" | "exercise" | "video" | "audio" | "project";
   position: number;
   content: Record<string, any>;
 }
