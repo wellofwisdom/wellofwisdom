@@ -1,0 +1,87 @@
+{
+  "id": "animation-landscape",
+  "title": "The Attic of Moving Pictures",
+  "tagline": "One drum, one disc, twelve frames, and all the time in the world",
+  "description": "A dusty attic workshop where every machine that ever made pictures move still runs: thaumatropes, zoetropes, cels, clay, and one stubborn old computer. An animation craft adventure where the learner rebuilds each machine, plans a twelve-frame film, and earns the projector's light.",
+  "worldPrompt": "An original adventure in a cluttered attic animation workshop above a shuttered picture house. No real studios or characters appear: everything here is invented. The learner arrives as a new apprentice to the Projectionist, who keeps every optical toy in working order; with Marlow the clay model-maker, whose armatures hold any pose; and Pip, a rival apprentice who plans everything on storyboards and never wastes a frame. Each chapter gates one unit of the animation course: the eye trick of persistence of vision and apparent motion with flipbooks, thaumatropes, and zoetropes; the hand-drawn craft of cels, keys, in-betweens, storyboards, and pencil tests; and the modern leap of stop motion, pixels and vectors, CGI rigs, and renders. Tone is warm, workshop-dusty, and quietly delighted by machines. Loot is craft gear: a thaumatrope disc, a zoetrope strip, a timing chart, a wire armature, and the projectionist's lamp.",
+  "gameType": "story",
+  "characters": [
+    {
+      "name": "the Projectionist",
+      "role": "mentor",
+      "bio": "Keeps the attic's machines alive and its lessons short. Believes the audience does the moving, and a good animator merely respects their eye."
+    },
+    {
+      "name": "Marlow",
+      "role": "ally",
+      "bio": "A clay model-maker with wire in his pockets and patience in his wrists. Moves every puppet a few millimetres at a time and never twice by accident."
+    },
+    {
+      "name": "Pip",
+      "role": "rival",
+      "bio": "Plans everything on storyboard panels before touching a pencil. Competes on timing, not talent, and checks your keys before praising your drawings."
+    },
+    {
+      "name": "you",
+      "role": "self",
+      "bio": "The new apprentice. You arrive owning one pencil and a pad of paper, and leave owning the whole craft, twelve frames at a time."
+    }
+  ],
+  "chapters": [
+    {
+      "title": "The Shelf of Spinning Toys",
+      "hook": "Discs, drums, and slits: nothing moves, and yet everything does.",
+      "boss": false,
+      "musicPrompt": "Curious workshop music for spinning paper toys. Light plucked strings and a soft steady tick like a crank turning, warm and unhurried, instrumental only, no vocals."
+    },
+    {
+      "title": "The Cel Bench and the Storyboard Wall",
+      "hook": "Draw the still once, the moving always, and the film small before the film at all.",
+      "boss": false,
+      "musicPrompt": "Steady workbench music for painting cels and pinning panels. Gentle piano with a quiet confident pulse, like pencils working in rhythm, instrumental only, no vocals."
+    },
+    {
+      "title": "The Render Lamp",
+      "hook": "Clay on the left, bones of light on the right, and twelve frames of your own in the middle.",
+      "boss": true,
+      "musicPrompt": "Quietly triumphant finale for a projector flickering to life. Warm brass over soft strings, building slowly to a steady bright glow, instrumental only, low enough to study over, no vocals."
+    }
+  ],
+  "loot": [
+    {
+      "name": "Thaumatrope Disc",
+      "description": "A card disc with a bird on one side and a cage on the other. Chapter 1, the shelf of spinning toys.",
+      "icon": "🪶",
+      "rarity": "common"
+    },
+    {
+      "name": "Zoetrope Strip",
+      "description": "A paper strip of a frog mid-leap, one drawing per slit. Chapter 1, the drum that chops motion into frames.",
+      "icon": "🐸",
+      "rarity": "common"
+    },
+    {
+      "name": "Timing Chart",
+      "description": "Pip's own chart, which says which drawing sits on which frame. Grants clean spacing on any walk cycle. Chapter 2, the cel bench.",
+      "icon": "📊",
+      "rarity": "uncommon"
+    },
+    {
+      "name": "Wire Armature",
+      "description": "Marlow's spare skeleton, tiny and strong. Holds any pose you leave it in, even overnight. Chapter 3, the stop motion bench.",
+      "icon": "🦴",
+      "rarity": "rare"
+    },
+    {
+      "name": "the Projectionist's Lamp",
+      "description": "The lamp that lights the first frame of every film made in the attic. Given when your own twelve frames play end to end. Legendary chapter clear. Chapter 3, the render lamp.",
+      "icon": "💡",
+      "rarity": "legendary"
+    }
+  ],
+  "musicDefaults": {
+    "volume": 0.18,
+    "duckUnderVoice": true,
+    "loop": true
+  }
+}
