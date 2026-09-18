@@ -888,6 +888,15 @@ router.get("/:id/answer-key", async (req, res, next) => {
           } else if (c.kind === "fraction") {
             const a = c.answer && typeof c.answer === "object" && !Array.isArray(c.answer) ? c.answer : null;
             answerText = a ? `${a.numerator}/${a.denominator}` : null;
+          } else if (c.kind === "vocab_card") {
+            answerText = c.gloss || null;
+            if (Array.isArray(c.alternatives) && c.alternatives.length) answerText = [c.gloss].concat(c.alternatives).join(" / ");
+          } else if (c.kind === "listen_choice") {
+            const ans = c.answer ? ((c.choices || []).find((ch) => ch.id === c.answer) || {}).text : null;
+            answerText = ans || c.answer || null;
+          } else if (c.kind === "listen_repeat") {
+            answerText = c.expected || null;
+            if (Array.isArray(c.alternatives) && c.alternatives.length) answerText = [c.expected].concat(c.alternatives).join(" / ");
           } else answerText = c.answer;
           // Worth surfacing: an exercise with no answer cannot be graded, and
           // the generator does occasionally produce one.
@@ -906,6 +915,12 @@ router.get("/:id/answer-key", async (req, res, next) => {
             if (!a || a.numerator == null || a.denominator == null) missingAnswers++;
           } else if (c.kind === "numberline") {
             if (c.answer == null || c.answer === "") missingAnswers++;
+          } else if (c.kind === "vocab_card") {
+            if (!c.gloss || !String(c.gloss).trim()) missingAnswers++;
+          } else if (c.kind === "listen_choice") {
+            if (!c.answer || !String(c.answer).trim()) missingAnswers++;
+          } else if (c.kind === "listen_repeat") {
+            if (!c.expected || !String(c.expected).trim()) missingAnswers++;
           } else if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
           const hints = Array.isArray(c.hints) ? c.hints : c.hint ? [String(c.hint)] : [];
           return {
