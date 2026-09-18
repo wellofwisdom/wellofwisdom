@@ -90,7 +90,7 @@ function DialoguePreview({ content }: { content: Record<string, any> }) {
           <input className="input" value={t} onChange={(e) => setTurns(turns.map((x, idx) => (idx === i ? e.target.value : x)))} placeholder={i === 0 ? "Hola, buenos dias..." : "Your reply"} />
         </Field>
       ))}
-      <p className="muted small" style={{ marginTop: 6 }}>{progress}{nonEmpty >= needed ? " — ready to submit" : ""}</p>
+      <p className="muted small" style={{ marginTop: 6 }}>{progress}{nonEmpty >= needed ? " (ready to submit)" : ""}</p>
     </div>
   );
 }
