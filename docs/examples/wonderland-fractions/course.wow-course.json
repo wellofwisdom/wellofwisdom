@@ -143,20 +143,55 @@
               }
             },
             {
-              "type": "predict",
+              "type": "video",
               "content": {
-                "prompt": "If you cut a tart into 10 equal slices and eat 6, do you have more or less than one half?",
-                "choices": [
+                "title": "Watch: what a fraction really names",
+                "youtubeId": "CA9XLJpQp3c",
+                "note": "A short refresher on naming equal parts of one whole. Watch for how the bottom number counts every equal part, then compare same-size pieces in this lesson.",
+                "questions": [
                   {
-                    "id": "c1",
-                    "text": "More than one half"
+                    "prompt": "A tart is cut into 4 equal slices and Alice eats 1. What fraction did she eat?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "$\\frac{1}{4}$",
+                        "feedback": "Right. One eaten slice out of 4 equal slices is one quarter."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "$\\frac{4}{1}$",
+                        "feedback": "That is four wholes, not one slice. The count of equal parts in the whole goes on the bottom."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "$\\frac{1}{3}$",
+                        "feedback": "She ate 1 slice, but the tart was cut into 4 slices, not 3. Count all the equal parts for the bottom number."
+                      }
+                    ],
+                    "answer": "c1"
                   },
                   {
-                    "id": "c2",
-                    "text": "Less than one half"
+                    "prompt": "Why must the parts of a whole be equal before you name a fraction?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "Equal parts make the fraction name trustworthy",
+                        "feedback": "Right. If one slice is bigger, calling both of them one fourth is not fair, so the name breaks."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "Unequal parts make the tart taste different",
+                        "feedback": "Taste is not the maths. Unequal parts make the fraction name wrong, because the parts are not the same size."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "Equal parts are quicker to draw",
+                        "feedback": "Drawing speed is not the reason. Equal parts are what let one number name every part honestly."
+                      }
+                    ],
+                    "answer": "c1"
                   }
-                ],
-                "reveal": "Six tenths is more than one half, because one half is five tenths. So 6 out of 10 is more than half the tart."
+                ]
               }
             },
             {
@@ -199,19 +234,6 @@
                 "hints": [
                   "All three have the same denominator. What does that tell you about piece size?",
                   "Order by the numerators from smallest to largest to find the middle."
-                ]
-              }
-            },
-            {
-              "type": "exercise",
-              "content": {
-                "kind": "text",
-                "prompt": "In one sentence, explain why $\\frac{3}{4} > \\frac{1}{4}$ without calculating.",
-                "answer": "Both are quarters so the pieces are the same size, and 3 pieces is more than 1 piece.",
-                "explanation": "Any sentence that says the pieces match and compares the numerators is good.",
-                "hints": [
-                  "Denominators match at 4, so the pieces are quarters. What does matching size tell you about comparing?",
-                  "Compare the numerators 3 and 1. Which counts more same-size pieces?"
                 ]
               }
             }
@@ -353,12 +375,12 @@
               "type": "exercise",
               "content": {
                 "kind": "numeric",
-                "prompt": "What is $\\frac{7}{8} - \\frac{3}{8}$? Give the numerator of the answer (denominator stays 8).",
+                "prompt": "A tart is cut into 8 equal slices. Alice eats 3 slices and the Knave steals 1. How many eighths are left on the plate? Give the numerator (the denominator stays 8).",
                 "answer": 4,
-                "explanation": "$\\frac{7}{8} - \\frac{3}{8} = \\frac{4}{8}$, which simplifies to $\\frac{1}{2}$.",
+                "explanation": "The whole tart is $\\frac{8}{8}$. Take away the 3 eaten and the 1 stolen: $\\frac{8}{8} - \\frac{3}{8} - \\frac{1}{8} = \\frac{4}{8}$. Four eighths remain.",
                 "hints": [
-                  "Denominators match at 8, so keep 8 on the bottom.",
-                  "Subtract only the numerators: 7 minus 3."
+                  "Start from the whole tart: $\\frac{8}{8}$ is all 8 slices.",
+                  "Count what leaves the plate: $8 - 3 - 1$ slices."
                 ]
               }
             },
@@ -445,6 +467,58 @@
                   },
                   {
                     "text": "So one third is larger than one sixth. Fewer pieces means bigger pieces."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "video",
+              "content": {
+                "title": "Watch: comparing fractions with different pieces",
+                "youtubeId": "KNdUJQ_qd4U",
+                "note": "The video compares fractions that share a top number or a bottom number. The croquet ground uses the same idea: one third against one sixth.",
+                "questions": [
+                  {
+                    "prompt": "Which is larger: $\\frac{1}{4}$ or $\\frac{1}{8}$?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "$\\frac{1}{4}$",
+                        "feedback": "Right. Fourths are bigger pieces than eighths, so one fourth is the larger share."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "$\\frac{1}{8}$",
+                        "feedback": "Eight is the bigger number, but that makes the pieces smaller, not bigger. One eighth is the smaller share."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "They are equal",
+                        "feedback": "Both are one piece, but the pieces are different sizes, so the shares are not equal."
+                      }
+                    ],
+                    "answer": "c1"
+                  },
+                  {
+                    "prompt": "When two fractions have the same top number, what tells you which is larger?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "The smaller bottom number, because the pieces are bigger",
+                        "feedback": "Right. With the same number of pieces, the bigger pieces win."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "The larger bottom number, because it counts more pieces",
+                        "feedback": "More pieces of the same whole means smaller pieces. With equal top numbers, the smaller bottom number wins."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "Nothing tells you until you cut a real tart",
+                        "feedback": "The numbers already say it: same top number, then compare piece sizes with the bottom numbers."
+                      }
+                    ],
+                    "answer": "c1"
                   }
                 ]
               }
@@ -566,13 +640,6 @@
               }
             },
             {
-              "type": "audio",
-              "content": {
-                "title": "Listen: The Cheshire Cat's renaming trick",
-                "transcript": "The Cheshire Cat smiles and says the same cat can look like two quarters or three sixths and still be the same amount. To make pieces match, we multiply the top and the bottom by the same number. Then we compare. Listen for how renaming changes the look but not the value, just as the Cat fades but stays the same cat."
-              }
-            },
-            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
@@ -582,36 +649,6 @@
                 "hints": [
                   "What number times 4 equals 12? That is your multiplier.",
                   "Multiply the numerator 3 by that same multiplier to keep the value equal."
-                ]
-              }
-            },
-            {
-              "type": "exercise",
-              "content": {
-                "kind": "mcq",
-                "prompt": "Which shows $\\frac{2}{3}$ and $\\frac{3}{5}$ with a common denominator of 15?",
-                "choices": [
-                  {
-                    "id": "c1",
-                    "text": "$\\frac{10}{15}$ and $\\frac{9}{15}$, so $\\frac{2}{3} > \\frac{3}{5}$",
-                    "feedback": "Correct. Multiply $\\frac{2}{3}$ by 5 and $\\frac{3}{5}$ by 3 to get fifteenths, and 10 fifteenths is more than 9."
-                  },
-                  {
-                    "id": "c2",
-                    "text": "$\\frac{2}{15}$ and $\\frac{3}{15}$, so $\\frac{3}{5} > \\frac{2}{3}$",
-                    "feedback": "Put the old numerators over 15 without multiplying correctly. You must multiply top and bottom by the same number."
-                  },
-                  {
-                    "id": "c3",
-                    "text": "$\\frac{6}{15}$ and $\\frac{9}{15}$, so $\\frac{2}{3} < \\frac{3}{5}$",
-                    "feedback": "Used the wrong multiplier for $\\frac{2}{3}$. Two thirds is 10 fifteenths, not 6 fifteenths."
-                  }
-                ],
-                "answer": "c1",
-                "explanation": "$\\frac{2}{3} = \\frac{10}{15}$ and $\\frac{3}{5} = \\frac{9}{15}$, and 10 fifteenths beats 9 fifteenths.",
-                "hints": [
-                  "To get denominator 15, how many times does 3 go into 15? Multiply both top and bottom of $\\frac{2}{3}$ by that.",
-                  "How many times does 5 go into 15? Do the same for $\\frac{3}{5}$ and compare numerators."
                 ]
               }
             },
@@ -915,10 +952,55 @@
               }
             },
             {
-              "type": "audio",
+              "type": "video",
               "content": {
-                "title": "Walk the Wonderland number line",
-                "transcript": "Imagine a line on the floor from 0 to 1, one whole step from no cake to the whole cake. Mark one half in the middle. Mark quarters, then eighths. See how three eighths sits between one quarter and one half. A number line lets you see which fraction is larger just by where it sits."
+                "title": "Watch: walking the number line",
+                "youtubeId": "SZaXtOHNh6s",
+                "note": "A song about placing fractions on a number line, the same walk Alice takes from small to tall.",
+                "questions": [
+                  {
+                    "prompt": "On a number line from 0 to 1 cut into 4 equal steps, where does $\\frac{3}{4}$ sit?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "At the third mark after 0",
+                        "feedback": "Right. Count 3 of the 4 equal steps from 0 and that mark is $\\frac{3}{4}$."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "At the fourth mark after 0",
+                        "feedback": "The fourth mark is $\\frac{4}{4}$, which is 1 itself. $\\frac{3}{4}$ sits one step earlier."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "Halfway between 0 and 1",
+                        "feedback": "Halfway is $\\frac{2}{4}$. $\\frac{3}{4}$ is one more step to the right."
+                      }
+                    ],
+                    "answer": "c1"
+                  },
+                  {
+                    "prompt": "On a number line, what does the bottom number of a fraction tell you?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "How many equal steps the walk from 0 to 1 is cut into",
+                        "feedback": "Right. Fourth means the whole stretch was cut into 4 equal steps, so each step is one fourth."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "How many steps to walk from 0",
+                        "feedback": "That is the top number's job. The bottom number says how many equal steps make the whole stretch."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "How long the number line is",
+                        "feedback": "The line is one whole either way. The bottom number only says how many equal steps it was cut into."
+                      }
+                    ],
+                    "answer": "c1"
+                  }
+                ]
               }
             },
             {
@@ -963,19 +1045,6 @@
                   "The numerator tells how many eighth steps you have taken."
                 ]
               }
-            },
-            {
-              "type": "exercise",
-              "content": {
-                "kind": "text",
-                "prompt": "In one sentence, describe where $\\frac{2}{3}$ sits on a 0 to 1 number line relative to $\\frac{1}{2}$ and 1.",
-                "answer": "Two thirds sits between one half and one whole, closer to one half than to one.",
-                "explanation": "Any sentence that places two thirds between one half and one and notes it is greater than one half is good.",
-                "hints": [
-                  "Locate one half at 0.5 and 1 at 1.0 on the 0 to 1 line.",
-                  "Two thirds is about 0.66. Is that to the left or right of one half? How close to 1?"
-                ]
-              }
             }
           ]
         },
@@ -1017,23 +1086,6 @@
               }
             },
             {
-              "type": "predict",
-              "content": {
-                "prompt": "Alice is 10 cm tall and grows to seven quarters of that height. Do you predict she will be shorter or taller than 15 cm?",
-                "choices": [
-                  {
-                    "id": "c1",
-                    "text": "Shorter than 15 cm"
-                  },
-                  {
-                    "id": "c2",
-                    "text": "Taller than 15 cm"
-                  }
-                ],
-                "reveal": "Seven quarters is one and three quarters, so 10 times 1.75 is 17.5 cm, taller than 15 cm. More than one whole means taller."
-              }
-            },
-            {
               "type": "exercise",
               "content": {
                 "kind": "numeric",
@@ -1043,36 +1095,6 @@
                 "hints": [
                   "How many quarters make one whole? That is 4 quarters.",
                   "Add two more quarters for the half. How many in total?"
-                ]
-              }
-            },
-            {
-              "type": "exercise",
-              "content": {
-                "kind": "mcq",
-                "prompt": "Which equals $\\frac{5}{4}$?",
-                "choices": [
-                  {
-                    "id": "c1",
-                    "text": "$1\\frac{1}{4}$",
-                    "feedback": "Correct. Four quarters make one whole, leaving one quarter, so $\\frac{5}{4} = 1\\frac{1}{4}$."
-                  },
-                  {
-                    "id": "c2",
-                    "text": "$1\\frac{3}{4}$",
-                    "feedback": "Mixed up the leftover. $\\frac{5}{4}$ leaves 1 quarter after the whole, not 3 quarters. That would be $\\frac{7}{4}$."
-                  },
-                  {
-                    "id": "c3",
-                    "text": "$\\frac{4}{5}$",
-                    "feedback": "Flipped numerator and denominator. The number of quarters 5 stays on top, the size quarters 4 stays on the bottom."
-                  }
-                ],
-                "answer": "c1",
-                "explanation": "Five quarters is one whole and one quarter.",
-                "hints": [
-                  "How many quarters make one whole? Subtract that from 5 quarters to find the leftover.",
-                  "One whole is $\\frac{4}{4}$. What remains from $\\frac{5}{4}$?"
                 ]
               }
             },
