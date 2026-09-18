@@ -28,6 +28,7 @@ import ScenarioItem from "./items/ScenarioItem";
 import VocabCardItem from "./items/VocabCardItem";
 import ListenChoiceItem from "./items/ListenChoiceItem";
 import ListenRepeatItem from "./items/ListenRepeatItem";
+import GradedReaderItem from "./items/GradedReaderItem";
 
 type CourseUnit = { id: number; title: string; lessons: { id: number; title: string }[] };
 type CourseForUnits = { id: number; units: CourseUnit[] };
@@ -514,6 +515,7 @@ function LessonItem({ item, solved, onSolved, onWrong, submission, onSubmission 
   onSubmission: (sub: Submission) => void;
 }) {
   if (item.type === "article") return <ArticleItem item={item} />;
+  if ((item.type as string) === "graded_reader") return <GradedReaderItem item={item as unknown as never} />;
   if (item.type === "project") return <ProjectItem item={item} submission={submission} onSubmission={onSubmission} />;
   if (item.type === "video") return <VideoItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} />;
   if (item.type === "audio") return <AudioItem item={item} />;

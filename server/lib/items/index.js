@@ -12,8 +12,10 @@ const steps = require("./steps");
 const predict = require("./predict");
 const flashcards = require("./flashcards");
 
+const graded_reader = require("./graded_reader");
 const REGISTRY = {
   article,
+  graded_reader,
   exercise,
   video,
   audio,

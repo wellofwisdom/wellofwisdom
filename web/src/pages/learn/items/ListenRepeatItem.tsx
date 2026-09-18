@@ -6,6 +6,7 @@ import type { ItemNode } from "../../../types";
 import { useT, speakWithLang, currentLang } from "../../../i18n";
 import HintLadder from "./HintLadder";
 import TutorChat from "../TutorChat";
+import { PushToTalk } from "../../../components/PushToTalk";
 
 interface AttemptResponse {
   correct: boolean | null;
@@ -178,6 +179,9 @@ export default function ListenRepeatItem({
             <button className="btn primary" type="button" data-nav disabled={busy || !transcript.trim()} onClick={submit}>
               {busy ? t("exercise.checking") : t("exercise.check")}
             </button>
+          </div>
+          <div className="row wrap" style={{ marginTop: 8 }}>
+            <PushToTalk kind="text" onResult={(spoken) => setTranscript(spoken.text)} label="Speak" />
           </div>
           <p className="muted small" style={{ marginTop: 6 }}>{t("listenRepeat.hint")}</p>
           <div className="row wrap" style={{ marginTop: 8 }}>
