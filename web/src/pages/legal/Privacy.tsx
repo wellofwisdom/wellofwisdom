@@ -30,17 +30,17 @@ export default function Privacy() {
         <li>Passwords and learner PINs are hashed with scrypt (Node crypto.scrypt). Sessions are HTTP only cookies.</li>
         <li>Data lives in Postgres on your server, or on the hosted server you choose.</li>
         <li>Uploads live on the volume you mount as <code className="k">UPLOAD_DIR</code>.</li>
-        <li>Backups are your responsibility on self-host. On hosted, backups are planned as daily and restorable on request [placeholder: Kevin to confirm schedule and restore process].</li>
+        <li>Backups are your responsibility on self-host. On hosted, we take a nightly database dump at 04:10 server time and keep seven daily copies. Uploads live on a separate persistent volume and are backed up with it. If you need a restore, email support@wellofwisdom.app and we will restore to a point in time from the available copies.</li>
       </ul>
 
       <h2>Retention and deletion</h2>
-      <p>A parent can delete a learner, a course, or a report. A hosted account can be closed by emailing privacy@wellofwisdom.app, and data is removed within 30 days [placeholder: Kevin to confirm retention period]. The waitlist email can be removed on request.</p>
+      <p>A parent can delete a learner, a course, or a report inside the app. To close a hosted account, email privacy@wellofwisdom.app. We remove the family data within 30 days and it ages out of nightly backups as the seven day rotation expires. The waitlist email can be removed on request the same way.</p>
 
       <h2>Cookies</h2>
       <p>One session cookie keeps you signed in. No analytics cookies.</p>
 
       <h2>Contact</h2>
-      <p>For privacy questions or deletion requests, email privacy@wellofwisdom.app. We answer on a best effort basis.</p>
+      <p>For privacy questions or deletion requests, email privacy@wellofwisdom.app. We answer on a best effort basis. For general help, email support@wellofwisdom.app.</p>
     </LegalChrome>
   );
 }
