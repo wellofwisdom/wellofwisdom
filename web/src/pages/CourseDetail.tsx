@@ -885,7 +885,7 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [pDesc, setPDesc] = useState(c.description ?? "");
   const [rubric, setRubric] = useState(c.rubric ?? "");
 
-  const isNewKind = ["multi", "order", "match", "categorize", "hotspot", "plot", "scenario", "cloze", "numberline", "fraction"].includes(kind);
+  const isNewKind = ["multi", "order", "match", "categorize", "hotspot", "plot", "scenario", "cloze", "numberline", "fraction", "translate", "dialogue"].includes(kind);
 
   async function save() {
     setBusy(true);
@@ -993,6 +993,8 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
               <option value="hotspot">Hotspot</option>
               <option value="plot">Plot</option>
               <option value="scenario">Scenario</option>
+              <option value="translate">Translate</option>
+              <option value="dialogue">Dialogue</option>
             </select>
           </Field>
           {kind === "multi" && <KindForms.MultiForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
@@ -1005,6 +1007,8 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
           {kind === "hotspot" && <KindForms.HotspotForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
           {kind === "plot" && <KindForms.PlotForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
           {kind === "scenario" && <KindForms.ScenarioForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "translate" && <KindForms.TranslateForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "dialogue" && <KindForms.DialogueForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
           {!isNewKind && kind === "mcq" && (
             <>
               <Field label="Choices (one per line)">
