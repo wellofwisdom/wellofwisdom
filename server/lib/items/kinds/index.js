@@ -12,6 +12,9 @@ const categorize = require("./categorize");
 const hotspot = require("./hotspot");
 const plot = require("./plot");
 const scenario = require("./scenario");
+const vocab_card = require("./vocab_card");
+const listen_choice = require("./listen_choice");
+const listen_repeat = require("./listen_repeat");
 const common = require("./common");
 
 const REGISTRY = {
@@ -28,6 +31,9 @@ const REGISTRY = {
   hotspot,
   plot,
   scenario,
+  vocab_card,
+  listen_choice,
+  listen_repeat,
 };
 
 function forKind(kind) {
