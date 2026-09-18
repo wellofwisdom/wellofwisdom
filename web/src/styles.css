@@ -715,6 +715,28 @@ summary::marker { color: var(--muted); }
 .printchoices { margin: 6px 0 4px 22px; }
 .printchoices li { margin: 4px 0; font-size: 14px; }
 .printlines div { border-bottom: 1px solid #999; height: 30px; }
+.printexplain { background: #f6f0dd; border: 1px solid #e6d9a6; border-left: 4px solid #c9a90a; border-radius: 8px; padding: 8px 10px; font-size: 13.5px; line-height: 1.5; margin: 10px 0 8px; }
+.printexplain strong { color: #6b5500; }
+.printfrac { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin: 10px 0 8px; }
+.printfrac.small { margin: 6px 0 0; }
+.printfracbar { display: flex; border: 1.5px solid #222; border-radius: 6px; overflow: hidden; min-height: 28px; }
+.printfracbar.small { min-height: 18px; border-width: 1px; }
+.printfracseg { flex: 1; min-width: 28px; border-right: 1px solid #999; display: grid; place-items: center; font-size: 11px; color: #555; padding: 4px 6px; }
+.printfracseg:last-child { border-right: none; }
+.printfraccirc { width: 96px; height: 96px; border: 1.5px solid #222; border-radius: 50%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; overflow: hidden; }
+.printfrslice { border: 0.5px solid #bbb; display: grid; place-items: center; font-size: 10px; color: #666; }
+.printpractice { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
+.printpractice th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #666; border-bottom: 1px solid #ccc; padding: 4px 6px; }
+.printpractice td { border-bottom: 1px solid #ddd; padding: 10px 6px; vertical-align: middle; }
+.printcellbar { width: 40%; }
+.printcellwrite { font-family: ui-monospace, monospace; letter-spacing: 0.06em; }
+.katex-pending { opacity: 0.85; }
+.katex-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #bbb; border-top-color: #333; border-radius: 50%; animation: kspin 0.6s linear infinite; vertical-align: -1px; margin-right: 6px; }
+@keyframes kspin { to { transform: rotate(360deg); } }
+@media print {
+  .printfracbar, .printfraccirc { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .printexplain { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 /* ---------- the printed record: progress report and portfolio ----------
    These pages are documents, not screens. They print, they get signed, and
    somebody who is not a user reads them, so they hold a fixed light palette
