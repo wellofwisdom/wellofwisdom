@@ -1,0 +1,1305 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "The Landscape of Animation: How Pictures Learn to Move",
+  "topic": "How animation works: optical toys, frames and frame rate, hand-drawn cels, storyboards, stop motion, and the step to computer graphics",
+  "lens": "The documented history of animation from the thaumatrope (1825) to computer graphics",
+  "gradeLevel": 6,
+  "description": "A camera does not film motion. It films many still pictures, and your eye does the moving. This course walks the whole landscape of animation: spinning optical toys, hand-drawn cels, storyboards, stop motion, and computer graphics, ending with a twelve-frame animation plan of your own. Every idea is practised on toys you can build from paper and string before it is practised on screens. All illustrations are original. Historical claims come from well-documented animation history.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Why still pictures seem to move",
+      "summary": "Your eye holds a picture for a split second, so pictures shown fast enough become motion. Flipbooks, thaumatropes, and zoetropes all run on that one trick.",
+      "lessons": [
+        {
+          "title": "The trick your eye plays",
+          "summary": "Animation is an optical illusion: still pictures shown one after another, faster than your eye can let go of each one.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Pictures that will not sit still",
+                "body": "Nothing in an animated film actually moves. The drawings are still, the screen is still, and yet a ball bounces. The bounce happens in you.\n\nYour eye keeps a picture alive for a split second after it is gone. That holding-on is called **persistence of vision**. Your brain also bridges the gap between two different pictures shown in the same spot, which is called **apparent motion**: it reads the change as movement.\n\nA **flipbook** runs on both tricks. Each page holds one still drawing, called a **frame**. Flip the pages fast and each frame lingers just long enough to hand its place to the next, so a rising ball looks like one smooth rise.\n\n- More frames of the same action, flipped faster, look smoother\n- Frames shown too slowly look like what they are: separate pictures\n- The illusion costs effort: someone must draw every single frame\n\nEvery kind of animation you will meet in this course, from spinning toys to computer graphics, spends its effort on the same job: fresh pictures, fast enough."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "A thumb-flipped pad of pages showing a ball low on page one and slightly higher on each page after",
+                "caption": "A flipbook: one still drawing per page, each a little different from the one before.",
+                "prompt": "A hand flipping a small pad of paper pages, each page showing a simple ball a little higher than the last, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: pages for a rising ball",
+                "problem": "You want 8 flipbook pages of a ball that rises smoothly from a desk to a shelf. Where does the ball go on each page?",
+                "steps": [
+                  {
+                    "text": "Decide the start and end: the ball rests on the desk on page 1 and touches the shelf on page 8."
+                  },
+                  {
+                    "text": "Split the rise into 8 even steps, one step per page."
+                  },
+                  {
+                    "text": "Draw the ball one step higher on each new page, keeping the ball the same size."
+                  },
+                  {
+                    "text": "Flip the pad. If the rise jumps, a step is missing: redraw the page where the jump happens."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "video",
+              "content": {
+                "title": "Watch: the optical illusion of motion",
+                "youtubeId": "V8A4qudmsX0",
+                "note": "A short film about why still pictures seem to move. Watch for the two names it gives the trick before you practise spotting them.",
+                "questions": [
+                  {
+                    "prompt": "What are the two effects that make still pictures look like motion?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "Persistence of vision and apparent motion",
+                        "feedback": "Right. The eye holds each picture a moment, and the brain reads the change between pictures as movement."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "Reflection and refraction",
+                        "feedback": "Those are light-bending effects, not motion effects. The moving-looking picture is built in the viewer, not in the light."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "Zooming and panning",
+                        "feedback": "Those are camera moves, and they can happen with no illusion at all. The trick here needs no camera motion."
+                      }
+                    ],
+                    "answer": "c1"
+                  },
+                  {
+                    "prompt": "Why do the pictures need to be shown quickly for the illusion to work?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "Each picture must arrive before the last one fades from your eye",
+                        "feedback": "Right. Shown fast enough, the pictures join up. Shown slowly, the gaps show and you see separate pictures."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "Slow pictures use up more ink",
+                        "feedback": "Ink is not the issue. The speed is about your eye holding the picture, not about how the pictures were made."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "Quick pictures are smaller",
+                        "feedback": "Size has nothing to do with it. A poster can hold one picture; only speed turns many pictures into motion."
+                      }
+                    ],
+                    "answer": "c1"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match each animation word to what it means.",
+                "left": [
+                  { "text": "frame" },
+                  { "text": "persistence of vision" },
+                  { "text": "apparent motion" },
+                  { "text": "flipbook" }
+                ],
+                "right": [
+                  { "text": "one still picture of the action" },
+                  { "text": "your eye holding a picture a moment after it is gone" },
+                  { "text": "your brain reading two changed pictures as movement" },
+                  { "text": "a pad of frames you flip with your thumb" }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3",
+                  "l4": "r4"
+                },
+                "explanation": "The frame is the picture, your eye holds it (persistence of vision), your brain joins the change (apparent motion), and the flipbook is the simplest machine for showing all of that off.",
+                "hints": [
+                  "Two of the words name things your eye and brain do, and two name things you can hold."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the flipbook pages in order so a ball rolls from the left edge of the page to the right.",
+                "items": [
+                  { "text": "ball at the left edge of the page" },
+                  { "text": "ball a quarter of the way across" },
+                  { "text": "ball halfway across" },
+                  { "text": "ball three quarters of the way across" },
+                  { "text": "ball at the right edge of the page" }
+                ],
+                "answer": ["o1", "o2", "o3", "o4", "o5"],
+                "explanation": "Each page advances the ball by the same small step, left to right, so flipping joins the steps into one roll.",
+                "hints": [
+                  "Start with the page where the ball has travelled the least."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Toys that spin a world",
+          "summary": "Two paper toys from the 1800s put the animation trick in your hand: the thaumatrope blends two pictures, and the zoetrope spins a strip of frames.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Animation before cameras",
+                "body": "Long before film studios existed, paper toys were already animating.\n\nThe **thaumatrope** arrived in the 1820s. It is a disc with one picture on each side and strings on the edges. Twirl the strings and the disc spins, showing front and back so quickly that your eye blends the two pictures into one: a bird on one side lands in the cage on the other.\n\nThe **zoetrope** followed in 1834, invented by William George Horner. It is a drum with slits cut in its wall. A strip of drawings sits inside, one drawing per slit. Spin the drum, look through the slits, and the drawings flick past your eye one at a time: a horse gallops, a juggler juggles. The slits matter. They chop the spinning strip into separate frames, which is exactly what the illusion needs.\n\n- Thaumatrope: two pictures, blended into one\n- Zoetrope: many frames, seen one by one through slits\n- Both toys prove the trick is in the viewer, not the machine\n\nEvery screen you will ever watch is still doing what the zoetrope did: chopping motion into frames and trusting your eye to pour it back."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "A spinning drum with slits in its wall and a strip of drawings of a leaping frog inside",
+                "caption": "A zoetrope: the drum spins, and each slit shows one still drawing of the strip for a split second.",
+                "prompt": "An open spinning drum toy with slits around its wall and a paper strip of leaping frog drawings inside, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: build a thaumatrope",
+                "problem": "You want to make the bird land in its cage using a disc and two rubber bands. What are the steps?",
+                "steps": [
+                  {
+                    "text": "Cut a stiff disc out of card, about as wide as your hand."
+                  },
+                  {
+                    "text": "Draw a bird on one side and an empty cage exactly in the middle of the other side."
+                  },
+                  {
+                    "text": "Tape a rubber band to each edge of the disc, on opposite sides."
+                  },
+                  {
+                    "text": "Twirl the bands to wind the disc, then pull gently so it spins, and watch the bird settle into the cage."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the zoetrope steps in order so the frog really leaps.",
+                "items": [
+                  { "text": "draw a frog jumping a little higher on each section of the strip" },
+                  { "text": "slide the strip inside the drum, pictures facing the centre" },
+                  { "text": "spin the drum at a steady speed" },
+                  { "text": "look through a slit at the drawings on the far wall" },
+                  { "text": "watch the frog repeat its jump without stopping" }
+                ],
+                "answer": ["o1", "o2", "o3", "o4", "o5"],
+                "explanation": "Draw the frames first, load the drum, spin steadily, then watch through the slits: the chopping slits and steady spin join the frog's little jumps into one leap.",
+                "hints": [
+                  "Nothing to watch exists until the strip is drawn and loaded."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each toy by what your eye receives.",
+                "buckets": [
+                  { "label": "Two pictures blend into one" },
+                  { "label": "Many frames pass one by one" }
+                ],
+                "cards": [
+                  { "text": "a thaumatrope twirling on its strings" },
+                  { "text": "a flipbook thumbed corner to corner" },
+                  { "text": "a zoetrope spinning with a strip inside" },
+                  { "text": "a disc with a tree on one side and bare branches on the other" },
+                  { "text": "a pad whose pages show a stick figure jumping higher and higher" }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b2",
+                  "d3": "b2",
+                  "d4": "b1",
+                  "d5": "b2"
+                },
+                "feedback": {
+                  "d1": "Two pictures, one on each side of the spinning disc: your eye blends them into one.",
+                  "d2": "Each page is one frame, and flipping shows them one after another.",
+                  "d3": "The slits chop the spinning strip into frames that pass one by one.",
+                  "d4": "Tree plus bare branches is exactly the thaumatrope trick: two pictures that become one leafy tree.",
+                  "d5": "Page after page of new frames: that is the many-frames job."
+                },
+                "explanation": "Thaumatropes trade on blending two pictures; flipbooks and zoetropes trade on a run of frames, one at a time.",
+                "hints": [
+                  "Ask each toy: do I see two pictures at once, or a stream of different ones?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Frames and frame rate",
+          "summary": "How many frames a second of animation needs depends on how fast the action is, and every extra frame is another drawing someone has to make.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Counting the pictures in one second",
+                "body": "A **frame rate** says how many still pictures flash by each second. Film settled on 24 frames per second, and hand-drawn animators found a shortcut: they often draw only 12 pictures per second and show each one twice. This is called shooting **on twos**. The eye still sees smooth motion, and the studio draws half the pictures.\n\nFrame rate is a trade.\n\n- Fast, jumpy action wants more frames, so the jumps stay small\n- Slow, drifting action can sit on fewer frames and nobody notices\n- Every frame you add is one more drawing to make, clean up, and paint\n\nThat trade is why a scene of a soaring bird can cost fewer drawings than a scene of a hummingbird. The work of animation is not really drawing. It is deciding where the frames go, and then paying for each one.\n\nThe maths is friendly. A scene lasting $s$ seconds at $r$ frames per second needs $s \\times r$ frames. Ten seconds at 12 frames per second is 120 drawings, drawn by hand, one at a time."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "A strip of film frames showing a ball at a slightly different height in each frame",
+                "caption": "One second of animation is a strip of frames, each a still drawing shown for a fraction of a second.",
+                "prompt": "A horizontal strip of film frames with a ball at a different height in each frame, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: how many drawings for a scene",
+                "problem": "A scene runs 10 seconds, drawn at 12 frames per second. How many drawings does the animator make?",
+                "steps": [
+                  {
+                    "text": "Write what you know: 10 seconds, 12 drawings for each second of screen time."
+                  },
+                  {
+                    "text": "Multiply: 10 x 12 = 120 frames."
+                  },
+                  {
+                    "text": "Remember each frame is one drawing, so the scene needs 120 drawings."
+                  },
+                  {
+                    "text": "Sanity-check the size: at one drawing per minute of work, that is two hours for ten seconds of film."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each scene by how many drawings per second it will need.",
+                "buckets": [
+                  { "label": "Needs more drawings per second" },
+                  { "label": "Gets by on fewer drawings" }
+                ],
+                "cards": [
+                  { "text": "a ball bounces fast across the whole screen" },
+                  { "text": "a cloud drifts slowly across the sky" },
+                  { "text": "a hummingbird hovers, wings a blur" },
+                  { "text": "a flag hangs still on a windless day" },
+                  { "text": "a cat pounces in a flash of fur" }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b2",
+                  "d3": "b1",
+                  "d4": "b2",
+                  "d5": "b1"
+                },
+                "feedback": {
+                  "d1": "Fast movement needs small changes between frames, and small changes mean many frames.",
+                  "d2": "A slow drift barely changes from second to second, so few frames carry it.",
+                  "d3": "Blurring wings change completely between moments: only many frames can keep up.",
+                  "d4": "Nothing moves, so a couple of frames can hold the whole shot.",
+                  "d5": "A flash of action needs frames packed close together or the jump shows."
+                },
+                "explanation": "The faster the change, the closer together the frames must sit. Still and slow scenes buy their smoothness cheaply.",
+                "hints": [
+                  "Ask how much the picture changes in one blink."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "scenario",
+                "prompt": "Your flipbook of a hopping frog looks slow and stately, like the frog is bowing. Choose the best fix.",
+                "start": "start",
+                "nodes": {
+                  "start": {
+                    "text": "You flip your 8-page frog flipbook. The hops look slow and heavy, and your friend says it looks like the frog is swimming.",
+                    "choices": [
+                      { "text": "Redraw with more pages, each page moving the frog a smaller amount", "next": "good" },
+                      { "text": "Draw the frog bigger on every page", "next": "bad1" },
+                      { "text": "Flip the pages more slowly to enjoy each drawing", "next": "bad2" }
+                    ]
+                  },
+                  "good": {
+                    "text": "Now the hops are quick little springs. Smaller changes between more pages sit closer together, so the motion reads as fast.",
+                    "choices": []
+                  },
+                  "bad1": {
+                    "text": "A bigger frog is still a slow frog. Size never fixes timing: only the size of the changes between frames does.",
+                    "choices": []
+                  },
+                  "bad2": {
+                    "text": "Flipping slower spreads the frames out even more. The frog now swims in even slower motion.",
+                    "choices": []
+                  }
+                },
+                "good": ["good"],
+                "explanation": "Speed on screen comes from small changes packed close together. More pages with smaller jumps is the animator's fix for jerky or sluggish motion.",
+                "hints": [
+                  "The problem is timing, not drawing skill or page size."
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Hand-drawn worlds: cels, keys, and in-betweens",
+      "summary": "Studios turned one trick into an industry: redraw only what moves, plan the big poses first, and let helpers fill the frames between them.",
+      "lessons": [
+        {
+          "title": "Layers that move: the cel idea",
+          "summary": "Transparent sheets let studios draw the character again and again while the background is drawn once.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Do not redraw the kitchen",
+                "body": "Early animators drew the whole picture every time: character, table, and kitchen wall, on one sheet, hundreds of times. Then came the **cel**: a clear sheet you can lay on top of another. The background went underneath, drawn once. The character went on top, drawn fresh for every frame.\n\nThis **layer** idea changed everything. A room that never moves is drawn one time, no matter how many frames the scene runs. Only the moving parts cost drawings, so effort flows to where the motion is.\n\n- Background: drawn once, reused for every frame of the scene\n- Characters on cels: redrawn whenever they move\n- Stacking the layers and filming them is called **compositing**\n\nThe saving is enormous. A five-second scene at 24 frames per second holds 120 frames. Without layers, a still kitchen costs 120 drawings. With layers, it costs one. Full-length hand-drawn features reached cinemas in the 1930s on the strength of this idea, and cels carried animation for most of a century."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "An exploded view of three stacked layers: a painted street background, a clear sheet with a walking figure, and a clear sheet with a dog",
+                "caption": "Cels stack over a painted background. Each moving character gets its own clear sheet.",
+                "prompt": "Three layered sheets shown stacked with a small gap: a painted street scene at the bottom, a clear sheet with a walking figure above it, and a clear sheet with a small dog on top, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: what the cel trick saves",
+                "problem": "A scene runs 120 frames. The kitchen background never changes and one cat walks across it. How many background drawings does the cel trick need?",
+                "steps": [
+                  {
+                    "text": "Count the frames: the scene is 120 frames long."
+                  },
+                  {
+                    "text": "Ask how often the background changes: never."
+                  },
+                  {
+                    "text": "Draw the background once and slide it under every cel."
+                  },
+                  {
+                    "text": "Spend the saved 119 drawings on the cat, which is the part that moves."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match each studio word to what it means.",
+                "left": [
+                  { "text": "cel" },
+                  { "text": "background" },
+                  { "text": "layer" },
+                  { "text": "compositing" }
+                ],
+                "right": [
+                  { "text": "a clear sheet carrying one moving part" },
+                  { "text": "the still art drawn once for the whole scene" },
+                  { "text": "one sheet of the stack that builds the picture" },
+                  { "text": "stacking the layers and filming them as one frame" }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3",
+                  "l4": "r4"
+                },
+                "explanation": "The background is the layer drawn once; cels are the layers drawn again and again; compositing is the stacking that turns the pile into a single frame.",
+                "hints": [
+                  "Two of the words are kinds of layers, and one word is what you do with a stack of them."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each part of the scene by how it is drawn.",
+                "buckets": [
+                  { "label": "Drawn once, reused every frame" },
+                  { "label": "Redrawn whenever it moves" }
+                ],
+                "cards": [
+                  { "text": "a brick wall behind the street" },
+                  { "text": "a walking figure crossing the street" },
+                  { "text": "a mountain on the horizon" },
+                  { "text": "a dog wagging its tail" },
+                  { "text": "a shop sign that never changes" }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b2",
+                  "d3": "b1",
+                  "d4": "b2",
+                  "d5": "b1"
+                },
+                "feedback": {
+                  "d1": "The wall never moves, so one drawing sits under every frame.",
+                  "d2": "A walking figure changes pose constantly: that is cel work, frame by frame.",
+                  "d3": "Horizons are patient. One mountain drawing serves the whole scene.",
+                  "d4": "The tail changes shape every moment it wags, so it is redrawn.",
+                  "d5": "The sign is part of the still world: draw it once and leave it alone."
+                },
+                "explanation": "The cel system pays for motion. Anything still, near or far, is drawn once and reused for every frame.",
+                "hints": [
+                  "Ask whether the thing changes shape or position during the scene."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Keys and in-betweens",
+          "summary": "Senior animators draw the big poses, called keys. Helpers fill the frames between them, which is why the job is called in-betweening.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Big poses first, small steps second",
+                "body": "Nobody draws a jump frame by frame from front to back. Animators draw the **key frames** first: the few poses that tell the whole action. For a ball bouncing off the floor, the keys are simple: touching the floor, squashed flat, stretched high.\n\nWith the keys pinned down, assistants make the **in-betweens**: the frames that fill the gaps so the motion flows from pose to pose. The spacing of those in-betweens is the timing. Frames bunched close together read as slow; frames spread far apart read as fast.\n\n- Keys: the poses the story cannot do without\n- In-betweens: the frames that carry the eye from key to key\n- Timing: how close together or far apart the frames sit\n\nThe keys are where the skill and the decisions live, which is why the lead animator draws them. In-betweening is steady, learnable craft, which is why studios trusted helpers with it. One action, two kinds of drawing, and the audience sees only the motion."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Three big drawings of a ball on the floor, squashed, and high in the air, with small fainter drawings filling the gaps between them",
+                "caption": "Key poses in bold, in-betweens faint: the audience watches the bold poses but feels the faint ones.",
+                "prompt": "A row of ball drawings across a page: three large confident drawings of a ball low, squashed, and high, with faint pencil drawings between them, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: filling between two keys",
+                "problem": "A key pose sits at frame 1 and the next key sits at frame 9, with one drawing on every frame. How many in-betweens does the helper draw?",
+                "steps": [
+                  {
+                    "text": "List the frames between the keys: frames 2 to 8."
+                  },
+                  {
+                    "text": "Count them: frames 2, 3, 4, 5, 6, 7, 8, that is 7 frames."
+                  },
+                  {
+                    "text": "Each of those frames needs one in-between drawing, so 7 in-betweens."
+                  },
+                  {
+                    "text": "Check the total: 2 keys plus 7 in-betweens is 9 drawings, one per frame from 1 to 9."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the drawing order for a bouncing ball in the order the studio works.",
+                "items": [
+                  { "text": "the lead animator draws the ball touching the floor, squashed, and at the top" },
+                  { "text": "helpers draw the frames between the key poses" },
+                  { "text": "the rough lines are cleaned up into final drawings" },
+                  { "text": "the finished frames are filmed in order and the ball bounces" }
+                ],
+                "answer": ["o1", "o2", "o3", "o4"],
+                "explanation": "Keys first, because every other drawing hangs off them; in-betweens second; cleanup third; filming last.",
+                "hints": [
+                  "You cannot fill a gap between poses that nobody has drawn yet."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "scenario",
+                "prompt": "A character must reach the door by frame 12, and the lead has drawn keys at frames 1, 6, and 12. The walk still looks robotic. Choose the best fix.",
+                "start": "start",
+                "nodes": {
+                  "start": {
+                    "text": "Your scene: keys at frames 1, 6, and 12, in-betweens on every frame between. The walk plays back stiff and robotic, like a wind-up toy.",
+                    "choices": [
+                      { "text": "Redraw the keys so the hips, shoulders, and head arrive at slightly different moments", "next": "good" },
+                      { "text": "Delete the in-betweens so only the three key poses play", "next": "bad1" },
+                      { "text": "Draw the character much bigger in every frame", "next": "bad2" }
+                    ]
+                  },
+                  "good": {
+                    "text": "Better keys make better animation. Real bodies arrive in overlaps: the hips lead, the shoulders follow, the head settles last. Fix the keys and everything between them improves.",
+                    "choices": []
+                  },
+                  "bad1": {
+                    "text": "Without in-betweens the walk jumps from pose to pose. It will look less alive, not more: stiff keys plus missing frames is twice the stiffness.",
+                    "choices": []
+                  },
+                  "bad2": {
+                    "text": "Size changes nothing about how a body moves. A bigger robot is still a robot.",
+                    "choices": []
+                  }
+                },
+                "good": ["good"],
+                "explanation": "When motion feels stiff, the fix lives in the keys: overlapping timing in the key poses breathes life into every in-between that follows.",
+                "hints": [
+                  "In-betweens copy the character of the keys they sit between."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match each drawing job to what it produces.",
+                "left": [
+                  { "text": "key frame drawing" },
+                  { "text": "in-between drawing" },
+                  { "text": "cleanup drawing" },
+                  { "text": "timing chart" }
+                ],
+                "right": [
+                  { "text": "one of the main poses of the action" },
+                  { "text": "a frame that carries the eye between two poses" },
+                  { "text": "a tidy final line version of a rough frame" },
+                  { "text": "the planner that says which drawings sit on which frames" }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3",
+                  "l4": "r4"
+                },
+                "explanation": "Keys are decisions, in-betweens are craft, cleanup is polish, and the timing chart keeps every drawing in its rightful frame.",
+                "hints": [
+                  "One of the four is a plan rather than a picture."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Storyboards: the film before the film",
+          "summary": "Before anyone draws a cel, the film is drawn small and rough, panel by panel, so the story can fail cheaply.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Draw the film small first",
+                "body": "A **storyboard** is the film drawn as a comic strip. Each panel shows one **shot**: a piece of the film seen from one camera position. Under each panel goes a note about what happens and what is said.\n\nStoryboards let the film fail early, when failing is cheap. A panel can be redrawn in ten minutes. A finished, painted scene cannot. So studios plan the whole film in panels first: the chase, the joke, the reunion, all rough and small.\n\n- Panel: one drawing, one shot, one moment\n- Shot choice carries feeling: a **wide shot** shows the place, a **close-up** shows the face\n- String the panels together with timing and you have an **animatic**: a rough film of the rough film\n\nWatching the animatic, the team notices what the audience would have noticed later: the joke arrives too late, the chase needs one more turn, the scene drags. Fix it on paper now, or fix it expensively later."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "A page of six rough rectangle panels showing a cat spotting a bird, looking up, and leaping",
+                "caption": "A storyboard page: rough panels, one shot each, arranged in the order the film will tell them.",
+                "prompt": "A page of six rough pencil rectangle sketches in a grid showing a cat spotting a bird, looking up, and leaping, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: three panels for a cat's leap",
+                "problem": "A cat spies a bird on a branch and leaps for it. Plan the moment in three storyboard panels.",
+                "steps": [
+                  {
+                    "text": "Panel 1, wide shot: the garden, so the audience sees where everything sits."
+                  },
+                  {
+                    "text": "Panel 2, close-up: the cat's eyes find the bird, so the audience knows what it wants."
+                  },
+                  {
+                    "text": "Panel 3, medium shot: the leap itself, the biggest move in the frame."
+                  },
+                  {
+                    "text": "Read the panels in order and ask: can a stranger follow the story with no words?"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the planning steps of a short film in order.",
+                "items": [
+                  { "text": "write down the story in one sentence" },
+                  { "text": "draw the storyboard panels, one per shot" },
+                  { "text": "time the panels together into an animatic and watch it" },
+                  { "text": "fix the panels where the story drags" },
+                  { "text": "start the final animation on the shots that work" }
+                ],
+                "answer": ["o1", "o2", "o3", "o4", "o5"],
+                "explanation": "Story first, panels second, animatic third, repairs fourth, and only then the expensive final animation.",
+                "hints": [
+                  "The cheapest stage comes first and the most expensive stage comes last."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match each shot choice to the feeling it gives the audience.",
+                "left": [
+                  { "text": "wide shot" },
+                  { "text": "close-up" },
+                  { "text": "a series of fast close shots" }
+                ],
+                "right": [
+                  { "text": "where am I, and who is in the room" },
+                  { "text": "this exact feeling on this face matters" },
+                  { "text": "everything is happening fast, hold on" }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3"
+                },
+                "explanation": "Shot size is emotion: wide is place, close is feeling, and rapid cuts are speed.",
+                "hints": [
+                  "Think about what the audience is being told to care about."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "From pencil test to colour",
+          "summary": "Rough drawings are filmed first to check the timing, and only drawings that already move well earn the expensive polish.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Test the motion before the polish",
+                "body": "The **pencil test** is the studio's dress rehearsal. The rough animation drawings are filmed quickly, with no cleanup and no colour, and watched. Does the jump read? Does the walk limp? Timing problems show up on rough drawings just as clearly as on finished ones.\n\nOnly when the motion passes does the pipeline spend real money:\n\n- **Cleanup**: the rough drawings are redrawn as clean, final lines\n- **Ink and paint**: each cleaned drawing is inked and coloured, on cels or on a computer\n- **Compositing**: the layers are stacked over the background and filmed frame by frame\n\nThe order is the whole point. A timing fix after the pencil test costs a redraw of a rough frame. The same fix after paint costs a finished, coloured, filmed frame plus every step that touched it. Animation is built in this order for the same reason you sketch a drawing in pencil before you paint it: mistakes belong in the cheap stage."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "An animator's desk with rough pencil drawings of a running figure pinned above a stack of finished coloured cels",
+                "caption": "Rough pencil drawings on top, finished coloured cels below: the pipeline runs from rough to rich, never backwards.",
+                "prompt": "A wooden animator desk with rough pencil drawings of a running figure pinned in a row above neat stacks of coloured clear sheets, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: a jump lands too early",
+                "problem": "The pencil test shows the character landing on frame 8, but the scene needs the landing at frame 12. Where do you fix it?",
+                "steps": [
+                  {
+                    "text": "Confirm the problem is timing: the landing pose is right, it just arrives too soon."
+                  },
+                  {
+                    "text": "Move the landing key from frame 8 to frame 12 on the timing chart."
+                  },
+                  {
+                    "text": "Spread the in-betweens across the longer gap and shoot a new pencil test."
+                  },
+                  {
+                    "text": "Only when the timing plays clean do cleanup and paint begin."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the whole pipeline in order, from idea to finished frame.",
+                "items": [
+                  { "text": "storyboard panels of every shot" },
+                  { "text": "key frames of each action" },
+                  { "text": "in-betweens between the keys" },
+                  { "text": "pencil test of the rough frames" },
+                  { "text": "cleanup, ink, and paint of every frame" },
+                  { "text": "compositing the layers over the background" }
+                ],
+                "answer": ["o1", "o2", "o3", "o4", "o5", "o6"],
+                "explanation": "Plan, pose, fill, test, polish, stack: every step only runs once the step before it has earned it.",
+                "hints": [
+                  "The pencil test must exist before there is anything worth polishing."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each change by when it is affordable.",
+                "buckets": [
+                  { "label": "Cheap to change early in the pipeline" },
+                  { "label": "Costly to change late in the pipeline" }
+                ],
+                "cards": [
+                  { "text": "a storyboard panel redrawn" },
+                  { "text": "a key pose redrawn" },
+                  { "text": "a timing fix on the pencil test" },
+                  { "text": "a painted cel that must be repainted" },
+                  { "text": "a finished scene that must be recomposited" }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b1",
+                  "d3": "b1",
+                  "d4": "b2",
+                  "d5": "b2"
+                },
+                "feedback": {
+                  "d1": "A rough panel costs ten minutes and a pencil.",
+                  "d2": "Keys are rough drawings: redrawing one is work, but cheap work.",
+                  "d3": "The whole reason for pencil tests: timing is cheapest to fix while the drawings are still rough.",
+                  "d4": "Repainting means redoing the cleanup, the ink, and the colour of a finished frame.",
+                  "d5": "Recompositing touches every layer of a finished scene, and every frame of it."
+                },
+                "explanation": "The later a change lands in the pipeline, the more finished work it throws away. That is why testing happens on roughs.",
+                "hints": [
+                  "Count how many finished steps each change would undo."
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Stop motion and the digital leap",
+      "summary": "Animation also happens in front of the camera, with clay and puppets, and inside the computer, with models and bones. The frame is still king.",
+      "lessons": [
+        {
+          "title": "Pose, shoot, move, repeat",
+          "summary": "Stop motion animates real objects one photo at a time, and its whole craft is moving things just a little.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The camera that watches very patient people",
+                "body": "**Stop motion** needs no drawings at all. The animator poses a real object, a clay figure or a puppet, photographs it, moves it a tiny amount, and photographs again. Played back at speed, the photographs become motion.\n\nThe amounts are tiny on purpose. A walking puppet might move a few millimetres per frame. At 12 frames per second, a 10-second shot is 120 photographs, and one lost frame shows as a stutter. Puppets have **armatures**, metal skeletons inside, so their limbs hold a pose without drooping between photos.\n\n- Pose, shoot, move, repeat: the whole method in four words\n- Small moves: the smaller the move per frame, the smoother the result\n- Total stillness: the set and camera must not wobble, or the world itself jitters\n\nClay gives a soft, handmade look because it is soft and handmade. Every frame exists as a real object on a real set, which is why animators hold their breath near the set until the shot is done."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "A clay character with visible wire joints standing on a tiny set in front of a camera on a tripod",
+                "caption": "A stop motion set: a clay puppet with a wire armature, a camera that must not move, and hundreds of poses ahead.",
+                "prompt": "A small clay puppet figure with visible wire joints on a miniature cardboard set beside a camera on a tripod, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: counting the photographs",
+                "problem": "A stop motion shot runs 10 seconds at 12 frames per second. How many photographs does the animator take?",
+                "steps": [
+                  {
+                    "text": "Write the frame rate: 12 photographs for each second of screen time."
+                  },
+                  {
+                    "text": "Multiply: 10 x 12 = 120 photographs."
+                  },
+                  {
+                    "text": "Remember each photograph needs its own tiny move of the puppet."
+                  },
+                  {
+                    "text": "Plan the day: at 2 minutes per photograph, that shot alone is 4 hours of work."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "video",
+              "content": {
+                "title": "Watch: make a stop-motion animation",
+                "youtubeId": "uYwMw2JE1Lg",
+                "note": "A short guide to making your own stop-motion animation with simple materials. Watch for how far the character moves between photos.",
+                "questions": [
+                  {
+                    "prompt": "How much should the character move between one photograph and the next?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "A very small amount, so the motion plays smoothly",
+                        "feedback": "Right. Stop motion is hundreds of tiny moves; big jumps between photos look like teleporting."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "Across the whole set, to save time",
+                        "feedback": "Big moves between photos make the character jump around instead of moving. Smoothness lives in small changes."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "It does not matter, the camera fixes it",
+                        "feedback": "The camera records exactly what is there. If the puppet jumps between photos, the film jumps too."
+                      }
+                    ],
+                    "answer": "c1"
+                  },
+                  {
+                    "prompt": "Why does the camera and set need to stay perfectly still during the shot?",
+                    "choices": [
+                      {
+                        "id": "c1",
+                        "text": "Any wobble gets recorded as movement that is not part of the story",
+                        "feedback": "Right. The audience sees every tiny shift of the set or camera, and the spell of a still world breaks."
+                      },
+                      {
+                        "id": "c2",
+                        "text": "A moving camera uses more film",
+                        "feedback": "Film use depends on how many photos you take, not on whether things wiggle. The problem is what the wobble looks like."
+                      },
+                      {
+                        "id": "c3",
+                        "text": "The clay dries faster near a steady camera",
+                        "feedback": "Clay drying has nothing to do with the camera. The risk is that wobble becomes visible motion on screen."
+                      }
+                    ],
+                    "answer": "c1"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the stop motion loop in order, as the animator repeats it for every single frame.",
+                "items": [
+                  { "text": "pose the puppet where it should be for this frame" },
+                  { "text": "take exactly one photograph" },
+                  { "text": "move the puppet a tiny amount toward its next pose" },
+                  { "text": "take the next photograph" },
+                  { "text": "play all the photographs back fast" }
+                ],
+                "answer": ["o1", "o2", "o3", "o4", "o5"],
+                "explanation": "Every frame is the same promise kept twice: pose, shoot, then a small move. The playback at the end is where the clay comes alive.",
+                "hints": [
+                  "One frame, one photograph: the move always happens after the camera has its picture."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "scenario",
+                "prompt": "Your clay ball crosses the table in 6 photos, and in the film it teleports: table edge, then table centre. Choose the best fix.",
+                "start": "start",
+                "nodes": {
+                  "start": {
+                    "text": "You shot a clay ball rolling across a table in 6 photographs. Played back, the ball sits at the table edge, then suddenly appears at the centre.",
+                    "choices": [
+                      { "text": "Reshoot with 24 photos, moving the ball a few millimetres each time", "next": "good" },
+                      { "text": "Reshoot with 3 photos, moving the ball further each time", "next": "bad1" },
+                      { "text": "Paint the ball a brighter colour so the jump is easier to follow", "next": "bad2" }
+                    ]
+                  },
+                  "good": {
+                    "text": "Now the ball crosses in many small steps, and the roll reads as one smooth journey. Small moves, many frames: that is the whole craft.",
+                    "choices": []
+                  },
+                  "bad1": {
+                    "text": "Fewer photos with bigger moves is the exact problem you already have. The ball will teleport even harder.",
+                    "choices": []
+                  },
+                  "bad2": {
+                    "text": "A brighter ball still teleports. No colour fixes a gap between poses; only smaller moves do.",
+                    "choices": []
+                  }
+                },
+                "good": ["good"],
+                "explanation": "Teleporting means the changes between frames are too big. Shrink the move per photo and add photos until the motion connects.",
+                "hints": [
+                  "The ball is only ever photographed at one place per frame. Smoothness asks for more places."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Pixels and vectors: drawings become data",
+          "summary": "Digital 2D animation keeps every old habit, like onion skins, but the drawings turn into numbers you can copy and stretch.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "The drawing that is really a list of numbers",
+                "body": "A digital drawing is stored as numbers, in one of two main ways. A **raster** image (usually just called a pixel image) is a grid of tiny coloured squares, **pixels**. Zoom in far enough and every line becomes staircases of squares. A **vector** image is a set of shapes defined by points and curves. Zoom in and the lines stay perfectly smooth, because the computer redraws them at any size.\n\n- Pixel images: made of a fixed grid, they blur when enlarged\n- Vector shapes: made of maths, they stay sharp at any size\n- Frames on a computer copy, flip, and recolour in seconds\n\nDigital tools also kept animation's oldest helpers. **Onion skin** is the old thin-cel idea on a screen: the computer shows a ghost of the previous frame under the one you draw, so spacing stays honest without flipping paper.\n\nWhat did not change is the job. There are still frames, still keys and in-betweens, still timing. The computer swapped paper for pixels; the animation still lives in the differences from frame to frame."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "A drawing tablet screen showing a jumping figure with two faint ghost drawings of earlier poses behind it",
+                "caption": "Onion skinning: the ghosts of earlier frames show through, keeping the spacing of the new drawing honest.",
+                "prompt": "A drawing tablet on a desk showing a leaping frog with two faint ghost frog drawings behind it, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: why the ghosts help",
+                "problem": "You are drawing frame 9 of a rising balloon with onion skin on. What do the ghosts tell you?",
+                "steps": [
+                  {
+                    "text": "Look at the ghost of frame 8 directly under your pen."
+                  },
+                  {
+                    "text": "Measure the gap: your new balloon should sit one even step higher than the ghost."
+                  },
+                  {
+                    "text": "Draw frame 9 so the gap from 8 to 9 matches the gap from 7 to 8."
+                  },
+                  {
+                    "text": "Turn the ghosts off and flip frames 7, 8, 9 to confirm the rise stays even."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match each digital animation word to what it means.",
+                "left": [
+                  { "text": "pixel" },
+                  { "text": "vector shape" },
+                  { "text": "onion skin" },
+                  { "text": "raster grid" }
+                ],
+                "right": [
+                  { "text": "one tiny coloured square in a picture" },
+                  { "text": "a shape the computer redraws smoothly at any size" },
+                  { "text": "a ghost of a nearby frame shown while you draw" },
+                  { "text": "the full grid of squares that makes a pixel picture" }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3",
+                  "l4": "r4"
+                },
+                "explanation": "Pixels build raster pictures, vectors build shapes from maths, and onion skin is the screen-age ghost of the old flipping trick.",
+                "hints": [
+                  "One of the four words is a tool for comparing frames, not a kind of picture."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each artwork fact by the kind of image it belongs to.",
+                "buckets": [
+                  { "label": "Pixel image behaviour" },
+                  { "label": "Vector shape behaviour" }
+                ],
+                "cards": [
+                  { "text": "turns blurry when you enlarge it" },
+                  { "text": "stays sharp at every size" },
+                  { "text": "each square can be recoloured one by one" },
+                  { "text": "corners can be dragged and the line stays smooth" },
+                  { "text": "made of a fixed grid of tiny squares" }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b2",
+                  "d3": "b1",
+                  "d4": "b2",
+                  "d5": "b1"
+                },
+                "feedback": {
+                  "d1": "Enlarging stretches a fixed grid of squares, so edges go soft.",
+                  "d2": "The computer redraws the maths of the shape at whatever size you ask.",
+                  "d3": "Pixel by pixel editing is the heart of raster work.",
+                  "d4": "Dragging a point updates the shape's maths, so the curve stays clean.",
+                  "d5": "A fixed grid of squares is exactly what a raster image is."
+                },
+                "explanation": "Pixel images own a fixed grid; vector shapes own maths that redraws cleanly at any size.",
+                "hints": [
+                  "Ask: is this fact about squares in a grid, or about shapes from maths?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "CGI: models, bones, and light",
+          "summary": "Computer graphics build a puppet out of maths, hang it on a skeleton, and let the computer draw every in-between and every frame.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "A puppet made of maths",
+                "body": "Computer-generated imagery, **CGI**, starts with a **model**: the character built as a mesh of shapes in the computer. Onto that mesh the riggers hang a **rig**, a skeleton of digital bones. Bend a bone and the mesh around it bends with it.\n\nAnimating the rig works like hand-drawn keys. The animator sets key poses for the bones, and the **computer fills every in-between** between those keys, a job it can do in a blink. What the computer cannot decide is where the keys go. Timing is still a human choice.\n\nThen comes the part computers do best and slowest: **rendering**. The renderer draws each final frame, working out the light, shadow, and surfaces for every pixel. One frame of a rich scene can take minutes to hours, so studios line up hundreds of computers in a **render farm** and feed them frames overnight.\n\n- Model: the character's shape\n- Rig: the bones that bend it\n- Keys and in-betweens: chosen by people, filled by software\n- Render: the slow drawing of every finished frame"
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "A character shown as a wireframe mesh with a simple bone skeleton visible inside it",
+                "caption": "A CGI character before rendering: a mesh for skin, a rig of bones for movement.",
+                "prompt": "A figure made of pale wireframe mesh standing on a dark screen background with simple bone lines visible inside its limbs, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: budgeting the render",
+                "problem": "A shot runs 5 seconds at 24 frames per second. Each frame takes 10 minutes to render. How long does the shot spend rendering?",
+                "steps": [
+                  {
+                    "text": "Count the frames: 5 x 24 = 120 frames."
+                  },
+                  {
+                    "text": "Multiply by the render time: 120 x 10 minutes = 1200 minutes."
+                  },
+                  {
+                    "text": "Convert: 1200 minutes is 20 hours."
+                  },
+                  {
+                    "text": "Plan like a studio: split the frames across a render farm so the shot finishes overnight."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the CGI steps in order, from nothing to finished frames.",
+                "items": [
+                  { "text": "model the character's shape as a mesh" },
+                  { "text": "rig the model with bones" },
+                  { "text": "set key poses for the bones" },
+                  { "text": "let the software fill the in-between poses" },
+                  { "text": "render every frame with light and shadow" }
+                ],
+                "answer": ["o1", "o2", "o3", "o4", "o5"],
+                "explanation": "Shape first, bones on the shape, keys on the bones, in-betweens from the keys, render last because it is the slowest step.",
+                "hints": [
+                  "You cannot hang bones on a shape that does not exist yet."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each job by who does it in CGI.",
+                "buckets": [
+                  { "label": "A person decides or builds it" },
+                  { "label": "The computer calculates it" }
+                ],
+                "cards": [
+                  { "text": "sculpting the character's mesh" },
+                  { "text": "choosing the key poses" },
+                  { "text": "filling the in-between poses" },
+                  { "text": "working out the light in every pixel" },
+                  { "text": "deciding how fast the walk should be" },
+                  { "text": "rendering the finished frames" }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b1",
+                  "d3": "b2",
+                  "d4": "b2",
+                  "d5": "b1",
+                  "d6": "b2"
+                },
+                "feedback": {
+                  "d1": "Modelling is craft work: someone shapes what the character is.",
+                  "d2": "Keys are the animator's decisions, exactly as in hand-drawn work.",
+                  "d3": "In-betweens are the software's favourite job: mechanical filling between chosen keys.",
+                  "d4": "Light, shadow, and surfaces are maths, and maths is the computer's whole personality.",
+                  "d5": "Timing is judgement, and judgement stays human.",
+                  "d6": "Rendering is the slow, patient calculation the machine was built for."
+                },
+                "explanation": "CGI splits the work the same way a studio does: people own the decisions, computers own the repetition.",
+                "hints": [
+                  "Ask whether the job needs taste and timing, or arithmetic done the same way millions of times."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "scenario",
+                "prompt": "Your 120-frame shot renders overnight, but the deadline moved to tomorrow morning and the frames are not done. Choose the best plan.",
+                "start": "start",
+                "nodes": {
+                  "start": {
+                    "text": "The render farm needs 20 hours. Your deadline is 10 hours away. The animation itself is finished and approved.",
+                    "choices": [
+                      { "text": "Split the 120 frames across more render computers so they finish in parallel", "next": "good" },
+                      { "text": "Rush the animators to redraw the animation faster", "next": "bad1" },
+                      { "text": "Ship the shot with every other frame missing", "next": "bad2" }
+                    ]
+                  },
+                  "good": {
+                    "text": "Frames render independently, so 20 hours on one computer becomes 20 hours divided by however many computers you line up. This is exactly why render farms exist.",
+                    "choices": []
+                  },
+                  "bad1": {
+                    "text": "The animation is done. The bottleneck is the computer's drawing time, and no amount of animator hurry changes how long a render takes.",
+                    "choices": []
+                  },
+                  "bad2": {
+                    "text": "Half the frames missing is not a shortcut, it is a broken shot: the motion only exists when every frame plays.",
+                    "choices": []
+                  }
+                },
+                "good": ["good"],
+                "explanation": "Rendering is many independent frame calculations, which is the easiest kind of work to split across computers. Plan the farm, not the animators.",
+                "hints": [
+                  "The shot is one problem made of 120 small problems that do not depend on each other."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Your own twelve frames",
+          "summary": "Every kind of animation you have met plans the same way: decide first, draw the keys, fill the rest, and test the timing early.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Plan small, finish proud",
+                "body": "A twelve-frame cycle is a real animation with a real deadline, and it uses every habit from this course.\n\nStart with the decision, not the drawing. Pick one action small enough to finish: a ball bouncing in place, a goldfish turning, a door opening. Write it in one sentence. Then choose your key frames: for a ball bounce, a key at the top, a key at the bottom, and a key squashed in between already tell the whole story.\n\n- Decide: the action, the keys, the timing\n- Fill: in-betweens between the keys, evenly spaced\n- Test: flip your pad or play your frames early, while fixes are cheap\n\nHow you fill the frames is up to you, and it can be any kind from this course: a paper flipbook, a stop motion ball of clay photographed twelve times, or a dozen drawings on a computer with onion skin on. The tools differ. The plan, the keys, and the timing are the same job every time, and they are the parts worth doing slowly."
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "A strip of twelve small numbered-in-order frames showing a ball dropping, squashing, and bouncing back up",
+                "caption": "Twelve frames, three keys, one bounce: a whole animation you can actually finish.",
+                "prompt": "A strip of twelve small square panels in a row showing a ball dropping, squashing flat, and bouncing back up, warm storybook watercolour, no text"
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "Worked example: laying out the twelve frames",
+                "problem": "Your ball drops, squashes, and rises, on twelve frames. Where do the keys and in-betweens go?",
+                "steps": [
+                  {
+                    "text": "Put key 1 at frame 1: the ball at its highest point."
+                  },
+                  {
+                    "text": "Put key 2 at frame 6: the ball squashed flat on the ground."
+                  },
+                  {
+                    "text": "Put key 3 at frame 11: the ball high again on the rebound, with frame 12 resting."
+                  },
+                  {
+                    "text": "Fill frames 2 to 5, 7 to 10, and 12 as in-betweens, then flip the pad and check the drop feels heavier than the rise."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each step of your twelve-frame plan by when it happens.",
+                "buckets": [
+                  { "label": "Decide before you draw" },
+                  { "label": "Draw and shoot after the plan" }
+                ],
+                "cards": [
+                  { "text": "write the action in one sentence" },
+                  { "text": "choose which frames hold the keys" },
+                  { "text": "decide whether the bounce is fast or slow" },
+                  { "text": "draw the in-betweens between the keys" },
+                  { "text": "shoot or flip the frames and watch the timing" }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b1",
+                  "d3": "b1",
+                  "d4": "b2",
+                  "d5": "b2"
+                },
+                "feedback": {
+                  "d1": "One sentence keeps the whole project honest: if the sentence is dull, no drawing will save it.",
+                  "d2": "Key placement is a decision made with a pencil, but it is still a decision.",
+                  "d3": "Timing is chosen before the frames exist, or the frames cannot fill it.",
+                  "d4": "In-betweens only make sense once the keys on both sides exist.",
+                  "d5": "Testing comes after there is something to test, which is exactly why it finds real problems."
+                },
+                "explanation": "Everything with a choice in it comes first, because every later drawing inherits those choices.",
+                "hints": [
+                  "Ask whether the step creates a choice or consumes one."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match each job to the tool that fits it best.",
+                "left": [
+                  { "text": "planning the shots on paper" },
+                  { "text": "flipping a paper test of your frames" },
+                  { "text": "animating a clay character" },
+                  { "text": "filling in-betweens in CGI" }
+                ],
+                "right": [
+                  { "text": "storyboard panels" },
+                  { "text": "your own thumb" },
+                  { "text": "a camera and an armature" },
+                  { "text": "the software between your key poses" }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3",
+                  "l4": "r4"
+                },
+                "explanation": "Every tool in the course has one job it is perfect for, and every job in your twelve frames has a tool waiting.",
+                "hints": [
+                  "One of the tools is a body part, and proud of it."
+                ]
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Your twelve-frame cycle",
+                "description": "Make a complete animation of one simple action in twelve frames, in any style from this course: a flipbook, a stop motion shoot, or digital drawings.\n\nStart with the plan: write your action in one sentence, choose your three key frames, and note which frames hold in-betweens. Then make the animation, and test the timing early while fixes are still cheap. Finish by showing your twelve frames in order to someone who has not seen them, and ask them to say what happens.",
+                "rubric": "- One sentence naming the action before any drawing\n- Three key frames chosen and marked on the frame numbers\n- All twelve frames present, with in-betweens between the keys\n- Timing tested and adjusted at least once before finishing\n- A viewer can name the action after watching the frames play"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
