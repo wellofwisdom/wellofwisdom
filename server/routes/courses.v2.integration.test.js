@@ -30,7 +30,7 @@ async function signup(a, tag) {
   const db = require("../lib/db");
   const row = await db.query("select id, family_id from users where email=$1", [email.toLowerCase()]);
   assert.ok(row.rows[0]);
-  return { jar: jar(r), userId: Number(row.rows[0].id), familyId: Number(row.rows[0].familyId) };
+  return { jar: jar(r), userId: Number(row.rows[0].id), familyId: Number(row.rows[0].family_id) };
 }
 describe("courses v2 integration: generator routes through harness", () => {
   before(ctx.setup); after(ctx.teardown);
