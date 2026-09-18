@@ -108,7 +108,7 @@ function SiteHeader({ onStart }: { onStart?: () => void }) {
             </div>
           </details>
           <a {...linkProps("c")}>Open courses</a>
-          <a href="/#pricing">Pricing</a>
+          <a href="/#pricing" onClick={(e) => { if (window.location.pathname === "/") { e.preventDefault(); document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "start" }); history.replaceState({}, "", "/#pricing"); } }}>Pricing</a>
           <a href={REPO} target="_blank" rel="noreferrer">GitHub</a>
           <a className="s-nav-signin" href="/#start" onClick={(e) => { if (onStart) { e.preventDefault(); setOpen(false); onStart(); } }}>Sign in</a>
         </nav>
@@ -147,7 +147,7 @@ function SiteFooter() {
             <ul>
               <li><a {...linkProps("features")}>Every feature</a></li>
               <li><a {...linkProps("c")}>Open courses</a></li>
-              <li><a href="/#pricing">Pricing</a></li>
+              <li><a href="/#pricing" onClick={(e) => { if (window.location.pathname === "/") { e.preventDefault(); document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "start" }); history.replaceState({}, "", "/#pricing"); } }}>Pricing</a></li>
               <li><a href="/#start">Try the demo</a></li>
               <li><a href={`${REPO}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">Roadmap</a></li>
             </ul>
