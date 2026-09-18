@@ -14,6 +14,21 @@ const MAX_UNITS = CAPS.MAX_UNITS || 6;
 const MAX_LESSONS = CAPS.MAX_LESSONS || 5;
 const LESSONS_SCANNED = CAPS.LESSONS_SCANNED || 6;
 
+// Optional language plumbing: when a course teaches a target language,
+// Studio sends language (like "es") and cefr (like "A1"). They flow through
+// spec -> prompt -> job payload and surface in the kind menu only when present.
+// Non-language courses omit them and generate the same 1-unit 4-lesson shapes.
+const CEFR_LEVELS = new Set(["A1","A2","B1","B2","C1","C2"]);
+function normalizeLanguage(v) {
+  const s = String(v || "").trim().toLowerCase().slice(0, 20);
+  if (!/^[a-z]{2,3}(-[a-z]{2,4})?$/.test(s)) return null;
+  return s;
+}
+function normalizeCefr(v) {
+  const s = String(v || "").trim().toUpperCase().slice(0, 4);
+  return CEFR_LEVELS.has(s) ? s : null;
+}
+
 const OUTLINE_SYSTEM = `You are an expert curriculum outline designer for a homeschool family.
 You ALWAYS respond with a single valid JSON object and nothing else. No markdown fences, no commentary.
 
@@ -81,7 +96,7 @@ You receive only prompt, choices and kind. Return JSON { "answers": [ { "id": st
 where id matches the item's id and answer is the leaf answer (choice id, number string, or model text).
 No markdown fences, no commentary. Disagreements will be flagged for a human.`;
 
-function buildKindMenu() {
+function buildKindMenu(language) {
   let itemTypes = {};
   let kinds = {};
   try { itemTypes = require("./items").registry(); } catch {}
@@ -99,6 +114,7 @@ function buildKindMenu() {
         else if (k === "multi") entries.push("- exercise kind multi: content { prompt, kind: 'multi', choices, answer: ['c1','c3'] } -- sets match exactly");
         else if (k === "numeric") entries.push("- exercise kind numeric: content { prompt, kind: 'numeric', answer: number|string, explanation, hints[] } -- 0.5% tolerance");
         else if (k === "text") entries.push("- exercise kind text: content { prompt, kind: 'text', answer: string (model answer, self-check) }");
+        else if (!language && (k === "vocab_card" || k === "listen_choice" || k === "listen_repeat")) { /* language-only, skip when no language */ }
         else entries.push("- exercise kind " + k);
       }
     } else if (t === "article") entries.push("- article: { title, body } -- body 120-220 words, math, bold, bullets");
@@ -111,6 +127,14 @@ function buildKindMenu() {
     else if (t === "project") entries.push("- project: { title, description, rubric } -- end of course or unit");
     else entries.push("- " + t);
   }
+  if (language) {
+    const lang = normalizeLanguage(language);
+    if (lang) {
+      entries.push("- exercise kind vocab_card: content { prompt, kind: 'vocab_card', lemma, gloss, example, alternatives[] } -- vocabulary word with gloss, spaced review");
+      entries.push("- exercise kind listen_choice: content { prompt, kind: 'listen_choice', audioText, audioUrl, choices[{id,text}], answer: 'c1' } -- listen then pick");
+      entries.push("- exercise kind listen_repeat: content { prompt, kind: 'listen_repeat', expected, audioText, audioUrl, hints[] } -- listen and repeat, STT scored");
+    }
+  }
   if (!entries.length) return "Available kinds: article, exercise (mcq, numeric, text), video, audio, project.";
   return "Kind menu (choose from these; later kinds appear here without prompt edits):\n" + entries.join("\n");
 }
@@ -119,6 +143,8 @@ function buildOutlinePrompt(spec, sourcesText, size) {
   const lines = [];
   lines.push("Design a course outline.");
   lines.push("Topic: " + spec.topic);
+  if (spec.language) { const lang = normalizeLanguage(spec.language); if (lang) lines.push("Target language: " + lang + (spec.cefr ? " (CEFR " + normalizeCefr(spec.cefr) + ")" : "")); }
+  if (spec.cefr && !spec.language) { const lvl = normalizeCefr(spec.cefr); if (lvl) lines.push("CEFR level: " + lvl); }
   if (spec.gradeLevel) lines.push("Learner grade level: " + spec.gradeLevel);
   if (spec.lens) lines.push("LENS: teach this subject through: " + spec.lens);
   if (spec.interests && spec.interests.length) lines.push("Learner interests: " + spec.interests.join(", "));
@@ -138,6 +164,8 @@ function buildLessonPrompt(spec, lessonPlan, kindMenu, sourcesText, outlineConte
   const lines = [];
   lines.push("Author one lesson as JSON: { title, summary, items }.");
   lines.push("Course topic: " + spec.topic);
+  if (spec.language) { const lang = normalizeLanguage(spec.language); if (lang) lines.push("Target language: " + lang + (spec.cefr ? " (CEFR " + normalizeCefr(spec.cefr) + ")" : "") + " -- content in target language, instructions in learner language."); }
+  if (spec.cefr && !spec.language) { const lvl = normalizeCefr(spec.cefr); if (lvl) lines.push("CEFR level: " + lvl); }
   if (spec.gradeLevel) lines.push("Grade level: " + spec.gradeLevel);
   if (spec.lens) lines.push("Lens: " + spec.lens);
   if (spec.learnerNotes) lines.push("Learner notes: " + spec.learnerNotes);
@@ -196,27 +224,33 @@ function normalizeOutline(raw, size) {
 }
 
 async function persistOutlineAsSkeleton(outline, spec, userId, familyId) {
-  const client = await db.getPool().connect();
-  try {
+  const useTx = db.driver() !== "pglite";
+  let client = null;
+  const q = useTx ? null : db.query.bind(db);
+  if (useTx) {
+    client = await db.getPool().connect();
     await client.query("begin");
-    const c = await client.query(
+  }
+  const run = useTx ? (sql, params) => client.query(sql, params) : (sql, params) => db.query(sql, params);
+  try {
+    const c = await run(
       "insert into courses (family_id, learner_id, title, topic, lens, grade_level, description, sources, created_by) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id",
       [familyId, spec.learnerId || null, outline.title, spec.topic, spec.lens || null, spec.gradeLevel || null, outline.description || null, JSON.stringify(spec.sources || []), userId]
     );
     const courseId = c.rows[0].id;
     let unitPos = 0;
     for (const u of outline.units) {
-      const un = await client.query("insert into units (course_id, title, position) values ($1,$2,$3) returning id", [courseId, u.title, unitPos++]);
+      const un = await run("insert into units (course_id, title, position) values ($1,$2,$3) returning id", [courseId, u.title, unitPos++]);
       let lessonPos = 0;
       for (const l of u.lessons) {
-        await client.query("insert into lessons (unit_id, title, summary, position) values ($1,$2,$3,$4) returning id", [un.rows[0].id, l.title, l.objective || null, lessonPos++]);
+        await run("insert into lessons (unit_id, title, summary, position) values ($1,$2,$3,$4) returning id", [un.rows[0].id, l.title, l.objective || null, lessonPos++]);
       }
     }
-    await client.query("commit");
+    if (useTx) await client.query("commit");
     const rows = await db.query("select l.id, l.title, l.unit_id, un.title as unit_title from lessons l join units un on un.id = l.unit_id where un.course_id = $1 order by un.position, l.position", [courseId]);
     const lessonIds = rows.rows.map((r) => ({ lessonId: Number(r.id), title: r.title, unitId: Number(r.unit_id) }));
     return { courseId, outline, lessonIds };
-  } catch (err) { await client.query("rollback").catch(() => {}); throw err; } finally { client.release(); }
+  } catch (err) { if (useTx) await client.query("rollback").catch(() => {}); throw err; } finally { if (client) client.release(); }
 }
 
 async function generateOutline(spec, familyId) {
@@ -235,7 +269,7 @@ async function generateLesson(opts) {
   const lessonRow = await db.query("select id, unit_id, title from lessons where id = $1", [lessonId]);
   if (!lessonRow.rows[0]) throw new Error("lesson_not_found");
   const sourcesText = (spec.sources || []).map((s, i) => "--- SOURCE " + (i + 1) + ": " + (s.title || "untitled") + " ---\n" + String(s.text || "").slice(0, 6000)).join("\n\n");
-  const kindMenu = buildKindMenu();
+  const kindMenu = buildKindMenu(spec.language || null);
   const cg = require("./coursegen");
   const out = await ai.chatJson("lesson-content", [{ role: "system", content: LESSON_SYSTEM }, { role: "user", content: buildLessonPrompt(spec, lessonPlan, kindMenu, sourcesText, outlineContext) }], { maxTokens: 6000, temperature: 0.7, usage: { familyId, note: "lesson: " + (lessonPlan && lessonPlan.title ? lessonPlan.title : String(lessonId)) }, publicContent: spec.openPublish === true });
   const raw = out.json;
@@ -342,4 +376,4 @@ async function runMediaPass(courseId, familyId) {
   return { queued };
 }
 
-module.exports = { OUTLINE_SYSTEM, LESSON_SYSTEM, VERIFY_SYSTEM, buildKindMenu, buildOutlinePrompt, buildLessonPrompt, normalizeOutline, persistOutlineAsSkeleton, generateOutline, generateLesson, verifyCourse, runMediaPass };
+module.exports = { OUTLINE_SYSTEM, LESSON_SYSTEM, VERIFY_SYSTEM, buildKindMenu, buildOutlinePrompt, buildLessonPrompt, normalizeOutline, persistOutlineAsSkeleton, generateOutline, generateLesson, verifyCourse, runMediaPass, normalizeLanguage, normalizeCefr };

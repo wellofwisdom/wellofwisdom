@@ -5,6 +5,18 @@
 module.exports = function registerV2(router, deps) {
   const { db, jobs, ai, safeFetch, safeSourceUrl, htmlToText } = deps;
   function bad(res, msg, code = 400) { return res.status(code).json({ error: msg }); }
+  const CEFR_LEVELS = new Set(["A1","A2","B1","B2","C1","C2"]);
+  function normLanguage(v) {
+    if (v == null || v === "") return null;
+    const s = String(v).trim().toLowerCase().slice(0, 20);
+    if (!/^[a-z]{2,3}(-[a-z]{2,4})?$/.test(s)) return null;
+    return s;
+  }
+  function normCefr(v) {
+    if (v == null || v === "") return null;
+    const s = String(v).trim().toUpperCase().slice(0, 4);
+    return CEFR_LEVELS.has(s) ? s : null;
+  }
   router.post("/generate-outline", async (req, res, next) => {
     try {
       const { topic, learnerId, lens, gradeLevel, notes, sources, openPublish, size } = req.body || {};
@@ -34,6 +46,10 @@ module.exports = function registerV2(router, deps) {
           } catch (err) { return bad(res, "source_fetch_failed", 400); }
         }
       }
+      const language = normLanguage(req.body && req.body.language);
+      if (req.body && req.body.language != null && req.body.language !== "" && !language) return bad(res, "language_invalid");
+      const cefr = normCefr(req.body && req.body.cefr);
+      if (req.body && req.body.cefr != null && req.body.cefr !== "" && !cefr) return bad(res, "cefr_invalid");
       const sizeNorm = size && typeof size === "object" && !Array.isArray(size) ? {
         units: size.units != null ? Number(size.units) : undefined,
         lessonsPerUnit: size.lessonsPerUnit != null ? Number(size.lessonsPerUnit) : (size.lessons != null ? Number(size.lessons) : undefined),
@@ -50,6 +66,8 @@ module.exports = function registerV2(router, deps) {
         notes: String(notes || "").trim().slice(0, 1000) || null,
         sources: resolved,
         openPublish: !learnerId && Boolean(openPublish),
+        language,
+        cefr,
         size: sizeNorm,
       };
       const jobId = await jobs.enqueue(req.user.familyId, "course-outline", spec, req.user.id);
@@ -58,7 +76,11 @@ module.exports = function registerV2(router, deps) {
   });
   router.post("/generate-from-outline", async (req, res, next) => {
     try {
-      const { outline, topic, learnerId, lens, gradeLevel, notes, sources, openPublish, size } = req.body || {};
+      const { outline, topic, learnerId, lens, gradeLevel, notes, sources, openPublish, size, language: rawLang, cefr: rawCefr } = req.body || {};
+      const goLanguage = normLanguage(rawLang);
+      if (rawLang != null && rawLang !== "" && !goLanguage) return bad(res, "language_invalid");
+      const goCefr = normCefr(rawCefr);
+      if (rawCefr != null && rawCefr !== "" && !goCefr) return bad(res, "cefr_invalid");
       if (!outline || typeof outline !== "object") return bad(res, "outline_required");
       if (!ai.configured()) return bad(res, "ai_not_configured", 503);
       let learnerProfile = null;
@@ -77,6 +99,8 @@ module.exports = function registerV2(router, deps) {
         learnerNotes: learnerProfile && learnerProfile.ai_notes ? String(learnerProfile.ai_notes) : null,
         sources: Array.isArray(sources) ? sources.slice(0,5) : [],
         openPublish: !learnerId && Boolean(openPublish),
+        language: goLanguage,
+        cefr: goCefr,
         size,
       };
       const cg = require("../lib/coursegen");
