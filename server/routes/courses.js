@@ -897,6 +897,12 @@ router.get("/:id/answer-key", async (req, res, next) => {
           } else if (c.kind === "listen_repeat") {
             answerText = c.expected || null;
             if (Array.isArray(c.alternatives) && c.alternatives.length) answerText = [c.expected].concat(c.alternatives).join(" / ");
+          } else if (c.kind === "translate") {
+            answerText = c.expected || null;
+            if (Array.isArray(c.alternatives) && c.alternatives.length) answerText = [c.expected].concat(c.alternatives).join(" / ");
+          } else if (c.kind === "dialogue") {
+            const goals = Array.isArray(c.goals) ? c.goals : [];
+            answerText = goals.length ? goals.join(", ") : (c.scene || "dialogue");
           } else answerText = c.answer;
           // Worth surfacing: an exercise with no answer cannot be graded, and
           // the generator does occasionally produce one.
@@ -921,6 +927,11 @@ router.get("/:id/answer-key", async (req, res, next) => {
             if (!c.answer || !String(c.answer).trim()) missingAnswers++;
           } else if (c.kind === "listen_repeat") {
             if (!c.expected || !String(c.expected).trim()) missingAnswers++;
+          } else if (c.kind === "translate") {
+            if (!c.expected || !String(c.expected).trim()) missingAnswers++;
+          } else if (c.kind === "dialogue") {
+            if (!c.scene || !String(c.scene).trim()) missingAnswers++;
+            else if (!c.prompt || !String(c.prompt).trim()) missingAnswers++;
           } else if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
           const hints = Array.isArray(c.hints) ? c.hints : c.hint ? [String(c.hint)] : [];
           return {
