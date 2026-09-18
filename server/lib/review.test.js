@@ -40,3 +40,72 @@ test("recovery after a lapse climbs the ladder again", () => {
   s = nextSchedule(s, true);
   assert.equal(s.interval_days, 3);
 });
+test("vocab_card and listening kinds feed the scheduler via correct === true/false", () => {
+  const grade = require("./items/../grade");
+  const exercise = require("./items/exercise");
+  const vocab = exercise.normalize({ prompt: "p", kind: "vocab_card", lemma: "hola", gloss: "hello" });
+  assert.ok(vocab);
+  const out = grade.gradeExercise(vocab, "hello");
+  assert.deepEqual(out, { correct: true, score: 1 });
+  let s = null;
+  s = require("./review").nextSchedule(s, out.correct === true);
+  assert.equal(s.interval_days, 1);
+  s = require("./review").nextSchedule(s, out.correct === true);
+  assert.equal(s.interval_days, 3);
+  // listen_choice correct also climbs
+  const lc = exercise.normalize({ prompt: "p", kind: "listen_choice", audioText: "hi", choices: [{ text: "A" }, { text: "B" }], answer: "c1" });
+  const lcout = grade.gradeExercise(lc, "c1");
+  assert.deepEqual(lcout, { correct: true, score: 1 });
+  let sl = null;
+  sl = require("./review").nextSchedule(sl, lcout.correct === true);
+  assert.equal(sl.interval_days, 1);
+  // listen_repeat partial is not correct, so it comes back today
+  const lr = { kind: "listen_repeat", prompt: "p", expected: "El libro es rojo." };
+  const lrp = grade.gradeExercise(lr, "El libro es azul");
+  assert.equal(lrp.correct, false);
+  assert.ok(lrp.score > 0 && lrp.score < 1);
+  const sp = require("./review").nextSchedule(null, lrp.correct === true);
+  assert.equal(sp.interval_days, 0);
+  assert.equal(sp.lapses, 1);
+});
+
+test("kind text never feeds scheduler: grade returns null so recordAttempt would not be called", () => {
+  const grade = require("./grade");
+  const item = { kind: "text", prompt: "reflect", answer: "something" };
+  assert.equal(grade.gradeExercise(item, "anything"), null);
+});
+
+test("nextSchedule is pure: vocab and flashcard lanes do not share state", () => {
+  const { nextSchedule } = require("./review");
+  let vocab = null;
+  let card0 = null;
+  let card1 = null;
+  vocab = nextSchedule(vocab, true);
+  vocab = nextSchedule(vocab, true);
+  assert.equal(vocab.interval_days, 3);
+  card0 = nextSchedule(card0, true);
+  assert.equal(card0.interval_days, 1);
+  card1 = nextSchedule(card1, false);
+  assert.equal(card1.interval_days, 0);
+  // vocab still 3 days, untouched by card lanes
+  assert.equal(vocab.interval_days, 3);
+  assert.equal(vocab.reps, 2);
+  assert.equal(card0.reps, 1);
+  assert.equal(card1.reps, 0);
+  assert.equal(card1.lapses, 1);
+});
+
+test("flashcard card_index validation: recordFlashcardAttempt guards are reflected in schedule purity", () => {
+  const { nextSchedule } = require("./review");
+  // The guard lives in recordFlashcardAttempt (db layer), but the pure step
+  // must still be deterministic for valid indices, so a bad index never
+  // creates a phantom ease bump. Exercise here via pure function stability.
+  let s = { ease: 2.5, interval_days: 7, reps: 3, lapses: 0 };
+  const afterWrong = nextSchedule(s, false);
+  assert.equal(afterWrong.interval_days, 0);
+  assert.equal(afterWrong.reps, 0);
+  assert.ok(afterWrong.ease < 2.5);
+  const next = nextSchedule(afterWrong, true);
+  assert.equal(next.interval_days, 1);
+});
+

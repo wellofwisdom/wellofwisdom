@@ -363,13 +363,14 @@ router.post("/attempt", async (req, res, next) => {
       [req.user.familyId, req.user.id, id, qIdx, correct, JSON.stringify(answer ?? null)]
     );
 
-    // Spaced review: every graded exercise feeds the scheduler (fail-open).
-    // Per-card flashcards use the flashcard_reviews table so one card correct
-    // does not move another card's schedule.
-    if (row.type === "exercise" && c.kind && c.kind !== "text" && correct !== null) {
+    // Spaced review: exercises feed review_schedule, flashcards feed
+    // flashcard_reviews per card. The two tables never collide: the row type
+    // is authoritative, so an exercise never touches flashcard_reviews and
+    // a deck never touches review_schedule. kind text is excluded because
+    // it is self-check and grade returns null.
+    if (row.type === "exercise" && correct !== null && c.kind && c.kind !== "text") {
       review.recordAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, correct: correct === true });
-    }
-    if (row.type === "flashcards" && correct !== null) {
+    } else if (row.type === "flashcards" && correct !== null) {
       review.recordFlashcardAttempt({ familyId: req.user.familyId, learnerId: req.user.id, itemId: id, cardIndex: qIdx, correct: correct === true });
     }
 
@@ -506,24 +507,33 @@ router.get("/returned", async (req, res, next) => {
 });
 
 // Spaced review queue: exercises due across all the learner's courses.
+// The content projection is the registry strip, never the raw row: that keeps
+// vocab gloss/alternatives, listen expected/alternatives and listen_choice
+// answer out of the queue, while still surfacing learner-visible cues like
+// lemma, example, audioText and choices.
 router.get("/review", async (req, res, next) => {
   try {
     const rows = await review.dueForLearner(req.user.id, req.user.familyId);
     res.json({
       due: rows.length ? rows[0].due_total : 0,
-      items: rows.map((r) => ({
-        item_id: r.item_id,
-        reps: r.reps,
-        lapses: r.lapses,
-        lesson_title: r.lesson_title,
-        course_title: r.course_title,
-        course_id: r.course_id,
-        content: {
-          prompt: (r.content || {}).prompt,
-          kind: (r.content || {}).kind,
-          choices: (r.content || {}).choices,
-        },
-      })),
+      items: rows.map((r) => {
+        let content;
+        try {
+          const reg = require("../lib/items").forType("exercise");
+          content = reg && typeof reg.strip === "function" ? reg.strip(r.content || {}) : { prompt: (r.content || {}).prompt, kind: (r.content || {}).kind };
+        } catch {
+          content = { prompt: (r.content || {}).prompt, kind: (r.content || {}).kind };
+        }
+        return {
+          item_id: r.item_id,
+          reps: r.reps,
+          lapses: r.lapses,
+          lesson_title: r.lesson_title,
+          course_title: r.course_title,
+          course_id: r.course_id,
+          content,
+        };
+      }),
     });
   } catch (err) {
     next(err);
