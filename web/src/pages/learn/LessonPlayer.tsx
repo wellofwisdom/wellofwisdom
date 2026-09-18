@@ -28,6 +28,8 @@ import ScenarioItem from "./items/ScenarioItem";
 import VocabCardItem from "./items/VocabCardItem";
 import ListenChoiceItem from "./items/ListenChoiceItem";
 import ListenRepeatItem from "./items/ListenRepeatItem";
+import TranslateItem from "./items/TranslateItem";
+import DialogueItem from "./items/DialogueItem";
 
 type CourseUnit = { id: number; title: string; lessons: { id: number; title: string }[] };
 type CourseForUnits = { id: number; units: CourseUnit[] };
@@ -528,6 +530,8 @@ function LessonItem({ item, solved, onSolved, onWrong, submission, onSubmission 
   if (kind === "vocab_card") return <VocabCardItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "listen_choice") return <ListenChoiceItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "listen_repeat") return <ListenRepeatItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "translate") return <TranslateItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
+  if (kind === "dialogue") return <DialogueItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "multi") return <MultiItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "order") return <OrderItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
   if (kind === "match") return <MatchItem item={item} solved={solved} onSolved={onSolved} onWrong={onWrong} qKey={`${item.id}:0`} qIdx={0} />;
