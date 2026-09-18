@@ -1,0 +1,812 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "French A1: First Words, Listening, Speaking, and a Story",
+  "topic": "French A1 greetings, classroom, family, and everyday life",
+  "lens": null,
+  "gradeLevel": 5,
+  "description": "Four gentle lessons for true beginners in French. Learn greetings and introductions, classroom words and colors, family and home, then read and hear a short market story in simple French. Every lesson uses listening, speaking aloud, and short checks you can do on paper or out loud.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Begin in French",
+      "lessons": [
+        {
+          "title": "Bonjour ! Greetings and introductions",
+          "summary": "Say hello, say your name, and answer how you are, with polite and friendly forms in French.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Hello and nice to meet you",
+                "body": "In French you choose how formal to be. With a friend you say **salut** (hi) or **bonjour** (hello). To give your name you say **je m'appelle** (I am called) plus your name, for example **je m'appelle Ana**. With a friend you ask **comment tu t'appelles ?** (what is your name, friendly). With an adult you ask **comment vous appelez-vous ?** (polite). The answer to **enchante** (nice to meet you) is also **enchante**. At the end you say **au revoir** (goodbye) or **a plus tard** (see you later).\n\n- **Bonjour** hello, **salut** hi\n- **Bonsoir** good evening, **bonne nuit** good night\n- **Je m'appelle ...** My name is ...\n- **Enchante** Nice to meet you"
+              }
+            },
+            {
+              "type": "flashcards",
+              "content": {
+                "cards": [
+                  {
+                    "front": "bonjour",
+                    "back": "hello"
+                  },
+                  {
+                    "front": "salut",
+                    "back": "hi (friendly)"
+                  },
+                  {
+                    "front": "bonsoir",
+                    "back": "good evening"
+                  },
+                  {
+                    "front": "bonne nuit",
+                    "back": "good night"
+                  },
+                  {
+                    "front": "je m'appelle",
+                    "back": "my name is (I am called)"
+                  },
+                  {
+                    "front": "comment tu t'appelles ?",
+                    "back": "what is your name? (friendly)"
+                  },
+                  {
+                    "front": "enchante",
+                    "back": "nice to meet you"
+                  },
+                  {
+                    "front": "au revoir / a plus tard",
+                    "back": "goodbye / see you later"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "vocab_card",
+                "prompt": "What does bonjour mean? Type the English.",
+                "lemma": "bonjour",
+                "form": "bonjour",
+                "gloss": "hello",
+                "example": "Bonjour, je m'appelle Ana.",
+                "exampleGloss": "Hello, my name is Ana.",
+                "pos": "interjection",
+                "level": "A1",
+                "audioText": "bonjour",
+                "alternatives": [
+                  "hi"
+                ],
+                "explanation": "Bonjour is the most common hello in French.",
+                "hints": [
+                  "It is a friendly hello with seven letters."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "vocab_card",
+                "prompt": "What does bonne nuit mean? Type the English.",
+                "lemma": "bonne nuit",
+                "form": "bonne nuit",
+                "gloss": "good night",
+                "example": "Bonne nuit, a demain !",
+                "exampleGloss": "Good night, see you tomorrow!",
+                "pos": "phrase",
+                "level": "A1",
+                "audioText": "bonne nuit",
+                "alternatives": [
+                  "good evening"
+                ],
+                "hints": [
+                  "It is what you say before sleep."
+                ],
+                "explanation": "Bonne nuit means good night."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match the French greeting to its English use.",
+                "left": [
+                  {
+                    "text": "bonjour"
+                  },
+                  {
+                    "text": "salut"
+                  },
+                  {
+                    "text": "bonne nuit"
+                  },
+                  {
+                    "text": "enchante"
+                  }
+                ],
+                "right": [
+                  {
+                    "text": "hello (any time)"
+                  },
+                  {
+                    "text": "hi (friendly)"
+                  },
+                  {
+                    "text": "good night"
+                  },
+                  {
+                    "text": "nice to meet you"
+                  }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3",
+                  "l4": "r4"
+                },
+                "explanation": "Each French phrase has one steady English partner. Listen for bonjour as the general hello.",
+                "hints": [
+                  "Salut is for friends. Bonne nuit is for the night."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort the phrases into Friendly (tu) or Polite (vous).",
+                "buckets": [
+                  {
+                    "label": "Friendly (tu) - with friends and peers"
+                  },
+                  {
+                    "label": "Polite (vous) - with adults you do not know well"
+                  }
+                ],
+                "cards": [
+                  {
+                    "text": "comment tu t'appelles ?"
+                  },
+                  {
+                    "text": "comment vous appelez-vous ?"
+                  },
+                  {
+                    "text": "comment ca va ?"
+                  },
+                  {
+                    "text": "comment allez-vous ?"
+                  }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b2",
+                  "d3": "b1",
+                  "d4": "b2"
+                },
+                "feedback": {
+                  "d1": "Tu is the friendly you, so comment tu t'appelles is friendly.",
+                  "d2": "Vous is the polite you, so this goes to polite.",
+                  "d3": "Ca va with tu is friendly.",
+                  "d4": "Allez-vous is the polite form."
+                },
+                "explanation": "Tu is for friends and peers. Vous is the polite you for adults and formal moments.",
+                "hints": [
+                  "Look for tu versus vous in the phrase."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "You meet a new classmate your own age. What do you say to ask their name?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Comment tu t'appelles ?"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Comment vous appelez-vous ?"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Bonne nuit"
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "With a peer you use the friendly tu form: comment tu t'appelles ?",
+                "hints": [
+                  "Your classmate is your age, so tu is right."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the words in order to introduce yourself politely: Je m'appelle Ana. Enchante.",
+                "items": [
+                  {
+                    "text": "Je"
+                  },
+                  {
+                    "text": "m'appelle"
+                  },
+                  {
+                    "text": "Ana."
+                  },
+                  {
+                    "text": "Enchante"
+                  },
+                  {
+                    "text": "."
+                  }
+                ],
+                "answer": [
+                  "o1",
+                  "o2",
+                  "o3",
+                  "o4",
+                  "o5"
+                ],
+                "explanation": "Je m'appelle Ana comes first, then Enchante as the polite add-on.",
+                "hints": [
+                  "Start with Je, then m'appelle."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "En classe : classroom and colors",
+          "summary": "Name classroom things and colors in French, listen for them, and describe what you see.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "What is in the classroom?",
+                "body": "In a French classroom you hear **le livre** (the book), **la table** (the table), **la chaise** (the chair), **la porte** (the door), **la fenetre** (the window), and **le crayon** (the pencil). Colors tell which one: **rouge** (red), **bleu** (blue), **vert** (green), **jaune** (yellow), **blanc** (white), **noir** (black). To say the book is red you say **le livre est rouge**. To say the chair is blue you say **la chaise est bleue**. The word **est** means is.\n\nListen first, then match what you heard to what you see.\n\n- **le livre est rouge** the book is red\n- **la chaise est bleue** the chair is blue\n- **la table est verte** the table is green"
+              }
+            },
+            {
+              "type": "flashcards",
+              "content": {
+                "cards": [
+                  {
+                    "front": "le livre",
+                    "back": "the book"
+                  },
+                  {
+                    "front": "la chaise",
+                    "back": "the chair"
+                  },
+                  {
+                    "front": "la table",
+                    "back": "the table"
+                  },
+                  {
+                    "front": "la porte / la fenetre",
+                    "back": "the door / the window"
+                  },
+                  {
+                    "front": "rouge / bleu / vert",
+                    "back": "red / blue / green"
+                  },
+                  {
+                    "front": "jaune / blanc / noir",
+                    "back": "yellow / white / black"
+                  },
+                  {
+                    "front": "le livre est rouge",
+                    "back": "the book is red"
+                  },
+                  {
+                    "front": "est",
+                    "back": "is"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Listen: the teacher names colors",
+                "transcript": "Teacher speaking, slow and clear. Ecoutez. Le livre est rouge. La chaise est bleue. La table est verte. Le crayon est jaune. Repetez apres moi. Le livre est rouge. La chaise est bleue."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "listen_choice",
+                "prompt": "Listen and choose the sentence you heard.",
+                "audioText": "Le livre est rouge.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Le livre est rouge."
+                  },
+                  {
+                    "id": "c2",
+                    "text": "La chaise est bleue."
+                  },
+                  {
+                    "id": "c3",
+                    "text": "La table est verte."
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Le livre est rouge is the book is red.",
+                "hints": [
+                  "Listen for livre and rouge."
+                ]
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Listen: two classmates talk about the room",
+                "transcript": "Ana speaking. Bonjour, Thomas. De quelle couleur est la porte ? Thomas speaking. La porte est blanche. La fenetre est bleue. Ana speaking. Et le livre ? Thomas speaking. Le livre est rouge et le crayon est jaune."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "listen_repeat",
+                "prompt": "Listen and repeat: La chaise est bleue.",
+                "expected": "La chaise est bleue.",
+                "audioText": "La chaise est bleue.",
+                "alternatives": [
+                  "La chaise est bleue"
+                ],
+                "hints": [
+                  "Say each word clearly: La - chaise - est - bleue."
+                ],
+                "explanation": "La chaise est bleue means the chair is blue."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the words in order: La chaise est bleue.",
+                "items": [
+                  {
+                    "text": "La"
+                  },
+                  {
+                    "text": "chaise"
+                  },
+                  {
+                    "text": "est"
+                  },
+                  {
+                    "text": "bleue."
+                  }
+                ],
+                "answer": [
+                  "o1",
+                  "o2",
+                  "o3",
+                  "o4"
+                ],
+                "explanation": "French order here is La (the) chaise (chair) est (is) bleue (blue).",
+                "hints": [
+                  "Start with La, then the thing, then es."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each word into its color. You can tell by the ending of the example sentences you just heard.",
+                "buckets": [
+                  {
+                    "label": "rouge (red)"
+                  },
+                  {
+                    "label": "bleue (blue)"
+                  },
+                  {
+                    "label": "verte (green)"
+                  }
+                ],
+                "cards": [
+                  {
+                    "text": "le livre est ___ (the book)"
+                  },
+                  {
+                    "text": "la chaise est ___ (the chair)"
+                  },
+                  {
+                    "text": "la table est ___ (the table)"
+                  },
+                  {
+                    "text": "le crayon jaune (already yellow, not these three)"
+                  }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b2",
+                  "d3": "b3",
+                  "d4": "b1"
+                },
+                "feedback": {
+                  "d1": "In the audio le livre was rouge, so this goes to rouge.",
+                  "d2": "La chaise was bleue.",
+                  "d3": "La table was verte.",
+                  "d4": "Trick check. Jaune was the pencil, so this is not bleue or verte. For this sort it sits with the red column as the odd one out."
+                },
+                "explanation": "Match each object to the color the teacher gave it. The last card is a check that you listened for jaune.",
+                "hints": [
+                  "Le livre est rouge, la chaise est bleue, la table est verte. Where does each belong?"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Ma famille et ma maison",
+          "summary": "Talk about family and rooms at home in French, and hold a short polite dialogue.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "People at home",
+                "body": "Your **famille** (family) lives in a **maison** (house). Key people: **la mere** (mother), **le pere** (father), **la soeur** (sister), **le frere** (brother), **la grand-mere** (grandmother), **le grand-pere** (grandfather). Rooms: **la cuisine** (kitchen), **la chambre** (bedroom), **la salle de bain** (bathroom), **le salon** (living room). Two useful sentences: **J'habite avec ma famille** (I live with my family) and **Ma maison est petite mais jolie** (my house is small but pretty). The word **ma** means my, **avec** means with.\n\n- **ma mere / mon pere** my mother / my father\n- **ma soeur / mon frere** my sister / my brother\n- **J'habite dans la maison bleue** I live in the blue house"
+              }
+            },
+            {
+              "type": "flashcards",
+              "content": {
+                "cards": [
+                  {
+                    "front": "la famille / la maison",
+                    "back": "the family / the house"
+                  },
+                  {
+                    "front": "la mere / le pere",
+                    "back": "the mother / the father"
+                  },
+                  {
+                    "front": "la soeur / le frere",
+                    "back": "the sister / the brother"
+                  },
+                  {
+                    "front": "la grand-mere / le grand-pere",
+                    "back": "the grandmother / the grandfather"
+                  },
+                  {
+                    "front": "la cuisine / la chambre",
+                    "back": "the kitchen / the bedroom"
+                  },
+                  {
+                    "front": "J'habite avec ma famille",
+                    "back": "I live with my family"
+                  },
+                  {
+                    "front": "Ma maison est jolie",
+                    "back": "My house is pretty"
+                  },
+                  {
+                    "front": "avec / ma / est",
+                    "back": "with / my / is"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Listen: Lucie introduces her family",
+                "transcript": "Lucie speaking, warm and slow. Bonjour, je m'appelle Lucie. J'habite avec ma mere, mon pere et mon frere. Ma soeur habite chez ma grand-mere. Notre maison est petite mais jolie. La cuisine est jaune et la chambre est blanche."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match the French family word to its English meaning.",
+                "left": [
+                  {
+                    "text": "la mere"
+                  },
+                  {
+                    "text": "le frere"
+                  },
+                  {
+                    "text": "la grand-mere"
+                  },
+                  {
+                    "text": "le pere"
+                  }
+                ],
+                "right": [
+                  {
+                    "text": "mother"
+                  },
+                  {
+                    "text": "brother"
+                  },
+                  {
+                    "text": "grandmother"
+                  },
+                  {
+                    "text": "father"
+                  }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3",
+                  "l4": "r4"
+                },
+                "explanation": "Mere is mother, frere is brother, grand-mere is grandmother, pere is father.",
+                "hints": [
+                  "Grand-mere has the same root as grand-pere, the grandparent pair."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "In Lucie's audio, who lives with Lucie directly?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Sa mere, son pere et son frere"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Seulement sa soeur"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Sa grand-mere dans la meme maison"
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Lucie says J'habite avec ma mere, mon pere et mon frere. Her sister lives with the grandmother elsewhere.",
+                "hints": [
+                  "Listen for J'habite avec, I live with, who is named right after."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "translate",
+                "prompt": "Translate to French: I live with my family in the blue house.",
+                "direction": "en_to_fr",
+                "expected": "J'habite avec ma famille dans la maison bleue.",
+                "alternatives": [
+                  "J'habite avec ma famille dans la maison bleue",
+                  "J habite avec ma famille dans la maison bleue"
+                ],
+                "rubric": "Includes J'habite avec ma famille, mentions la maison bleue, close enough for a friendly reader.",
+                "explanation": "J'habite avec ma famille dans la maison bleue means I live with my family in the blue house.",
+                "hints": [
+                  "Start with J'habite avec ma famille."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "dialogue",
+                "prompt": "Greet your neighbour and answer where you live.",
+                "scene": "You meet Sophie at the door. She says: Bonjour ! Comment tu t'appelles ?",
+                "turns": 3,
+                "goals": [
+                  "greet back",
+                  "give your name",
+                  "say where you live"
+                ],
+                "goodEndings": [
+                  "used polite form",
+                  "asked a question back"
+                ],
+                "explanation": "A friendly dialogue gives your name, returns the question, and answers where you live.",
+                "hints": [
+                  "Answer with your name and where you live."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the words in order: J'habite avec ma famille dans la maison bleue.",
+                "items": [
+                  {
+                    "text": "J'habite"
+                  },
+                  {
+                    "text": "avec ma famille"
+                  },
+                  {
+                    "text": "dans"
+                  },
+                  {
+                    "text": "la maison"
+                  },
+                  {
+                    "text": "bleue."
+                  }
+                ],
+                "answer": [
+                  "o1",
+                  "o2",
+                  "o3",
+                  "o4",
+                  "o5"
+                ],
+                "explanation": "J'habite (I live) avec ma famille (with my family) dans (in) la maison (the house) bleue (blue).",
+                "hints": [
+                  "Start with J'habite, then who you live with, then where."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Lire et ecouter : Une journee au marche",
+          "summary": "Read and listen to a short story in simple French, then show what you understood.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Une journee au marche (A1 graded reader)",
+                "body": "Bonjour ! Je m'appelle Lucie. Aujourd'hui c'est samedi. Je vais au marche avec ma mere.\n\nAu marche il y a des fruits, du pain et des fleurs. Je vois des pommes rouges et des bananes jaunes. Ma mere achete du pain. J'achete des fleurs blanches pour ma grand-mere.\n\nJe parle au vendeur. Je dis : Bonjour, combien coute le pain ? Il dit : Un euro. Je dis : Merci !\n\nJe rentre a la maison avec ma famille. Nous mangeons ensemble. Ma maison est petite mais jolie. Je suis contente.\n\nWords to help you:\n- **aujourd'hui c'est samedi** today is Saturday\n- **je vais au marche** I go to the market\n- **je vois** I see, **j'achete** I buy, **combien coute** how much does it cost\n- **je rentre a la maison** I return home, **nous mangeons ensemble** we eat together, **je suis contente** I am happy"
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "caption": "A sunny market with red apples, yellow bananas, bread, and white flowers on a table. A girl and her mother talk with the seller.",
+                "prompt": "A sunny outdoor market with red apples yellow bananas bread and white flowers on a table, a girl and her mother talking with a seller, soft watercolour, no text",
+                "alt": "Market table with red apples, yellow bananas, bread, and white flowers, a girl with her mother at the stall"
+              }
+            },
+            {
+              "type": "audio",
+              "content": {
+                "title": "Listen: Lucie reads Une journee au marche",
+                "transcript": "Lucie reading, slow and clear. Bonjour. Je m'appelle Lucie. Aujourd'hui c'est samedi. Je vais au marche avec ma mere. Au marche il y a des fruits, du pain et des fleurs. Je vois des pommes rouges et des bananes jaunes. Ma mere achete du pain. J'achete des fleurs blanches pour ma grand-mere. Je parle au vendeur. Je dis, Bonjour, combien coute le pain ? Il dit, Un euro. Je dis, Merci. Je rentre a la maison avec ma famille. Nous mangeons ensemble. Ma maison est petite mais jolie. Je suis contente."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "mcq",
+                "prompt": "In the story, who does Lucie go to the market with?",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Avec sa mere"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Avec son frere"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Seule (alone)"
+                  }
+                ],
+                "answer": "c1",
+                "explanation": "Lucie says Je vais au marche avec ma mere, I go to the market with my mother.",
+                "hints": [
+                  "The first paragraph names her companion. Who is it?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "multi",
+                "prompt": "What does Lucie see or buy at the market? Select all that apply.",
+                "choices": [
+                  {
+                    "id": "c1",
+                    "text": "Pommes rouges (red apples)"
+                  },
+                  {
+                    "id": "c2",
+                    "text": "Bananes jaunes (yellow bananas)"
+                  },
+                  {
+                    "id": "c3",
+                    "text": "Fleurs blanches pour sa grand-mere (white flowers for grandmother)"
+                  },
+                  {
+                    "id": "c4",
+                    "text": "Une voiture rouge (a red car)"
+                  }
+                ],
+                "answer": [
+                  "c1",
+                  "c2",
+                  "c3"
+                ],
+                "explanation": "The text names red apples, yellow bananas, and white flowers for her grandmother. No car is mentioned.",
+                "hints": [
+                  "Three of these appear in Veo... and Compro... One does not appear at all."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort the words from the story into the right group.",
+                "buckets": [
+                  {
+                    "label": "Food at the market"
+                  },
+                  {
+                    "label": "People in the story"
+                  }
+                ],
+                "cards": [
+                  {
+                    "text": "pommes"
+                  },
+                  {
+                    "text": "pain"
+                  },
+                  {
+                    "text": "mere"
+                  },
+                  {
+                    "text": "vendeur"
+                  }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b1",
+                  "d3": "b2",
+                  "d4": "b2"
+                },
+                "feedback": {
+                  "d1": "Pommes are apples, food.",
+                  "d2": "Pain is bread, food.",
+                  "d3": "Mere is mother, a person.",
+                  "d4": "Vendeur is seller, a person."
+                },
+                "explanation": "Pommes and pain are food. Mere and vendeur are people.",
+                "hints": [
+                  "Which two can you eat? Which two are people Lucia talks with?"
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "text",
+                "prompt": "In English, write one sentence in your own words about what happens in the story. Example: Lucia goes to the market with her mother and buys flowers.",
+                "answer": "Lucia goes to the market with her mother, buys white flowers for her grandmother, asks the price of bread, and returns home happy.",
+                "explanation": "Any sentence that names going to the market, buying something, and returning home is good.",
+                "hints": [
+                  "What are the three big steps: going, buying or asking, returning?"
+                ]
+              }
+            },
+            {
+              "type": "project",
+              "content": {
+                "title": "Mon journal du marche : four sentences in French",
+                "description": "Write four short sentences in French about a market day, real or imagined. Use words from this course: greetings, colors, family, food, and combien coute. Say who you went with, what you saw, what you bought, and how you felt. Keep each sentence short. Example start: Aujourd'hui je vais au marche avec ... Je vois ... J'achete ... Je suis contente / content.",
+                "rubric": "- Four sentences in French, each a simple present sentence\n- Names a companion with avec, at least one color word, at least one food word\n- One question or polite phrase like combien coute or merci\n- Understandable to a friendly French-speaking reader even with small errors"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
