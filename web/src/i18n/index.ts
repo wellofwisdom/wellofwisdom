@@ -3,13 +3,15 @@
 import { createContext, useCallback, useContext, useEffect } from "react";
 import en, { type TranslationKey } from "./en";
 import es from "./es";
+import fr from "./fr";
 
-export type Lang = "en" | "es";
+export type Lang = "en" | "es" | "fr";
 export type { TranslationKey };
 
 const dictionaries: Record<Lang, Record<TranslationKey, string>> = {
   en: en as Record<TranslationKey, string>,
   es,
+  fr,
 };
 
 const warned = new Set<string>();
@@ -25,6 +27,7 @@ function interpolate(template: string, vars?: Record<string, string | number>): 
 export function normalizeLang(raw: unknown): Lang {
   const s = String(raw || "").trim().toLowerCase().slice(0, 2);
   if (s === "es") return "es";
+  if (s === "fr") return "fr";
   return "en";
 }
 
@@ -74,7 +77,7 @@ export function makeT(lang: Lang) {
 /** Pick a browser speechSynthesis voice whose lang starts with desired lang. */
 export function pickVoiceForLang(voices: SpeechSynthesisVoice[], lang: Lang): SpeechSynthesisVoice | null {
   if (!voices || voices.length === 0) return null;
-  const want = lang === "es" ? "es" : "en";
+  const want = lang === "es" ? "es" : lang === "fr" ? "fr" : "en";
   const exact = voices.find((v) => String(v.lang || "").toLowerCase().startsWith(want + "-") || String(v.lang || "").toLowerCase() === want);
   if (exact) return exact;
   const loose = voices.find((v) => String(v.lang || "").toLowerCase().startsWith(want));
@@ -93,7 +96,7 @@ export function speakWithLang(text: string, lang: Lang, opts?: { rate?: number; 
       const voice = pickVoiceForLang(voices, lang);
       if (voice) u.voice = voice;
       if (!u.lang || !String(u.lang).startsWith(lang === "es" ? "es" : "en")) {
-        u.lang = lang === "es" ? "es-ES" : "en-US";
+        u.lang = lang === "es" ? "es-ES" : lang === "fr" ? "fr-FR" : "en-US";
       }
     } catch {
       /* voice selection is best effort */
