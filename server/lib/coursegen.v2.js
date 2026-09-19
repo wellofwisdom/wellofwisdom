@@ -133,7 +133,7 @@ function buildKindMenu(language) {
       entries.push("- exercise kind vocab_card: content { prompt, kind: 'vocab_card', lemma, gloss, example, alternatives[] } -- vocabulary word with gloss, spaced review");
       entries.push("- exercise kind listen_choice: content { prompt, kind: 'listen_choice', audioText, audioUrl, choices[{id,text}], answer: 'c1' } -- listen then pick");
       entries.push("- exercise kind listen_repeat: content { prompt, kind: 'listen_repeat', expected, audioText, audioUrl, hints[] } -- listen and repeat, STT scored");
-      entries.push("- exercise kind translate: content { prompt, kind: 'translate', direction: 'en_to_es'|'en_to_fr'|'fr_to_en'|'es_to_en', expected, alternatives[], rubric } -- translate, exact match or rubric");
+      entries.push("- exercise kind translate: content { prompt, kind: 'translate', direction: 'en_to_es', expected, alternatives[], rubric } -- translate, exact match or rubric");
       entries.push("- exercise kind dialogue: content { prompt, kind: 'dialogue', scene, turns, goals[], goodEndings[] } -- short role-play dialogue, completeness graded");
       entries.push("- graded_reader: { title, body, level (A1-C2), glosses {word:gloss} } -- short CEFR reader, not graded, followed by checks");
     }

@@ -20,7 +20,7 @@ export default function TranslateForm({ content, onBuilt, onPreview }: { content
     const exp = String(expected).trim();
     if (!exp) return { content: null, problem: "expected_required" };
     const dir = String(direction).trim();
-    if (dir && dir !== "en_to_es" && dir !== "es_to_en" && dir !== "en_to_fr" && dir !== "fr_to_en") return { content: null, problem: "direction_invalid" };
+    if (dir && dir !== "en_to_es" && dir !== "es_to_en") return { content: null, problem: "direction_invalid" };
     const alts = String(alternativesText).split("\n").map((s) => s.trim()).filter(Boolean);
     if (alts.length > MAX_ALTERNATIVES) return { content: null, problem: "too_many_alternatives" };
     const seen = new Set<string>();
@@ -54,8 +54,6 @@ export default function TranslateForm({ content, onBuilt, onPreview }: { content
             <option value="">auto</option>
             <option value="en_to_es">English to Spanish</option>
             <option value="es_to_en">Spanish to English</option>
-            <option value="en_to_fr">English to French</option>
-            <option value="fr_to_en">French to English</option>
           </select>
         </Field>
       </div>

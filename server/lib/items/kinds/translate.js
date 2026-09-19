@@ -3,7 +3,7 @@ const { clean, str, normalizeHints } = require("./common");
 const { stripTags } = require("../../text");
 
 const MAX_ALTERNATIVES = 10;
-const DIRECTIONS = new Set(["en_to_es", "es_to_en", "en_to_fr", "fr_to_en"]);
+const DIRECTIONS = new Set(["en_to_es", "es_to_en"]);
 
 function normalizeAlternatives(raw) {
   if (!Array.isArray(raw)) return undefined;
