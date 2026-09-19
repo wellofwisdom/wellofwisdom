@@ -703,8 +703,9 @@ summary::marker { color: var(--muted); }
 .companion-bubble-head { display: flex; align-items: center; gap: 8px; }
 .warmup-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-top: 8px; }
 
-/* ---------- print worksheet ---------- */
-
+/* ---------- print worksheet ----------
+   Workbook look: explanation box + diagrams + 5 practice rows.
+   Copy only, no images. Light palette so it prints clean. */
 .printpage { max-width: 720px; margin: 0 auto; padding: 24px 18px; background: #fff; color: #111; }
 .printpage h1 { font-size: 22px; }
 .printsub { color: #555; font-size: 13px; margin: 4px 0 10px; }
@@ -717,6 +718,7 @@ summary::marker { color: var(--muted); }
 .printlines div { border-bottom: 1px solid #999; height: 30px; }
 .printexplain { background: #f6f0dd; border: 1px solid #e6d9a6; border-left: 4px solid #c9a90a; border-radius: 8px; padding: 8px 10px; font-size: 13.5px; line-height: 1.5; margin: 10px 0 8px; }
 .printexplain strong { color: #6b5500; }
+.printhint { background: #eef4ff; border: 1px solid #c9d9f0; border-left: 3px solid #6b8fc2; border-radius: 6px; padding: 6px 10px; font-size: 13px; color: #2a3a5a; margin: 8px 0; }
 .printfrac { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin: 10px 0 8px; }
 .printfrac.small { margin: 6px 0 0; }
 .printfracbar { display: flex; border: 1.5px solid #222; border-radius: 6px; overflow: hidden; min-height: 28px; }
@@ -725,6 +727,36 @@ summary::marker { color: var(--muted); }
 .printfracseg:last-child { border-right: none; }
 .printfraccirc { width: 96px; height: 96px; border: 1.5px solid #222; border-radius: 50%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; overflow: hidden; }
 .printfrslice { border: 0.5px solid #bbb; display: grid; place-items: center; font-size: 10px; color: #666; }
+.printvocabgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
+.printvocabcard { border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; background: #fafaf7; }
+.printvocabcard.small { padding: 6px 8px; font-size: 13px; }
+.printvocabfront { font-weight: 700; font-size: 14px; }
+.printvocabback { font-size: 13px; color: #444; margin-top: 2px; }
+.printvocablabel { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #777; }
+.printvocab { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.printvocabmain { font-size: 18px; font-weight: 700; border: 1.5px solid #222; border-radius: 8px; padding: 8px 12px; background: #fafaf7; display: inline-block; }
+.printvocabwrite { font-size: 13px; color: #333; border-bottom: 1px solid #999; padding: 4px 0; min-height: 22px; }
+.printaudio { background: #f4f6f8; border: 1px solid #dde3ea; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; margin-top: 6px; }
+.printaudiolabel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #666; margin-right: 6px; }
+.printdialogue { margin-top: 8px; }
+.printdialoguebubble { background: #f6f6f0; border: 1px solid #e5e5e0; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; white-space: pre-wrap; }
+.printgoals { margin-top: 8px; font-size: 13.5px; }
+.printgoals ul { margin: 4px 0 0 18px; }
+.printgoals li { margin-bottom: 3px; }
+.printmatch { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; margin-top: 8px; align-items: start; }
+.printmatchcol { display: flex; flex-direction: column; gap: 6px; }
+.printmatchmid { color: #999; font-size: 18px; padding-top: 6px; }
+.printmatchcell { border: 1px solid #ddd; border-radius: 8px; padding: 6px 10px; font-size: 13.5px; background: #fafafa; }
+.printbuckets { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.printbucket { flex: 1; min-width: 120px; border: 1.5px dashed #bbb; border-radius: 10px; padding: 8px 10px; text-align: center; font-size: 13.5px; background: #fafafa; }
+.printorder { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.printorderchip { border: 1px solid #ddd; border-radius: 999px; padding: 4px 10px; font-size: 13px; background: #fafafa; }
+.printturns { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.printturn { display: flex; gap: 8px; align-items: center; }
+.printturnlabel { font-size: 12px; font-weight: 700; color: #666; min-width: 18px; }
+.printturnline { flex: 1; border-bottom: 1px solid #999; height: 22px; }
+.printcloze { font-size: 15px; line-height: 1.9; margin-top: 8px; padding: 8px 10px; border: 1px solid #eee; border-radius: 8px; background: #fcfcfa; }
+.printrepeathint { font-size: 12.5px; color: #555; font-style: italic; margin-bottom: -18px; }
 .printpractice { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
 .printpractice th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #666; border-bottom: 1px solid #ccc; padding: 4px 6px; }
 .printpractice td { border-bottom: 1px solid #ddd; padding: 10px 6px; vertical-align: middle; }
@@ -734,8 +766,9 @@ summary::marker { color: var(--muted); }
 .katex-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #bbb; border-top-color: #333; border-radius: 50%; animation: kspin 0.6s linear infinite; vertical-align: -1px; margin-right: 6px; }
 @keyframes kspin { to { transform: rotate(360deg); } }
 @media print {
-  .printfracbar, .printfraccirc { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .printexplain { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .printfracbar, .printfraccirc, .printvocabcard, .printvocabmain, .printaudio, .printdialoguebubble, .printmatchcell, .printbucket, .printorderchip, .printcloze { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .printexplain, .printhint { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .printsection { break-inside: avoid; }
 }
 /* ---------- the printed record: progress report and portfolio ----------
    These pages are documents, not screens. They print, they get signed, and
