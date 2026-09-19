@@ -1,0 +1,95 @@
+{
+  "id": "french-a1",
+  "title": "Le Petit Voyage",
+  "tagline": "Bonjour, la classe, la famille, et le marche du samedi",
+  "description": "A gentle first trip in French. From a first bonjour on the square to the classroom, home, and a Saturday market story, every street and stall speaks simple French and the learner answers in it.",
+  "worldPrompt": "An original, cozy French town adventure for A1 true beginners. The learner arrives in a small town with a sunny square, a bakery, a school, and a Saturday market. No real public figures appear: the baker, the teacher, the classmates, the grandparents at the market, and the market seller are all original. Each chapter gates one French unit: greetings and politeness with bonjour, bonsoir, salut, monsieur, madame, merci; asking and giving a name with je m appelle and comment tu t appelles; classroom objects and colors with un, une, and c est; family with mon, ma, mes and la mere, le pere, la soeur, le frere; home and the week with la maison, la cuisine, and lundi through dimanche; and a short A1 graded reader market story Une journee au marche with colors, family, and polite market language. Loot is small town things: bakery ticket, school badge, family photo, market basket, warm baguette. Tone warm, unhurried, and encouraging. French words appear with a quick English gloss when first seen, exactly as the course lessons do.",
+  "gameType": "story",
+  "characters": [
+    {
+      "name": "you",
+      "role": "self",
+      "bio": "The new arrival. You learn one French word at a time and use it before the next one comes."
+    },
+    {
+      "name": "Mme Martin",
+      "role": "mentor",
+      "bio": "Runs the market fruit stall. Polite and patient. She answers bonjour with bonjour and waits for s il vous plait before she wraps the apples."
+    },
+    {
+      "name": "Luc",
+      "role": "ally",
+      "bio": "Your classmate. Knows salut for friends and bonjour monsieur for adults, and will whisper mon, ma, mes when you need it."
+    },
+    {
+      "name": "Maitresse Dubois",
+      "role": "ally",
+      "bio": "The primary school teacher. Keeps un and une straight and says c est un stylo bleu slowly so every child can repeat it."
+    },
+    {
+      "name": "Mamie et Papi",
+      "role": "ally",
+      "bio": "Grandparents at the market every Saturday. They answer bonjour with a smile and say merci beaucoup when you offer a pomme."
+    }
+  ],
+  "chapters": [
+    {
+      "title": "La Place du Bonjour",
+      "hook": "The square says bonjour first. Answer it and learn when bonsoir and salut belong.",
+      "musicPrompt": "Bright small town morning. Light accordion with gentle strings, warm and unhurried, instrumental only, no vocals."
+    },
+    {
+      "title": "La Classe de Couleurs",
+      "hook": "A desk, a tray, a board: name them with un and une and add the color that follows.",
+      "musicPrompt": "Quiet classroom air. Soft piano over warm woodwinds, calm and focused, instrumental only, no vocals."
+    },
+    {
+      "title": "La Maison et la Semaine",
+      "hook": "Home has rooms, the week has days. Say where you live and what day it is.",
+      "musicPrompt": "Homey afternoon light. Warm guitar and soft piano, cozy and unhurried, instrumental only, no vocals."
+    },
+    {
+      "title": "Le Marche du Samedi",
+      "hook": "The stalls are set, the story is ready. Read Une journee au marche and buy politely with je voudrais.",
+      "boss": true,
+      "musicPrompt": "Market day finale. Cheerful bustle with light percussion and warm accordion, quietly triumphant when the baguette is shared, instrumental only, no vocals."
+    }
+  ],
+  "loot": [
+    {
+      "name": "Ticket de la Boulangerie",
+      "description": "The baker's queue ticket from the square. Chapter 1, the first bonjour.",
+      "icon": "\ud83e\udd56",
+      "rarity": "common"
+    },
+    {
+      "name": "Badge de la Classe",
+      "description": "A small enamel badge that says un stylo bleu on one side and une trousse rouge on the other. Chapter 2, the classroom.",
+      "icon": "\ud83c\udf93",
+      "rarity": "common"
+    },
+    {
+      "name": "Photo de Famille",
+      "description": "A wallet photo labeled mon pere, ma mere, ma soeur, mon frere. Chapter 3, the family table.",
+      "icon": "\ud83d\udcf7",
+      "rarity": "uncommon"
+    },
+    {
+      "name": "Panier du Marche",
+      "description": "The wicker basket from Mme Martin's stall, smelling of pommes rouges. Chapter 4, the market story.",
+      "icon": "\ud83e\uddfa",
+      "rarity": "rare"
+    },
+    {
+      "name": "Baguette Chaude",
+      "description": "The warm baguette everyone shares when the story ends. Given when you can greet, name, order, sort, and buy politely in French. Legendary town clear.",
+      "icon": "\ud83e\udd16",
+      "rarity": "legendary"
+    }
+  ],
+  "musicDefaults": {
+    "volume": 0.18,
+    "duckUnderVoice": true,
+    "loop": true
+  }
+}
