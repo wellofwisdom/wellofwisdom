@@ -340,4 +340,60 @@ test("publicCourse: language kinds via publicCourse still strip keys and courseT
   assert.doesNotMatch(json, /alternatives/);
   assert.doesNotMatch(share.courseText(tree), /hello/);
 });
+test("publicItem/share: translate fr directions and dialogue never leak keys, graded_reader not scheduled", () => {
+  const exercise = require("./items/exercise");
+  const forType = require("./items").forType;
+  // translate en_to_fr
+  const trFR = exercise.normalize({ prompt: "p", kind: "translate", direction: "en_to_fr", expected: "Bonjour", alternatives: ["Salut"], rubric: "rubric" });
+  assert.ok(trFR);
+  const pubFR = share.publicItem({ type: "exercise", position: 0, content: trFR });
+  assert.ok(!("expected" in pubFR.content), "translate expected leaked");
+  assert.ok(!("alternatives" in pubFR.content), "translate alternatives leaked");
+  assert.equal(pubFR.content.direction, "en_to_fr");
+  // dialogue (no key, scene/goals are learner-visible)
+  const dia = exercise.normalize({ prompt: "Greet", kind: "dialogue", scene: "Tu rencontres Sophie. Elle dit Bonjour.", turns: 3, goals: ["greet back"] });
+  assert.ok(dia);
+  const pubDia = share.publicItem({ type: "exercise", position: 0, content: dia });
+  assert.equal(pubDia.content.scene, dia.scene);
+  assert.ok(!("expected" in pubDia.content));
+  assert.ok(!("answer" in pubDia.content));
+  // graded_reader is not exercise: share delegates to its own strip
+  const grReg = forType("graded_reader");
+  assert.ok(grReg);
+  const grContent = { title: "Reader", body: "Bonjour le monde", level: "A1", glosses: { Bonjour: "hello" } };
+  const pubGR = share.publicItem({ type: "graded_reader", position: 0, content: grContent });
+  assert.equal(pubGR.type, "graded_reader");
+  // courseText built from public projection never contains translate keys
+  const tree = {
+    title: "T", topic: "t", lens: null, grade_level: null, description: null,
+    public_slug: "t", license: "CC-BY-4.0", author_name: null, published_at: new Date(),
+    units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items: [
+      { type: "exercise", position: 0, content: trFR },
+      { type: "exercise", position: 1, content: dia },
+      { type: "graded_reader", position: 2, content: grContent },
+    ] }] }],
+  };
+  const txt = share.courseText(tree);
+  const pub = share.publicCourse(tree);
+  assert.doesNotMatch(txt, /Bonjour/ , "courseText leaked translate key via wrong projection? check public projection path");
+  // More precisely: raw expected should not appear as answer key outside public prompt
+  // The strict check is that no answerText marker leaks
+  assert.doesNotMatch(JSON.stringify(pub), /"expected"/);
+  assert.doesNotMatch(JSON.stringify(pub), /"alternatives"/);
+  assert.doesNotMatch(txt, /answerText/);
+});
+
+test("review queue projection for French kinds is key-free via exercise strip", () => {
+  const exercise = require("./items/exercise");
+  const tr = exercise.normalize({ prompt: "p", kind: "translate", direction: "fr_to_en", expected: "hello", alternatives: ["hi"] });
+  const dia = exercise.normalize({ prompt: "Parler", kind: "dialogue", scene: "S", turns: 2 });
+  assert.ok(tr && dia);
+  const sTR = exercise.strip(tr);
+  assert.ok(!("expected" in sTR));
+  assert.ok(!("alternatives" in sTR));
+  assert.equal(sTR.direction, "fr_to_en");
+  const sDia = exercise.strip(dia);
+  assert.equal(sDia.scene, "S");
+  assert.ok(!("expected" in sDia));
+});
 

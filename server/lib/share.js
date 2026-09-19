@@ -45,7 +45,8 @@ async function uniqueSlug(title, courseId) {
  *  a new field on an exercise must be opted in, never leak by default.
  *  Delegates to the kind registry, so a new kind never means editing an
  *  allowlist here. Language kinds (vocab_card gloss/alternatives,
- *  listen_choice answer, listen_repeat expected/alternatives) are all
+ *  listen_choice answer, listen_repeat expected/alternatives,
+ *  translate expected/alternatives, dialogue has no key) are all
  *  stripped by their kind handlers: publicItem on them returns no key
  *  field, and courseText never sees answerText because it is built from
  *  the public projection. */
@@ -136,6 +137,7 @@ const LICENSE_LABEL = {
  *  no JavaScript. Built from publicCourse(), never the raw tree, so it can only
  *  ever see the answer-stripped projection: a new content field cannot leak into
  *  the text any more than it can into the page. No answerText is ever emitted
+ *  for any language kind including translate and dialogue
  *  here: that helper lives only on the guide-only answer-key route in
  *  server/routes/courses.js, which is never reachable by a learner. */
 function courseText(tree, opts = {}) {

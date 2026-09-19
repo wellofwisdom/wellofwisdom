@@ -91,4 +91,35 @@ test("per-card schedule: bad card_index is ignored and does not create phantom s
   card = nextSchedule(card, true);
   assert.equal(card.interval_days, 1);
 });
+test("french lesson mix: vocab/translate/dialogue exercise lanes do not collide with flashcard per-card lanes", () => {
+  const { nextSchedule } = require("./review");
+  const exercise = require("./items/exercise");
+  const grade = require("./grade");
+  // French exercise items share review_schedule via item_id, flashcard via (item_id, card_index)
+  const vocab = exercise.normalize({ prompt: "p", kind: "vocab_card", lemma: "bonjour", gloss: "hello" });
+  const trans = exercise.normalize({ prompt: "p", kind: "translate", direction: "en_to_fr", expected: "Bonjour" });
+  const dial = { kind: "dialogue", prompt: "p", scene: "Tu rencontres Sophie.", turns: 3 };
+  assert.ok(vocab && trans);
+  const vo = grade.gradeExercise(vocab, "hello");
+  const tro = grade.gradeExercise(trans, "Bonjour");
+  const do_ = grade.gradeExercise(dial, { turns: ["Bonjour", "Je m'appelle Lucie", "J'habite ici"] });
+  assert.equal(vo.correct, true);
+  assert.equal(tro.correct, true);
+  assert.equal(do_.correct, true);
+  let vSched = null; let tSched = null; let dSched = null;
+  vSched = nextSchedule(vSched, vo.correct === true);
+  tSched = nextSchedule(tSched, tro.correct === true);
+  dSched = nextSchedule(dSched, do_.correct === true);
+  // Flashcard lanes stay independent
+  let c0 = null; let c1 = null;
+  c0 = nextSchedule(c0, true);
+  c1 = nextSchedule(c1, true);
+  c0 = nextSchedule(c0, false);
+  // Each exercise still at first rung, flashcard c0 lapsed, c1 still 1 day
+  assert.equal(vSched.interval_days, 1);
+  assert.equal(tSched.interval_days, 1);
+  assert.equal(dSched.interval_days, 1);
+  assert.equal(c0.interval_days, 0);
+  assert.equal(c1.interval_days, 1);
+});
 

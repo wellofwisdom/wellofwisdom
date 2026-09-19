@@ -407,4 +407,38 @@ test("share never emits answerText: courseText built from publicCourse is key-fr
   assert.doesNotMatch(JSON.stringify(pub), /"gloss"/);
   assert.doesNotMatch(JSON.stringify(pub), /"expected"/);
 });
+test("french translate + dialogue strip isolation: keys never leak, scene and direction survive", () => {
+  const tr = exercise.normalize({ prompt: "Translate to French: hello", kind: "translate", direction: "en_to_fr", expected: "Bonjour", alternatives: ["Salut"] });
+  const di = exercise.normalize({ prompt: "Greet", kind: "dialogue", scene: "Tu rencontres Sophie.", turns: 3, goals: ["say hello"] });
+  assert.ok(tr && di);
+  const sTR = exercise.strip(tr);
+  assert.ok(!("expected" in sTR));
+  assert.ok(!("alternatives" in sTR));
+  assert.equal(sTR.direction, "en_to_fr");
+  assert.equal(sTR.prompt, tr.prompt);
+  const sDi = exercise.strip(di);
+  assert.equal(sDi.scene, di.scene);
+  assert.equal(sDi.turns, 3);
+  const pubTR = share.publicItem({ type: "exercise", position: 0, content: tr });
+  assert.ok(!("expected" in pubTR.content));
+  const txt = share.courseText({
+    title: "T", topic: "t", lens: null, grade_level: null, description: null,
+    public_slug: "t", license: "CC-BY-4.0", author_name: null, published_at: new Date(),
+    units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items: [{ type: "exercise", position: 0, content: tr }] }] }],
+  });
+  assert.doesNotMatch(txt, /answerText/);
+  assert.doesNotMatch(JSON.stringify(share.publicCourse({
+    title: "T", topic: "t", lens: null, grade_level: null, description: null,
+    public_slug: "t", license: "CC-BY-4.0", author_name: null, published_at: new Date(),
+    units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items: [{ type: "exercise", position: 0, content: tr }] }] }],
+  })), /"expected"/);
+});
+
+test("graded_reader never feeds spaced review: exercise lane excludes its type", () => {
+  const itemsMod = require("./items");
+  const gr = itemsMod.forType("graded_reader");
+  assert.ok(gr);
+  assert.equal(gr.grade({ title: "R", body: "Bonjour", level: "A1" }, "anything"), null);
+  assert.equal(gr.strip({ title: "R", body: "Bonjour", level: "A1" }).title, "R");
+});
 
