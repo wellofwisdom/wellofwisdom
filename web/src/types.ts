@@ -66,6 +66,13 @@ export interface ItemNode {
   content: Record<string, any>;
 }
 
+
+export type TranslateDirection = "en_to_es" | "es_to_en" | "en_to_fr" | "fr_to_en";
+
+export function isFrenchDirection(dir: string | null | undefined): boolean {
+  return dir === "en_to_fr" || dir === "fr_to_en";
+}
+
 export interface CourseTree {
   id: number;
   title: string;
