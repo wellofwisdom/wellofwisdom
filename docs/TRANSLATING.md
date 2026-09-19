@@ -30,13 +30,16 @@ The learner-facing app is the first surface that is translated. The console, mar
 
 ## Language lesson kinds
 
-The platform now has vocabulary and listening kinds inside normal lessons:
+The platform now has language kinds inside normal lessons:
 
 - **vocab_card**: word, form, gloss, example, CEFR level A1 to B2, optional image and audioText, alternatives accepted, spaced review per card.
 - **listen_choice**: hear audioText or a local clip at `/media/` then choose one of up to six options. The answer is a choice id graded on the server.
 - **listen_repeat**: hear the expected phrase then repeat. Grading folds accents, strips punctuation and counts words correct in order. You can type the transcript or use STT. Alternatives are accepted and partial credit is scored as words matched divided by words expected.
+- **translate**: prompt, expected answer, direction en_to_es, es_to_en, en_to_fr or fr_to_en, optional alternatives and rubric. Grading is exact match after normalizing case and punctuation; a miss is flagged needsReview so the guide can apply the rubric.
+- **dialogue**: prompt plus scene, 1 to 6 turns with optional goals, goodEndings, hints and explanation. Learner posts turns, grading checks completeness per turn.
+- **graded_reader**: leveled reader with body, level A1 to C2 and optional glosses. Tap a word glosses are shown inline. No exercise grade, used as part of the lesson.
 
-These kinds appear in generated courses when a target language is set (for example `language: "es"` at A1). They use the same attempt endpoint as other items, so `normalizeLang` and `prefs.lang` still control only the chrome language, not the course target language.
+These kinds appear in generated courses when a target language is set (for example `language: "es"` or `language: "fr"` at A1). They use the same attempt endpoint as other items, so `normalizeLang` and `prefs.lang` still control only the chrome language, not the course target language. French A1 uses en_to_fr and fr_to_en directions.
 
 ## Checks
 

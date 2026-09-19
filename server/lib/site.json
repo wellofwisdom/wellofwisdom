@@ -6,7 +6,7 @@
 
   "pages": [
     { "path": "", "title": "Well of Wisdom: open-source AI learning for every kind of teacher", "description": "Turn any topic into a full course shaped around what each learner loves, then let them play it as a world. Spaced review, a tutor with your rules, reports that print. Open source. Self-host free.", "section": "home", "priority": "1.0" },
-    { "path": "features", "title": "Every feature in Well of Wisdom", "description": "The complete list: Course Studio and lenses, learning paths, lessons with real maths, vocabulary, listening and video, worlds and boss fights, a Socratic tutor, spaced review, reports and attendance, roles for groups, and open, portable, self-hosted AI.", "section": "product", "priority": "0.9" },
+    { "path": "features", "title": "Every feature in Well of Wisdom", "description": "The complete list: Course Studio and lenses, learning paths, lessons with real maths, vocabulary, listening, translation, dialogue and graded readers, worlds and boss fights, a Socratic tutor, spaced review, reports and attendance, roles for groups, and open, portable, self-hosted AI.", "section": "product", "priority": "0.9" },
     { "path": "for-homeschools", "title": "Well of Wisdom for families and homeschools", "description": "A curriculum that bends to what your child loves, with spaced review, printable portfolios and attendance your state will accept. Your data stays on your server.", "section": "audience", "priority": "0.8" },
     { "path": "for-teachers", "title": "Well of Wisdom for classroom teachers", "description": "Generate courses from sources you choose, review every word before students see it, and see who is stuck on what. Reports and work samples print for the office.", "section": "audience", "priority": "0.8" },
     { "path": "for-schools", "title": "Well of Wisdom for schools and districts", "description": "Run AI-assisted courses on your own servers with your own AI provider or fully offline. Roles for teachers, tutors and observers, spend caps, and no student data on someone else's platform.", "section": "audience", "priority": "0.8" },
@@ -63,6 +63,9 @@
         { "name": "Vocabulary cards", "detail": "Word, form, gloss and example at A1 to B2, with image and audioText, spaced review, and alternatives accepted." },
         { "name": "Listen and choose", "detail": "Hear audioText or a local clip, then pick the right choice. Six choices at most, graded on the server." },
         { "name": "Listen and repeat", "detail": "Hear the expected phrase, then repeat. Scored by words correct in order, accents folded, with typed or STT transcript." },
+        { "name": "Translate", "detail": "Short translation with en_to_es, en_to_fr and back, exact match on expected or alternatives, or flagged for guide rubric review." },
+        { "name": "Dialogue", "detail": "Short role play conversation in scene, 1 to 6 turns with goals and good endings, hints and tutor keep them in character." },
+        { "name": "Graded readers", "detail": "CEFR leveled reader with tap a word glosses, A1 to C2, with word and gloss length checks." },
         { "name": "Projects and hand-ins", "detail": "Rubric-based projects the learner submits and the guide returns with feedback." },
         { "name": "Hints and Why was I wrong?", "detail": "A nudge first, then an explanation that walks from the learner's mistake to the right idea." },
         { "name": "Read aloud and print", "detail": "Every article reads aloud, and every lesson prints as a worksheet for screen-free days." }
@@ -142,7 +145,7 @@
     { "name": "Interactive lesson types", "detail": "Ordering, matching, sorting, number lines, fraction models, diagrams to label and branching scenarios." },
     { "name": "Speak your answer", "detail": "Push to talk for early readers, with the transcript shown before anything is graded." },
     { "name": "Controller play", "detail": "Play the learner world with a game controller." },
-    { "name": "Language courses", "detail": "Vocabulary cards, listen and choose, and listen and repeat are now in lessons with CEFR levels. Next: graded readers, translate and dialogue." },
+    { "name": "Language courses", "detail": "Vocabulary cards, listen and choose, listen and repeat, translate, dialogue and graded readers are now in lessons with CEFR A1 to C2. French A1 and Spanish A1 ready. Next: more levels and languages." },
     { "name": "Desktop app", "detail": "A downloadable app that runs offline, and a Steam release." }
   ],
 
