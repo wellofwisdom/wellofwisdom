@@ -30,7 +30,7 @@ function ReadAloud({ text }: { text: string }) {
     if (ok) setSpeaking(true);
   }
   return (
-    <button className="btn ghost small-btn" type="button" onClick={toggle} aria-label={speaking ? "Stop reading aloud" : "Read this aloud"} title={speaking ? "Stop" : "Listen"}>
+    <button className="btn ghost small-btn" type="button" data-nav onClick={toggle} aria-label={speaking ? "Stop reading aloud" : "Read this aloud"} title={speaking ? "Stop" : "Listen"}>
       {speaking ? "Stop" : "Listen"}
     </button>
   );

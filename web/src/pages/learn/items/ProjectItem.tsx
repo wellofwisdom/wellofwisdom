@@ -77,8 +77,8 @@ export default function ProjectItem({ item, submission, onSubmission }: {
             <span className="tag">Handed in. Waiting for your guide.</span>
           ) : (
             <>
-              <button className="btn" type="button" disabled={busy} onClick={() => save(false)}>Save draft</button>
-              <button className="btn primary" type="button" disabled={busy || !text.trim()} onClick={() => save(true)}>{status === "returned" ? "Hand in again" : "Hand it in"}</button>
+              <button className="btn" type="button" data-nav disabled={busy} onClick={() => save(false)}>Save draft</button>
+              <button className="btn primary" type="button" data-nav disabled={busy || !text.trim()} onClick={() => save(true)}>{status === "returned" ? "Hand in again" : "Hand it in"}</button>
             </>
           )}
           <span className="grow" />
