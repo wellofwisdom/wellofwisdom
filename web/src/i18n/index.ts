@@ -95,7 +95,7 @@ export function speakWithLang(text: string, lang: Lang, opts?: { rate?: number; 
       const voices = speechSynthesis.getVoices();
       const voice = pickVoiceForLang(voices, lang);
       if (voice) u.voice = voice;
-      if (!u.lang || !String(u.lang).startsWith(lang === "es" ? "es" : "en")) {
+      if (!u.lang || !String(u.lang).toLowerCase().startsWith(lang === "es" ? "es" : lang === "fr" ? "fr" : "en")) {
         u.lang = lang === "es" ? "es-ES" : lang === "fr" ? "fr-FR" : "en-US";
       }
     } catch {

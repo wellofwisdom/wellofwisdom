@@ -4,13 +4,13 @@ The learner-facing app is the first surface that is translated. The console, mar
 
 ## How it works
 
-- Dictionaries live in `web/src/i18n/en.ts` (English, the source) and `web/src/i18n/es.ts` (Spanish).
+- Dictionaries live in `web/src/i18n/en.ts` (English, the source), `web/src/i18n/es.ts` (Spanish) and `web/src/i18n/fr.ts` (French).
 - `web/src/i18n/index.ts` holds a tiny `t(key, vars)` helper and a `useT()` React hook. No library.
 - A key missing in the current language falls back to English and warns once in development.
 
 ## Language per learner
 
-- Each learner row has `prefs.lang` (`en` default, `es` for Spanish), set in the learner form and stored as `users.prefs`.
+- Each learner row has `prefs.lang` (`en` default, `es` for Spanish, `fr` for French), set in the learner form and stored as `users.prefs`.
 - `GET /api/me` returns `prefs` for learners. The browser reads it on login and sets `document.documentElement.lang` so screen readers and the speech voice pick the right language.
 - Browser speech (`speechSynthesis`) and narration fall back to a voice matching `prefs.lang` when one exists.
 

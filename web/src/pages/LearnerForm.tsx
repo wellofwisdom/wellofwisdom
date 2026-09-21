@@ -16,7 +16,7 @@ const INTEREST_SUGGESTIONS = [
 ];
 
 const READING_LEVELS = ["", "below grade", "at grade", "above grade"];
-const LANGS: { value: string; label: string }[] = [{ value: "en", label: "English" }, { value: "es", label: "Español" }];
+const LANGS: { value: string; label: string }[] = [{ value: "en", label: "English" }, { value: "es", label: "Español" }, { value: "fr", label: "Français" }];
 
 export default function LearnerForm({ learnerId, onSaved }:
   { learnerId: number | null; onSaved?: () => Promise<void> | void }) {
@@ -52,7 +52,7 @@ export default function LearnerForm({ learnerId, onSaved }:
       setReadingLevel(l.reading_level || "");
       setInterests(l.interests || []);
       setAiNotes(l.ai_notes || "");
-      setLang((l.prefs as Record<string,unknown>)?.lang === "es" ? "es" : "en");
+      setLang((l.prefs as Record<string,unknown>)?.lang === "fr" ? "fr" : (l.prefs as Record<string,unknown>)?.lang === "es" ? "es" : "en");
       setNotesSaved(Boolean(l.ai_notes));
     }).catch(() => {});
   }, [learnerId, editing, navigate]);

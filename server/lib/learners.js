@@ -13,6 +13,7 @@ const FIELDS = "id, name, username, grade_level, interests, reading_level, ai_no
 
 function normalizeLang(raw) {
   const s = String(raw || "").trim().toLowerCase();
+  if (s === "fr" || s === "fr-fr" || s === "french" || s === "francais" || s === "français") return "fr";
   if (s === "es" || s === "es-es" || s === "spanish" || s === "espanol" || s === "español") return "es";
   return "en";
 }
