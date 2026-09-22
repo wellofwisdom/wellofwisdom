@@ -7,12 +7,12 @@
 // mirrors TEST_DATABASE_URL into DATABASE_URL so server/index.js sees the DB
 // at import time, and every query (boot migrations included) runs with
 // search_path set to the throwaway schema.
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { Pool } = require("pg");
 
 let harnessPool = null;
-let schemaName = null;
 let activeCount = 0;
 
 function testUrl() {
@@ -52,8 +52,12 @@ async function runMigrations(client) {
 }
 
 function randomSchema(testFile) {
-  const base = path.basename(testFile || "test", ".test.js").replace(/[^a-z0-9]/gi, "_").slice(0, 18).toLowerCase();
-  const rand = Math.random().toString(36).slice(2, 7);
+  const base = path
+    .basename(testFile || "test", ".test.js")
+    .replace(/[^a-z0-9]/gi, "_")
+    .slice(0, 16)
+    .toLowerCase();
+  const rand = crypto.randomBytes(4).toString("hex");
   return `wow_test_${base}_${rand}_${Date.now().toString(36)}`.toLowerCase();
 }
 
@@ -63,15 +67,17 @@ function prepare(testFile) {
   let appPool = null;
   let setupFailed = false;
   let savedDatabaseUrl = null;
+  let savedDbDriver = null;
+  let schemaName = schema;
 
   async function setup() {
     if (baseSkip) return;
     activeCount++;
 
-    // Make DATABASE_URL visible to server/lib/db at require time, before the
-    // first import of server/index.js (which calls migrate() during boot).
     savedDatabaseUrl = process.env.DATABASE_URL;
+    savedDbDriver = process.env.DB_DRIVER;
     process.env.DATABASE_URL = testUrl();
+    process.env.DB_DRIVER = "pg";
 
     try {
       const hp = getHarnessPool();
@@ -86,17 +92,17 @@ function prepare(testFile) {
     } catch (err) {
       setupFailed = true;
       console.log(`# skip: Postgres not reachable (${err.code || err.message})`);
-      try { if (harnessPool) { await harnessPool.end(); harnessPool = null; } } catch {}
+      try {
+        if (harnessPool) {
+          await harnessPool.end();
+          harnessPool = null;
+        }
+      } catch {}
       return;
     }
 
-    schemaName = schema;
-
-    // App pool that every server/lib/db query will run through. search_path is
-    // set per-checkout so pooling is safe.
     appPool = new Pool({ connectionString: testUrl(), max: 6 });
 
-    // Fresh server/lib/db wired to our pool, before any server route imports it.
     for (const k of Object.keys(require.cache)) {
       if (k.includes("server\\lib\\db") || k.includes("server/lib/db")) delete require.cache[k];
     }
@@ -116,22 +122,39 @@ function prepare(testFile) {
     db.getPool = () => appPool;
     db.configured = () => true;
     db.health = async () => {
-      try { await query("select 1"); return { configured: true, ok: true }; }
-      catch (err) { return { configured: true, ok: false, error: err.message }; }
+      try {
+        await query("select 1");
+        return { configured: true, ok: true };
+      } catch (err) {
+        return { configured: true, ok: false, error: err.message };
+      }
     };
     db.__testPool = appPool;
     db.__testSchema = schema;
 
-    // Flush any server modules that captured a previous db handle so they
-    // pick up the rewired instance. Tests import server/index.js lazily via
-    // the `app()` helper after setup(), so this is sufficient.
     for (const k of Object.keys(require.cache)) {
       if (k.includes("server\\routes") || k.includes("server/index")) delete require.cache[k];
     }
   }
 
   async function teardown() {
-    if (baseSkip || setupFailed) return;
+    if (baseSkip || setupFailed) {
+      if (!baseSkip && setupFailed) {
+        if (savedDatabaseUrl === undefined || savedDatabaseUrl === null) delete process.env.DATABASE_URL;
+        else process.env.DATABASE_URL = savedDatabaseUrl;
+        if (savedDbDriver === undefined || savedDbDriver === null) delete process.env.DB_DRIVER;
+        else process.env.DB_DRIVER = savedDbDriver;
+        activeCount = Math.max(0, activeCount - 1);
+        if (activeCount <= 0 && harnessPool) {
+          try {
+            await harnessPool.end();
+          } catch {}
+          harnessPool = null;
+          activeCount = 0;
+        }
+      }
+      return;
+    }
     try {
       const jobs = require("../lib/jobs");
       if (jobs.stopJobs) jobs.stopJobs();
@@ -144,9 +167,15 @@ function prepare(testFile) {
       const db = require("../lib/db");
       const pool = db.__testPool || appPool;
       if (pool) {
-        try { await pool.end(); } catch {}
-        try { delete db.__testPool; } catch {}
-        try { delete db.__testSchema; } catch {}
+        try {
+          await pool.end();
+        } catch {}
+        try {
+          delete db.__testPool;
+        } catch {}
+        try {
+          delete db.__testSchema;
+        } catch {}
       }
       for (const k of Object.keys(require.cache)) {
         if (k.includes("server\\lib\\db") || k.includes("server/lib/db")) delete require.cache[k];
@@ -155,23 +184,37 @@ function prepare(testFile) {
     } catch {}
     schemaName = null;
     activeCount--;
-    // Restore DATABASE_URL so offline skips still work in later suites/processes.
     if (savedDatabaseUrl === undefined || savedDatabaseUrl === null) delete process.env.DATABASE_URL;
     else process.env.DATABASE_URL = savedDatabaseUrl;
+    if (savedDbDriver === undefined || savedDbDriver === null) delete process.env.DB_DRIVER;
+    else process.env.DB_DRIVER = savedDbDriver;
 
     if (activeCount <= 0 && harnessPool) {
-      try { await harnessPool.end(); } catch {}
+      try {
+        await harnessPool.end();
+      } catch {}
       harnessPool = null;
       activeCount = 0;
     }
   }
 
-  return { get skip() { return baseSkip || setupFailed; }, get schema() { return schemaName || schema; }, setup, teardown };
+  return {
+    get skip() {
+      return baseSkip || setupFailed;
+    },
+    get schema() {
+      return schemaName || schema;
+    },
+    setup,
+    teardown,
+  };
 }
 
 async function closeHarness() {
   if (harnessPool) {
-    try { await harnessPool.end(); } catch {}
+    try {
+      await harnessPool.end();
+    } catch {}
     harnessPool = null;
   }
 }
