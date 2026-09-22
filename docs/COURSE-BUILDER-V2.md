@@ -1,6 +1,6 @@
 # Course Builder v2: from worksheets to lessons kids want to play
 
-Written by Well 4 on 13 September 2026 from a read of `main` at `1901beb`, the Well 2 branch `courses/well2-ip-curriculum` at `409dc95`, and all 17 example courses. It says what the course builder does today, what is missing, and how Wells 2 and 3 split the work. The item contracts in section 5 are the shared agreement: Well 2 builds the server side, Well 3 builds the player and editor side, and both code to the same shapes.
+Written on 13 September 2026 from a read of `main` at `1901beb` and all 17 example courses. It says what the course builder does today, what is missing, and how it should evolve. The item contracts in section 5 are the shared agreement for the shapes.
 
 ---
 
@@ -8,7 +8,7 @@ Written by Well 4 on 13 September 2026 from a read of `main` at `1901beb`, the W
 
 **The generator** (`server/lib/coursegen.js`) makes one AI call that returns a whole course as JSON. The shape is fixed: exactly 3 units of 3 lessons, and every lesson is one article of 120 to 220 words followed by 2 or 3 exercises. A project may close the course. Videos are included only when the model is "certain" of a real YouTube id.
 
-**Item types:** four. `article`, `exercise` (with kinds `mcq`, `numeric`, `text`), `video` (with multiple-choice questions), and `project` (with a rubric). Well 2's branch adds a fifth, `audio`, not yet on main.
+**Item types:** four. `article`, `exercise` (with kinds `mcq`, `numeric`, `text`), `video` (with multiple-choice questions), and `project` (with a rubric).
 
 **The editor** (`web/src/pages/CourseDetail.tsx`) can edit any item, add an article, exercise, video or project to a lesson, delete an item, rewrite an article to a reading level, and draft video questions with AI. It can also publish, export, and set a trailer.
 
@@ -57,26 +57,14 @@ The honest summary: every lesson is **read a paragraph, then take a quiz**. The 
 ### 2d. The hand-built course bar
 The IP courses are well researched and accurate, and the world tie-ins are clever. They are also short and single-mode: no images, no audio, no interactive items, mostly multiple choice. They should become the showcase for v2, not the floor.
 
-## 3. The Well 2 branch: what is left to land
+## 3. Next steps
 
-Most of Well 2's work is already on main. `git cherry` shows only these changes are still missing:
-
-| Change | Status | Fixes needed before it lands |
-|---|---|---|
-| `audio` item type, `AudioPlayer.tsx`, migration `031_voice_music.sql`, media and jobs support | Not on main | See the two problems below |
-| Community library shows local courses alongside remote (`409dc95`) | Not on main | Check against `c6466b5` on main, which covered part of it |
-
-Two problems in the audio pilot:
-
-1. **Any https audio URL is accepted.** `normalizeAudio` keeps an `audioUrl` from any host, including one inside an imported course package. A learner's browser would then fetch from a third party, which breaks the "no third-party calls on learner paths" promise. Accept only an `uploadId`, or a URL on this server's `/media/`. Generated voice is cached locally already, so it should always become an upload.
-2. **A missing transcript counts as a missing answer.** `missingAnswers` adds 1 for an audio item without a transcript, which blocks publishing under an error that tells the guide an answer key is missing. Report it as its own problem (`audio_transcript_required`, which `itemProblem` already returns) and keep `missingAnswers` about answer keys.
-
-**How to land it:** do not rebase the old branch; it is 49 commits behind and most of its commits already exist on main under other hashes. Start `well2/audio-item` from current `main` and cherry-pick `be80e9f` and `409dc95`, fixing conflicts and the two problems above.
+This section is reserved for the technical gaps that remain. See the roadmap for what has shipped and what is next.
 
 ## 4. Design principles for v2
 
 1. **The server stays the grader.** Every new interactive kind is graded in `server/lib/grade.js`. The learner payload carries what is needed to render, never the key. `attempts.answer` is already `jsonb`, so structured answers fit without a migration.
-2. **Every kind degrades.** Each interactive item has a keyboard path, a screen reader path, and a controller path (`data-nav`, see Well 10). If a kind cannot render, the player shows its text form rather than nothing.
+2. **Every kind degrades.** Each interactive item has a keyboard path, a screen reader path, and a controller path (`data-nav`). If a kind cannot render, the player shows its text form rather than nothing.
 3. **Partial credit is recorded, correctness is binary.** Review scheduling and XP keep working on `correct: true|false`; a `score` from 0 to 1 is stored alongside for reports.
 4. **Feedback names the mistake.** Any choice, bucket or blank can carry its own feedback string.
 5. **One registry.** A kind is defined once on the server (normalize, problem check, strip, grade) and once on the client (render, answer shape). Adding a kind never means editing a long if-chain in five places.
@@ -98,7 +86,7 @@ Content shapes as stored in `lesson_items.content`. Fields marked **key** are st
 | `steps` | `{ title, problem, steps[{ text, reveal: true }], fadeLast?: number }` | Worked example revealed one step at a time. `fadeLast: 1` turns the last step into a `cloze` the learner completes. |
 | `predict` | `{ prompt, choices[{id,text}], reveal }` | Learner commits a guess, then `reveal` shows. Recorded but never marked wrong. |
 | `flashcards` | `{ cards[{ front, back, imageUploadId? }] }` | Each card joins spaced review. |
-| `audio` | `{ title, transcript, uploadId }` | From Well 2, with the fixes in section 3. |
+| `audio` | `{ title, transcript, uploadId }` |  |
 
 ### New gradable kinds (type `exercise`, new `kind` values)
 | Kind | Content (key fields marked) | Answer posted | Grading |
@@ -113,7 +101,7 @@ Content shapes as stored in `lesson_items.content`. Fields marked **key** are st
 | `plot` | `{ prompt, grid{xmin,xmax,ymin,ymax,step}, answer: [{x,y}] (key), tolerance }` | `[{x,y}]` | Every required point within tolerance, no extras |
 | `scenario` | `{ start, nodes{id: { text, choices[{ text, next, feedback }] }}, good: nodeId[] (key) }` | path of node ids | Reaching a good ending; the path is kept for the guide |
 
-Later, not in this wave: `expression` (MathLive, symbolic equivalence), `code` (sandboxed runner), `spoken` (Well 11), `graph` beyond points.
+Later: `expression` (MathLive, symbolic equivalence), `code` (sandboxed runner), `spoken` (voice answers), `graph` beyond points.
 
 ## 6. Generator v2
 
@@ -123,7 +111,7 @@ Later, not in this wave: `expression` (MathLive, symbolic equivalence), `code` (
 4. **Misconception-aware distractors.** Every wrong choice must be a mistake a real learner makes, with `feedback` naming it. The existing `misconceptions.js` data feeds the prompt.
 5. **Verification pass.** A second, cheaper call re-solves every gradable item without seeing the key. Disagreements are flagged in the editor as "check this answer" before the guide publishes.
 6. **Media pass.** `figure.prompt` items queue kie image jobs through the existing media pipeline; generated YouTube ids go through the existing oEmbed check and are dropped when unavailable.
-7. **Per-task providers.** Course generation for a course that will be published as open content can use a cheaper provider, and anything that includes a learner's name, notes or interests stays on the family's main provider. Well 4 is building this in `server/lib/ai.js` now.
+7. **Per-task providers.** Course generation for a course that will be published as open content can use a cheaper provider, and anything that includes a learner's name, notes or interests stays on the family's main provider.
 
 ## 7. Editor v2
 
@@ -154,34 +142,6 @@ Each flagship course (Wonderland, Holmes, Willows, Oz first) is upgraded to:
 - Narrated articles (cached voice) and a chapter music loop.
 - The existing accuracy checklist, plus the verification pass from section 6 run over the hand-written keys.
 
-## 10. Work split
+## 10. Acceptance
 
-### Well 2: server, generator, content
-Branch `well2/audio-item` first, then `well2/builder-server`.
-
-1. Land the audio item on a fresh branch from main, with the two fixes (section 3). Push, report.
-2. Item registry on the server: `server/lib/items/` with one file per kind exporting `normalize`, `problem`, `strip`, `grade`. Move the existing kinds into it without changing behaviour; the existing tests must pass unchanged.
-3. Add every kind in section 5 to the registry with tests: normalizer edge cases, key stripping (a test asserts no key field survives `strip`), grading including partial scores.
-4. Generator v2: outline job, per-lesson job, lesson shape prompt, verification pass, media pass, oEmbed check on generated videos.
-5. Upgrade the four flagship IP courses to the bar in section 9, validated with `npm run validate-course`.
-
-Owns: `server/lib/coursegen.js`, `server/lib/grade.js`, `server/lib/items/**` (new), `server/lib/misconceptions.js`, `server/routes/courses.js` (new generation endpoints), `server/routes/learn.js` (attempt grading and strip only), `scripts/validate-course.js`, `docs/examples/**`, `server/templates/adventures/**`, migrations numbered `031` (audio) and `033` onward.
-
-### Well 3: player and editor
-Branch `well3/builder-player`. First, finish the immersive branch: rebase `feat/well3-immersive` onto main, push, and stop adding features to it (see the separate instruction).
-
-1. Client item registry: `web/src/pages/learn/items/` with one component per kind and a single dispatch in `LessonPlayer.tsx`. Move the existing renderers in without changing behaviour.
-2. Components for every kind in section 5, each with keyboard, screen reader, and `data-nav` support, and a vitest for its answer shape.
-3. Hint ladder, choice feedback, lesson progress bar, combo counter, companion on wrong answers.
-4. Editor v2 in `CourseDetail.tsx`: add, delete and reorder units, lessons and items; forms and live preview per kind; regenerate with instruction; lesson preview panel; verification flags; version list.
-
-Owns: `web/src/pages/learn/items/**` (new), `web/src/pages/CourseDetail.tsx`, `web/src/components/course-editor/**` (new), `web/src/types.ts` (item types only). Touches `web/src/pages/learn/LessonPlayer.tsx` only for the dispatch and the progress bar: Well 11 owns its answer inputs, so rebase on Well 11's branch before editing that file, and keep the change small.
-
-### Order
-1. Well 2 lands the audio item. Well 3 lands the immersive branch.
-2. Well 2 writes the server registry with the existing kinds; Well 3 writes the client registry with the existing kinds. Both behaviour-neutral, both merged before new kinds start.
-3. New kinds in pairs, server and client together: `multi` and choice feedback and hint ladder; `order`, `match`, `categorize`; `cloze` and `steps`; `figure` and `predict`; `numberline` and `fraction`; `hotspot` and `plot`; `flashcards`; `scenario`.
-4. Generator v2 and editor v2 in parallel once three pairs have landed.
-5. Flagship course upgrades last, using everything above.
-
-Acceptance for the whole effort: a guide generates "Fractions through baking, grade 4, two weeks", approves an outline, watches lessons fill in with a figure, a worked example, a fraction manipulative and choice feedback, fixes one flagged answer, previews a lesson as the learner, and publishes. A learner plays it with a mouse, a keyboard, and a controller.
+A guide generates "Fractions through baking, grade 4, two weeks", approves an outline, watches lessons fill in with a figure, a worked example, a fraction manipulative and choice feedback, fixes one flagged answer, previews a lesson as the learner, and publishes. A learner plays it with a mouse, a keyboard, and a controller.

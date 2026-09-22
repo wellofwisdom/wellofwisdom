@@ -553,13 +553,13 @@ hidden blob.
       does not appear on mobile (One Tap is large-screen only) or for signed
       in visitors.
 
-## Immersive game: voice, music, map, quests, game mechanics (SHIPPED 2026-09-13, Well 3 merged into main at cf2117c)
+## Immersive game: voice, music, map, quests, game mechanics (SHIPPED 2026-09-13)
 
-> **Shipped 2026-09-13:** merged `feat/well3-immersive` (32 commits) into `main` at `cf2117c` and deployed. The learner side **was** a good course forum with a
+> **Shipped 2026-09-13:** merged the immersive game branch (32 commits) into `main` at `cf2117c` and deployed. The learner side **was** a good course forum with a
 > game skin. Marketing and the guide console feel modern, the learner home plus
 > course map plus lesson player are still centered panels, and `WorldView` is a
 > vertical scroll list. Fix: a full-screen shell plus a persistent HUD plus a
-> place you move through. This section shipped as eight slices plus vault plus dailies/weeklies/mastery/companions (Well 3 `feat/well3-immersive` → `main`). Well 2 (`courses/well2-ip-curriculum`) now rebases onto the new shell; see `wellofwisdom-well2`.
+> place you move through. This section shipped as eight slices plus vault plus dailies/weeklies/mastery/companions.
 
 **Voice plus music provider pick (updated 2026-09-12): kie.ai for both, no
 GCP project.** Voice is **Gemini 3.1 Flash TTS on kie** (Google text to
@@ -595,7 +595,7 @@ against the existing `media.js` spend path, same shape you already run.
 * Transitions are real scene wipes and the boss is a timed arena, with sound
   cues that respect `prefers-reduced-motion`.
 
-### Slices shipped (Well 3 `feat/well3-immersive` → `main` at `cf2117c`)
+### Slices shipped
 
 1. **Full-screen learner shell plus HUD** (SHIPPED: `LearnerShell.tsx` plus `LearnerHUD`, 100dvh scrim, XP ring, streak, pack, map, sound; degraded no-key mode kept; CSS plus layout, no migration). Same routes, different frame; the 720px `kid` center column becomes 100dvh with `worldhero` art as scrim.
 2. **Course path map** (SHIPPED: `CoursePath.tsx` SVG trail plus `CourseView` list fallback plus doors between units; reuses `progress.lessonsTotal` and `lesson.done`; `MasteryStars` on done nodes).
@@ -665,7 +665,7 @@ structurally cannot:
 
 ---
 
-# Desktop, Steam, controller, speech, language (added 2026-09-13, Well 4)
+# Desktop, Steam, controller, speech, language (added 2026-09-13)
 
 This is the checklist. Order matters: controller and speech come
 before the desktop build because they are what makes a Steam Deck verification
