@@ -200,15 +200,15 @@ Notes: An assistant sees only their assigned learners. Owner, guide and observer
 
 ### POST /api/family/learners
 Auth: `auth.parentOnly`, then `auth.requirePerm("create_learner")`
-Body: `name`, `username`, `pin`, optional `gradeLevel`, `interests`, `readingLevel`, `aiNotes`, `email`
+Body: `name`, `username`, `pin`, optional `gradeLevel`, `interests`, `readingLevel`, `aiNotes`, `email`, `lang`
 Returns: `{ learner }` with status 201
-Notes: Username is 2 to 24 characters, lowercase letters, digits, `_`, `.` or `-`. PIN is 4 to 6 digits. A name already used in the family returns 409 `username_taken`.
+Notes: Username is 2 to 24 characters, lowercase letters, digits, `_`, `.` or `-`. PIN is 4 to 6 digits. A name already used in the family returns 409 `username_taken`. `lang` is the learner app language stored in `prefs.lang` and normalized through `learners.normalizeLang` (`en`, `es`; anything else becomes `en` on this build, `fr` on the app side round trips as `en` until the Well 5 patch lands).
 
 ### PATCH /api/family/learners/:id
 Auth: `auth.parentOnly`, then `auth.requirePerm("edit_learner")`
-Body: any of `name`, `pin`, `gradeLevel`, `interests`, `readingLevel`, `aiNotes`, `email`
+Body: any of `name`, `pin`, `gradeLevel`, `interests`, `readingLevel`, `aiNotes`, `email`, `lang`
 Returns: `{ learner }`
-Notes: Only the fields sent are changed. An empty body returns `nothing_to_update`. Another family's learner gives 404.
+Notes: Only the fields sent are changed. An empty body returns `nothing_to_update`. Another family's learner gives 404. `lang` writes `prefs.lang` through `learners.normalizeLang` the same way as POST.
 
 ### DELETE /api/family/learners/:id
 Auth: `auth.parentOnly`, then `auth.requirePerm("delete_learner")`
