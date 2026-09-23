@@ -379,6 +379,30 @@ const en = {
   "dialogue.clear": "Clear",
   "dialogue.submit": "Check",
   "dialogue.result": "Result",
+  // Lens (Course Studio step 3)
+  "lens.title": "The magic. A lens",
+  "lens.optional": "(optional but try it)",
+  "lens.hint": "Teach the subject through something they love. Same math: different world.",
+  "lens.placeholder": "sewing \u00B7 Minecraft \u00B7 skateboarding \u00B7 baking \u00B7 horses\u2026",
+  "lens.preview": "\u201C{topic}\u201D taught through {lens}. Every example, problem, and project comes from the world of {lens}.",
+  "lens.clear": "Clear",
+  "lens.ideasLabel": "Ideas",
+  "lens.selected": "Selected lens: {lens}",
+
+  // TutorLog (guide view of tutor conversations)
+  "tutor.modesTitle": "How much the tutor gives away",
+  "tutor.modesSide": "per learner",
+  "tutor.modesHint": "In Hints only and Guided, the tutor is never sent the answer at all, so it cannot reveal one under pressure. Only Full explanations passes it through.",
+  "tutor.noLearners": "No learners yet.",
+  "tutor.everyConversation": "Every conversation",
+  "tutor.nothingAskedTitle": "Nothing asked yet",
+  "tutor.nothingAskedHint": "When a learner gets stuck and asks for help, the whole conversation appears here. You see all of it, always.",
+  "tutor.messagesCount": "{count} messages",
+  "tutor.refusedTag": "{count} refused",
+  "tutor.openThread": "Open conversation",
+  "tutor.closeThread": "Close conversation",
+  "tutor.modeSaved": "Saved.",
+
   // Engagement (Well 3: progress, combo, warm-up, mastery, companion)
   "lesson.progress": "{done} of {total} completed",
   "lesson.progressLabel": "Lesson progress",
