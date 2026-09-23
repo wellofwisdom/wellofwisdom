@@ -22,6 +22,8 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
   // Step 2: what
   const [topic, setTopic] = useState("");
   const [gradeLevel, setGradeLevel] = useState("");
+  const [targetLanguage, setTargetLanguage] = useState("");
+  const [cefr, setCefr] = useState("");
   // Step 3: lens
   const [lens, setLens] = useState("");
   // Step 4: grounding
@@ -77,6 +79,8 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
           lens: lens || null,
           learnerId: learnerId ?? null,
           gradeLevel: gradeLevel ? Number(gradeLevel) : null,
+          language: targetLanguage || null,
+          cefr: cefr || null,
           notes: null,
           openPublish: learnerId == null ? Boolean(openPublish) : false,
           sources: sources.map((s) => ({ type: s.type, title: s.title, text: s.text, url: s.url })),
@@ -137,7 +141,7 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
     <>
       <div className="studiohead">
         <h1>✨ Course Studio</h1>
-        <p className="muted">Four quick steps. The AI drafts; you review every word before anyone sees it.</p>
+        <p className="muted">A few quick steps. The AI drafts; you review every word before anyone sees it.</p>
       </div>
 
       {error && <div className="formerror" role="alert">{error}</div>}
@@ -207,7 +211,46 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
         </div>
       </section>
 
-      {/* STEP 3: lens */}
+      {/* STEP 3: language */}
+      <section className="panel step">
+        <div className="stepnum" aria-hidden="true">3</div>
+        <div className="grow">
+          <h2>Language <span className="muted small">(optional)</span></h2>
+          <p className="muted small" style={{ marginBottom: 10 }}>Teaching a language? Pick the target language and CEFR level. Content will be written in the target language; instructions stay in the learner language.</p>
+          <div className="row wrap" style={{ gap: 8 }}>
+            <label className="row small" style={{ gap: 6 }}>Target language
+              <select className="input" style={{ maxWidth: 220 }} value={targetLanguage} onChange={(e) => { const v = e.target.value; setTargetLanguage(v); if (!v) setCefr(""); }} aria-label="Target language">
+                <option value="">None (regular course)</option>
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="la">Latin</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="zh">Chinese</option>
+                <option value="ar">Arabic</option>
+              </select>
+            </label>
+            <label className="row small" style={{ gap: 6 }}>Level
+              <select className="input" style={{ maxWidth: 140 }} value={cefr} onChange={(e) => setCefr(e.target.value)} disabled={!targetLanguage} aria-label="CEFR level">
+                <option value="">auto</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
+              </select>
+            </label>
+          </div>
+          {targetLanguage && <p className="hint small" style={{ marginTop: 8 }}>Content in {targetLanguage.toUpperCase()}{cefr ? " " + cefr : ""}, instructions in learner language.</p>}
+        </div>
+      </section>
+
+      {/* STEP 4: lens */}
       <section className="panel step">
         <div className="stepnum" aria-hidden="true">3</div>
         <div className="grow">
@@ -280,7 +323,7 @@ export default function Studio({ me, onNavigate }: { me: MeResponse; onNavigate:
 
       <div className="stickybar">
         <div className="muted small">
-          {selected ? `For ${selected.name}` : "For everyone"}{gradeLevel ? ` · Grade ${gradeLevel}` : ""}{lens ? ` · through ${lens}` : ""}
+          {selected ? `For ${selected.name}` : "For everyone"}{gradeLevel ? ` · Grade ${gradeLevel}` : ""}{targetLanguage ? ` · ${targetLanguage.toUpperCase()}${cefr ? " " + cefr : ""}` : ""}{lens ? ` · through ${lens}` : ""}
           {sources.length ? ` · ${sources.length} source${sources.length > 1 ? "s" : ""}` : ""}
         </div>
         <button className="btn primary big" type="button" disabled={!canGenerate || busy} onClick={generate}>

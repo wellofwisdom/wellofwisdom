@@ -28,7 +28,7 @@ function bad(res, msg, code = 400) {
 // {type:'url',title,url}: URLs are fetched + stripped to text here (SSRF-guarded).
 router.post("/generate", async (req, res, next) => {
   try {
-    const { topic, learnerId, lens, gradeLevel, notes, sources, openPublish } = req.body || {};
+    const { topic, learnerId, lens, gradeLevel, notes, sources, openPublish, language: rawLang, cefr: rawCefr } = req.body || {};
     if (!String(topic || "").trim() || String(topic).length < 3) return bad(res, "topic_required");
     if (!ai.configured()) return bad(res, "ai_not_configured", 503);
     const grade = gradeLevel == null || gradeLevel === "" ? null : Number(gradeLevel);
@@ -66,6 +66,23 @@ router.post("/generate", async (req, res, next) => {
       }
     }
 
+    // Language course: content in target language, instructions in learner language. When unset, behaviour unchanged.
+    const CEFR_LEVELS = new Set(["A1","A2","B1","B2","C1","C2"]);
+    function normLang(v) {
+      if (v == null || v === "") return null;
+      const t = String(v).trim().toLowerCase().slice(0, 20);
+      if (!/^[a-z]{2,3}(-[a-z]{2,4})?$/.test(t)) return null;
+      return t;
+    }
+    function normCefr(v) {
+      if (v == null || v === "") return null;
+      const t = String(v).trim().toUpperCase().slice(0, 4);
+      return CEFR_LEVELS.has(t) ? t : null;
+    }
+    const language = normLang(rawLang);
+    if (rawLang != null && rawLang !== "" && !language) return bad(res, "language_invalid");
+    const cefr = normCefr(rawCefr);
+    if (rawCefr != null && rawCefr !== "" && !cefr) return bad(res, "cefr_invalid");
     const spec = {
       topic: String(topic).trim().slice(0, 300),
       learnerId: learnerId ? Number(learnerId) : null,
@@ -76,6 +93,8 @@ router.post("/generate", async (req, res, next) => {
       notes: String(notes || "").trim().slice(0, 1000) || null,
       sources: resolved,
       openPublish: !learnerId && Boolean(openPublish),
+      language,
+      cefr,
     };
     const jobId = await jobs.enqueue(req.user.familyId, "course", spec, req.user.id);
     res.status(202).json({ jobId });
