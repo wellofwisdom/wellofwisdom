@@ -118,10 +118,12 @@ router.post("/import", auth.requirePerm("create_learner"), async (req, res, next
         const grade = row.grade != null ? row.grade : null;
         const interests = Array.isArray(row.interests) ? row.interests : [];
         const email = row.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(row.email)) ? String(row.email).toLowerCase() : null;
+        const language = roster.normalizeRosterLang(row.language || "en") || "en";
+        const prefs = JSON.stringify({ lang: language });
         const ins = await client.query(
-          `insert into users (family_id, role, name, username, pin_hash, grade_level, interests, email)
-           values ($1,'learner',$2,$3,$4,$5,$6,$7) returning id, name, username`,
-          [req.user.familyId, String(row.name).slice(0, 80), username, pinHash, grade, interests, email]
+          `insert into users (family_id, role, name, username, pin_hash, grade_level, interests, email, prefs)
+           values ($1,'learner',$2,$3,$4,$5,$6,$7,$8) returning id, name, username`,
+          [req.user.familyId, String(row.name).slice(0, 80), username, pinHash, grade, interests, email, prefs]
         );
         const inserted = ins.rows[0];
         created.push({ id: Number(inserted.id), name: inserted.name, username: inserted.username, pin });
@@ -143,7 +145,7 @@ router.post("/import", auth.requirePerm("create_learner"), async (req, res, next
 router.get("/template", auth.requirePerm("create_learner"), async (req, res) => {
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
   res.setHeader("Content-Disposition", 'attachment; filename="roster-template.csv"');
-  res.send("name,username,grade,interests,email\nMaya Smith,maya,5,sewing; horses,maya@example.com\nJon Doe,,3,space,\n");
+  res.send("name,username,grade,interests,email,target_language\nMaya Smith,maya,5,sewing; horses,maya@example.com,en\nJon Doe,,3,space,,es\n");
 });
 
 module.exports = router;
