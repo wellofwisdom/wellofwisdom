@@ -39,8 +39,8 @@
 .learnerstage .lessonwrap{max-width:none;margin:0;padding:0}
 .learnerstage .lessonwrap .lessontop{margin-bottom:10px}
 .learnerstage .world{max-width:none;margin:0;padding:0}
-.padlegend{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:6px 14px;background:color-mix(in srgb,var(--panel) 88%,transparent);border-bottom:1px solid var(--border);font-size:11px;letter-spacing:.02em;color:var(--muted)}
-.padlegend-pill{padding:2px 8px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border);font-weight:600}
+.padlegend{display:flex;gap:6px 8px;flex-wrap:wrap;justify-content:center;align-items:center;padding:7px 14px;background:color-mix(in srgb,var(--panel) 90%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);font-size:11px;letter-spacing:.02em;color:var(--muted);line-height:1.4}
+.padlegend-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border);font-weight:600;white-space:nowrap}
 .padlegend-pill b{color:var(--text);font-weight:800}
 .controller-mode [data-nav]:focus{outline:3px solid var(--accent);outline-offset:2px;border-radius:10px}
 .controller-mode [data-nav]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
