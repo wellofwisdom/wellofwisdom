@@ -524,4 +524,141 @@ describe("learn integration", () => {
     assert.equal(noAi.status, 503, noAi.text);
     assert.match(noAi.text, /ai_not_configured/);
   });
+  it("attempt covers flashcards, video, predict and language exercise spaced review", async () => {
+    if (ctx.skip) {
+      console.log("# skip: TEST_DATABASE_URL not set");
+      return;
+    }
+    const a = await app();
+    const db = require("../lib/db");
+    const fam = await signup(a, "attemptkinds");
+    const uniq = `ak_${Date.now()}`;
+    const cr = await http(a, "/api/family/learners", {
+      cookie: fam.jar,
+      body: { name: uniq, username: uniq, pin: "1234" },
+    });
+    assert.equal(cr.status, 201, cr.text);
+    const joinCode = (await db.query("select join_code from families where id=$1", [fam.familyId])).rows[0].join_code;
+    const lr = await http(a, "/api/auth/learner-login", { body: { joinCode, username: uniq, pin: "1234" } });
+    assert.equal(lr.status, 200, lr.text);
+    const lj = jar(lr);
+    const learnerId = Number((await db.query("select id from users where family_id=$1 and username=$2", [fam.familyId, uniq])).rows[0].id);
+    const c = await db.query("insert into courses (family_id, title, topic, status, learner_id, created_by) values ($1,$2,$3,'published',null,$4) returning id", [fam.familyId, `Kinds ${Date.now()}`, "kinds", fam.userId]);
+    const courseId = Number(c.rows[0].id);
+    const un = await db.query("insert into units (course_id, title, position) values ($1,$2,0) returning id", [courseId, "Unit 1"]);
+    const uid = Number(un.rows[0].id);
+    const ls = await db.query("insert into lessons (unit_id, title, position) values ($1,$2,0) returning id", [uid, "Lesson 1"]);
+    const lid = Number(ls.rows[0].id);
+    const vocab = await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,'exercise',0,$2) returning id", [lid, JSON.stringify({ prompt: "What does hola mean", kind: "vocab_card", lemma: "hola", gloss: "hello" })]);
+    const vocabId = Number(vocab.rows[0].id);
+    const trans = await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,'exercise',1,$2) returning id", [lid, JSON.stringify({ prompt: "Traduis en francais", kind: "translate", direction: "en_to_fr", expected: "Bonjour" })]);
+    const transId = Number(trans.rows[0].id);
+    const flash = await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,'flashcards',2,$2) returning id", [lid, JSON.stringify({ cards: [{ front: "Cat", back: "Katze" }, { front: "Dog", back: "Hund" }] })]);
+    const flashId = Number(flash.rows[0].id);
+    const video = await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,'video',3,$2) returning id", [lid, JSON.stringify({ title: "V", questions: [{ prompt: "Q1", choices: [{ id: "a", text: "yes" }, { id: "b", text: "no" }], answer: "a" }] })]);
+    const videoId = Number(video.rows[0].id);
+    const pred = await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,'predict',4,$2) returning id", [lid, JSON.stringify({ prompt: "What happens", reveal: "It rains" })]);
+    const predId = Number(pred.rows[0].id);
+    const textItem = await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,'exercise',5,$2) returning id", [lid, JSON.stringify({ prompt: "reflect", kind: "text", answer: "something" })]);
+    const textId = Number(textItem.rows[0].id);
+
+    const vocabAttempt = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: vocabId, questionIndex: 0, answer: "hello" } });
+    assert.equal(vocabAttempt.status, 200, vocabAttempt.text);
+    assert.equal(vocabAttempt.json.correct, true);
+    const transAttempt = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: transId, answer: "Bonjour" } });
+    assert.equal(transAttempt.status, 200, transAttempt.text);
+    assert.equal(transAttempt.json.correct, true);
+    assert.equal(transAttempt.json.score, 1);
+    const flashAttempt = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: flashId, questionIndex: 0, answer: "correct" } });
+    assert.equal(flashAttempt.status, 200, flashAttempt.text);
+    const videoAttempt = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: videoId, answer: "a" } });
+    assert.equal(videoAttempt.status, 200, videoAttempt.text);
+    assert.equal(videoAttempt.json.correct, true);
+    const predAttempt = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: predId, answer: "guess" } });
+    assert.equal(predAttempt.status, 200, predAttempt.text);
+    assert.ok(typeof predAttempt.json.correct === "boolean");
+    const badCardIdx = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: flashId, questionIndex: 9, answer: "x" } });
+    assert.equal(badCardIdx.status, 400, badCardIdx.text);
+    assert.match(badCardIdx.text, /question_index_invalid/);
+    const textAttempt = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: textId, answer: "anything" } });
+    assert.equal(textAttempt.status, 200, textAttempt.text);
+    assert.equal(textAttempt.json.correct, null);
+    for (let i = 0; i < 20; i++) {
+      const q = await db.query("select interval_days from review_schedule where learner_id=$1 and item_id=$2", [learnerId, vocabId]);
+      if (q.rows.length) break;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    const vocabSched = await db.query("select interval_days from review_schedule where learner_id=$1 and item_id=$2", [learnerId, vocabId]);
+    assert.equal(Number(vocabSched.rows[0].interval_days), 1, "vocab_card feeds exercise review lane");
+    const transSched = await db.query("select interval_days from review_schedule where learner_id=$1 and item_id=$2", [learnerId, transId]);
+    for (let i = 0; i < 10 && !transSched.rows.length; i++) await new Promise((r) => setTimeout(r, 50));
+    const transSched2 = await db.query("select interval_days from review_schedule where learner_id=$1 and item_id=$2", [learnerId, transId]);
+    assert.ok(transSched2.rows.length, "translate feeds review_schedule");
+    const flashSched = await db.query("select card_index from flashcard_reviews where learner_id=$1 and item_id=$2", [learnerId, flashId]);
+    for (let i = 0; i < 10 && !flashSched.rows.length; i++) await new Promise((r) => setTimeout(r, 50));
+    const flashSched2 = await db.query("select card_index from flashcard_reviews where learner_id=$1 and item_id=$2", [learnerId, flashId]);
+    assert.ok(flashSched2.rows.length, "flashcards feed per-card table");
+  });
+  it("learner lesson reflections: submissions surface but draft ai_feedback never leaks", async () => {
+    if (ctx.skip) {
+      console.log("# skip: TEST_DATABASE_URL not set");
+      return;
+    }
+    const a = await app();
+    const db = require("../lib/db");
+    const fam = await signup(a, "reflect");
+    const uniq = `rf_${Date.now()}`;
+    const cr = await http(a, "/api/family/learners", { cookie: fam.jar, body: { name: uniq, username: uniq, pin: "1234" } });
+    assert.equal(cr.status, 201, cr.text);
+    const joinCode = (await db.query("select join_code from families where id=$1", [fam.familyId])).rows[0].join_code;
+    const lr = await http(a, "/api/auth/learner-login", { body: { joinCode, username: uniq, pin: "1234" } });
+    assert.equal(lr.status, 200, lr.text);
+    const lj = jar(lr);
+    const c = await db.query("insert into courses (family_id, title, topic, status, learner_id, created_by) values ($1,$2,$3,'published',null,$4) returning id", [fam.familyId, `Reflect ${Date.now()}`, "reflect", fam.userId]);
+    const courseId = Number(c.rows[0].id);
+    const un = await db.query("insert into units (course_id, title, position) values ($1,$2,0) returning id", [courseId, "Unit 1"]);
+    const uid = Number(un.rows[0].id);
+    const ls = await db.query("insert into lessons (unit_id, title, position) values ($1,$2,0) returning id", [uid, "Lesson 1"]);
+    const lid = Number(ls.rows[0].id);
+    const proj = await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,'project',0,$2) returning id", [lid, JSON.stringify({ title: "Write", prompt: "Explain." })]);
+    const projId = Number(proj.rows[0].id);
+    const before = await http(a, `/api/learn/lessons/${lid}`, { method: "GET", cookie: lj });
+    assert.equal(before.status, 200, before.text);
+    assert.ok(before.json.submissions && typeof before.json.submissions === "object");
+    assert.equal(Object.keys(before.json.submissions).length, 0, before.text);
+    const draft = await http(a, `/api/learn/submissions/${projId}`, { method: "PUT", cookie: lj, body: { body: "draft text", submit: false } });
+    assert.equal(draft.status, 200, draft.text);
+    const afterDraft = await http(a, `/api/learn/lessons/${lid}`, { method: "GET", cookie: lj });
+    assert.equal(afterDraft.status, 200, afterDraft.text);
+    assert.ok(afterDraft.json.submissions[String(projId)], afterDraft.text);
+    const body = JSON.stringify(afterDraft.json);
+    assert.ok(!body.includes("ai_feedback"), "ai_feedback leaked to learner");
+  });
+  it("attempt with video but no matching question is not_gradable", async () => {
+    if (ctx.skip) {
+      console.log("# skip: TEST_DATABASE_URL not set");
+      return;
+    }
+    const a = await app();
+    const db = require("../lib/db");
+    const fam = await signup(a, "vidnograd");
+    const uniq = `vn_${Date.now()}`;
+    const cr = await http(a, "/api/family/learners", { cookie: fam.jar, body: { name: uniq, username: uniq, pin: "1234" } });
+    assert.equal(cr.status, 201, cr.text);
+    const joinCode = (await db.query("select join_code from families where id=$1", [fam.familyId])).rows[0].join_code;
+    const lr = await http(a, "/api/auth/learner-login", { body: { joinCode, username: uniq, pin: "1234" } });
+    assert.equal(lr.status, 200, lr.text);
+    const lj = jar(lr);
+    const c = await db.query("insert into courses (family_id, title, topic, status, learner_id, created_by) values ($1,$2,$3,'published',null,$4) returning id", [fam.familyId, `VidNoQ ${Date.now()}`, "video", fam.userId]);
+    const courseId = Number(c.rows[0].id);
+    const un = await db.query("insert into units (course_id, title, position) values ($1,$2,0) returning id", [courseId, "Unit 1"]);
+    const uid = Number(un.rows[0].id);
+    const ls = await db.query("insert into lessons (unit_id, title, position) values ($1,$2,0) returning id", [uid, "Lesson 1"]);
+    const lid = Number(ls.rows[0].id);
+    const vid = await db.query("insert into lesson_items (lesson_id, type, position, content) values ($1,'video',0,$2) returning id", [lid, JSON.stringify({ title: "V", url: "https://example.com/v.mp4" })]);
+    const vidId = Number(vid.rows[0].id);
+    const noQ = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: vidId, answer: "a" } });
+    assert.equal(noQ.status, 400, noQ.text);
+    assert.match(noQ.text, /not_gradable/);
+  });
 });

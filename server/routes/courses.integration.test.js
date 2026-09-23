@@ -320,4 +320,170 @@ describe("courses integration", () => {
     assert.ok(listB.json.courses.some((c) => Number(c.id) === Number(activeB.courseId)));
     assert.ok(!listB.json.courses.some((c) => Number(c.id) === courseId), "other family should not leak");
   });
+  it("structural editor: units, lessons, and item moves are family scoped", async () => {
+    if (ctx.skip) {
+      console.log("# skip: TEST_DATABASE_URL not set");
+      return;
+    }
+    const a = await app();
+    const db = require("../lib/db");
+    const famA = await signup(a, "structA");
+    const famB = await signup(a, "structB");
+    const { courseId, unitId, lessonId } = await seedDraftCourse(db, famA.familyId, famA.userId, "Struct Course");
+    const lesson = await http(a, `/api/courses/lessons/${lessonId}`, { method: "GET", cookie: famA.jar });
+    assert.equal(lesson.status, 200, lesson.text);
+    const itemId = Number(lesson.json.items[0].id);
+
+    const addUnit = await http(a, `/api/courses/${courseId}/units`, { cookie: famA.jar, body: { title: "Unit 2" } });
+    assert.equal(addUnit.status, 201, addUnit.text);
+    const unitId2 = Number(addUnit.json.unit.id);
+    assert.ok(unitId2 > 0);
+    const crossAddUnit = await http(a, `/api/courses/${courseId}/units`, { cookie: famB.jar, body: { title: "Hijacked" } });
+    assert.equal(crossAddUnit.status, 404, crossAddUnit.text);
+    const renameUnit = await http(a, `/api/courses/units/${unitId}`, { method: "PATCH", cookie: famA.jar, body: { title: "Renamed Unit" } });
+    assert.equal(renameUnit.status, 200, renameUnit.text);
+    const emptyUnitPatch = await http(a, `/api/courses/units/${unitId}`, { method: "PATCH", cookie: famA.jar, body: {} });
+    assert.equal(emptyUnitPatch.status, 400, emptyUnitPatch.text);
+    assert.match(emptyUnitPatch.text, /nothing_to_update/);
+    const crossPatchUnit = await http(a, `/api/courses/units/${unitId}`, { method: "PATCH", cookie: famB.jar, body: { title: "Hijacked" } });
+    assert.equal(crossPatchUnit.status, 404, crossPatchUnit.text);
+
+    const moveUnit = await http(a, `/api/courses/units/${unitId2}/move`, { cookie: famA.jar, body: { direction: "up" } });
+    assert.equal(moveUnit.status, 200, moveUnit.text);
+    const badDirUnit = await http(a, `/api/courses/units/${unitId}/move`, { cookie: famA.jar, body: { direction: "sideways" } });
+    assert.equal(badDirUnit.status, 400, badDirUnit.text);
+
+    const addLesson = await http(a, `/api/courses/units/${unitId}/lessons`, { cookie: famA.jar, body: { title: "Lesson 2" } });
+    assert.equal(addLesson.status, 201, addLesson.text);
+    const lessonId2 = Number(addLesson.json.lesson.id);
+    const crossAddLesson = await http(a, `/api/courses/units/${unitId}/lessons`, { cookie: famB.jar, body: { title: "Hijacked" } });
+    assert.equal(crossAddLesson.status, 404, crossAddLesson.text);
+    const moveLesson = await http(a, `/api/courses/lessons/${lessonId2}/move`, { cookie: famA.jar, body: { direction: "up" } });
+    assert.equal(moveLesson.status, 200, moveLesson.text);
+    const moveLessonCross = await http(a, `/api/courses/lessons/${lessonId2}/move`, { cookie: famA.jar, body: { unitId: unitId2 } });
+    assert.equal(moveLessonCross.status, 200, moveLessonCross.text);
+
+    const lessonPatch = await http(a, `/api/courses/lessons/${lessonId}`, { method: "PATCH", cookie: famA.jar, body: { title: "Renamed Lesson" } });
+    assert.equal(lessonPatch.status, 200, lessonPatch.text);
+
+    const addItem = await http(a, `/api/courses/lessons/${lessonId}/items`, { cookie: famA.jar, body: { type: "article", content: { title: "Extra", body: "More text here." } } });
+    assert.equal(addItem.status, 201, addItem.text);
+    const addedItemId = Number(addItem.json.item.id);
+    const badItemType = await http(a, `/api/courses/lessons/${lessonId}/items`, { cookie: famA.jar, body: { type: "nope", content: {} } });
+    assert.equal(badItemType.status, 400, badItemType.text);
+    const crossAddItem = await http(a, `/api/courses/lessons/${lessonId}/items`, { cookie: famB.jar, body: { type: "article", content: { title: "Hijacked", body: "x" } } });
+    assert.equal(crossAddItem.status, 404, crossAddItem.text);
+
+    const moveItem = await http(a, `/api/courses/items/${addedItemId}/move`, { cookie: famA.jar, body: { direction: "up" } });
+    assert.equal(moveItem.status, 200, moveItem.text);
+    const badDirItem = await http(a, `/api/courses/items/${addedItemId}/move`, { cookie: famA.jar, body: { direction: "bad" } });
+    assert.equal(badDirItem.status, 400, badDirItem.text);
+    const crossMoveItem = await http(a, `/api/courses/items/${addedItemId}/move`, { cookie: famB.jar, body: { direction: "up" } });
+    assert.equal(crossMoveItem.status, 404, crossMoveItem.text);
+
+    const delItem = await http(a, `/api/courses/items/${addedItemId}`, { method: "DELETE", cookie: famA.jar });
+    assert.equal(delItem.status, 200, delItem.text);
+    const delItemAgain = await http(a, `/api/courses/items/${addedItemId}`, { method: "DELETE", cookie: famA.jar });
+    assert.equal(delItemAgain.status, 404, delItemAgain.text);
+    const crossDelItem = await http(a, `/api/courses/items/${itemId}`, { method: "DELETE", cookie: famB.jar });
+    assert.equal(crossDelItem.status, 404, crossDelItem.text);
+  });
+  it("courses: reorder, versions, drafts, preview, verification, and publish flow", async () => {
+    if (ctx.skip) {
+      console.log("# skip: TEST_DATABASE_URL not set");
+      return;
+    }
+    const a = await app();
+    const db = require("../lib/db");
+    const fam = await signup(a, "courseExt");
+    const { courseId, unitId, lessonId } = await seedDraftCourse(db, fam.familyId, fam.userId, "Ext Course");
+    const otherFamily = await signup(a, "courseExtB");
+    const addUnit = await http(a, `/api/courses/${courseId}/units`, { cookie: fam.jar, body: { title: "Second Unit" } });
+    assert.equal(addUnit.status, 201, addUnit.text);
+    const unitId2 = Number(addUnit.json.unit.id);
+    const reorderUnits = await http(a, `/api/courses/${courseId}/reorder`, { cookie: fam.jar, body: { type: "unit", order: [unitId2, unitId] } });
+    assert.equal(reorderUnits.status, 200, reorderUnits.text);
+    const badReorderType = await http(a, `/api/courses/${courseId}/reorder`, { cookie: fam.jar, body: { type: "nope", order: [unitId] } });
+    assert.equal(badReorderType.status, 400, badReorderType.text);
+    const crossReorder = await http(a, `/api/courses/${courseId}/reorder`, { cookie: otherFamily.jar, body: { type: "unit", order: [unitId, unitId2] } });
+    assert.equal(crossReorder.status, 404, crossReorder.text);
+
+    const versionsEmpty = await http(a, `/api/courses/${courseId}/versions`, { method: "GET", cookie: fam.jar });
+    assert.equal(versionsEmpty.status, 200, versionsEmpty.text);
+    assert.ok(Array.isArray(versionsEmpty.json.versions));
+    const crossVersions = await http(a, `/api/courses/${courseId}/versions`, { method: "GET", cookie: otherFamily.jar });
+    assert.equal(crossVersions.status, 404, crossVersions.text);
+
+    const lessonDetail = await http(a, `/api/courses/lessons/${lessonId}`, { method: "GET", cookie: fam.jar });
+    assert.equal(lessonDetail.status, 200, lessonDetail.text);
+    assert.ok(lessonDetail.json.lesson && Array.isArray(lessonDetail.json.lesson.items));
+    const crossLessonDetail = await http(a, `/api/courses/lessons/${lessonId}`, { method: "GET", cookie: otherFamily.jar });
+    assert.equal(crossLessonDetail.status, 404, crossLessonDetail.text);
+    const preview = await http(a, `/api/courses/lessons/${lessonId}/preview`, { method: "GET", cookie: fam.jar });
+    assert.equal(preview.status, 200, preview.text);
+    assert.ok(preview.json.lesson && Array.isArray(preview.json.lesson.items));
+    const previewBody = JSON.stringify(preview.json.lesson);
+    assert.ok(!previewBody.includes('"answer":"c2"'), "preview leaked answer");
+    const crossPreview = await http(a, `/api/courses/lessons/${lessonId}/preview`, { method: "GET", cookie: otherFamily.jar });
+    assert.equal(crossPreview.status, 404, crossPreview.text);
+
+    const draftList = await http(a, `/api/courses/lessons/${lessonId}/draft`, { method: "GET", cookie: fam.jar });
+    assert.equal(draftList.status, 200, draftList.text);
+    assert.ok(Array.isArray(draftList.json.lesson.items));
+    const crossDraft = await http(a, `/api/courses/lessons/${lessonId}/draft`, { method: "GET", cookie: otherFamily.jar });
+    assert.equal(crossDraft.status, 404, crossDraft.text);
+
+    const lessonForNeeds = await http(a, `/api/courses/lessons/${lessonId}`, { method: "GET", cookie: fam.jar });
+    const exerciseItem = lessonForNeeds.json.items.find((x) => x.type === "exercise");
+    if (exerciseItem) {
+      const badInstruction = await http(a, `/api/courses/lessons/${lessonId}/regenerate`, { cookie: fam.jar, body: {} });
+      assert.equal(badInstruction.status, 400, badInstruction.text);
+      assert.match(badInstruction.text, /instruction_required/);
+      const badItemInstruction = await http(a, `/api/courses/items/${exerciseItem.id}/regenerate`, { cookie: fam.jar, body: {} });
+      assert.equal(badItemInstruction.status, 400, badItemInstruction.text);
+      const crossRegen = await http(a, `/api/courses/items/${exerciseItem.id}/regenerate`, { cookie: otherFamily.jar, body: { instruction: "make it harder" } });
+      assert.equal(crossRegen.status, 404, crossRegen.text);
+      const flagged = await db.query("update lesson_items set content = jsonb_set(content, '{verification}', '{\"flag\":\"check_this_answer\"}') where id=$1 returning id", [exerciseItem.id]);
+      void flagged;
+      const dismissMissing = await http(a, `/api/courses/items/999999/verification/dismiss`, { cookie: fam.jar });
+      assert.equal(dismissMissing.status, 404, dismissMissing.text);
+      const dismissOk = await http(a, `/api/courses/items/${exerciseItem.id}/verification/dismiss`, { cookie: fam.jar });
+      assert.equal(dismissOk.status, 200, dismissOk.text);
+      const dismissAgain = await http(a, `/api/courses/items/${exerciseItem.id}/verification/dismiss`, { cookie: fam.jar });
+      assert.equal(dismissAgain.status, 404, dismissAgain.text);
+      const crossDismiss = await http(a, `/api/courses/items/${exerciseItem.id}/verification/dismiss`, { cookie: otherFamily.jar });
+      assert.equal(crossDismiss.status, 404, crossDismiss.text);
+    }
+
+    const makeInteractiveBad = await http(a, `/api/courses/lessons/999999/make-interactive`, { cookie: fam.jar });
+    assert.equal(makeInteractiveBad.status, 404, makeInteractiveBad.text);
+    const makeInteractive = await http(a, `/api/courses/lessons/${lessonId}/make-interactive`, { cookie: fam.jar });
+    assert.equal(makeInteractive.status, 202, makeInteractive.text);
+    assert.ok(makeInteractive.json.jobId);
+
+    const rewriteBad = await http(a, "/api/courses/rewrite", { cookie: fam.jar, body: {} });
+    assert.equal(rewriteBad.status, 400, rewriteBad.text);
+    assert.match(rewriteBad.text, /text_required/);
+    const rewriteBadLevel = await http(a, "/api/courses/rewrite", { cookie: fam.jar, body: { text: "Hello world, this is a long article body for the lesson.", level: "nope" } });
+    assert.equal(rewriteBadLevel.status, 400, rewriteBadLevel.text);
+    const rewriteNoAi = await http(a, "/api/courses/rewrite", { cookie: fam.jar, body: { text: "Hello world, this is a long article body for the lesson.", level: "grade-5" } });
+    assert.equal(rewriteNoAi.status, 503, rewriteNoAi.text);
+
+    const badVideoQ = await http(a, "/api/courses/items/999999/video-questions", { cookie: fam.jar });
+    assert.equal(badVideoQ.status, 404, badVideoQ.text);
+
+    const wsBad = await http(a, "/api/courses/worksheet-import", { cookie: fam.jar, body: {} });
+    assert.equal(wsBad.status, 400, wsBad.text);
+    assert.match(wsBad.text, /text_required/);
+    const ocrBad = await http(a, "/api/courses/worksheet-ocr", { cookie: fam.jar, body: {} });
+    assert.equal(ocrBad.status, 400, ocrBad.text);
+
+    const importUrlBad = await http(a, "/api/courses/import-url", { cookie: fam.jar, body: { url: "not-a-url" } });
+    assert.equal(importUrlBad.status, 400, importUrlBad.text);
+
+    const delLesson = await http(a, `/api/courses/lessons/${lessonId}`, { method: "DELETE", cookie: otherFamily.jar });
+    assert.equal(delLesson.status, 404, delLesson.text);
+    const delUnit = await http(a, `/api/courses/units/${unitId}`, { method: "DELETE", cookie: otherFamily.jar });
+    assert.equal(delUnit.status, 404, delUnit.text);
+  });
 });

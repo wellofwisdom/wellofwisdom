@@ -7,6 +7,8 @@
 // mirrors TEST_DATABASE_URL into DATABASE_URL so server/index.js sees the DB
 // at import time, and every query (boot migrations included) runs with
 // search_path set to the throwaway schema.
+// IMPORTANT: call harness.prepare(__filename) at the top of the file BEFORE
+// any require that touches server/lib/db or server/index (see docs/OPERATIONS.md).
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -68,6 +70,7 @@ function prepare(testFile) {
   let setupFailed = false;
   let savedDatabaseUrl = null;
   let savedDbDriver = null;
+  let savedNodeEnv = null;
   let schemaName = schema;
 
   async function setup() {
@@ -76,8 +79,10 @@ function prepare(testFile) {
 
     savedDatabaseUrl = process.env.DATABASE_URL;
     savedDbDriver = process.env.DB_DRIVER;
+    savedNodeEnv = process.env.NODE_ENV;
     process.env.DATABASE_URL = testUrl();
     process.env.DB_DRIVER = "pg";
+    if (!process.env.NODE_ENV) process.env.NODE_ENV = "test";
 
     try {
       const hp = getHarnessPool();
@@ -144,6 +149,8 @@ function prepare(testFile) {
         else process.env.DATABASE_URL = savedDatabaseUrl;
         if (savedDbDriver === undefined || savedDbDriver === null) delete process.env.DB_DRIVER;
         else process.env.DB_DRIVER = savedDbDriver;
+        if (savedNodeEnv === undefined || savedNodeEnv === null) delete process.env.NODE_ENV;
+        else process.env.NODE_ENV = savedNodeEnv;
         activeCount = Math.max(0, activeCount - 1);
         if (activeCount <= 0 && harnessPool) {
           try {
@@ -188,6 +195,8 @@ function prepare(testFile) {
     else process.env.DATABASE_URL = savedDatabaseUrl;
     if (savedDbDriver === undefined || savedDbDriver === null) delete process.env.DB_DRIVER;
     else process.env.DB_DRIVER = savedDbDriver;
+    if (savedNodeEnv === undefined || savedNodeEnv === null) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = savedNodeEnv;
 
     if (activeCount <= 0 && harnessPool) {
       try {
