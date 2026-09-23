@@ -470,6 +470,18 @@ export function AiVault() {
         )}
       </Panel>
 
+      <Panel title="Tutor strictness" side="per learner, plain words">
+        <p className="hint" style={{ marginTop: 0 }}>
+          The tutor has three strictness levels per learner, stored in the learner profile. The tutor mode (hints, guided, full) controls how much of the answer the model sees. Strictness controls how it handles wandering and frustration. Change strictness on the learner's card, not here. Standard is the default for a learner nobody has configured.
+        </p>
+        <div style={{ display: "grid", gap: 6 }}>
+          <div className="checkitem"><span className="t"><b>Gentle</b> · allows one short off-topic exchange, then guides back warmly. For younger learners or a rough day.</span></div>
+          <div className="checkitem"><span className="t"><b>Standard</b> · warm but on task. One redirect when they wander. The default.</span></div>
+          <div className="checkitem"><span className="t"><b>Strict</b> · stays tightly on the lesson. Redirects quickly and briefly.</span></div>
+        </div>
+        <p className="hint">Where the code and this description disagree, the code is what a family experiences.</p>
+      </Panel>
+
       <Panel title="Limits" side="caps that actually stop generation">
         <p className="hint" style={{ marginTop: 0 }}>0 means no limit. Limits are checked before any AI call (course generation, tutor, worksheet OCR, rubric grading). Grading and learning paths stay fail-open, they are not capped.</p>
         <div className="row" style={{ gap: 12 }}>

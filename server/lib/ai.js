@@ -57,6 +57,13 @@ function resolveRoute(task) {
   return { task, tier, model: model || null };
 }
 
+const TUTOR_STRICTNESS = ["gentle", "standard", "strict"];
+
+function normalizeStrictness(v) {
+  const s = String(v || "").trim().toLowerCase();
+  return TUTOR_STRICTNESS.includes(s) ? s : "standard";
+}
+
 // ---- provider detection ----
 // AI_PROVIDER=anthropic|gemini|openai is explicit. Otherwise auto-detect from base URL.
 function provider() {
@@ -496,4 +503,5 @@ function tryParse(text) {
 module.exports = {
   chat, chatJson, resolveRoute, configured, health, setUsageLogger, provider, refreshVault, configuredFromVault,
   DEFAULT_ROUTES, promptHasLearnerData, resolveEffectiveEntry,
+  TUTOR_STRICTNESS, normalizeStrictness,
 };

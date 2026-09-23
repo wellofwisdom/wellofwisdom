@@ -47,6 +47,36 @@ function mode(id) {
   return MODES[id] || MODES.hints;
 }
 
+const STRICTNESS = {
+  gentle: {
+    id: "gentle",
+    label: "Gentle",
+    blurb: "More patience with digressions and frustration. Redirects gently.",
+    rule: "You are a little more patient than usual. If they wander off topic, allow one short exchange about it before guiding back warmly. If they are frustrated, acknowledge the feeling first, then offer the next small step. Do not rush the redirect.",
+  },
+  standard: {
+    id: "standard",
+    label: "Standard",
+    blurb: "Warm but on task. One redirect when they wander.",
+    rule: "Keep them on this lesson. If they wander, redirect once warmly and ask if they want to keep going. Acknowledge frustration, then return to the work.",
+  },
+  strict: {
+    id: "strict",
+    label: "Strict",
+    blurb: "Stays tightly on the lesson. Redirects quickly and briefly.",
+    rule: "Stay tightly on this lesson. If they ask about anything outside it, redirect briefly and bring them back to the work right away. Be warm but brief. Do not follow digressions.",
+  },
+};
+
+function strictness(id) {
+  return STRICTNESS[id] || STRICTNESS.standard;
+}
+
+function readStrictness(learner) {
+  const raw = learner && learner.prefs && typeof learner.prefs === "object" ? learner.prefs.tutor_strictness : null;
+  return strictness(raw).id;
+}
+
 const BASE_RULES = `You are a patient tutor for one child, inside their own learning app.
 - Warm, plain language. Short. Two or three sentences unless they ask for more.
 - Never do the work for them. The point is that they can do it next time.
@@ -122,8 +152,10 @@ function buildContext({ lesson, item, learner, modeId, attempts = [] }) {
   return lines.join("\n");
 }
 
-function systemPrompt(modeId) {
-  return `${BASE_RULES}\n\nHOW MUCH TO GIVE (${mode(modeId).label}):\n${mode(modeId).rule}`;
+function systemPrompt(modeId, strictnessId) {
+  const m = mode(modeId);
+  const s = strictness(strictnessId);
+  return `${BASE_RULES}\n\nHOW MUCH TO GIVE (${m.label}):\n${m.rule}\n\nSTRICTNESS (${s.label}):\n${s.rule}`;
 }
 
 /** Trim a thread to what fits, keeping the newest exchanges. */
@@ -195,7 +227,7 @@ async function ask({ threadId, learnerId, familyId, text }) {
   const out = await ai.chat(
     "tutor",
     [
-      { role: "system", content: systemPrompt(thread.tutor_mode) },
+      { role: "system", content: systemPrompt(thread.tutor_mode, readStrictness(thread)) },
       { role: "system", content: context },
       ...recentTurns(history.rows),
     ],
@@ -212,4 +244,4 @@ async function ask({ threadId, learnerId, familyId, text }) {
   return { reply, refused: false };
 }
 
-module.exports = { MODES, mode, ask, buildContext, systemPrompt, preCheck, recentTurns, BASE_RULES };
+module.exports = { MODES, mode, STRICTNESS, strictness, readStrictness, ask, buildContext, systemPrompt, preCheck, recentTurns, BASE_RULES };
