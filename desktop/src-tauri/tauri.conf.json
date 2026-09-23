@@ -27,6 +27,15 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "resources": {
+      "../docs/examples/comparing-fractions.wow-course.json": "data/courses/comparing-fractions.wow-course.json",
+      "../docs/examples/fractions-through-sewing.wow-course.json": "data/courses/fractions-through-sewing.wow-course.json",
+      "../docs/examples/photosynthesis-through-cooking.wow-course.json": "data/courses/photosynthesis-through-cooking.wow-course.json",
+      "../docs/examples/horoscope-vs-science.wow-course.json": "data/courses/horoscope-vs-science.wow-course.json",
+      "../docs/examples/river-ecology-field-study.wow-course.json": "data/courses/river-ecology-field-study.wow-course.json",
+      "../server/templates/adventures": "data/adventures",
+      "../server/templates/plans": "data/plans"
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
