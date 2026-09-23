@@ -60,6 +60,21 @@ async function main() {
     const health = await db.health();
     console.log(`[verify-install] db health: ${JSON.stringify(health)}`);
     if (!health.ok) throw new Error("db health not ok: " + JSON.stringify(health));
+    if (health.persistent !== true) throw new Error("embedded database is not on disk: DATA_DIR did not take effect");
+
+    // Embedded writes go through the same pool shape the pg driver offers, and
+    // a rollback on it has to really roll back.
+    const client = await db.getPool().connect();
+    try {
+      await client.query("begin");
+      await client.query("insert into families (name, join_code) values ('Rollback Check','RBCHECK')");
+      await client.query("rollback");
+    } finally {
+      client.release();
+    }
+    const rb = await db.query("select count(*)::int as c from families where join_code = 'RBCHECK'");
+    if (Number(rb.rows[0].c) !== 0) throw new Error("a rolled back transaction left its row behind");
+    console.log("[verify-install] embedded transaction over getPool() ok");
 
     // Create a family + user to own the course (direct DB, no HTTP)
     const fam = await db.query("insert into families (name, join_code) values ($1,$2) returning id", ["Verify Fam", "VF" + Date.now().toString(36).slice(0, 6).toUpperCase()]);
@@ -97,6 +112,23 @@ async function main() {
     const itemsCount = Number(cnt.rows[0].c);
     console.log(`[verify-install] total lesson_items=${itemsCount}`);
     if (itemsCount < 2) throw new Error("too few items persisted");
+
+    // An embedded database is files on disk, so a restart has to find the same
+    // data and nothing left to migrate. This is the property desktop mode rests
+    // on, and it is the one a clean-clone check cannot see any other way.
+    const coursesBefore = Number((await db.query("select count(*)::int as c from courses")).rows[0].c);
+    await db.close();
+    for (const rel of ["../server/lib/db", "../server/lib/migrate"]) delete require.cache[require.resolve(rel)];
+    const db2 = require("../server/lib/db");
+    const { migrate: migrateAgain } = require("../server/lib/migrate");
+    const second = await migrateAgain({ log: (m) => console.log(m) });
+    if (second.ran !== 0) throw new Error(`restart re-applied ${second.ran} migration(s)`);
+    const coursesAfter = Number((await db2.query("select count(*)::int as c from courses")).rows[0].c);
+    if (coursesAfter !== coursesBefore || coursesAfter < 1) {
+      throw new Error(`data did not survive a restart: ${coursesBefore} courses before, ${coursesAfter} after`);
+    }
+    await db2.close();
+    console.log(`[verify-install] restart ok: ${coursesAfter} course(s) still there, 0 migrations re-applied`);
 
     console.log("[verify-install] OK: outline then per-lesson generation end to end (mocked AI) passed");
   } catch (err) {

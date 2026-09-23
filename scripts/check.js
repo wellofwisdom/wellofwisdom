@@ -10,6 +10,13 @@ const serverFiles = [
   ...fs.readdirSync("server/routes").filter((f) => f.endsWith(".js")).map((f) => path.join("server/routes", f)),
 ];
 
+// Syntax-check everything. Requiring is for the modules that ship and boot:
+// node:test starts a file's tests the moment it is loaded, so requiring the
+// test files here ran the whole unit suite inside this gate and let its exit
+// code decide ours. Test files still get the syntax pass, and `npm test` is
+// where they actually run.
+const loadFiles = serverFiles.filter((f) => !f.endsWith(".test.js"));
+
 let bad = 0;
 for (const file of serverFiles) {
   try {
@@ -22,7 +29,7 @@ for (const file of serverFiles) {
 
 // require() each lib + route (module side effects must be safe; index.js boots
 // degraded when no DATABASE_URL is set: that's intentional and tested).
-for (const file of serverFiles) {
+for (const file of loadFiles) {
   try {
     require(path.resolve(file));
   } catch (err) {
@@ -84,4 +91,4 @@ if (bad) {
   console.error(`check: ${bad} failure(s)`);
   process.exit(1);
 }
-console.log(`check: ${serverFiles.length} server files OK, no em dashes`);
+console.log(`check: ${serverFiles.length} server files OK (${loadFiles.length} loaded), no em dashes`);
