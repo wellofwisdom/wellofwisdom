@@ -189,3 +189,10 @@ export const IconClipboardCheck = (p: SVGProps<SVGSVGElement>) => (
     <path d="M9 14l2 2 4-4" />
   </I>
 );
+export const IconLens = (p: SVGProps<SVGSVGElement>) => (
+  <I {...p}>
+    <circle cx="12" cy="12" r="7.5" />
+    <circle cx="12" cy="12" r="3.2" />
+    <path d="M12 4.5V6M12 18v1.5M4.5 12H6M18 12h1.5M6.3 6.3l1.1 1.1M16.6 16.6l1.1 1.1M6.3 17.7l1.1-1.1M16.6 7.4l1.1-1.1" />
+  </I>
+);

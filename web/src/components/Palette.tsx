@@ -57,6 +57,7 @@ export default function Palette({
       { id: "n-records", label: "Progress", icon: "📈", group: "Records", run: () => onNavigate("records") },
       { id: "n-attendance", label: "Attendance", icon: "🗓️", group: "Records", run: () => onNavigate("attendance") },
       { id: "n-calendar", label: "Calendar", icon: "🗓️", group: "Records", run: () => onNavigate("calendar") },
+      { id: "n-lens", label: "Lens", icon: "🔍", group: "Workspace", run: () => onNavigate("lens") },
       { id: "n-notes", label: "Workspace", icon: "🗒️", group: "Workspace", run: () => onNavigate("notes") },
       { id: "n-library", label: "Library", icon: "📚", group: "Workspace", run: () => onNavigate("library") },
       { id: "n-settings", label: "Settings", icon: "⚙️", group: "Workspace", run: () => onNavigate("settings") },

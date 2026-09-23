@@ -11,7 +11,7 @@ import {
   IconHome, IconUsers, IconBook, IconClipboard, IconSettings,
   IconSun, IconMoon, IconMenu, IconX, IconLogout, IconSparkle,
   IconGlobe, IconMap, IconCalendar, IconNotebook, IconLibrary,
-  IconWrench, IconMessage, IconBarChart, IconClipboardCheck,
+  IconWrench, IconMessage, IconBarChart, IconClipboardCheck, IconLens,
 } from "./Icons";
 
 const TITLES: Record<string, string> = {
@@ -29,6 +29,7 @@ const TITLES: Record<string, string> = {
   records: "Progress",
   work: "Submitted Work",
   attendance: "Attendance and Assessments",
+  lens: "Lens",
   experience: "Experience",
   settings: "Settings",
 };
@@ -47,6 +48,7 @@ const CHIPS: Record<string, string> = {
   tutor: "c-amber",
   library: "c-pink",
   calendar: "c-sky",
+  lens: "c-amber",
   experience: "c-rose",
   settings: "c-slate",
 };
@@ -64,6 +66,7 @@ const GROUP_OF: Record<string, GroupId> = {
   records: "records",
   attendance: "records",
   calendar: "records",
+  lens: "workspace",
   notes: "workspace",
   library: "workspace",
 };
@@ -233,6 +236,7 @@ export default function Shell({
           ))}
           {renderGroup("workspace", (
             <>
+            <Item id="lens" label="Lens" icon={<IconLens />} />
             <Item id="notes" label="Workspace" icon={<IconNotebook />} />
             <Item id="library" label="Library" icon={<IconLibrary />} />
             </>
