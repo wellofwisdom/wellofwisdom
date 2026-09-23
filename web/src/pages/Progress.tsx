@@ -98,6 +98,10 @@ export default function Progress() {
                 );
               })
             )}
+            <div className="row" style={{ marginTop: 10, gap: 8 }}>
+              <button className="btn ghost small-btn" type="button" onClick={() => go(`portfolio/${l.id}`)}>Open portfolio</button>
+              <span className="muted small">Printable: days, coursework, returned work, badges.</span>
+            </div>
             <MisconceptionCard learner={l} />
           </Panel>
         );
