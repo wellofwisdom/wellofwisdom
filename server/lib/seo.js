@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Server-rendered metadata for public course pages.
+// Server-rendered metadata for public course pages, and the single source for
+// the discovery surface: heads, robots.txt, the sitemap, and llms.txt. Well 12
+// owns only the docs comment here and the three docs files. Heads stay in sync
+// because every marketing or legal page lives in server/lib/site.json and is
+// read here for robotsTxt, sitemapXml, llmsTxt, staticHead, and the SPA shell
+// routes in server/index.js. Add a page there and every surface knows about it.
+// See docs/API.md (Routes outside /api), docs/MCP.md, docs/TRANSLATING.md.
 //
 // The app is a SPA, so a crawler, a link unfurler, or a research tool that
 // reads HTML without running JavaScript would otherwise see an empty shell.
@@ -82,9 +88,11 @@ function courseHead(meta, base) {
   ].filter(Boolean).join("\n    ");
 }
 
-/** The public site's pages, features and audiences: one file, server/lib/site.json,
- *  read here for heads, robots, the sitemap and llms.txt, and by the web app to
- *  render the pages. Add a page there and every surface knows about it. */
+/** The public site's pages, features and audiences: one file, server/lib/site.json.
+ *  Heads, robots.txt, the sitemap, and llms.txt are all derived from it here, so
+ *  a new public page added there automatically appears in every discovery surface
+ *  via robotsTxt, sitemapXml, llmsTxt, and staticHead. The web app reads the same
+ *  file to render the pages. Well 12's docs surface is the keeper for this sync. */
 const SITE = require("./site.json");
 const STATIC_PAGES = Object.fromEntries(SITE.pages.filter((p) => p.path).map((p) => [p.path, p]));
 

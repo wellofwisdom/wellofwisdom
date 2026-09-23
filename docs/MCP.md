@@ -6,13 +6,15 @@ Well of Wisdom ships a stdio MCP server in `mcp/` that lets an MCP client (Claud
 
 Seven tools, all family scoped to the token's guide:
 
-- `list_courses` lists your courses
-- `get_course` gets course tree by `id`
-- `import_course_package` imports a `wellofwisdom-course` package
-- `generate_course` starts course generation (`topic`, optional `learnerId`, `lens`, `gradeLevel`, `notes`), polls the job
-- `list_learners` lists learners in your family
-- `get_learner_progress` shows progress for one learner (`learnerId`)
-- `list_open_courses` lists published open courses on any instance (optional `url` for another instance, no auth needed)
+- `list_courses` lists your courses (`GET /api/courses`, needs `read` or `courses:write`)
+- `get_course` gets course tree by `id` (`GET /api/courses/:id`, same scopes)
+- `import_course_package` imports a `wellofwisdom-course` package (`POST /api/courses/import`, needs `courses:write`)
+- `generate_course` starts course generation (`topic`, optional `learnerId`, `lens`, `gradeLevel`, `notes`), polls the job (`POST /api/courses/generate` + `GET /api/courses/jobs/:id`, needs `courses:write`)
+- `list_learners` lists learners in your family (`GET /api/family/learners`, needs `read` or `learners:read`)
+- `get_learner_progress` shows progress for one learner (`learnerId`, via `GET /api/progress` filtered to one id)
+- `list_open_courses` lists published open courses on any instance (optional `url` for another instance, no auth, via `GET /api/public/courses`)
+
+MCP never generates answer keys for the client and never reads learner-graded state through these tools. The tools are guide-facing course and roster reads plus course creation, all family scoped to the token's guide. Spoken answers are not an MCP tool: `POST /api/stt` is an `auth.authRequired` learner and guide route with a binary audio body and is not proxied by the MCP server. The controller is purely local to the learner shell (a `wow-controller-mode` localStorage flag; no API, no token scope, no MCP tool) and is documented in `docs/API.md` under Controller.
 
 ## Create a token
 
@@ -79,6 +81,12 @@ Import https://wellofwisdom.app/c/<slug> into my family
 
 The server fetches `/api/public/courses/:slug/export` on the other instance when needed via `list_open_courses`.
 
+## What is not MCP
+
+- Speech to text: use `POST /api/stt` directly over Bearer or cookie auth (`docs/API.md` STT). MCP has no audio transcription tool. A learner's spoken answer is transcribed on the HTTP API and filled into the same `POST /api/learn/attempt` path as a typed one; an MCP client cannot hold the microphone.
+- Controller: local `localStorage` preference only, no server or MCP surface.
+- Language chrome (`prefs.lang` on `GET /api/me` / `web/src/i18n`) and course `language`: `GET /api/me`, `PATCH /api/me` and the learner form control the chrome language; the MCP token has no language tool. Target language on a course (`fr` / `es`) is set through course generation and items are `vocab_card` / `listen_*` / `translate` / `dialogue` kinds created via the HTTP course routes; read through `get_course`.
+
 ## Troubleshooting
 
 - 401 `auth_required`: token missing, mistyped, or revoked. Create a new one in Settings.
@@ -91,6 +99,7 @@ The server fetches `/api/public/courses/:slug/export` on the other instance when
 Tokens act as the guide who created them, limited to the chosen scopes. Each
 scope is an explicit route allowlist (see "Scopes" under Tokens in
 `docs/API.md`): a token never reaches `/api/tokens`, the server-wide settings
-routes such as `/api/ai/config`, or the export routes, whatever its scopes.
+routes such as `/api/ai/config`, `/api/stt/config`, or the export routes, whatever its scopes.
 They never grant learner-only routes. Keep the `wow_...` value secret the
-same way you would a password.
+same way you would a password. A token with every scope is still `403` on the
+instance-admin routes and on any learner path.
