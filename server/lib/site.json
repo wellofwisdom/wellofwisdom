@@ -6,7 +6,7 @@
 
   "pages": [
     { "path": "", "title": "Well of Wisdom: open-source AI learning for every kind of teacher", "description": "Turn any topic into a full course shaped around what each learner loves, then let them play it as a world. Spaced review, a tutor with your rules, reports that print. Open source. Self-host free.", "section": "home", "priority": "1.0" },
-    { "path": "features", "title": "Every feature in Well of Wisdom", "description": "The complete list: Course Studio and lenses, learning paths, lessons with real maths, vocabulary, listening, translation, dialogue and graded readers, worlds and boss fights, a Socratic tutor, spaced review, reports and attendance, roles for groups, and open, portable, self-hosted AI.", "section": "product", "priority": "0.9" },
+    { "path": "features", "title": "Every feature in Well of Wisdom", "description": "The complete list: Course Studio and lenses, learning paths, lessons with vocabulary, listening, translation, dialogue, graded readers and spoken answers, worlds and boss fights, a Socratic tutor, spaced review, reports and attendance, roles for groups, and open, portable, self-hosted AI.", "section": "product", "priority": "0.9" },
     { "path": "for-homeschools", "title": "Well of Wisdom for families and homeschools", "description": "A curriculum that bends to what your child loves, with spaced review, printable portfolios and attendance your state will accept. Your data stays on your server.", "section": "audience", "priority": "0.8" },
     { "path": "for-teachers", "title": "Well of Wisdom for classroom teachers", "description": "Generate courses from sources you choose, review every word before students see it, and see who is stuck on what. Reports and work samples print for the office.", "section": "audience", "priority": "0.8" },
     { "path": "for-schools", "title": "Well of Wisdom for schools and districts", "description": "Run AI-assisted courses on your own servers with your own AI provider or fully offline. Roles for teachers, tutors and observers, spend caps, and no student data on someone else's platform.", "section": "audience", "priority": "0.8" },
@@ -66,6 +66,7 @@
         { "name": "Translate", "detail": "Short translation with en_to_es, en_to_fr and back, exact match on expected or alternatives, or flagged for guide rubric review." },
         { "name": "Dialogue", "detail": "Short role play conversation in scene, 1 to 6 turns with goals and good endings, hints and tutor keep them in character." },
         { "name": "Graded readers", "detail": "CEFR leveled reader with tap a word glosses, A1 to C2, with word and gloss length checks." },
+        { "name": "Speak your answer", "detail": "Push to talk on any answer: hold, speak, see the transcript and confirm before it is graded. Number words become digits and fractions, letter names pick a choice, all on the server." },
         { "name": "Projects and hand-ins", "detail": "Rubric-based projects the learner submits and the guide returns with feedback." },
         { "name": "Hints and Why was I wrong?", "detail": "A nudge first, then an explanation that walks from the learner's mistake to the right idea." },
         { "name": "Read aloud and print", "detail": "Every article reads aloud, and every lesson prints as a worksheet for screen-free days." }

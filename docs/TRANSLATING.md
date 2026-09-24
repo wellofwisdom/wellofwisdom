@@ -38,8 +38,9 @@ The platform now has language kinds inside normal lessons:
 - **translate**: prompt, expected answer, direction en_to_es, es_to_en, en_to_fr or fr_to_en, optional alternatives and rubric. Grading is exact match after normalizing case and punctuation; a miss is flagged needsReview so the guide can apply the rubric.
 - **dialogue**: prompt plus scene, 1 to 6 turns with optional goals, goodEndings, hints and explanation. Learner posts turns, grading checks completeness per turn.
 - **graded_reader**: leveled reader with body, level A1 to C2 and optional glosses. Tap a word glosses are shown inline. No exercise grade, used as part of the lesson.
+- **speak your answer**: push to talk on any answer. Hold to record, see the transcript and confirm before grading. Number words become digits and fractions, letter names pick a choice. Audio is not saved unless the family turns it on.
 
-These kinds appear in generated courses when a target language is set (for example `language: "es"` or `language: "fr"` at A1). They use the same attempt endpoint as other items, so `normalizeLang` and `prefs.lang` still control only the chrome language, not the course target language. French A1 uses en_to_fr and fr_to_en directions.
+These kinds appear in generated courses when a target language is set (for example `language: "es"` or `language: "fr"` at A1). They use the same attempt endpoint as other items, so `normalizeLang` and `prefs.lang` still control only the chrome language, not the course target language. French A1 uses en_to_fr and fr_to_en directions. Push to talk works on any answer kind, not only language lessons, and falls back to the browser when no speech endpoint is configured.
 
 ## Checks
 

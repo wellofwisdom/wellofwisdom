@@ -132,7 +132,7 @@ export default function Landing({ onAuthed }: { onAuthed: () => void }) {
                 <p>Learners walk the course as a trail, beat bosses with real answers, and collect loot with lore. Hints nudge before they tell, and "Why was I wrong?" walks from the mistake to the idea. A tutor asks questions instead of handing over answers.</p>
                 <ul className="s-act-list">
                   <li><CheckIcon /><span>Story, dungeon crawl, RPG party or choose your own path</span></li>
-                  <li><CheckIcon /><span>Real maths notation, vocabulary cards, listening and repetition, translation, dialogue and graded readers, video with questions, projects and read aloud</span></li>
+                  <li><CheckIcon /><span>Real maths notation, vocabulary cards, listening and repetition, translation, dialogue and graded readers, push to talk with transcript, video with questions, projects and read aloud</span></li>
                   <li><CheckIcon /><span>Dailies, streaks and badges earned only from real work</span></li>
                 </ul>
               </div>
