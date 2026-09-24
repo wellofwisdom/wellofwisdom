@@ -153,11 +153,17 @@ export default function ListenRepeatItem({
 
       <div style={{ marginTop: 8, marginBottom: 10 }}>
         {data.audioUrl ? (
-          <audio ref={audioRef} controls preload="metadata" src={data.audioUrl} style={{ width: "100%", maxWidth: 360 }} data-nav />
+          <>
+            <audio ref={audioRef} controls preload="metadata" src={data.audioUrl} style={{ width: "100%", maxWidth: 360 }} data-nav>
+              <track kind="captions" srcLang={currentLang()} label="Captions" src={`${data.audioUrl}/captions.vtt`} />
+            </audio>
+            {data.audioText && <p className="muted small" style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>{data.audioText}</p>}
+          </>
         ) : null}
         <button className="btn ghost" type="button" data-nav onClick={speak} aria-label={t("listenRepeat.listen")} style={{ marginTop: data.audioUrl ? 6 : 0 }}>
           {speaking ? t("listenRepeat.stop") : t("listenRepeat.listen")}
         </button>
+        {!data.audioUrl && data.audioText && <p className="muted small" style={{ marginTop: 6, whiteSpace: "pre-wrap" }} aria-live="polite">{data.audioText}</p>}
       </div>
 
       {!result && (
