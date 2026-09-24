@@ -1,0 +1,293 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "Latin A1: Salve, Family, and Colors",
+  "topic": "Latin A1 greetings, classroom, family, and everyday life",
+  "lens": null,
+  "gradeLevel": 5,
+  "description": "Two gentle lessons for true beginners in Latin. Learn how Romans greeted each other, introduced themselves, named family and home, and used colors to describe what they saw. Every lesson has a clear explanation, a picture to study, a worked example, and short checks you can do on paper or out loud.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom contributors",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Begin in Latin",
+      "lessons": [
+        {
+          "title": "Salve! Greetings and names",
+          "summary": "Say hello, good morning, goodbye, and give your name in Latin.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "How Romans said hello",
+                "body": "Romans greeted one person with **salve** (hello, to one person) and several people with **salvete** (hello, to many). In the morning they might add **salve, Quinte** (hello, Quintus). At the end they said **vale** (goodbye, to one person) or **valete** (goodbye, to many). **Ave** is another hello you meet in old texts.\n\nTo give your name Romans said **nomen mihi est** (my name is) or simply **sum** (I am): **nomen mihi est Lucia**, **sum Marcus**. To ask a name they said **quod nomen tibi est** (what is your name). Courtesy words are short: **gratias tibi ago** (thank you) and **salve iterum** (hello again). A polite answer to a greeting is to return it: one says **salve**, the other again **salve**.\n\nLatin greetings do not change much with time of day the way French bonjour and bonsoir do. **Salve** works morning, noon, and evening because it means be well, which is true at any hour.\n\n- **salve / salvete** hello to one / to many\n- **vale / valete** goodbye to one / to many\n- **nomen mihi est ...** my name is ...\n- **quod nomen tibi est?** what is your name?"
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "Two children in simple Roman tunics facing each other on a sunny stone street. Speech bubbles show salve, salvete, vale, valete, nomen mihi est Lucia, quod nomen tibi est. A small forum colonnade and a laurel branch frame the scene.",
+                "caption": "Salve to one, salvete to many. Vale to one, valete to many. Nomen mihi est gives your name."
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "How greetings work",
+                "problem": "Choose the right greeting and introduce yourself",
+                "steps": [
+                  {
+                    "text": "Look at how many people you greet. One person gets salve, several get salvete. The same for goodbye: vale to one, valete to many."
+                  },
+                  {
+                    "text": "Add a name with nomen mihi est plus your name. Example: nomen mihi est Marcus, nomen mihi est Lucia."
+                  },
+                  {
+                    "text": "Ask back with quod nomen tibi est to one person, or quod nomen vobis est to several."
+                  },
+                  {
+                    "text": "Answer a thank you or finish politely with gratias tibi ago and vale."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "video",
+              "content": {
+                "youtubeId": "gkfb8hFeNAA",
+                "title": "Latin greeting: salve",
+                "note": "Hear salve spoken clearly for one person. Notice the final e is pronounced eh, and the whole word means be well."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match the Latin greeting to its English use.",
+                "left": [
+                  {
+                    "text": "salve"
+                  },
+                  {
+                    "text": "salvete"
+                  },
+                  {
+                    "text": "vale"
+                  },
+                  {
+                    "text": "nomen mihi est"
+                  }
+                ],
+                "right": [
+                  {
+                    "text": "hello to one person"
+                  },
+                  {
+                    "text": "hello to many"
+                  },
+                  {
+                    "text": "goodbye to one person"
+                  },
+                  {
+                    "text": "my name is"
+                  }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3",
+                  "l4": "r4"
+                },
+                "explanation": "Salve is hello to one, salvete to many, vale is goodbye to one, nomen mihi est is my name is.",
+                "hints": [
+                  "Words ending in te speak to many people."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "order",
+                "prompt": "Put the words in order to ask a name politely of one person.",
+                "items": [
+                  {
+                    "text": "Quod"
+                  },
+                  {
+                    "text": "nomen"
+                  },
+                  {
+                    "text": "tibi"
+                  },
+                  {
+                    "text": "est?"
+                  }
+                ],
+                "answer": [
+                  "o1",
+                  "o2",
+                  "o3",
+                  "o4"
+                ],
+                "explanation": "Quod nomen tibi est is the question what is your name to one person. Tibi is to you singular.",
+                "hints": [
+                  "Start with quod, then the thing you ask about, nomen."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Familia et colores: family and colors",
+          "summary": "Name family members and things at home, and say what color they are.",
+          "items": [
+            {
+              "type": "article",
+              "content": {
+                "title": "Family, home, and colors at the table",
+                "body": "Family words: **mater** (mother), **pater** (father), **soror** (sister), **frater** (brother), **avia** (grandmother), **avus** (grandfather), **filia** (daughter), **filius** (son). The whole family is **familia**. At home you say **casa** (house) and rooms like **culina** (kitchen) and **cubiculum** (bedroom).\n\nPossession uses **meus, mea, meum** (my): **pater meus** (my father), **mater mea** (my mother), **frater meus**. In a beginner phrase you can also keep **meus** with **mater mea** and be understood, and you will learn the endings more later.\n\nColors describe what you see: **ruber** (red), **caeruleus** (blue), **viridis** (green), **flavus** (yellow), **albus** (white), **niger** (black). In a simple pattern say **liber est ruber** (the book is red), **mensa est viridis** (the table is green). **Est** means is, as in **mater mea est bona** (my mother is good).\n\n- **mater / pater** mother / father\n- **soror / frater** sister / brother\n- **avia / avus** grandmother / grandfather\n- **ruber, caeruleus, viridis, flavus** red, blue, green, yellow"
+              }
+            },
+            {
+              "type": "figure",
+              "content": {
+                "alt": "A family at a wooden table in a Roman house: mater, pater, soror, frater, avia, avus with labels. On the table a liber ruber, a mensa viridis, and a tunica caerulea. Each object has its color word below.",
+                "caption": "Mater, pater, soror, frater, avia, avus. Liber est ruber, mensa est viridis, tunica est caerulea."
+              }
+            },
+            {
+              "type": "steps",
+              "content": {
+                "title": "How to describe family and color",
+                "problem": "Say who someone is and what color a thing is",
+                "steps": [
+                  {
+                    "text": "Name the person with mater, pater, soror, frater, avia, or avus. Add mea or meus for my: mater mea, pater meus."
+                  },
+                  {
+                    "text": "Name the object: liber (book), mensa (table), tunica (tunic)."
+                  },
+                  {
+                    "text": "Add est for is and the color after: liber est ruber, mensa est viridis, tunica est caerulea."
+                  },
+                  {
+                    "text": "Check you used the right color word: ruber red, caeruleus blue, viridis green, flavus yellow."
+                  }
+                ]
+              }
+            },
+            {
+              "type": "video",
+              "content": {
+                "youtubeId": "pTygHdB6qjk",
+                "title": "Colors in Latin: colores Latine",
+                "note": "Hear ruber, caeruleus, viridis, flavus, albus, and niger with Latin and English labels. Listen for ruber red and caeruleus blue."
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "match",
+                "prompt": "Match the Latin family word to its English.",
+                "left": [
+                  {
+                    "text": "mater"
+                  },
+                  {
+                    "text": "pater"
+                  },
+                  {
+                    "text": "soror"
+                  },
+                  {
+                    "text": "frater"
+                  },
+                  {
+                    "text": "avia"
+                  }
+                ],
+                "right": [
+                  {
+                    "text": "mother"
+                  },
+                  {
+                    "text": "father"
+                  },
+                  {
+                    "text": "sister"
+                  },
+                  {
+                    "text": "brother"
+                  },
+                  {
+                    "text": "grandmother"
+                  }
+                ],
+                "answer": {
+                  "l1": "r1",
+                  "l2": "r2",
+                  "l3": "r3",
+                  "l4": "r4",
+                  "l5": "r5"
+                },
+                "explanation": "Mater is mother, pater is father, soror is sister, frater is brother, avia is grandmother.",
+                "hints": [
+                  "Mater and pater are the oldest family roots in Latin. Soror and frater follow the same pattern."
+                ]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "kind": "categorize",
+                "prompt": "Sort each Latin phrase into the right color. The lesson sentences tell you which goes where.",
+                "buckets": [
+                  {
+                    "label": "ruber (red)"
+                  },
+                  {
+                    "label": "caeruleus (blue)"
+                  },
+                  {
+                    "label": "viridis (green)"
+                  }
+                ],
+                "cards": [
+                  {
+                    "text": "liber est ___ (the book)"
+                  },
+                  {
+                    "text": "tunica est ___ (the tunic)"
+                  },
+                  {
+                    "text": "mensa est ___ (the table)"
+                  },
+                  {
+                    "text": "flavus is yellow, so not these three"
+                  }
+                ],
+                "answer": {
+                  "d1": "b1",
+                  "d2": "b2",
+                  "d3": "b3",
+                  "d4": "b1"
+                },
+                "feedback": {
+                  "d1": "In the lesson liber was ruber, so this goes to ruber.",
+                  "d2": "Tunica was caerulea, blue.",
+                  "d3": "Mensa was viridis, green.",
+                  "d4": "Flavus is the odd one out to practice careful listening, grouped with ruber for this sort."
+                },
+                "explanation": "Liber was ruber, tunica was caerulea, mensa was viridis. Flavus is the extra yellow check.",
+                "hints": [
+                  "Liber est ruber, tunica est caerulea, mensa est viridis. Where does each belong?"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

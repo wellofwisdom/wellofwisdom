@@ -1,0 +1,84 @@
+{
+  "id": "latin-a1",
+  "title": "Via Latina",
+  "tagline": "Salve, familia, and the colors on the table",
+  "description": "A gentle first walk in Latin. From a first salve on the forum to the family table and the colors on every object, every street and room speaks simple Latin and the learner answers in it.",
+  "worldPrompt": "An original, cozy Roman town adventure for A1 true beginners. The learner arrives in a small Roman town with a sunny forum, a school, and a family house. No real public figures appear: the teacher, the classmates, the family members, and the market seller are all original. Each chapter gates one Latin unit: greetings with salve, salvete, vale, valete and nomen mihi est; family and colors with mater, pater, soror, frater, avia, avus and ruber, caeruleus, viridis, flavus plus est. Loot is small Roman town things: wax tablet, laurel badge, family photo, colored tunic. Tone warm, unhurried, and encouraging. Latin words appear with a quick English gloss when first seen, exactly as the course lessons do.",
+  "gameType": "story",
+  "characters": [
+    {
+      "name": "you",
+      "role": "self",
+      "bio": "The new arrival. You learn one Latin word at a time and use it before the next one comes."
+    },
+    {
+      "name": "Magistra Livia",
+      "role": "mentor",
+      "bio": "Runs the small school by the forum. Patient and clear. She says salve to one and salvete to many, and waits for nomen mihi est before she hands you the wax tablet."
+    },
+    {
+      "name": "Marcus",
+      "role": "ally",
+      "bio": "Your classmate. Knows salve from salvete and ruber from caeruleus, and will whisper mater, pater, soror, frater when you need it."
+    },
+    {
+      "name": "Aulus",
+      "role": "ally",
+      "bio": "The bookseller. Keeps liber ruber and tunica caerulea on the right shelf and says mensa est viridis so every child can repeat it."
+    },
+    {
+      "name": "Avia et Avus",
+      "role": "ally",
+      "bio": "Grandparents at the house every evening. They answer salve with a smile and say gratias tibi ago when you show the colored tunic."
+    }
+  ],
+  "chapters": [
+    {
+      "title": "Forum Salutationis",
+      "hook": "The forum says salve first. Answer it and learn when salvete and valete belong.",
+      "musicPrompt": "Bright Roman morning. Light lyre with gentle strings, warm and unhurried, instrumental only, no vocals."
+    },
+    {
+      "title": "Casa et Colores",
+      "hook": "A table, a tunic, a book: name the family, say the color that follows with est.",
+      "musicPrompt": "Quiet house afternoon. Soft flute over warm strings, calm and cozy, instrumental only, no vocals."
+    }
+  ],
+  "loot": [
+    {
+      "name": "Tabula Cerea",
+      "description": "The wax tablet from the school. Chapter 1, the first salve.",
+      "icon": "📜",
+      "rarity": "common"
+    },
+    {
+      "name": "Corona Laurea",
+      "description": "A small laurel wreath for saying salve and salvete correctly. Chapter 1, greetings.",
+      "icon": "🌿",
+      "rarity": "common"
+    },
+    {
+      "name": "Imago Familiae",
+      "description": "A family portrait labeled mater, pater, soror, frater. Chapter 2, the family table.",
+      "icon": "🖼️",
+      "rarity": "uncommon"
+    },
+    {
+      "name": "Tunica Colorata",
+      "description": "The colored tunic from Aulus shelf, dyed ruber and caeruleus. Chapter 2, colors.",
+      "icon": "👘",
+      "rarity": "rare"
+    },
+    {
+      "name": "Bulla Aurea",
+      "description": "The golden bulla given when you can greet, name, and describe colors in Latin. Legendary town clear.",
+      "icon": "🏛️",
+      "rarity": "legendary"
+    }
+  ],
+  "musicDefaults": {
+    "volume": 0.18,
+    "duckUnderVoice": true,
+    "loop": true
+  }
+}
