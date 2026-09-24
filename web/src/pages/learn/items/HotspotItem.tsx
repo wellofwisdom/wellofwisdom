@@ -10,7 +10,7 @@ import TutorChat from "../TutorChat";
 interface AttemptResponse {
   correct: boolean | null;
   score?: number | null;
-  reveal: { kind: string; explanation: string | null };
+  reveal: { kind: string; explanation: string | null; feedback?: Record<string, string> | null };
 }
 
 type RegionPoint = { x: number; y: number };
@@ -59,7 +59,7 @@ export default function HotspotItem({
   item,
   solved,
   onSolved,
-  onWrong: _onWrong,
+  onWrong,
   qKey,
   qIdx,
 }: {
@@ -126,6 +126,11 @@ export default function HotspotItem({
   }
 
   function handleRegionKeyDown(e: React.KeyboardEvent, idx: number) {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      selectRegion(idx);
+      return;
+    }
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       e.preventDefault();
       focusRegion((idx + 1) % d!.regions.length);
@@ -150,6 +155,12 @@ export default function HotspotItem({
       const res = await api<AttemptResponse>("/api/learn/attempt", { method: "POST", body: { itemId: item.id, questionIndex: qIdx, answer } });
       setResult(res);
       onSolved(qKey, res.correct);
+      if (res.correct === false && onWrong) {
+        const fb = (res as AttemptResponse).reveal?.feedback
+          ? Object.values((res as AttemptResponse).reveal.feedback as Record<string, string>)[0]
+          : (res as AttemptResponse).reveal?.explanation;
+        if (fb && String(fb).trim()) onWrong(String(fb).slice(0, 500));
+      }
       if (res.correct === true) triggerRumble("hit");
     } catch (e) {
       setErr(niceError(e));

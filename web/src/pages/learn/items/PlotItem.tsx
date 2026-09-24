@@ -10,7 +10,7 @@ import TutorChat from "../TutorChat";
 interface AttemptResponse {
   correct: boolean | null;
   score?: number | null;
-  reveal: { kind: string; explanation: string | null };
+  reveal: { kind: string; explanation: string | null; feedback?: Record<string, string> | null };
 }
 
 type Grid = { xmin: number; xmax: number; ymin: number; ymax: number; step: number };
@@ -65,7 +65,7 @@ export default function PlotItem({
   item,
   solved,
   onSolved,
-  onWrong: _onWrong,
+  onWrong,
   qKey,
   qIdx,
 }: {
@@ -161,12 +161,18 @@ export default function PlotItem({
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
       moveCursor(0, -g.step);
-    } else if (e.key === "Enter") {
+    } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       placePoint();
     } else if (e.key === "Backspace" || e.key === "Delete") {
       e.preventDefault();
       if (!result) setPoints((prev) => prev.slice(0, -1));
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setCursor({ x: g.xmin, y: cursor.y });
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setCursor({ x: g.xmax, y: cursor.y });
     }
   }
 
@@ -179,6 +185,12 @@ export default function PlotItem({
       const res = await api<AttemptResponse>("/api/learn/attempt", { method: "POST", body: { itemId: item.id, questionIndex: qIdx, answer } });
       setResult(res);
       onSolved(qKey, res.correct);
+      if (res.correct === false && onWrong) {
+        const fb = (res as AttemptResponse).reveal?.feedback
+          ? Object.values((res as AttemptResponse).reveal.feedback as Record<string, string>)[0]
+          : (res as AttemptResponse).reveal?.explanation;
+        if (fb && String(fb).trim()) onWrong(String(fb).slice(0, 500));
+      }
       if (res.correct === true) triggerRumble("hit");
     } catch (e) {
       setErr(niceError(e));

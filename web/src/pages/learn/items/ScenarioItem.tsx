@@ -10,7 +10,7 @@ import TutorChat from "../TutorChat";
 interface AttemptResponse {
   correct: boolean | null;
   score?: number | null;
-  reveal: { kind: string; explanation: string | null };
+  reveal: { kind: string; explanation: string | null; feedback?: Record<string, string> | null };
 }
 
 type ScenarioChoice = { text: string; next: string };
@@ -49,7 +49,7 @@ export default function ScenarioItem({
   item,
   solved,
   onSolved,
-  onWrong: _onWrong,
+  onWrong,
   qKey,
   qIdx,
 }: {
@@ -99,6 +99,31 @@ export default function ScenarioItem({
     setPath((prev) => [...prev, ch.next]);
   }
 
+  function handleChoiceKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const group = (e.currentTarget as HTMLElement).closest("[role=\"group\"]");
+      if (!group) return;
+      const els = Array.from(group.querySelectorAll<HTMLElement>("[data-nav]"));
+      const cur = els.indexOf(e.currentTarget as HTMLElement);
+      if (cur === -1) return;
+      const dir = e.key === "ArrowDown" ? 1 : -1;
+      els[(cur + dir + els.length) % els.length]?.focus();
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      const group = (e.currentTarget as HTMLElement).closest("[role=\"group\"]");
+      if (!group) return;
+      const els = Array.from(group.querySelectorAll<HTMLElement>("[data-nav]"));
+      els[0]?.focus();
+    } else if (e.key === "End") {
+      e.preventDefault();
+      const group = (e.currentTarget as HTMLElement).closest("[role=\"group\"]");
+      if (!group) return;
+      const els = Array.from(group.querySelectorAll<HTMLElement>("[data-nav]"));
+      els[els.length - 1]?.focus();
+    }
+  }
+
   function restart() {
     setPath([d!.start]);
     setResult(null);
@@ -113,6 +138,12 @@ export default function ScenarioItem({
       const res = await api<AttemptResponse>("/api/learn/attempt", { method: "POST", body: { itemId: item.id, questionIndex: qIdx, answer } });
       setResult(res);
       onSolved(qKey, res.correct);
+      if (res.correct === false && onWrong) {
+        const fb = (res as AttemptResponse).reveal?.feedback
+          ? Object.values((res as AttemptResponse).reveal.feedback as Record<string, string>)[0]
+          : (res as AttemptResponse).reveal?.explanation;
+        if (fb && String(fb).trim()) onWrong(String(fb).slice(0, 500));
+      }
       if (res.correct === true) triggerRumble("hit");
     } catch (e) {
       setErr(niceError(e));
@@ -150,6 +181,7 @@ export default function ScenarioItem({
                     data-say={ch.text}
                     aria-label={ch.text}
                     onClick={() => choose(ch)}
+                    onKeyDown={(e) => handleChoiceKeyDown(e)}
                     style={{ textAlign: "left" }}
                   >
                     {ch.text}
