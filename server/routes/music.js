@@ -67,7 +67,7 @@ router.post("/loop", auth.parentOnly, async (req, res, next) => {
     if (cached.rows[0]) return res.json({ uploadId: Number(cached.rows[0].id), url: `/media/${cached.rows[0].id}`, cached: true });
     const { generateMusicLoop } = require("../lib/providers/kie-music");
     const r = await generateMusicLoop({ chapter: { title: chapter, hook: "" }, mood, durationSec: 12 });
-    const buf = r.buffer || (r.url ? await (async () => { const { fetchT } = require("../http"); const rr = await fetchT(r.url, {}, { timeoutMs: 30000, retries: 1 }); return Buffer.from(await rr.arrayBuffer()); })() : null);
+    const buf = r.buffer || (r.url ? await (async () => { const { fetchT } = require("../lib/http"); const rr = await fetchT(r.url, {}, { timeoutMs: 30000, retries: 1 }); return Buffer.from(await rr.arrayBuffer()); })() : null);
     if (!buf) return bad(res, "music_no_audio", 503);
     const saved = await storage.put(req.user.familyId, "audio/mpeg", buf);
     const { rows } = await db.query(

@@ -53,7 +53,7 @@ A file-level copy of `DATA_DIR` is the backup. Do not copy while the server is r
 
 ## Single executable (SEA)
 
-`npm run build:sea` builds a single executable of the server with Node's single executable application support. The output is named `wellofwisdom-server` (`wellofwisdom-server.exe` on Windows) next to the repo root, exactly where Well 10's desktop shell expects it. Build the web assets first.
+`npm run build:sea` builds `wellofwisdom-server` (`wellofwisdom-server.exe` on Windows) at the repo root, exactly where Well 10's desktop shell expects it. Build the web assets first.
 
 ```
 npm run build
@@ -61,19 +61,23 @@ npm run build:sea
 # produces ./wellofwisdom-server or ./wellofwisdom-server.exe
 ```
 
-It bundles `web/dist`, `server/migrations`, `server/templates`, and `docs/examples`. The binary is about 87 MB on Windows (Node itself plus the blob) and a few MB more for bundled assets. The blob itself is about 13 kB of loader plus the `server/index.js` entry point; `web/dist` is about 3.5 MB.
+What is inside: the Node runtime plus a small loader, about 87 MB on Windows. Node's SEA cannot embed node_modules, and PGlite reads `postgres.wasm` and `postgres.data` from `node_modules` on disk at runtime, so the executable needs the repo tree beside it: `server/`, `node_modules/` and `web/dist/`. The loader looks for `server/index.js` next to the executable (then two levels up, then the working directory) and requires it, so `node server/index.js` and the executable run exactly the same code. With no tree found it exits at once and prints the paths it checked.
 
-Run the executable like the server:
+Run it like the server, from the repo root:
 
 ```
 DB_DRIVER=pglite DATA_DIR=./data ./wellofwisdom-server
 # then open http://localhost:3000 in a browser, sign up, generate a template course, and play it
 ```
 
+The build verifies itself: after injection the script boots the executable with `DB_DRIVER=pglite` and a temp `DATA_DIR` and probes `/api/health`, so a build that cannot serve fails loudly. Set `PORT=0` to pick a free port; the listen line prints the real port.
+
+For shipping outside a repo checkout (the desktop bundle), ship the tree beside the binary and point `DATA_DIR` at the user's app data folder; see `docs/DESKTOP.md`.
+
 Limits:
 
 * One platform and arch per build. Build on the platform you ship.
-* Native modules are not supported inside the SEA blob. This project has none that matter; PGlite's WASM is bundled as JS and works.
+* The blob holds the loader only, not the app: `server/`, `node_modules/` and `web/dist/` must ship beside the executable.
 * Code signing is not included. Sign the executable after building if you ship it.
 * Requires Node 20+ built with SEA support and `postject` (installed as a dev dependency). See `scripts/build-sea.js` error messages.
 
@@ -105,5 +109,5 @@ npm run test:pglite
 
 * `pglite_not_installed`: run `npm install` (`@electric-sql/pglite` is an optional dependency).
 * `postject` not found when building the SEA: `npm install -D postject` or ensure `npx` can fetch it. The script tries a local `node_modules/.bin/postject` first.
-* `sea blob generation failed`: use Node 20 or later built with SEA support. `node --experimental-sea-config sea.json` must exist.
-* Port already in use: set `PORT` or `HOST` differently. The SEA verify step probes `127.0.0.1:${PORT}/api/health`.
+* `sea blob generation failed`: use Node 20 or later built with SEA support. `node --experimental-sea-config sea-config.json` must work.
+* Port already in use: set `PORT` or `HOST` differently. The SEA verify step boots with `PORT=0` and probes `/api/health` on the port from the listen line.
