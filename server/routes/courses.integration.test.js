@@ -332,7 +332,7 @@ describe("courses integration", () => {
     const { courseId, unitId, lessonId } = await seedDraftCourse(db, famA.familyId, famA.userId, "Struct Course");
     const lesson = await http(a, `/api/courses/lessons/${lessonId}`, { method: "GET", cookie: famA.jar });
     assert.equal(lesson.status, 200, lesson.text);
-    const itemId = Number(lesson.json.items[0].id);
+    const itemId = Number(lesson.json.lesson.items[0].id);
 
     const addUnit = await http(a, `/api/courses/${courseId}/units`, { cookie: famA.jar, body: { title: "Unit 2" } });
     assert.equal(addUnit.status, 201, addUnit.text);
@@ -434,7 +434,7 @@ describe("courses integration", () => {
     assert.equal(crossDraft.status, 404, crossDraft.text);
 
     const lessonForNeeds = await http(a, `/api/courses/lessons/${lessonId}`, { method: "GET", cookie: fam.jar });
-    const exerciseItem = lessonForNeeds.json.items.find((x) => x.type === "exercise");
+    const exerciseItem = lessonForNeeds.json.lesson.items.find((x) => x.type === "exercise");
     if (exerciseItem) {
       const badInstruction = await http(a, `/api/courses/lessons/${lessonId}/regenerate`, { cookie: fam.jar, body: {} });
       assert.equal(badInstruction.status, 400, badInstruction.text);
