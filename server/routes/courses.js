@@ -586,7 +586,6 @@ router.post("/items/:itemId/video-questions", auth.requirePerm("edit_course"), a
   try {
     const itemId = Number(req.params.itemId);
     if (!Number.isInteger(itemId)) return bad(res, "id_invalid");
-    if (!ai.configured()) return bad(res, "ai_not_configured", 503);
 
     const { rows } = await db.query(
       `select i.id, i.type, i.content
@@ -596,6 +595,7 @@ router.post("/items/:itemId/video-questions", auth.requirePerm("edit_course"), a
       [itemId, req.user.familyId]
     );
     if (!rows[0]) return bad(res, "not_found", 404);
+    if (!ai.configured()) return bad(res, "ai_not_configured", 503);
     if (rows[0].type !== "video") return bad(res, "not_a_video");
     const content = rows[0].content || {};
     const uploadId = Number(content.uploadId);

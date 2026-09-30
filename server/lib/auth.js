@@ -192,7 +192,7 @@ const attempts = new Map(); // ip -> { count, resetAt }, insertion ordered
 // once, so a burst of fresh addresses would unlock an address being brute
 // forced. Expired entries are swept first so a busy but honest server does not
 // evict live counters while stale ones sit in the map.
-function loginLimit(ip, { max = 10, windowMs = 15 * 60 * 1000, maxEntries = 10000 } = {}) {
+function loginLimit(ip, { max = Number(process.env.LOGIN_LIMIT_MAX) || 10, windowMs = 15 * 60 * 1000, maxEntries = 10000 } = {}) {
   const now = Date.now();
   const entry = attempts.get(ip);
   if (!entry || entry.resetAt < now) {
