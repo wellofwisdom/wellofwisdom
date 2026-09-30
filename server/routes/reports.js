@@ -64,6 +64,24 @@ async function computeStats(familyId, learnerId, fromISO, toISO) {
   );
   const t = totals.rows[0];
   if (standardsCovered.length) standardsCovered = standards.normalizeStandards(standardsCovered);
+  // Time by subject: lessons completed grouped by course topic. No new table,
+  // just a read over what already exists in this period.
+  const bySubject = await db.query(
+    `select c.topic as subject, c.title, count(*)::int as lessons
+       from lesson_completions lc
+       join lessons l on l.id = lc.lesson_id
+       join units un on un.id = l.unit_id
+       join courses c on c.id = un.course_id
+      where lc.learner_id = $1 and lc.completed_at between $2 and $3 and c.family_id = $4
+      group by c.topic, c.title
+      order by lessons desc, c.topic`,
+    [learnerId, from, to, familyId]
+  );
+  const bySubjectRows = (bySubject.rows || []).map((r) => ({
+    subject: r.subject || r.title || "Other",
+    title: r.title,
+    lessons: Number(r.lessons) || 0,
+  }));
   return {
     period: { from: fromISO, to: toISO },
     lessonsCompleted: t.lessons_completed,
@@ -73,6 +91,7 @@ async function computeStats(familyId, learnerId, fromISO, toISO) {
     activeDays: t.active_days,
     skillsReviewed: t.skills_reviewed,
     courses: courses.rows,
+    bySubject: bySubjectRows,
     standardsCovered,
   };
 }

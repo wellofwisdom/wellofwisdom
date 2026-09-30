@@ -37,6 +37,7 @@ interface PortfolioData {
     activeDays: number;
     skillsReviewed: number;
     courses: { title: string; lens: string | null; lessons_done: number; lessons_total: number }[];
+    bySubject?: { subject: string; title: string; lessons: number }[];
   };
   attendance: { days: number; hours: number; requiredDays: number | null; requiredHours: number | null };
   requirement: { label: string | null };
@@ -132,6 +133,20 @@ export default function Portfolio({ learnerId, onNavigate }: {
               {a.requiredHours ? `${a.hours} of ${a.requiredHours} hours` : ""}.
             </em>
           </p>
+        )}
+
+        {s.bySubject && s.bySubject.length > 0 && (
+          <div className="rp-section">
+            <h2>Time by subject</h2>
+            <table className="rp-table">
+              <thead><tr><th>Subject</th><th>Lessons in this period</th></tr></thead>
+              <tbody>
+                {s.bySubject.map((r, i) => (
+                  <tr key={i}><td>{r.subject}</td><td>{r.lessons}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {s.courses.length > 0 && (
