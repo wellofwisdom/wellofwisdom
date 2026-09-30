@@ -7,10 +7,28 @@ const LABEL: Record<string, string> = {
   CCSS: "CCSS",
   NGSS: "NGSS",
   State: "State",
+  CEFR: "CEFR",
 };
 
-function frameworkOf(code: string): string {
+const CEFR_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+
+const CEFR_DESCRIPTORS: Record<string, string> = {
+  A1: "Can understand and use familiar everyday expressions and very basic phrases. Can introduce self and others.",
+  A2: "Can understand sentences and frequently used expressions related to areas of immediate relevance.",
+  B1: "Can understand the main points of clear standard input on familiar matters.",
+  B2: "Can understand the main ideas of complex text and interact with fluency.",
+  C1: "Can understand a wide range of demanding longer texts and express ideas fluently.",
+  C2: "Can understand with ease virtually everything heard or read.",
+};
+
+function normalizeCefr(v: string | null | undefined): string | null {
+  const s = String(v || "").trim().toUpperCase().slice(0, 4);
+  return (CEFR_ORDER as readonly string[]).includes(s) ? s : null;
+}
+
+export function frameworkOf(code: string): string {
   const upper = String(code || "").trim().toUpperCase();
+  if (/^CEFR\b/.test(upper) || (CEFR_ORDER as readonly string[]).includes(upper)) return "CEFR";
   if (upper.startsWith("CCSS.MATH")) return "CCSS Math";
   if (upper.startsWith("CCSS.ELA")) return "CCSS ELA";
   if (upper.startsWith("CCSS")) return "CCSS";
@@ -18,8 +36,66 @@ function frameworkOf(code: string): string {
   return "State";
 }
 
-function labelFor(code: string): string {
-  return LABEL[frameworkOf(code)] || "State";
+export function labelFor(code: string): string {
+  const fw = frameworkOf(code);
+  if (fw === "CEFR") {
+    const lvl = normalizeCefr(String(code || "").replace(/^CEFR[\s.:-]*/i, "").trim()) || normalizeCefr(code);
+    if (lvl && CEFR_DESCRIPTORS[lvl]) return "CEFR " + lvl + ": " + CEFR_DESCRIPTORS[lvl];
+    return "CEFR";
+  }
+  return LABEL[fw] || "State";
+}
+
+export function descriptorFor(level: string): string | null {
+  const n = normalizeCefr(level);
+  return n ? CEFR_DESCRIPTORS[n] || null : null;
+}
+
+export { CEFR_ORDER, CEFR_DESCRIPTORS, normalizeCefr };
+
+export function groupByLanguage(rows: Array<Record<string, unknown>>): Array<{ target_language: string; cefr: string; count: number; rows: Array<Record<string, unknown>> }> {
+  const map = new Map<string, { target_language: string; cefr: string; count: number; rows: Array<Record<string, unknown>> }>();
+  function normLang(v: unknown): string | null {
+    const s = String(v || "").trim().toLowerCase().slice(0, 20);
+    return /^[a-z]{2,3}(-[a-z]{2,4})?$/.test(s) ? s : null;
+  }
+  for (const r of rows || []) {
+    const lang = normLang((r as Record<string, unknown>).target_language || (r as Record<string, unknown>).targetLanguage || (r as Record<string, unknown>).language) || "unknown";
+    const cefr = normalizeCefr(String((r as Record<string, unknown>).cefr || (r as Record<string, unknown>).cefr_level || (r as Record<string, unknown>).cefrLevel || "")) || "unlevelled";
+    const key = lang + ":" + cefr;
+    if (!map.has(key)) map.set(key, { target_language: lang, cefr, count: 0, rows: [] });
+    const g = map.get(key)!;
+    g.count++;
+    g.rows.push(r);
+  }
+  return Array.from(map.values()).sort((a, b) => {
+    if (a.target_language !== b.target_language) return a.target_language.localeCompare(b.target_language);
+    const ai = (CEFR_ORDER as readonly string[]).indexOf(a.cefr);
+    const bi = (CEFR_ORDER as readonly string[]).indexOf(b.cefr);
+    if (ai === -1 && bi === -1) return a.cefr.localeCompare(b.cefr);
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+}
+
+export function groupByCefr(rows: Array<Record<string, unknown>>): Array<{ cefr: string; count: number; rows: Array<Record<string, unknown>> }> {
+  const map = new Map<string, { cefr: string; count: number; rows: Array<Record<string, unknown>> }>();
+  for (const r of rows || []) {
+    const cefr = normalizeCefr(String((r as Record<string, unknown>).cefr || (r as Record<string, unknown>).cefr_level || (r as Record<string, unknown>).cefrLevel || "")) || "unlevelled";
+    if (!map.has(cefr)) map.set(cefr, { cefr, count: 0, rows: [] });
+    const g = map.get(cefr)!;
+    g.count++;
+    g.rows.push(r);
+  }
+  return Array.from(map.values()).sort((a, b) => {
+    const ai = (CEFR_ORDER as readonly string[]).indexOf(a.cefr);
+    const bi = (CEFR_ORDER as readonly string[]).indexOf(b.cefr);
+    if (ai === -1 && bi === -1) return a.cefr.localeCompare(b.cefr);
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
 }
 
 export default function StandardsTags({
@@ -41,7 +117,6 @@ export default function StandardsTags({
     if (exists) return;
     if (normalized.length >= 12) return;
     const next = [...normalized, trimmed.slice(0, 40)];
-    // Local normalize: dedupe already handled, keep as typed (server will uppercase CCSS/NGSS)
     onChange(next);
   }
 
@@ -87,7 +162,7 @@ export default function StandardsTags({
         />
         <button className="btn ghost small-btn" type="button" onClick={() => { if (input.trim()) { add(input); setInput(""); } }}>Add</button>
       </div>
-      <p className="hint">Press Enter or comma to add. Up to 12 per lesson.</p>
+      <p className="hint">Press Enter or comma to add. Up to 12 per lesson. CEFR A1 to C2 also accepted.</p>
     </div>
   );
 }

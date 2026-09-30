@@ -17,6 +17,7 @@ const listen_choice = require("./listen_choice");
 const listen_repeat = require("./listen_repeat");
 const translate = require("./translate");
 const dialogue = require("./dialogue");
+const spoken = require("./spoken");
 const common = require("./common");
 
 const REGISTRY = {
@@ -38,6 +39,7 @@ const REGISTRY = {
   listen_repeat,
   translate,
   dialogue,
+  spoken,
 };
 
 function forKind(kind) {

@@ -62,11 +62,22 @@ Every size Tauri needs is generated from `web/public/icon-512.png` (navy, 512 sq
 
 Regenerate if the source icon changes.
 
-## What signing and Steam still need
+## Bundled content for first run offline
 
-* Code signing: Apple Developer ID (macOS), Authenticode cert (Windows). No signing is configured. Until then, macOS will quarantine the unsigned app and Windows SmartScreen will warn.
-* Notarization (macOS) and hardened runtime entitlements.
-* Auto update is not wired. Consider `tauri-plugin-updater` when releases go to GitHub.
+The desktop bundle ships five example courses and all adventure and plan templates as Tauri resources, so the gallery works on first run with no network.
+
+* Courses (CC-BY-4.0) in `data/courses/`: Comparing Fractions, Fractions Through Sewing, Photosynthesis Through Cooking, Your Horoscope Is Not Science, River Ecology Field Study. Validated by `npm run validate-course` before build.
+* Adventure templates (20) in `data/adventures/` and plan templates (5) in `data/plans/`, copied from `server/templates/`. The app falls back to these when `docs/examples` is not on disk.
+
+Tauri `bundle.resources` in `desktop/src-tauri/tauri.conf.json` maps each source path to its resource target. No extra build step is needed. Verify the bundle contains them with `npx tauri build` and inspecting `desktop/src-tauri/target/release/bundle/`.
+
+## Signing and auto update prep
+
+No signing or updater is wired yet. When ready:
+
+* Code signing: set `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` in CI, add `bundle.macOS.signingIdentity` for Apple Developer ID and `bundle.windows.certificateThumbprint` plus `bundle.windows.digestAlgorithm` for Authenticode. Keep the private key in GitHub Actions secrets, never in the repo.
+* Notarization (macOS): add `bundle.macOS.entitlements` for hardened runtime and run `xcrun notarytool` in the workflow after `tauri build`. Until signed and notarized, macOS quarantines the unsigned app and Windows SmartScreen warns.
+* Auto update: add `tauri-plugin-updater` (`npx tauri add updater`), point `plugins.updater.pubkey` at the public key, and publish a `latest.json` with each GitHub Release. The desktop workflow should then build with `TAURI_SIGNING_PRIVATE_KEY` set so `latest.json` carries valid signatures. Test an update from `0.0.1` to `0.0.2` before enabling auto install.
 * Steam: Steamworks SDK, depot build, and Steam overlay handling still need to be added. The desktop bundle is independent of Steam for now.
 
 ## Troubleshooting

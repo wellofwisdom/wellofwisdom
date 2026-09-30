@@ -9,6 +9,8 @@ node_modules/
 # Build output
 dist/
 build/
+wellofwisdom-server
+wellofwisdom-server.exe
 
 # Logs
 *.log

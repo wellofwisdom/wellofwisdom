@@ -283,9 +283,17 @@ async function boot() {
       require("./routes/demo").backfillDemoFamilies().catch(() => {});
     }
   }
-  if (require.main === module) {
-    app.listen(PORT, HOST, () => {
-      console.log(`Well of Wisdom listening on ${HOST}:${PORT} (db=${db.configured()}, ai=${ai.configured() ? "on" : "off"}, csp=${csp.mode()}, trustProxy=${JSON.stringify(app.get("trust proxy"))})`);
+  // Under the SEA launcher (scripts/build-sea.js) the entry is a loader that
+  // requires this file, so require.main is the loader and not us: without the
+  // sea check the desktop sidecar would migrate and then never listen.
+  const isSea = (() => { try { return require("node:sea").isSea(); } catch { return false; } })();
+  if (require.main === module || isSea) {
+    // function (not an arrow) so this.address() is the bound server: with
+    // PORT=0 the kernel picks the port and the log must show the real one.
+    app.listen(PORT, HOST, function () {
+      const addr = this.address();
+      const bound = addr && addr.port ? addr.port : PORT;
+      console.log(`Well of Wisdom listening on ${HOST}:${bound} (db=${db.configured()}, ai=${ai.configured() ? "on" : "off"}, csp=${csp.mode()}, trustProxy=${JSON.stringify(app.get("trust proxy"))})`);
     });
   }
 }

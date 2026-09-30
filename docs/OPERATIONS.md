@@ -99,7 +99,7 @@ After a fresh install or a database reset, confirm the generator path works with
 npm run verify:install
 ```
 
-It boots the server with `DB_DRIVER=pglite` against a fresh temp dir, runs migrations, and exercises the outline then per-lesson generation end to end with mocked AI. It also proves language plumbing: `language=es cefr=A1` surfaces `vocab_card`, `listen_choice`, `listen_repeat` in the kind menu while a non-language course still produces the same 1-unit shapes. The temp dir is removed on exit. With the French pack on its own branch at `docs/examples/french-a1/course.wow-course.json`, verify the same proof holds for `language=fr` once that pack is on main, and that `node scripts/validate-course.js docs/examples/french-a1/course.wow-course.json` reports no missing answers.
+It boots the server with `DB_DRIVER=pglite` against a fresh temp dir, runs migrations, and exercises the outline then per-lesson generation end to end with mocked AI. It also proves language plumbing: `language=es cefr=A1` surfaces `vocab_card`, `listen_choice`, `listen_repeat` in the kind menu while a non-language course still produces the same 1-unit shapes. The temp dir is removed on exit. The French pack at `docs/examples/french-a1/course.wow-course.json` proves the same for `language=fr`, and `node scripts/validate-course.js docs/examples/french-a1/course.wow-course.json` reports no missing answers.
 
 For a full pglite test sweep:
 

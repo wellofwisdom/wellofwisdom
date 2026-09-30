@@ -56,6 +56,19 @@ function buildUserPrompt(spec, sourcesText) {
   const lines = [];
   lines.push(`Design a complete course.`);
   lines.push(`Topic: ${spec.topic}`);
+  if (spec.language) {
+    const L = String(spec.language).trim().toLowerCase().slice(0, 20);
+    if (/^[a-z]{2,3}(-[a-z]{2,4})?$/.test(L)) {
+      const CEFR = new Set(["A1","A2","B1","B2","C1","C2"]);
+      const C = spec.cefr ? String(spec.cefr).trim().toUpperCase().slice(0, 4) : null;
+      const lvl = C && CEFR.has(C) ? " (CEFR " + C + ")" : "";
+      lines.push("Target language: " + L + lvl + " -- content in target language, instructions in learner language.");
+    }
+  } else if (spec.cefr) {
+    const CEFR = new Set(["A1","A2","B1","B2","C1","C2"]);
+    const C = String(spec.cefr).trim().toUpperCase().slice(0, 4);
+    if (CEFR.has(C)) lines.push("CEFR level: " + C);
+  }
   if (spec.gradeLevel) lines.push(`Learner grade level: ${spec.gradeLevel}`);
   if (spec.lens) lines.push(`LENS: teach this subject through: ${spec.lens}`);
   if (spec.interests && spec.interests.length) lines.push(`Learner interests: ${spec.interests.join(", ")}`);

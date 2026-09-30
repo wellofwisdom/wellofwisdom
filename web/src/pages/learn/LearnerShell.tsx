@@ -5,12 +5,13 @@
 // Now with controller mode: gamepad and keyboard arrows share the spatial manager,
 // candidates are [data-nav], PadLegend appears when a pad connects.
 import { useCallback, useEffect, useState } from "react";
-import Logo from "../../components/Logo";
 import { api } from "../../api";
 import type { Me } from "../../types";
 import { useT } from "../../i18n";
 import { useGamepad } from "../../lib/gamepad";
 import { focusNext, focusFirst, speakFocused } from "../../lib/spatialNav";
+import { triggerHint, triggerNarrator } from "../../components/SpatialFocus";
+import LearnerHUD from "../../components/LearnerHUD";
 import PadLegend from "../../components/PadLegend";
 
 interface Hud {
@@ -44,32 +45,6 @@ function isTypingTarget(el: Element | null): boolean {
   if (he.isContentEditable) return true;
   if (he.closest?.('input, textarea, select, [contenteditable="true"], [role="dialog"]')) return true;
   return false;
-}
-
-function XPRing({ xp }: { xp: number }) {
-  const max = 500;
-  const pct = Math.max(0, Math.min(1, xp / max));
-  const r = 16;
-  const c = 2 * Math.PI * r;
-  const off = c * (1 - pct);
-  const label = xp >= 1000 ? `${(Math.floor(xp / 100) / 10).toFixed(1)}k` : String(xp);
-  return (
-    <span className="hud-xp" title={`${xp} XP`} aria-label={`${xp} XP`}>
-      <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
-        <circle cx="18" cy="18" r={r} stroke="var(--border)" strokeWidth="3" fill="none" opacity={0.95} />
-        <circle
-          cx="18" cy="18" r={r}
-          stroke="var(--accent)" strokeWidth="3" fill="none"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={off}
-          transform="rotate(-90 18 18)"
-          style={{ transition: "stroke-dashoffset 0.6s ease" }}
-        />
-      </svg>
-      <span className="hud-xp-num" aria-hidden="true">{label}</span>
-    </span>
-  );
 }
 
 export default function LearnerShell({
@@ -148,6 +123,14 @@ export default function LearnerShell({
       speakFocused();
       return;
     }
+    if (index === 3) {
+      triggerHint();
+      return;
+    }
+    if (index === 7) {
+      triggerNarrator();
+      return;
+    }
     if (index === 9) {
       setMapOpen((v) => !v);
       return;
@@ -220,81 +203,12 @@ export default function LearnerShell({
     return () => clearTimeout(tmr);
   }, [controllerMode]);
 
-  const firstName = me.name.split(" ")[0];
-  const streak = hud?.streak ?? null;
-  const xp = hud?.xp ?? 0;
-  const packCount = hud?.packCount ?? 0;
-
   return (
     <div className={`learnershell${controllerMode ? " controller-mode" : ""}`} data-cover={coverUrl ? "true" : "false"}>
       {coverUrl && (
         <div className="learnershell-bg" aria-hidden="true" style={{ backgroundImage: `url(${coverUrl})` }} />
       )}
-      <header className="learnerhud" role="banner" aria-label="Your progress">
-        <div className="hud-left">
-          <button className="hud-home" type="button" data-nav data-say={t("shell.home")} onClick={() => onNavigate("")} aria-label={t("shell.home")}>
-            <Logo size={28} />
-            <span className="hud-home-name">{firstName}</span>
-          </button>
-          <span className="hud-family chip" title={me.familyName}>{me.familyName}</span>
-        </div>
-        <div className="hud-center" aria-hidden="true">
-          <span className="hud-dot" />
-        </div>
-        <div className="hud-right">
-          <XPRing xp={xp} />
-          {streak && streak.best > 0 && (
-            <span className={`hud-stat${streak.activeToday ? " hot" : ""}`} title={t("shell.streakTitle", { current: String(streak.current), best: String(streak.best) })}>
-              <span aria-hidden="true">{streak.current >= 3 ? "🔥" : "✨"}</span>
-              <span className="hud-stat-num">{streak.current}</span>
-            </span>
-          )}
-          <span className="hud-stat hud-pack" title={t("shell.packTitle", { count: String(packCount) })}>
-            <span aria-hidden="true">🎒</span>
-            <span className="hud-stat-num">{packCount}</span>
-          </span>
-          <button
-            className="hud-iconbtn"
-            type="button"
-            data-nav
-            data-say={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}
-            aria-label={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}
-            aria-pressed={controllerMode}
-            onClick={() => setControllerMode((v) => !v)}
-            title={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}
-          >
-            <span aria-hidden="true">🎮</span>
-          </button>
-          <button
-            className="hud-iconbtn"
-            type="button"
-            data-nav
-            data-say={soundOn ? t("shell.mute") : t("shell.soundOn")}
-            aria-label={soundOn ? t("shell.mute") : t("shell.soundOn")}
-            aria-pressed={soundOn}
-            onClick={() => setSoundOn((v) => !v)}
-            title={soundOn ? t("shell.mute") : t("shell.soundOn")}
-          >
-            <span aria-hidden="true">{soundOn ? "🔊" : "🔇"}</span>
-          </button>
-          <button
-            className="hud-iconbtn hud-mapbtn"
-            type="button"
-            data-nav
-            data-say={mapOpen ? t("shell.mapClose") : t("shell.mapOpen")}
-            aria-label={mapOpen ? t("shell.mapClose") : t("shell.mapOpen")}
-            aria-expanded={mapOpen}
-            onClick={() => setMapOpen((v) => !v)}
-            title={t("shell.map")}
-          >
-            <span aria-hidden="true">🗺️</span>
-            <span className="hud-maplabel">{t("shell.map")}</span>
-          </button>
-          <button className="hud-iconbtn" type="button" data-nav data-say={t("shell.signOut")} onClick={onLogout} aria-label={t("shell.signOut")} title={t("shell.signOut")}>
-            <span aria-hidden="true">⎋</span>
-          </button>
-        </div>
-      </header>
+      <LearnerHUD me={me} hud={hud} soundOn={soundOn} mapOpen={mapOpen} controllerMode={controllerMode} onToggleController={() => setControllerMode((v) => !v)} onToggleSound={() => setSoundOn((v) => !v)} onToggleMap={() => setMapOpen((v) => !v)} onNavigate={onNavigate} onLogout={onLogout} />
 
       {connected && <PadLegend />}
       {mapOpen && (
