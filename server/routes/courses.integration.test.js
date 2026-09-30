@@ -211,7 +211,7 @@ describe("courses integration", () => {
       cookie: famA.jar,
     });
     assert.equal(lessonGetOwn.status, 200, lessonGetOwn.text);
-    assert.ok(lessonGetOwn.json.lesson && Array.isArray(lessonGetOwn.json.items), lessonGetOwn.text);
+    assert.ok(lessonGetOwn.json.lesson && Array.isArray(lessonGetOwn.json.lesson.items), lessonGetOwn.text);
     const lessonGetForeign = await http(a, `/api/courses/lessons/${lessonId}`, {
       method: "GET",
       cookie: famB.jar,
@@ -249,7 +249,7 @@ describe("courses integration", () => {
     const { lessonId } = await seedDraftCourse(db, famA.familyId, famA.userId, "Item Course");
     const lesson = await http(a, `/api/courses/lessons/${lessonId}`, { method: "GET", cookie: famA.jar });
     assert.equal(lesson.status, 200, lesson.text);
-    const exercise = lesson.json.items.find((x) => x.type === "exercise");
+    const exercise = lesson.json.lesson.items.find((x) => x.type === "exercise");
     assert.ok(exercise, lesson.text);
     const itemId = Number(exercise.id);
     const noContent = await http(a, `/api/courses/items/${itemId}`, {
@@ -297,7 +297,7 @@ describe("courses integration", () => {
       cookie: famA.jar,
     });
     assert.equal(afterEdit.status, 200, afterEdit.text);
-    const found = afterEdit.json.items.find((x) => Number(x.id) === itemId);
+    const found = afterEdit.json.lesson.items.find((x) => Number(x.id) === itemId);
     assert.ok(found && found.content.prompt === "Edited?", afterEdit.text);
   });
   it("courses list excludes archived and is family scoped", async () => {
