@@ -576,7 +576,8 @@ describe("learn integration", () => {
     assert.equal(videoAttempt.json.correct, true);
     const predAttempt = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: predId, answer: "guess" } });
     assert.equal(predAttempt.status, 200, predAttempt.text);
-    assert.ok(typeof predAttempt.json.correct === "boolean");
+    // Predict is a guess then reveal: the kind grades null on purpose, like text.
+    assert.equal(predAttempt.json.correct, null);
     const badCardIdx = await http(a, "/api/learn/attempt", { cookie: lj, body: { itemId: flashId, questionIndex: 9, answer: "x" } });
     assert.equal(badCardIdx.status, 400, badCardIdx.text);
     assert.match(badCardIdx.text, /question_index_invalid/);

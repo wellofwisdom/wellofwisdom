@@ -58,12 +58,20 @@ describe("auth integration", () => {
   it("login is rate limited per IP", async () => {
     if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set (rate limit)"); return; }
     const a = await app();
-    let lastStatus = null;
-    for (let i = 0; i < 12; i++) {
-      const r = await http(a, "/api/auth/login", { body: { email: `nobody_${i}_${Date.now()}@example.com`, password: "wrongwrong1" } });
-      lastStatus = r.status;
+    // Exercise the shipped default cap, not the harness lift.
+    const prevLimit = process.env.LOGIN_LIMIT_MAX;
+    delete process.env.LOGIN_LIMIT_MAX;
+    try {
+      let lastStatus = null;
+      for (let i = 0; i < 12; i++) {
+        const r = await http(a, "/api/auth/login", { body: { email: `nobody_${i}_${Date.now()}@example.com`, password: "wrongwrong1" } });
+        lastStatus = r.status;
+      }
+      assert.equal(lastStatus, 429);
+    } finally {
+      if (prevLimit == null) delete process.env.LOGIN_LIMIT_MAX;
+      else process.env.LOGIN_LIMIT_MAX = prevLimit;
     }
-    assert.equal(lastStatus, 429);
   });
 
   it("learner login by family join code plus PIN", async () => {
