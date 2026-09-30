@@ -64,6 +64,9 @@ function randomSchema(testFile) {
 }
 
 function prepare(testFile) {
+  // CI drives many learner logins from one IP, so lift the login brute-force
+  // cap for integration runs only. auth.js keeps the 10 default when unset.
+  process.env.LOGIN_LIMIT_MAX = process.env.LOGIN_LIMIT_MAX || "500";
   const baseSkip = !configured();
   const schema = baseSkip ? null : randomSchema(testFile);
   let appPool = null;

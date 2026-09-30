@@ -51,10 +51,11 @@ test("session cookie: attributes, secure only when configured", () => {
 
 test("login limiter: allows burst then blocks within window", () => {
   const ip = `test-${crypto.randomUUID()}`;
-  for (let i = 0; i < 10; i++) {
-    assert.equal(auth.loginLimit(ip).ok, true);
+  // Pin the cap so env overrides for integration runs cannot skew it.
+  for (let i = 0; i < 3; i++) {
+    assert.equal(auth.loginLimit(ip, { max: 3 }).ok, true);
   }
-  const blocked = auth.loginLimit(ip);
+  const blocked = auth.loginLimit(ip, { max: 3 });
   assert.equal(blocked.ok, false);
   assert.ok(blocked.retryAfterSec > 0);
 });
