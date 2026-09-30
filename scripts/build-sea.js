@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Build a single executable of the Well of Wisdom server with Node's
-// single executable application support. The executable is named
-// wellofwisdom-server (wellofwisdom-server.exe on Windows) so the Tauri
-// desktop shell can start it directly. Run: npm run build:sea
+// Build the wellofwisdom-server executable (Node single executable application)
+// for the Tauri desktop sidecar. Run: npm run build:sea
 //
-// Bundles web/dist (already built), migrations, templates and example
-// courses. No Postgres needed. PGlite lives under DATA_DIR/pglite.
+// What the exe embeds: the Node runtime plus a tiny loader, nothing else. Node
+// SEA cannot embed node_modules, and PGlite reads postgres.wasm and
+// postgres.data from its dist directory on disk at runtime, so the exe needs
+// the repo tree beside it (server/, node_modules/, web/dist/). The loader
+// finds server/index.js near the executable and requires it, which keeps one
+// code path for `node server/index.js` and the exe. The verify step at the end
+// boots the exe and probes /api/health, so a build that cannot serve fails loudly.
 const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
@@ -48,17 +51,38 @@ async function main() {
   const seaTmp = path.join(os.tmpdir(), "wow-sea-" + Date.now());
   fs.mkdirSync(seaTmp, { recursive: true });
 
-  // Sea config. The entry point is server/index.js. Assets are injected via
-  // the sea getAsset helper in the entry point's sea bootstrap, but for this
-  // project the server already reads web/dist and templates from the file
-  // system relative to the project root. When packed as SEA, those files are
-  // embedded by listing them as assets so the runtime extracts them to a temp
-  // directory or reads them via sea.getAsset. We generate the asset list for
-  // the sea config here and document the embedding approach.
   const seaConfigPath = path.join(seaTmp, "sea-config.json");
   const blobPath = path.join(seaTmp, "sea-prep.blob");
+  // The loader is the SEA entry point. Under SEA a bare require() resolves
+  // Node builtins only, so the server is loaded through createRequire, which
+  // resolves from disk and pulls node_modules out of the tree beside the exe.
+  const loaderPath = path.join(seaTmp, "sea-loader.js");
+  const loaderSrc = [
+    "// SPDX-License-Identifier: AGPL-3.0-or-later",
+    "const { createRequire } = require('node:module');",
+    "const path = require('node:path');",
+    "const fs = require('node:fs');",
+    "const exeDir = path.dirname(process.execPath);",
+    "const candidates = [",
+    "  path.join(exeDir, 'server', 'index.js'),",
+    "  path.join(exeDir, '..', 'server', 'index.js'),",
+    "  path.join(exeDir, '..', '..', 'server', 'index.js'),",
+    "  path.join(process.cwd(), 'server', 'index.js'),",
+    "];",
+    "const entry = candidates.find((c) => fs.existsSync(c));",
+    "if (!entry) {",
+    "  console.error(",
+    "    'wellofwisdom-server: no server tree found beside the executable. ' +",
+    "      'It needs server/, node_modules/ and web/dist/ (the repo layout). Looked in:\\n  ' +",
+    "      candidates.join('\\n  ')",
+    "  );",
+    "  process.exit(1);",
+    "}",
+    "createRequire(__filename)(entry);",
+  ].join("\n");
+  fs.writeFileSync(loaderPath, loaderSrc);
   const seaJson = {
-    main: path.join(ROOT, "server", "index.js"),
+    main: loaderPath,
     output: blobPath,
     disableExperimentalSEAWarning: true,
     useSnapshot: false,
@@ -115,29 +139,37 @@ async function main() {
   const st = fs.statSync(outPath);
   console.log(`[build:sea] wrote ${outName} (${human(st.size)}) alongside ${path.basename(ROOT)}`);
 
-  // Report bundled sizes so the docs have real numbers.
+  // Report the sizes of the tree that must ship beside the exe, so the docs
+  // and the desktop bundling have real numbers.
   const webSize = sizeOf(DIST);
   const migSize = sizeOf(MIGRATIONS);
   const tmplSize = fs.existsSync(TEMPLATES) ? sizeOf(TEMPLATES) : 0;
   const exSize = fs.existsSync(EXAMPLES) ? sizeOf(EXAMPLES) : 0;
-  console.log(`[build:sea] bundled: web/dist ${human(webSize)}, migrations ${human(migSize)}, templates ${human(tmplSize)}, examples ${human(exSize)}`);
+  console.log(`[build:sea] tree beside the exe: web/dist ${human(webSize)}, migrations ${human(migSize)}, templates ${human(tmplSize)}, examples ${human(exSize)}`);
 
-  // Verify the executable starts and answers /api/health without a database.
-  // It should create DATA_DIR/pglite under a temp directory and return quickly.
+  // Verify the executable starts and answers /api/health against PGlite in a
+  // temp DATA_DIR. Poll for the listen line: a cold first boot applies every
+  // migration and can take several seconds, a warm one answers in under two.
   console.log("[build:sea] verifying executable answers /api/health ...");
   const tmpData = fs.mkdtempSync(path.join(os.tmpdir(), "wow-sea-verify-"));
   const env = { ...process.env, DB_DRIVER: "pglite", DATA_DIR: tmpData, PORT: "0", HOST: "127.0.0.1" };
-  const child = require("node:child_process").spawn(outPath, [], { env });
+  const child = require("node:child_process").spawn(outPath, [], { env, cwd: ROOT });
   let out = "";
   let err = "";
   child.stdout.on("data", (d) => { out += String(d); });
   child.stderr.on("data", (d) => { err += String(d); });
-  const exited = new Promise((resolve) => { child.on("exit", (code) => resolve(code)); child.on("error", (e) => resolve(e)); });
-  // Give it a few seconds to bind, then probe. Kill on timeout.
-  await new Promise((r) => setTimeout(r, 3000));
+  let childCode = null;
+  const exited = new Promise((resolve) => {
+    child.on("exit", (code) => { childCode = code; resolve(code); });
+    child.on("error", (e) => { childCode = -1; resolve(e); });
+  });
   let port = null;
-  const m = out.match(/listening on [^\s:]*:(\d+)/i) || out.match(/:(\d+) \(/);
-  if (m) port = Number(m[1]);
+  for (let i = 0; i < 120 && port === null && childCode === null; i++) {
+    await new Promise((r) => setTimeout(r, 250));
+    const m = out.match(/listening on [^\s:]*:(\d+)/i);
+    if (m) port = Number(m[1]);
+    if (/EADDRINUSE/.test(err)) break;
+  }
   if (!port && err.match(/EADDRINUSE/)) {
     console.warn("[build:sea] verify: port in use, skipping live check. Bundle still valid.");
   } else if (port) {
@@ -151,15 +183,16 @@ async function main() {
   } else {
     console.warn("[build:sea] verify: could not determine port from output, skipping live check.");
     console.warn(out.slice(0, 400));
+    if (err.trim()) console.warn(err.slice(0, 400));
   }
   child.kill();
-  await Promise.race([exited, new Promise((r) => setTimeout(r, 2000).then(() => {}))]);
+  await Promise.race([exited, new Promise((r) => setTimeout(r, 2000))]);
   try { child.kill("SIGKILL"); } catch {}
   try { fs.rmSync(tmpData, { recursive: true, force: true }); } catch {}
   try { fs.rmSync(seaTmp, { recursive: true, force: true }); } catch {}
 
-  console.log(`[build:sea] done. Run ./${outName} with DB_DRIVER=pglite and DATA_DIR set. See docs/EMBEDDED.md.`);
-  console.log(`[build:sea] Limits: single executable is for the current OS and arch only. Native modules are not supported inside the SEA blob, and PGlite WASM is bundled as JS so it works. Code signing is not included.`);
+  console.log(`[build:sea] done. Run ./${outName} from the repo tree with DB_DRIVER=pglite and DATA_DIR set. See docs/EMBEDDED.md.`);
+  console.log(`[build:sea] Limits: one OS and arch per build. The exe embeds only the loader and Node itself; server/, node_modules/ and web/dist/ must ship beside it (PGlite reads its wasm and data from node_modules at runtime). Code signing is not included.`);
 }
 
 main().catch((err) => { console.error("[build:sea]", err); process.exit(1); });
