@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { speakWithLang, currentLang } from "../../../i18n";
 import { api, niceError } from "../../../api";
 import { triggerRumble } from "../../../lib/gamepad";
 import type { ItemNode } from "../../../types";
@@ -69,9 +70,29 @@ export default function VocabCardItem({
   const [busy, setBusy] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
   const [err, setErr] = useState("");
+  const [speaking, setSpeaking] = useState(false);
   const isSolved = solved[qKey] === true;
   const correct = result?.correct === true;
   const hasChoices = !!data && data.choices.length > 0;
+
+  useEffect(() => {
+    return () => {
+      try { speechSynthesis.cancel(); } catch {}
+    };
+  }, []);
+
+  function speak() {
+    const raw = (c as { audioText?: unknown }).audioText;
+    const text = String(raw ?? "").trim() || data?.display || "";
+    if (!text) return;
+    if (speaking) {
+      try { speechSynthesis.cancel(); } catch {}
+      setSpeaking(false);
+      return;
+    }
+    const ok = speakWithLang(text, currentLang(), { onend: () => setSpeaking(false), onerror: () => setSpeaking(false) });
+    if (ok) setSpeaking(true);
+  }
 
   if (!data) {
     const fallback = String((c as { prompt?: unknown }).prompt ?? (c as { text?: unknown }).text ?? "").trim();
@@ -125,6 +146,9 @@ export default function VocabCardItem({
     <section className={`litem exercise${isSolved ? " solved" : ""}`} aria-labelledby={`vocab-prompt-${item.id}`}>
       <div className="exhead">
         <div id={`vocab-prompt-${item.id}`} style={{ fontWeight: 600, fontSize: 20 }}>{data.display}</div>
+        <button className="btn ghost small-btn" type="button" data-nav onClick={speak} aria-label={speaking ? t("listenChoice.stop") : t("listenChoice.listen")} style={{ marginLeft: 8 }}>
+          {speaking ? t("listenChoice.stop") : t("listenChoice.listen")}
+        </button>
         {isSolved && <span className="chip on">✓</span>}
       </div>
       {data.example && <p className="muted small" style={{ marginTop: 6, fontStyle: "italic" }}>{data.example}</p>}

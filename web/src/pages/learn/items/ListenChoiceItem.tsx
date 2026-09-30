@@ -132,11 +132,19 @@ export default function ListenChoiceItem({
 
       <div style={{ marginTop: 8, marginBottom: 10 }}>
         {data.audioUrl ? (
-          <audio ref={audioRef} controls preload="metadata" src={data.audioUrl} style={{ width: "100%", maxWidth: 360 }} data-nav />
+          <>
+            <audio ref={audioRef} controls preload="metadata" src={data.audioUrl} style={{ width: "100%", maxWidth: 360 }} data-nav>
+              <track kind="captions" srcLang={currentLang()} label="Captions" src={data.audioUrl ? `${data.audioUrl}/captions.vtt` : undefined as unknown as string} />
+            </audio>
+            {data.audioText && <p className="muted small" style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>{data.audioText}</p>}
+          </>
         ) : data.audioText ? (
-          <button className="btn ghost" type="button" data-nav onClick={speak} aria-label={t("listenChoice.listen")}>
-            {speaking ? t("listenChoice.stop") : t("listenChoice.listen")}
-          </button>
+          <>
+            <button className="btn ghost" type="button" data-nav onClick={speak} aria-label={t("listenChoice.listen")}>
+              {speaking ? t("listenChoice.stop") : t("listenChoice.listen")}
+            </button>
+            <p className="muted small" style={{ marginTop: 6, whiteSpace: "pre-wrap" }} aria-live="polite">{data.audioText}</p>
+          </>
         ) : null}
       </div>
 
