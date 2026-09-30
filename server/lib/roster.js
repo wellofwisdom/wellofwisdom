@@ -52,6 +52,7 @@ const HEADER_ALIASES = {
   grade: ["grade", "grade_level", "gradelevel", "level", "year"],
   interests: ["interests", "interest", "hobbies", "tags"],
   email: ["email", "e-mail", "mail"],
+  target_language: ["target_language", "target language", "targetlanguage", "language", "lang"],
 };
 
 function normalizeHeader(h) {
@@ -61,6 +62,15 @@ function normalizeHeader(h) {
       if (low === a.replace(/[^a-z0-9]/g, "")) return canonical;
     }
   }
+  return null;
+}
+
+function normalizeRosterLang(raw) {
+  const s = String(raw || "").trim().toLowerCase();
+  if (!s) return "en";
+  if (s === "en" || s === "en-us" || s === "en-gb" || s === "english") return "en";
+  if (s === "es" || s === "es-es" || s === "spanish" || s === "espanol" || s === "español") return "es";
+  if (s === "fr" || s === "fr-fr" || s === "french" || s === "francais" || s === "français") return "fr";
   return null;
 }
 
@@ -150,6 +160,14 @@ function validateRows(rows, existingUsernames) {
       else email = rawEmail.toLowerCase();
     }
 
+    let language = "en";
+    const rawLang = String(r.target_language != null ? r.target_language : r.language != null ? r.language : r.lang != null ? r.lang : "").trim();
+    if (rawLang) {
+      const norm = normalizeRosterLang(rawLang);
+      if (!norm) errors.push("language_invalid");
+      else language = norm;
+    }
+
     if (idx >= MAX_ROWS) {
       capExceeded = true;
       errors.push("row_cap_exceeded");
@@ -163,6 +181,7 @@ function validateRows(rows, existingUsernames) {
       grade,
       interests,
       email,
+      language,
       errors,
       valid: errors.length === 0,
       raw: r.__raw || [],
@@ -178,6 +197,7 @@ function buildParsableRows(rows) {
     grade: String(r.grade || "").trim() || null,
     interests: String(r.interests || "").trim() || null,
     email: String(r.email || "").trim() || null,
+    target_language: String(r.target_language != null ? r.target_language : r.language != null ? r.language : "").trim() || null,
     __index: idx,
   }));
 }
@@ -191,4 +211,5 @@ module.exports = {
   toUsername,
   validateRows,
   buildParsableRows,
+  normalizeRosterLang,
 };
