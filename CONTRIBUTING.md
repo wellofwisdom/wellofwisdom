@@ -8,13 +8,37 @@ homeschool parent, a teacher, a developer, or just curious, you're welcome here.
 ```bash
 git clone https://github.com/wellofwisdom/wellofwisdom.git
 cd wellofwisdom
-npm install
-npm run dev        # starts the server with auto-reload on :3000
+npm install                # server dependencies
+npm --prefix web install   # web app dependencies
+npm --prefix web run build # build the app UI into web/dist
+npm run dev                # server with auto-reload on :3000
 ```
 
-Optional but recommended: copy `.env.example` to `.env` and fill in a
-`DATABASE_URL` (any Postgres) and an `AI_BASE_URL` (any OpenAI-compatible
-endpoint: [Ollama](https://ollama.com) is free and local).
+Without the web build the server still runs, but `/app` serves a skeleton
+page instead of the real UI.
+
+A database is required before anything can sign up. With none configured the
+server boots and serves pages, but creating the first account fails. Two
+options:
+
+- Any Postgres: point `DATABASE_URL` at it.
+- No Postgres at all: set `DB_DRIVER=pglite` and a persistent `DATA_DIR`
+  (any folder) and the server runs its own embedded database there. Delete
+  the folder and you delete the data.
+
+Configuration goes in `.env`. One thing to know: outside Docker, nothing
+reads that file. `docker compose` picks it up automatically, but a plain
+`npm run dev` does not. Either export the variables yourself, or run the
+server with Node's flag (Node 20.6+):
+
+```bash
+node --env-file=.env server/index.js
+```
+
+Copy `.env.example` to `.env` as a starting point and fill in a
+`DATABASE_URL` (or the pglite pair above) and, when you want AI features, an
+`AI_BASE_URL` (any OpenAI-compatible endpoint: [Ollama](https://ollama.com)
+is free and local).
 
 ## Before you open a PR
 
