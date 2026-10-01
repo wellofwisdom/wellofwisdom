@@ -22,6 +22,8 @@
 .hud-pack{opacity:.95}
 .hud-iconbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--panel);display:inline-grid;place-items:center;cursor:pointer;font-size:16px;line-height:1;flex:0 0 36px}
 .hud-iconbtn:hover{background:var(--panel-2)}
+.hud-controllerbtn{position:relative}
+.hud-pad-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--accent,#3aa76d);box-shadow:0 0 0 2px var(--panel)}
 .hud-mapbtn{width:auto;padding:0 10px 0 8px;gap:6px;font-size:14px;font-weight:600}
 .hud-maplabel{font-size:13px}
 .hud-mapdrop{margin:0 14px 0;padding:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);z-index:19}
