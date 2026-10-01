@@ -397,3 +397,77 @@ test("review queue projection for French kinds is key-free via exercise strip", 
   assert.ok(!("expected" in sDia));
 });
 
+test("publicItem: spoken expected and alternatives never leak, rubric and hints survive", () => {
+  const exercise = require("./items/exercise");
+  const n = exercise.normalize({
+    prompt: "Say hello in French",
+    kind: "spoken",
+    expected: "Bonjour",
+    alternatives: ["Salut", "Coucou"],
+    rubric: "Greets with a standard French hello.",
+    hints: ["Start with B"],
+  });
+  assert.ok(n, "spoken normalize keeps a keyed item");
+  const pub = share.publicItem({ type: "exercise", position: 0, content: n });
+  const json = JSON.stringify(pub.content);
+  assert.ok(!("expected" in pub.content), "spoken expected leaked");
+  assert.ok(!("alternatives" in pub.content), "spoken alternatives leaked");
+  assert.doesNotMatch(json, /Bonjour/, "expected text leaked");
+  assert.doesNotMatch(json, /Salut|Coucou/, "alternative text leaked");
+  // The rubric is the learner's brief, not a key, so it stays visible.
+  assert.equal(pub.content.rubric, "Greets with a standard French hello.");
+  assert.deepEqual(pub.content.hints, ["Start with B"]);
+  assert.equal(pub.content.prompt, "Say hello in French");
+});
+
+test("coursePackage: spoken keys ship only when the publisher opted in", () => {
+  const exercise = require("./items/exercise");
+  const n = exercise.normalize({ prompt: "Say hello in French", kind: "spoken", expected: "Bonjour", alternatives: ["Salut"], rubric: "Greets." });
+  const mkTree = (shareAnswers) => ({
+    title: "T", topic: "t", lens: null, grade_level: null, description: null,
+    share_answers: shareAnswers,
+    units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items: [{ type: "exercise", position: 0, content: n }] }] }],
+  });
+  const withKeys = share.coursePackage(mkTree(true));
+  assert.equal(withKeys.includesAnswers, true);
+  const spokenOut = withKeys.units[0].lessons[0].items[0].content;
+  assert.equal(spokenOut.expected, "Bonjour");
+  assert.deepEqual(spokenOut.alternatives, ["Salut"]);
+  const stripped = share.coursePackage(mkTree(false));
+  assert.equal(stripped.includesAnswers, false);
+  const pubSpoken = stripped.units[0].lessons[0].items[0].content;
+  assert.ok(!("expected" in pubSpoken), "package leaked expected with share_answers off");
+  assert.ok(!("alternatives" in pubSpoken), "package leaked alternatives with share_answers off");
+  assert.equal(pubSpoken.rubric, "Greets.");
+});
+
+test("publicCourse and courseText: spoken never leaks a key or answerText", () => {
+  const exercise = require("./items/exercise");
+  const n = exercise.normalize({
+    prompt: "Say hello in French",
+    kind: "spoken",
+    expected: "Bonjour",
+    alternatives: ["Salut"],
+    rubric: "Greets with a standard French hello.",
+    hints: ["Start with B"],
+  });
+  const tree = {
+    title: "T", topic: "t", lens: null, grade_level: null, description: null,
+    public_slug: "t", license: "CC-BY-4.0", author_name: null, published_at: new Date(),
+    units: [{ title: "U1", lessons: [{ title: "L1", summary: null, items: [{ type: "exercise", position: 0, content: n }] }] }],
+  };
+  const pub = share.publicCourse(tree);
+  const pubJson = JSON.stringify(pub);
+  assert.doesNotMatch(pubJson, /"expected"/);
+  assert.doesNotMatch(pubJson, /"alternatives"/);
+  assert.doesNotMatch(pubJson, /Bonjour|Salut/);
+  const txt = share.courseText(tree);
+  assert.doesNotMatch(txt, /answerText/, "courseText emitted answerText for spoken");
+  assert.doesNotMatch(txt, /Bonjour|Salut/, "courseText leaked a spoken key");
+  // The teaching material still renders: prompt and hint ladder. (courseText
+  // prints exercise prompts and hints, not rubrics; the rubric rides the
+  // JSON projections above.)
+  assert.match(txt, /EXERCISE \(spoken\): Say hello in French/);
+  assert.match(txt, /Hint: Start with B/);
+});
+

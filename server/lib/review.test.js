@@ -255,3 +255,101 @@ test("dueDate is one, three, seven days from now", () => {
   const today = dueDate(0).getTime();
   assert.ok(Math.abs(today - now) < tolerance, "0 days is today");
 });
+
+test("spoken exact match climbs like vocab_card, alternatives count", () => {
+  const grade = require("./grade");
+  const spoken = require("./items/kinds/spoken");
+  const item = spoken.normalize({ prompt: "Dis bonjour", kind: "spoken", expected: "Bonjour", alternatives: ["Salut"] });
+  assert.ok(item, "spoken normalize with expected keeps the item");
+  const ok = grade.gradeExercise(item, { transcript: "  bonjour! " });
+  assert.deepEqual(ok, { correct: true, score: 1 });
+  let s = null;
+  s = require("./review").nextSchedule(s, ok.correct === true);
+  assert.equal(s.interval_days, 1);
+  s = require("./review").nextSchedule(s, ok.correct === true);
+  assert.equal(s.interval_days, 3);
+  const viaAlt = grade.gradeExercise(item, { transcript: "salut" });
+  assert.equal(viaAlt.correct, true);
+  // A near miss is a needs-review miss, so it comes back today like any lapse.
+  const near = grade.gradeExercise(item, { transcript: "bonsoir" });
+  assert.equal(near.correct, false);
+  assert.equal(near.needsReview, true);
+  const sp = require("./review").nextSchedule(null, near.correct === true);
+  assert.equal(sp.interval_days, 0);
+  assert.equal(sp.lapses, 1);
+});
+
+test("spoken rubric-only grades to a needs-review miss and still feeds the scheduler", () => {
+  const grade = require("./grade");
+  const spoken = require("./items/kinds/spoken");
+  const item = spoken.normalize({ prompt: "Presente toi", kind: "spoken", rubric: "Greets and gives a name." });
+  assert.ok(item, "rubric-only spoken normalize keeps the item");
+  const out = grade.gradeExercise(item, { transcript: "Bonjour, je m'appelle Lucie" });
+  // The route's gate is correct !== null: a spoken grade is always an object
+  // with a correct field, so a rubric-only item cannot silently skip review.
+  assert.ok(out && typeof out === "object" && "correct" in out, "spoken grade must carry a correct field");
+  assert.equal(out.correct, false);
+  assert.equal(out.needsReview, true);
+  const s = require("./review").nextSchedule(null, out.correct === true);
+  assert.equal(s.interval_days, 0);
+  assert.equal(s.lapses, 1);
+});
+
+test("spoken and vocab_card share the exercise lane without colliding", () => {
+  const grade = require("./grade");
+  const { nextSchedule } = require("./review");
+  const spoken = require("./items/kinds/spoken");
+  const exercise = require("./items/exercise");
+  const spItem = spoken.normalize({ prompt: "Dis bonjour", kind: "spoken", expected: "Bonjour" });
+  const vItem = exercise.normalize({ prompt: "What does hola mean", kind: "vocab_card", lemma: "hola", gloss: "hello" });
+  assert.ok(spItem && vItem);
+  assert.equal(spItem.kind, "spoken");
+  assert.equal(vItem.kind, "vocab_card");
+  // Both grade to the {correct, score} shape the attempt route reads, and
+  // both sit in exercise REGISTRY (type exercise), so both land in
+  // review_schedule keyed by item_id: never in flashcard_reviews.
+  const spOk = grade.gradeExercise(spItem, { transcript: "bonjour" });
+  const vOk = grade.gradeExercise(vItem, "hello");
+  assert.deepEqual(spOk, { correct: true, score: 1 });
+  assert.deepEqual(vOk, { correct: true, score: 1 });
+  // One ladder per (learner, item_id): a vocab lapse must not move spoken.
+  let spSched = null;
+  let vSched = null;
+  spSched = nextSchedule(spSched, spOk.correct === true);
+  vSched = nextSchedule(vSched, vOk.correct === true);
+  vSched = nextSchedule(vSched, false); // vocab miss: back today
+  assert.equal(spSched.interval_days, 1);
+  assert.equal(spSched.reps, 1);
+  assert.equal(vSched.interval_days, 0);
+  assert.equal(vSched.lapses, 1);
+  // And the spoken ladder keeps climbing on its own.
+  spSched = nextSchedule(spSched, true);
+  assert.equal(spSched.interval_days, 3);
+});
+
+test("spoken exercise never takes the flashcard lane in a mixed lesson", () => {
+  const grade = require("./grade");
+  const { nextSchedule } = require("./review");
+  const spoken = require("./items/kinds/spoken");
+  // The attempt route dispatches on row type: exercise kinds go to
+  // review_schedule by item_id, decks to flashcard_reviews by card_index.
+  // A spoken drill and a deck in the same lesson therefore hold independent
+  // state even when the deck's card 0 and the drill share a lesson.
+  const spItem = spoken.normalize({ prompt: "Dis bonjour", kind: "spoken", expected: "Bonjour" });
+  const spOut = grade.gradeExercise(spItem, { transcript: "bonjour" });
+  let spSched = null;
+  let card0 = null;
+  let card1 = null;
+  spSched = nextSchedule(spSched, spOut.correct === true);
+  card0 = nextSchedule(card0, true);
+  card1 = nextSchedule(card1, true);
+  // Deck activity: card 0 lapses twice while card 1 climbs.
+  card0 = nextSchedule(card0, false);
+  card1 = nextSchedule(card1, true);
+  card0 = nextSchedule(card0, false);
+  // The spoken drill is untouched by the deck's cards and vice versa.
+  assert.equal(spSched.interval_days, 1);
+  assert.equal(spSched.lapses, 0);
+  assert.equal(card0.lapses, 2);
+  assert.equal(card1.interval_days, 3);
+});

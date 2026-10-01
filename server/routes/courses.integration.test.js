@@ -486,4 +486,35 @@ describe("courses integration", () => {
     const delUnit = await http(a, `/api/courses/units/${unitId}`, { method: "DELETE", cookie: otherFamily.jar });
     assert.equal(delUnit.status, 404, delUnit.text);
   });
+  it("answer-key: spoken items surface expected or rubric, only a keyless one counts missing", async () => {
+    if (ctx.skip) {
+      console.log("# skip: TEST_DATABASE_URL not set");
+      return;
+    }
+    const a = await app();
+    const db = require("../lib/db");
+    const fam = await signup(a, "spoken");
+    const { courseId, lessonId } = await seedDraftCourse(db, fam.familyId, fam.userId, "Spoken Course");
+    const mkSpoken = (over) => JSON.stringify({ prompt: "Say it in French", kind: "spoken", ...over });
+    await db.query(
+      "insert into lesson_items (lesson_id, type, position, content) values ($1,'exercise',2,$2), ($1,'exercise',3,$3), ($1,'exercise',4,$4)",
+      [
+        lessonId,
+        mkSpoken({ expected: "Bonjour", alternatives: ["Salut"] }),
+        mkSpoken({ rubric: "Greets and gives a name." }),
+        mkSpoken({}), // no key at all: the generator does produce these
+      ]
+    );
+    const r = await http(a, `/api/courses/${courseId}/answer-key`, { method: "GET", cookie: fam.jar });
+    assert.equal(r.status, 200, r.text);
+    const items = r.json.units
+      .flatMap((u) => u.lessons)
+      .flatMap((l) => l.items)
+      .filter((i) => i.type === "exercise" && i.content.kind === "spoken");
+    assert.equal(items.length, 3, "expected three spoken exercises in the key");
+    assert.ok(items.some((i) => i.content.answerText === "Bonjour / Salut"), "exact spoken answerText with alternatives missing");
+    assert.ok(items.some((i) => i.content.answerText === "Greets and gives a name."), "rubric-only spoken answerText missing");
+    assert.ok(items.some((i) => i.content.answerText === null), "keyless spoken should read as null");
+    assert.equal(r.json.stats.missingAnswers, 1, "only the keyless spoken item counts as missing");
+  });
 });
