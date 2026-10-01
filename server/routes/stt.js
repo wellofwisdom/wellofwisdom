@@ -87,6 +87,29 @@ function pickKind(...candidates) {
 }
 
 /**
+ * The speech ladder, env only, so a self-host can see every tier at a glance.
+ * The client walks it top down: a server tier first (kie cloud, then the local
+ * sidecar), the browser's own voices last, so a family's words stay on the box
+ * when one is set up. Env, not the vault: the vault tunes a running install,
+ * while these say which tier the deployment itself brought up. The browser
+ * tier always exists; the client decides what its own browser can use.
+ */
+function speechTiers() {
+  const env = (name) => Boolean(String(process.env[name] || "").trim());
+  return {
+    tts: {
+      kie: env("KIE_API_KEY"),
+      sidecar: env("TTS_BASE_URL"),
+      browser: true,
+    },
+    stt: {
+      sidecar: env("STT_BASE_URL"),
+      browser: true,
+    },
+  };
+}
+
+/**
  * One file part out of a multipart/form-data body, plus any text fields.
  * Written here rather than pulled in as a dependency: the app takes exactly
  * one file per request and never needs the rest of the specification.
@@ -152,7 +175,13 @@ router.get("/status", auth.authRequired, async (req, res, next) => {
   try {
     const st = await sttProvider.status();
     const lim = await aiLimits.limits();
-    res.json({ configured: st.configured, provider: st.configured ? st.provider : null, model: st.model, dailyCap: lim.sttDaily || 0 });
+    res.json({
+      configured: st.configured,
+      provider: st.configured ? st.provider : null,
+      model: st.model,
+      dailyCap: lim.sttDaily || 0,
+      tiers: speechTiers(),
+    });
   } catch (err) {
     next(err);
   }
@@ -167,6 +196,7 @@ router.get("/config", requireInstanceAdmin, async (req, res, next) => {
     const st = await sttProvider.status();
     res.json({
       configured: st.configured,
+      tiers: speechTiers(),
       config: aiConfig.mask({
         sttBaseUrl: cfg.sttBaseUrl || "",
         sttApiKey: cfg.sttApiKey || "",
@@ -302,3 +332,4 @@ router.post("/", auth.authRequired, rawAudio, async (req, res, next) => {
 module.exports = router;
 module.exports.parseMultipart = parseMultipart;
 module.exports.keepRecordingsFor = keepRecordingsFor;
+module.exports.speechTiers = speechTiers;
