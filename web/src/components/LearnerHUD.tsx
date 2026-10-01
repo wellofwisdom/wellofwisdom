@@ -36,6 +36,7 @@ export default function LearnerHUD({
   soundOn,
   mapOpen,
   controllerMode,
+  padConnected,
   onToggleController,
   onToggleSound,
   onToggleMap,
@@ -47,6 +48,7 @@ export default function LearnerHUD({
   soundOn: boolean;
   mapOpen: boolean;
   controllerMode: boolean;
+  padConnected: boolean;
   onToggleController: () => void;
   onToggleSound: () => void;
   onToggleMap: () => void;
@@ -80,8 +82,9 @@ export default function LearnerHUD({
           <span aria-hidden="true">🎒</span>
           <span className="hud-stat-num">{packCount}</span>
         </span>
-        <button className="hud-iconbtn" type="button" data-nav data-say={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")} aria-label={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")} aria-pressed={controllerMode} onClick={onToggleController} title={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}>
+        <button className="hud-iconbtn hud-controllerbtn" type="button" data-nav data-pad={padConnected ? "on" : "off"} data-say={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")} aria-label={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")} aria-pressed={controllerMode} onClick={onToggleController} title={controllerMode ? t("shell.controllerOn") : t("shell.controllerOff")}>
           <span aria-hidden="true">🎮</span>
+          {padConnected && <span className="hud-pad-dot" aria-hidden="true" title="Controller connected" />}
         </button>
         <button className="hud-iconbtn" type="button" data-nav data-say={soundOn ? t("shell.mute") : t("shell.soundOn")} aria-label={soundOn ? t("shell.mute") : t("shell.soundOn")} aria-pressed={soundOn} onClick={onToggleSound} title={soundOn ? t("shell.mute") : t("shell.soundOn")}>
           <span aria-hidden="true">{soundOn ? "🔊" : "🔇"}</span>
