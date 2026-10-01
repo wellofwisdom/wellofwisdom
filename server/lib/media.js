@@ -286,6 +286,52 @@ async function generateMusic({ prompt, duration, purpose, refType, refId, family
   return { url };
 }
 
+// ---------- speech segments (audio overviews) ----------
+
+// One short spoken line, returned as mp3 bytes so the caller can concatenate
+// a two-host script into a single file. Same provider path as narration:
+// kie Gemini TTS first, Google Cloud TTS as the fallback. `role` picks the
+// engine's two voices (narrator for host A, character for host B); an explicit
+// `voice` name always wins.
+async function speechSegment({ text, voice, role }) {
+  const clean = String(text || "").trim().slice(0, 4000);
+  if (!clean) throw new Error("speech_empty_text");
+  const requested = String(voice || "").trim();
+  const voiceForRole = (prov, r) => { try { return prov.voiceFor(r); } catch { return null; } };
+  let lastErr = null;
+  try {
+    const kv = require("./providers/kie-voice");
+    if (kv.kieVoiceConfigured()) {
+      const v = requested || voiceForRole(kv, role === "b" ? "character" : "narrator");
+      const r = await kv.synthesizeOnKie({ text: clean, voice: v });
+      if (r.buffer) return r.buffer;
+      if (r.url) return await kv.fetchAudioBuffer(r.url);
+    }
+  } catch (err) {
+    lastErr = err;
+    if (String(err.message || "").includes("kie_voice_no_url")) throw err;
+    // fall through to Google TTS
+  }
+  const gv = require("./providers/google-tts");
+  if (!gv.ttsConfigured()) {
+    if (lastErr) throw lastErr;
+    throw new Error("tts_not_configured");
+  }
+  return gv.synthesize({ text: clean, voice: requested || voiceForRole(gv, role === "b" ? "character" : "narrator") });
+}
+
+function speechStatus() {
+  try {
+    const kv = require("./providers/kie-voice");
+    if (kv.kieVoiceConfigured()) return { configured: true, via: "kie" };
+  } catch { /* not installed is not an error here */ }
+  try {
+    const gv = require("./providers/google-tts");
+    if (gv.ttsConfigured()) return { configured: true, via: "google" };
+  } catch { /* same */ }
+  return { configured: false, via: null };
+}
+
 // ---------- transcription (auto-captions) ----------
 
 // Push a local file to kie's temporary store (auto-deleted after 3 days) and
@@ -404,5 +450,5 @@ async function transcribe({ buffer, filename, mime, language }) {
 
 module.exports = {
   generateImage, generateVideo, generateSpeech, generateMusic, transcribe, status, resolveConfig, invalidateCache,
-  resultUrls, wordsToVtt, secToTs, transcriptFrom, IMAGE_MODELS, VIDEO_MODELS, AUDIO_MODELS,
+  resultUrls, wordsToVtt, secToTs, transcriptFrom, speechSegment, speechStatus, IMAGE_MODELS, VIDEO_MODELS, AUDIO_MODELS,
 };
