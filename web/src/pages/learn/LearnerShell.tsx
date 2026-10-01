@@ -114,6 +114,10 @@ export default function LearnerShell({
   }, [controllerMode]);
 
   const handleButtonDown = useCallback((index: number) => {
+    // An embedded answer pad owns the face buttons while it listens
+    // (data-gamepad-active on its root), so B picks a choice instead of
+    // navigating back. Movement, start and narrator stay with the shell.
+    if (index <= 3 && document.querySelector("[data-gamepad-active]")) return;
     if (index === 0) {
       const el = document.activeElement as HTMLElement | null;
       if (el && el.hasAttribute("data-nav")) {

@@ -15,6 +15,18 @@ vi.mock("../../api", () => ({
   },
 }));
 
+const navSpies = { focusNext: vi.fn(), focusFirst: vi.fn(), speakFocused: vi.fn() };
+vi.mock("../../lib/spatialNav", () => ({
+  focusNext: (...a: unknown[]) => navSpies.focusNext(...a),
+  focusFirst: (...a: unknown[]) => navSpies.focusFirst(...a),
+  speakFocused: (...a: unknown[]) => navSpies.speakFocused(...a),
+}));
+const sfSpies = { triggerHint: vi.fn(), triggerNarrator: vi.fn() };
+vi.mock("../../components/SpatialFocus", () => ({
+  triggerHint: (...a: unknown[]) => sfSpies.triggerHint(...a),
+  triggerNarrator: (...a: unknown[]) => sfSpies.triggerNarrator(...a),
+}));
+
 import LearnerShell from "./LearnerShell";
 
 const noop = () => {};
@@ -94,5 +106,73 @@ describe("controller auto-on and persistence", () => {
     expect(container.querySelector(".padlegend")).not.toBeNull();
     fireEvent.click(controllerBtn());
     expect(container.querySelector(".padlegend")).toBeNull();
+  });
+});
+
+describe("the shell yields face buttons to an embedded answer pad", () => {
+  // The hook polls navigator.getGamepads() each frame; a stub plus a manual
+  // rAF queue drive the same poll a browser runs. buttons[i].pressed is the
+  // edge the hook reacts to. jsdom does not tick rAF on its own.
+  let rafQueue: FrameRequestCallback[] = [];
+  const buttons = Array.from({ length: 17 }, () => ({ pressed: false }));
+  const pad = { id: "Test Pad", connected: true, buttons, axes: [] as unknown[] };
+
+  function tick() {
+    const q = rafQueue;
+    rafQueue = [];
+    q.forEach((cb) => cb(performance.now()));
+  }
+
+  async function pressFace(index: number) {
+    buttons[index].pressed = true;
+    await act(async () => { tick(); await Promise.resolve(); });
+    buttons[index].pressed = false;
+    await act(async () => { tick(); await Promise.resolve(); });
+  }
+
+  beforeEach(() => {
+    rafQueue = [];
+    buttons.forEach((b) => { b.pressed = false; });
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => { rafQueue.push(cb); return rafQueue.length; });
+    vi.stubGlobal("cancelAnimationFrame", () => {});
+    Object.defineProperty(window.navigator, "getGamepads", { value: () => [pad], configurable: true });
+    window.history.pushState({}, "", "/learner");
+  });
+
+  it("B navigates back when no answer pad is listening", async () => {
+    const back = vi.spyOn(window.history, "back");
+    renderShell();
+    connectPad();
+    await pressFace(1);
+    expect(back).toHaveBeenCalled();
+    back.mockRestore();
+  });
+
+  it("B is swallowed while an answer pad listens, but the d-pad still moves focus", async () => {
+    const back = vi.spyOn(window.history, "back");
+    const marker = document.createElement("div");
+    marker.setAttribute("data-gamepad-active", "true");
+    document.body.appendChild(marker);
+    renderShell();
+    connectPad();
+    await pressFace(1);
+    expect(back).not.toHaveBeenCalled();
+    await pressFace(13);
+    expect(navSpies.focusNext).toHaveBeenCalledWith("down");
+    back.mockRestore();
+    marker.remove();
+  });
+
+  it("Y is swallowed while an answer pad listens and works again after it unmounts", async () => {
+    renderShell();
+    connectPad();
+    const marker = document.createElement("div");
+    marker.setAttribute("data-gamepad-active", "true");
+    document.body.appendChild(marker);
+    await pressFace(3);
+    expect(sfSpies.triggerHint).not.toHaveBeenCalled();
+    marker.remove();
+    await pressFace(3);
+    expect(sfSpies.triggerHint).toHaveBeenCalled();
   });
 });
