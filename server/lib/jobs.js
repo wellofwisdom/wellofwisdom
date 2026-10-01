@@ -158,6 +158,10 @@ const HANDLERS = {
     }
     return r;
   },
+  overview: async (job) => {
+    const { generateOverview } = require("./overview");
+    return generateOverview({ unitId: Number(job.payload.unitId), familyId: job.family_id, userId: job.payload.created_by || null });
+  },
   music: async (job) => {
     const p = job.payload || {};
     const media = require("./media");
