@@ -3,6 +3,7 @@ import { useState } from "react";
 import { api, niceError } from "../../../api";
 import { PushToTalk } from "../../../components/PushToTalk";
 import { triggerRumble } from "../../../lib/gamepad";
+import GamepadAnswerPad from "../../../components/GamepadAnswerPad";
 import type { ItemNode } from "../../../types";
 import { MathText } from "../../../lib/rich";
 import { useT } from "../../../i18n";
@@ -194,28 +195,40 @@ export default function ExerciseItem({
               {busy ? t("exercise.checking") : t("exercise.check")}
             </button>
           </div>
+          <GamepadAnswerPad kind="mcq" choices={choices} onPick={setPicked} busy={busy} />
         </div>
       )}
       {!result && kind === "numeric" && (
-        <div className="row wrap">
-          <input
-            className="input"
-            style={{ maxWidth: 220 }}
-            inputMode="decimal"
-            placeholder={t("exercise.yourAnswerPlaceholder")}
+        <div>
+          <div className="row wrap">
+            <input
+              className="input"
+              style={{ maxWidth: 220 }}
+              inputMode="decimal"
+              placeholder={t("exercise.yourAnswerPlaceholder")}
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && answer && submit()}
+              aria-label={t("exercise.yourAnswerPlaceholder")}
+            />
+            <HintLadder content={c} />
+            <button className="btn ghost" type="button" data-nav onClick={() => setTutorOpen(true)}>
+              {t("exercise.askForHelp")}
+            </button>
+            <PushToTalk kind="numeric" onResult={(spoken) => setAnswer(spoken.text)} />
+            <button className="btn primary" type="button" data-nav disabled={busy || !answer.trim()} onClick={() => submit()}>
+              {busy ? t("exercise.checking") : t("exercise.check")}
+            </button>
+          </div>
+          <GamepadAnswerPad
+            kind="numeric"
             value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && answer && submit()}
-            aria-label={t("exercise.yourAnswerPlaceholder")}
+            onInput={setAnswer}
+            busy={busy}
+            onSubmit={() => {
+              if (answer.trim()) submit();
+            }}
           />
-          <HintLadder content={c} />
-          <button className="btn ghost" type="button" data-nav onClick={() => setTutorOpen(true)}>
-            {t("exercise.askForHelp")}
-          </button>
-          <PushToTalk kind="numeric" onResult={(spoken) => setAnswer(spoken.text)} />
-          <button className="btn primary" type="button" data-nav disabled={busy || !answer.trim()} onClick={() => submit()}>
-            {busy ? t("exercise.checking") : t("exercise.check")}
-          </button>
         </div>
       )}
       {!result && kind === "text" && (
