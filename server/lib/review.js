@@ -10,19 +10,25 @@
 //   review_schedule     one row per (learner, item_id) for exercises.
 //                       All language exercise kinds feed this table when
 //                       graded: vocab_card, listen_choice, listen_repeat,
-//                       translate (en_to_es, es_to_en, en_to_fr, fr_to_en)
-//                       and dialogue. kind text is self-check and never
-//                       reaches the scheduler. graded_reader is type
+//                       translate (en_to_es, es_to_en, en_to_fr, fr_to_en),
+//                       dialogue, and spoken. kind text is self-check and
+//                       never reaches the scheduler. graded_reader is type
 //                       graded_reader (not exercise) and never scheduled.
 //   flashcard_reviews   one row per (learner, item_id, card_index) for
 //                       flashcard decks. A deck holds many cards, so card 0
-//                       correct must not move card 1. vocab_card is an
-//                       exercise, never a flashcard, so the two tables cannot
-//                       collide even when a French lesson mixes drills and
-//                       decks.
+//                       correct must not move card 1. vocab_card and spoken
+//                       are exercises, never flashcards, so the two tables
+//                       cannot collide even when a French lesson mixes drills
+//                       and decks.
 //
 // Self-check kind text is excluded before any scheduler write (see
 // routes/learn.js). A keyless or null grade also never writes.
+// Spoken: once the item has an expected phrase or a rubric, its grade is
+// never null, so every spoken attempt feeds this table. An exact match
+// climbs like vocab_card (case and accent-insensitive, alternatives count).
+// Everything else, a missing transcript, a near miss, or a rubric-only item
+// the guide has not read yet, grades {correct: false, needsReview: true} and
+// comes back today instead of silently skipping review.
 // French pack: translate and dialogue grade to {correct, score} and feed
 // review_schedule via the same exercise lane; graded_reader grades to null
 // and is excluded by type. Per-card isolation is by (item, card_index).
