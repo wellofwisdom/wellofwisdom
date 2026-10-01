@@ -4,7 +4,9 @@
 // Degrades cleanly when no XP or art is available. No new API beyond /api/learn/hud.
 // Now with controller mode: gamepad and keyboard arrows share the spatial manager,
 // candidates are [data-nav], PadLegend appears when a pad connects.
-import { useCallback, useEffect, useState } from "react";
+// The mode auto-turns on when a pad connects (unless the learner turned it off
+// this session) and the preference survives reloads (versioned localStorage key).
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../../api";
 import type { Me } from "../../types";
 import { useT } from "../../i18n";
@@ -21,7 +23,8 @@ interface Hud {
 }
 
 const SOUND_KEY = "wow-learner-sound";
-const CONTROLLER_KEY = "wow-controller-mode";
+const CONTROLLER_KEY = "wow-controller-mode.v1";
+const CONTROLLER_KEY_LEGACY = "wow-controller-mode";
 
 function getSoundPref(): boolean {
   try {
@@ -33,7 +36,11 @@ function getSoundPref(): boolean {
 
 function getControllerPref(): boolean {
   try {
-    return localStorage.getItem(CONTROLLER_KEY) === "on";
+    const v = localStorage.getItem(CONTROLLER_KEY);
+    if (v === "on") return true;
+    if (v === "off") return false;
+    // First load on the versioned key: carry over the pre-versioning toggle.
+    return localStorage.getItem(CONTROLLER_KEY_LEGACY) === "on";
   } catch {
     return false;
   }
@@ -64,6 +71,9 @@ export default function LearnerShell({
   const [soundOn, setSoundOn] = useState<boolean>(() => getSoundPref());
   const [mapOpen, setMapOpen] = useState(false);
   const [controllerMode, setControllerMode] = useState<boolean>(() => getControllerPref());
+  // Set when the learner turns the mode off via the HUD during this session:
+  // a pad (re)connect must not override that explicit choice until they turn it back on.
+  const controllerOffThisSession = useRef(false);
   const { t } = useT();
 
   useEffect(() => {
@@ -91,14 +101,17 @@ export default function LearnerShell({
   }, [controllerMode]);
 
   const handleConnect = useCallback(() => {
-    setControllerMode(true);
-    try {
-      localStorage.setItem(CONTROLLER_KEY, "on");
-    } catch {
-      /* ignore */
+    if (!controllerOffThisSession.current) {
+      setControllerMode(true);
+      setTimeout(() => focusFirst(), 80);
     }
-    setTimeout(() => focusFirst(), 80);
   }, []);
+
+  const toggleController = useCallback(() => {
+    const next = !controllerMode;
+    controllerOffThisSession.current = !next;
+    setControllerMode(next);
+  }, [controllerMode]);
 
   const handleButtonDown = useCallback((index: number) => {
     if (index === 0) {
@@ -152,8 +165,11 @@ export default function LearnerShell({
     }
   }, []);
 
+  // Pad input moves focus only while controller mode is on, so the HUD toggle
+  // actually stops the pad. Connect/disconnect tracking stays live either way
+  // (the hook tracks it outside `enabled`), which is what drives auto-on.
   const { connected } = useGamepad({
-    enabled: true,
+    enabled: controllerMode,
     onButtonDown: handleButtonDown,
     onAxis: handleAxis,
     onConnect: handleConnect,
@@ -208,9 +224,9 @@ export default function LearnerShell({
       {coverUrl && (
         <div className="learnershell-bg" aria-hidden="true" style={{ backgroundImage: `url(${coverUrl})` }} />
       )}
-      <LearnerHUD me={me} hud={hud} soundOn={soundOn} mapOpen={mapOpen} controllerMode={controllerMode} onToggleController={() => setControllerMode((v) => !v)} onToggleSound={() => setSoundOn((v) => !v)} onToggleMap={() => setMapOpen((v) => !v)} onNavigate={onNavigate} onLogout={onLogout} />
+      <LearnerHUD me={me} hud={hud} soundOn={soundOn} mapOpen={mapOpen} controllerMode={controllerMode} padConnected={connected} onToggleController={toggleController} onToggleSound={() => setSoundOn((v) => !v)} onToggleMap={() => setMapOpen((v) => !v)} onNavigate={onNavigate} onLogout={onLogout} />
 
-      {connected && <PadLegend />}
+      {connected && controllerMode && <PadLegend />}
       {mapOpen && (
         <div className="hud-mapdrop" role="dialog" aria-label={t("shell.map")}>
           <div className="hud-mapdrop-head">
