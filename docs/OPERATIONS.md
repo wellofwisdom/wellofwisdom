@@ -93,9 +93,10 @@ Any key that has appeared in a chat transcript, a log, a screenshot or a commit 
 
 ## Install verification (generator v2)
 
-After a fresh install or a database reset, confirm the generator path works without an AI key:
+After a fresh install or a database reset, confirm the generator path works without an AI key. On a fresh clone run `npm install` first: the embedded database ships as an optional dependency, so `verify:install` fails with `pglite_not_installed` until it is there.
 
 ```
+npm install
 npm run verify:install
 ```
 

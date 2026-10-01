@@ -111,11 +111,17 @@ servers, no tracking, no ads.
 
 ## Self-host in 30 seconds
 
+The one prerequisite is Docker (with Compose). Everything else, including the
+database, comes from the clone.
+
 ```bash
 git clone https://github.com/wellofwisdom/wellofwisdom.git
 cd wellofwisdom
 docker compose up -d
 ```
+
+The first build compiles the web app and takes a few minutes; after that,
+`docker compose up -d` starts both containers in seconds.
 
 Open `http://localhost:3000`. The app and the database come up together. The
 first account you create is the family owner, and nothing is created on our
@@ -124,14 +130,29 @@ servers, because there are none.
 No AI key is needed for that command. Courses you generate need one; templates,
 lessons, review, progress, reports, calendar and email all work without.
 
-Latest image: `ghcr.io/wellofwisdom/wellofwisdom:latest` (and `v0.1.0`), so `docker pull` works once the release workflow has published it.
+A prebuilt image at `ghcr.io/wellofwisdom/wellofwisdom:latest` (and `v0.1.0`)
+is planned, but it is not pullable yet: the clone-and-build above is the way
+to install today.
+
+No Docker and just want to try it? Any Node 20+ box works too:
+
+```bash
+npm install
+npm --prefix web install
+npm --prefix web run build
+node --env-file=.env server/index.js   # after: cp .env.example .env
+```
+
+Set `DB_DRIVER=pglite` and a persistent `DATA_DIR` in `.env` and no separate
+Postgres is needed. See [CONTRIBUTING.md](CONTRIBUTING.md) for the details,
+including why the `.env` file needs `--env-file` outside Docker.
 
 **Fully offline AI** (no cloud, no API keys):
 
 ```bash
 docker compose --profile local-ai up -d
 docker compose exec ollama ollama pull llama3.1
-# then in .env:
+# then in .env (docker compose reads it and passes the values to the app):
 #   AI_BASE_URL=http://ollama:11434/v1
 #   AI_MODEL_PRO=llama3.1  AI_MODEL_FLASH=llama3.1
 # Photo to worksheet with a local vision model:

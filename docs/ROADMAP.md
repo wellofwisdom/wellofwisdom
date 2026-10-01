@@ -461,7 +461,7 @@ now makes possible. Everything else here is cheap by comparison.
 - [x] **FUNDING: SHIPPED.** `.github/FUNDING.yml` with `github: wellofwisdom` live from day one; Ko-fi and custom are commented until you add real handles. `SECURITY.md` shipped; `CHANGELOG.md` editorial and the git log serves for now.
 - [x] **Good first issues: SHIPPED 2026-09-11.** Checklist at `.github/ISSUE_TEMPLATE/good-first-issue-checklist.md` lists a dozen genuine code issues. File each as a real GitHub issue with the `good first issue` label when you open them.
 - [x] **v0.1.0 tagged: SHIPPED 2026-09-11.** `v0.1.0` points at the marketing plus demo plus Google commit and is pushed. Docker publish waits on a token with `workflow` scope: see commit `829ff7e` and the release workflow that was held back for that reason.
-- [ ] Verify the one-command install on a clean box. It is claimed; make it true.
+- [x] **Clean-box install verify: SHIPPED 2026-10-01.** Fresh clone into an empty temp dir, steps followed as a stranger. The Node path is proven end to end on a fresh embedded Postgres (PGlite): migrations, first account as owner, session, no AI key. Five doc gaps fixed: nothing outside docker compose reads `.env` (the old `npm run dev` advice silently configured nothing), a database is required before signup works (old text said optional), `verify:install` needs `npm install` first, the dev setup never built the web app so `/app` showed the skeleton page, and the GHCR image is not pullable yet. The docker path could not be run on the verify box (no Docker); compose and Dockerfile reviewed line by line instead.
 - [ ] Launch in one window: Show HN, r/selfhosted, r/homeschool,
       awesome-selfhosted, Lobsters, with the demo live.
 
