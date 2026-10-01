@@ -3,6 +3,13 @@ const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert/strict");
 const harness = require("../test-support/db");
 const ctx = harness.prepare(__filename);
+
+// The generate route refuses work while the instance has no AI, and the job
+// reads the TTS gate from the key env. A dummy base and key satisfy both
+// checks; the job itself never dials anything because the test swaps
+// ai.chatJson and media.speechSegment before it runs.
+process.env.AI_BASE_URL = process.env.AI_BASE_URL || "http://127.0.0.1:9/v1";
+process.env.KIE_API_KEY = process.env.KIE_API_KEY || "test-key";
 async function app() { return require("../../server/index"); }
 async function http(a, path, opts = {}) {
   const m = require("node:http"); const body = opts.body != null ? JSON.stringify(opts.body) : null;
