@@ -14,6 +14,7 @@ import VersionHistory from "../components/course-editor/VersionHistory";
 import { VerificationFlags } from "../components/course-editor/EditorSupplementals";
 import { VideoUploader, VideoLibrary, VideoPlayer, loadVideos, humanBytes } from "../components/VideoUI";
 import { RecordButton } from "../components/RecordButton";
+import AudioOverview from "../components/AudioOverview";
 import type { UploadRow } from "../components/VideoUI";
 import * as KindForms from "../components/course-editor/kinds";
 
@@ -484,6 +485,8 @@ export default function CourseDetail({ me, courseId, onNavigate }: { me: MeRespo
         trailerUploadId={course.trailer_upload_id ?? null}
         onChanged={load}
       />
+
+      <AudioOverview units={course.units.map((u) => ({ id: u.id, title: u.title }))} />
 
       <SharePanel
         courseId={courseId}
