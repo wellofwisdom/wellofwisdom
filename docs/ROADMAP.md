@@ -673,47 +673,59 @@ pass and what makes language learning possible at all.
 
 ## Controller mode (web first, no desktop needed)
 
-- [ ] `useGamepad` hook on the Gamepad API, polled in `requestAnimationFrame`.
-- [ ] Spatial focus manager: d-pad or left stick moves focus to the nearest
+- [x] `useGamepad` hook on the Gamepad API, polled in `requestAnimationFrame`
+      (PR #82: `web/src/hooks/useGamepad.ts`, dead zone, key repeat, connect
+      and disconnect events).
+- [x] Spatial focus manager: d-pad or left stick moves focus to the nearest
       `data-nav` element by direction; A activates, B back, X read aloud,
-      Y hint, right trigger narrator, start opens the map.
-- [ ] Button legend in the HUD when a pad is connected.
-- [ ] Answer entry without a keyboard: MCQ on the four face buttons, on-screen
-      number pad with `/` and `.` for numeric, speech for text (below).
-- [ ] Rumble on correct and on boss hits (`gamepad.vibrationActuator`).
-- [ ] Setting "Controller mode", auto-on when a pad connects.
+      Y hint, right trigger narrator, start opens the map (`d7ed5ff` for the
+      spatial nav and PadLegend, PR #84 for the Y hint, the RT narrator and
+      the full button map in `LearnerShell`).
+- [x] Button legend in the HUD when a pad is connected (`d7ed5ff`; the
+      standalone `ControllerLegend` component came with PR #82).
+- [x] Rumble on correct and on boss hits (`gamepad.vibrationActuator`) via
+      `useRumble` / `triggerRumble` (PR #82), wired into every item
+      component, the lesson player and the world resolve.
+- [x] Setting "Controller mode", auto-on when a pad connects (the hook flips
+      `wow-controller-mode` to on, PR #82; the HUD toggle came with PR #84).
 
 ## Speech input (voice answers) and a third voice-output tier
 
-- [ ] `POST /api/stt`: audio in, transcript out, through the existing AI layer
-      (any OpenAI-compatible `/v1/audio/transcriptions`, Groq and DeepInfra serve
-      Whisper), same spend caps, `STT_MODEL` env, card in the AI vault.
-- [ ] Browser `SpeechRecognition` as the zero-config tier; `whisper.cpp` sidecar
-      or in-browser `whisper-tiny` as the offline tier for strict mode and Steam.
-- [ ] Push-to-talk recorder (`AudioWorklet`, 16 kHz mono) with a small VAD.
-- [ ] Answer normalizer: number words to digits and fractions, letter names to
-      MCQ choice ids; transcript always shown and confirmed before grading.
-- [ ] New item kind `spoken`: answered aloud, graded by rubric or exact match.
-- [ ] Tutor voice mode: push-to-talk in, narrator voice out, text path unchanged.
-- [ ] Offline TTS tier (Piper sidecar or Kokoro in-browser) behind the same
-      `speak()` as kie TTS and `speechSynthesis`.
-- [ ] Audio discarded after transcription unless the guide turns on "keep
-      recordings".
+- [x] `POST /api/stt`: audio in, transcript out, through the existing AI layer
+      (`7858c79`: any OpenAI-compatible `/v1/audio/transcriptions` endpoint,
+      same spend caps, `STT_MODEL` env, config card in the AI vault; PR #91
+      finished the gating, the caps and the tests).
+- [x] Browser `SpeechRecognition` as the zero-config tier (`c3dc672`): with no
+      provider configured the client falls back to the browser's own
+      recogniser and `/api/stt/status` says so.
+- [x] Push-to-talk recorder with a small VAD, 16 kHz mono (`c3dc672`): hold
+      the button or the space bar; MediaRecorder plus an AnalyserNode VAD
+      rather than AudioWorklet, same shape otherwise.
+- [x] Answer normalizer: number words to digits and fractions, letter names to
+      MCQ choice ids (`33f754e`); fillers dropped, transcript always shown and
+      confirmed before grading.
+- [x] New item kind `spoken`: answered aloud, graded by rubric or exact match
+      (PR #91, `f9b7603`; server kind plus `SpokenItem`, sits at needsReview
+      until the guide writes the verdict).
+- [x] Audio discarded after transcription unless the guide turns on "keep
+      recordings" (`7858c79`; the family switch lives in the AI vault).
 
 ## Language learning v1 (Spanish A1 first, then French, then Latin)
 
-- [ ] Studio gains `target_language` and CEFR level (A1 to C1); generator writes
-      content in the target language, instructions in the learner's language.
-- [ ] Item kinds: vocabulary card (word, kie picture, TTS audio, example),
+- [x] Studio gains `target_language` and CEFR level (A1 to C1); generator writes
+      content in the target language, instructions in the learner's language
+      (PR #83, `5d0acbb`; roster import carries both, PR #89).
+- [x] Item kinds: vocabulary card (word, picture prompt, TTS audio, example),
       listen and choose, listen and repeat (STT word match with per-word
-      feedback), cloze, translate (rubric-graded with alternatives), dialogue
-      (tutor role-play with the existing strictness modes), graded reader
-      (public-domain chapter rewritten at level with tap-a-word glosses).
-- [ ] Vocabulary cards feed the existing spaced-review scheduler unchanged.
-- [ ] Translatable UI: one dictionary per language behind a tiny `t()` helper,
-      `lang` set per learner, TTS voice and STT model chosen from it.
-- [ ] Later: pronunciation scoring (goodness of pronunciation, wav2vec2 CTC) as
-      an optional offline model.
+      feedback, `bb87367`, migration 046), translate and dialogue (`9677e96`,
+      047), cloze (`c065dd9`), graded reader (public-domain chapter rewritten
+      at level with tap-a-word glosses, `f396ecb`); client components for the
+      card kinds (`075c617`) and the editor forms (PR #102).
+- [x] Vocabulary cards feed the existing spaced-review scheduler unchanged
+      (`bb87367`; per-card review polish PR #86).
+- [x] Translatable UI: one dictionary per language behind a tiny `t()` helper,
+      `lang` set per learner, TTS voice and STT language chosen from it
+      (PR #85, `c0b7779`; en/es/fr at full key parity, `3a0efdf`).
 
 ## Desktop build (an exe without Rust code)
 
@@ -721,16 +733,29 @@ Rust is not required. Tauri is a Rust shell but the app stays Node plus React;
 Electron is the fallback. Rust only enters if the world map ever wants a native
 renderer (Bevy), which is not planned.
 
-- [ ] PGlite driver behind `db.query()` (`DB_DRIVER=pglite`, `DATA_DIR` holds the
-      database, uploads and audio cache); run the full test suite against it.
-- [ ] Node single-executable build of the server (Node 22 SEA or `pkg`).
-- [ ] Tauri v2 shell with the server as a sidecar; webview loads
-      `http://127.0.0.1:<port>`; Windows, macOS and Linux from one config;
-      auto-update and code signing.
-- [ ] First run creates a local family with no email; AI is optional (bring a
-      key, or an optional local model pack).
-- [ ] All 17 example courses and 18 adventure templates bundled as content;
-      learner side full screen, guide console behind the parent PIN.
+- [x] PGlite driver behind `db.query()` (`DB_DRIVER=pglite`, `DATA_DIR` holds
+      the embedded database and, with the documented `DATA_DIR=./data`
+      layout, uploads and the audio cache; `079d3b4`, made safe for
+      concurrent transactions in PR #93); run the full test suite against it
+      with `npm run test:pglite`.
+- [x] Node single-executable build of the server (Node SEA): `npm run
+      build:sea` (`f7c65a3`), rebuilt so the exe embeds only Node plus a
+      loader and boots serving, verified against `/api/health` (`bb60664`,
+      PR #93).
+- [x] Tauri v2 shell with the server as a sidecar; webview loads
+      `http://127.0.0.1:<port>`; Windows, macOS and Linux from one config
+      (PR #90, `b6e0b3b`; `desktop.yml` builds all three bundles).
+      Auto-update and code signing did not ship (see Not shipped yet).
+- [x] First run creates a local family on the embedded database, with the
+      bundled gallery live and no network needed (PR #90); the sign up
+      form's email is only a login, nothing sends; AI is optional (bring a
+      key, or the local model pack, and the app degrades honestly without
+      either).
+- [x] Example content bundled: five example courses, all 21 adventure
+      templates and the 5 plan templates ride as Tauri resources, so the
+      gallery works on first run offline (PR #90; the French A1 adventure
+      came with `6abec8e`). Learner side full screen; the learner login is
+      username plus PIN; the guide console stays behind sign-in.
 
 ## Steam
 
@@ -747,3 +772,24 @@ renderer (Bevy), which is not planned.
 - [ ] Steam Playtest, then Early Access, then 1.0.
 - [ ] Model: free base with public-domain courses, paid course packs as DLC,
       AI generation bring-your-own-key or in-app credits.
+
+## Not shipped yet
+
+These checklist items did not ship in the 2026-09-30 wave (PRs 82 to 103).
+Each line is checked against the code on main:
+
+- MCQ answer entry on face buttons (and the on-screen number pad for
+  numeric): the pad reaches every surface, but answers still come from the
+  keyboard or from speech; the speech path for text answers did ship (see
+  Speech input).
+- Tutor voice mode: push-to-talk already fills the tutor composer, but the
+  narrator never reads replies back; TutorChat has no voice-out path.
+- Offline TTS tier (Piper sidecar or Kokoro in-browser): speak() falls back
+  from kie TTS to the browser's speechSynthesis, nothing more local exists.
+- Offline STT tier (whisper sidecar or in-browser whisper-tiny): the only
+  transcription paths are the OpenAI-compatible endpoint and the browser
+  recogniser; nothing runs offline.
+- Tauri auto-update and code signing: the desktop bundles build unsigned on
+  all three OSes and DESKTOP.md says "No signing yet"; no updater configured.
+- Pronunciation scoring (goodness of pronunciation, wav2vec2 CTC): absent;
+  it stays in the research queue at the top, as the plan says.
