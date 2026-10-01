@@ -922,6 +922,12 @@ router.get("/:id/answer-key", async (req, res, next) => {
           } else if (c.kind === "dialogue") {
             const goals = Array.isArray(c.goals) ? c.goals : [];
             answerText = goals.length ? goals.join(", ") : (c.scene || "dialogue");
+          } else if (c.kind === "spoken") {
+            // The key is the expected phrase (alternatives alongside); a
+            // rubric-only spoken item is guide-graded, so its rubric is the key.
+            if (c.expected) answerText = c.expected + (Array.isArray(c.alternatives) && c.alternatives.length ? " / " + c.alternatives.join(" / ") : "");
+            else if (c.rubric && String(c.rubric).trim()) answerText = c.rubric;
+            else answerText = null;
           } else answerText = c.answer;
           // Worth surfacing: an exercise with no answer cannot be graded, and
           // the generator does occasionally produce one.
@@ -951,6 +957,10 @@ router.get("/:id/answer-key", async (req, res, next) => {
           } else if (c.kind === "dialogue") {
             if (!c.scene || !String(c.scene).trim()) missingAnswers++;
             else if (!c.prompt || !String(c.prompt).trim()) missingAnswers++;
+          } else if (c.kind === "spoken") {
+            // An expected phrase or a rubric both grade a spoken item (rubric
+            // via the guide), so only a spoken item with neither is ungradable.
+            if (!c.expected && !(c.rubric && String(c.rubric).trim())) missingAnswers++;
           } else if (answerText === null || answerText === undefined || answerText === "") missingAnswers++;
           const hints = Array.isArray(c.hints) ? c.hints : c.hint ? [String(c.hint)] : [];
           return {
