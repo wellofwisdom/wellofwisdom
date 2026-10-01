@@ -5,13 +5,40 @@
 // The copy matters here. A child who is stuck is already discouraged, so the
 // opener invites the specific stuck-ness ("what part is fuzzy") rather than
 // asking them to formulate a question, which is its own hurdle.
+//
+// Voice mode: push-to-talk in, narrator voice out, text path unchanged. The
+// heard words still land in the box and the Ask button still sends them; the
+// narrator reads each fresh tutor reply aloud with the browser voice, never
+// the server. The mute toggle is per device, in localStorage, and the HUD
+// sound mute (wow-learner-sound) silences the narrator too.
 import { useEffect, useRef, useState } from "react";
 import { api, niceError } from "../../api";
 import { RichText } from "../../lib/rich";
-import { useT } from "../../i18n";
+import { useT, speakWithLang, currentLang } from "../../i18n";
 import { PushToTalk } from "../../components/PushToTalk";
 
 interface Msg { id?: number; role: "learner" | "tutor"; content: string; refused?: boolean }
+
+const VOICE_KEY = "wow-tutor-voice";
+const SOUND_KEY = "wow-learner-sound";
+
+function prefOn(key: string): boolean {
+  try { return localStorage.getItem(key) !== "off"; } catch { return true; }
+}
+
+/** What the narrator says: the reply with its markdown taken off.
+ *  speechSynthesis reads asterisks and dollar signs aloud, and a bullet
+ *  dash adds nothing, so the spoken text is the plain reading of it. */
+function spokenFor(text: string): string {
+  return String(text || "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*\s][^*]*)\*/g, "$1")
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/\$([^$]+)\$/g, "$1")
+    .replace(/^[ \t]*[-*][ \t]+/gm, "")
+    .replace(/[ \t]+/g, " ")
+    .trim();
+}
 
 export default function TutorChat({ lessonId, itemId, onClose }:
   { lessonId?: number; itemId?: number; onClose: () => void }) {
@@ -21,6 +48,8 @@ export default function TutorChat({ lessonId, itemId, onClose }:
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [voiceOn, setVoiceOn] = useState<boolean>(() => prefOn(VOICE_KEY));
+  const [rate, setRate] = useState(1);
   const endRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -48,6 +77,29 @@ export default function TutorChat({ lessonId, itemId, onClose }:
 
   useEffect(() => { inputRef.current?.focus(); }, [threadId]);
 
+  // The mute choice is per device. Muting also stops the sentence in flight:
+  // a narrator that keeps going after the learner asked for quiet is worse
+  // than one that never started.
+  useEffect(() => {
+    try { localStorage.setItem(VOICE_KEY, voiceOn ? "on" : "off"); } catch { /* ignore */ }
+    if (!voiceOn && typeof speechSynthesis !== "undefined") {
+      try { speechSynthesis.cancel(); } catch { /* ignore */ }
+    }
+  }, [voiceOn]);
+
+  // Leaving the tutor stops the narrator mid-sentence.
+  useEffect(() => () => {
+    if (typeof speechSynthesis !== "undefined") {
+      try { speechSynthesis.cancel(); } catch { /* ignore */ }
+    }
+  }, []);
+
+  function speakReply(content: string, atRate: number) {
+    if (!voiceOn || !prefOn(SOUND_KEY)) return;
+    const spoken = spokenFor(content);
+    if (spoken) speakWithLang(spoken, currentLang(), { rate: atRate });
+  }
+
   async function send() {
     const clean = text.trim();
     if (!clean || !threadId || busy) return;
@@ -56,10 +108,16 @@ export default function TutorChat({ lessonId, itemId, onClose }:
     setBusy(true);
     setError("");
     try {
-      const r = await api<{ reply: string; refused: boolean }>(
-        `/api/tutor/threads/${threadId}/messages`, { method: "POST", body: { text: clean } }
+      const r = await api<{ reply: string; refused: boolean; voice?: { rate: number; lang: string } }>(
+        `/api/tutor/threads/${threadId}/messages`,
+        { method: "POST", body: voiceOn ? { text: clean, voice: { rate, lang: currentLang() } } : { text: clean } }
       );
       setMessages((m) => [...m, { role: "tutor", content: r.reply, refused: r.refused }]);
+      // The server normalizes the voice params; speak with what it sanctioned
+      // and keep them for the next exchange.
+      const speakRate = r.voice && Number.isFinite(r.voice.rate) ? r.voice.rate : rate;
+      setRate(speakRate);
+      speakReply(r.reply, speakRate);
     } catch (e) {
       setError(niceError(e));
     } finally {
@@ -111,6 +169,17 @@ export default function TutorChat({ lessonId, itemId, onClose }:
           {/* Talking to the tutor, not answering a question: the heard words are
               appended so a follow up sentence does not wipe the last one. */}
           <PushToTalk kind="text" label={t("tutor.talk")} onResult={(spoken) => setText((current) => (current.trim() ? `${current.trim()} ${spoken.text}` : spoken.text))} />
+          {/* Narrator out: the toggle mutes the spoken replies, per device. */}
+          <button
+            className="btn ghost small-btn"
+            type="button"
+            aria-pressed={voiceOn}
+            aria-label={voiceOn ? "Mute the tutor's voice" : "Unmute the tutor's voice"}
+            title={voiceOn ? "Tutor voice is on" : "Tutor voice is muted"}
+            onClick={() => setVoiceOn((v) => !v)}
+          >
+            <span aria-hidden="true">{voiceOn ? "🔊" : "🔇"}</span>
+          </button>
           <button className="btn primary" type="button" disabled={busy || !text.trim()} onClick={send}>
             {t("tutor.ask")}
           </button>
