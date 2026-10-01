@@ -37,6 +37,37 @@ For the desktop shell, see `desktop/` (Well 10). It starts the server as a sidec
 
 The server honours `HOST` (default `0.0.0.0`, `127.0.0.1` in the desktop). Most installs do not need it.
 
+## Offline voice
+
+Speech comes in three tiers, checked in this order by the client: a server tier first, then the browser's own voices. The server reports which tiers the deployment brought up in `/api/stt/status` and `/api/stt/config` under `tiers`, so an operator can see the ladder at a glance:
+
+* `tts.kie`: speech output synthesized on kie.ai (`KIE_API_KEY` set).
+* `tts.sidecar`: speech output from a local Piper HTTP container (`TTS_BASE_URL` set).
+* `stt.sidecar`: speech input through a local whisper.cpp container (`STT_BASE_URL` set).
+* `browser`: the browser's own speech recognition and synthesis, always present as the last rung; the client decides what its browser can use.
+
+One command brings the sidecars up next to the app:
+
+```
+docker compose --profile offline-voice up -d
+```
+
+That starts two containers on the compose network:
+
+* `whisper` (whisper.cpp server, image `ghcr.io/ggml-org/whisper.cpp:main`) listens on port 9000 and serves its inference endpoint at `/v1/audio/transcriptions`, the OpenAI shape the app already posts to. The image ships ffmpeg and the `base.en` model, so the app's webm recordings are converted and transcribed out of the box.
+* `piper` (Piper's HTTP server, built from the pinned `piper-tts` pip package) listens on port 5000 and serves speech as WAV: `POST /synthesize` with `{"text": "..."}`. The `en_US-lessac-medium` voice downloads into the `piper-voices` volume on first start (about 65 MB) and is reused after that.
+
+Then point the app at them in `.env` and restart it:
+
+```
+STT_BASE_URL=http://whisper:9000/v1
+TTS_BASE_URL=http://piper:5000
+```
+
+`STT_BASE_URL` is the existing speech-input setting: with it set, the microphone sends recordings to the whisper sidecar and no audio leaves the box. `TTS_BASE_URL` is where the Piper container serves speech; setting it turns the `tts.sidecar` tier on in the status responses. Narration still synthesizes on kie and the browser speaks when that is not configured; see `docs/ROADMAP.md`, "Speech input (voice answers) and a third voice-output tier".
+
+Both env names are passed through the compose `app` service, so the same `.env` works for `docker compose up -d` and `docker compose --profile offline-voice up -d`. On a plain (non-docker) self-host, set the same variables to the sidecar addresses the host can reach.
+
 ## Backup and restore
 
 The database is just files. With the server stopped, copy `DATA_DIR`:
@@ -103,6 +134,9 @@ npm run test:pglite
 # When DB_DRIVER=pglite, DATABASE_URL is ignored.
 # DATA_DIR=
 # HOST=127.0.0.1   # only needed for the Tauri sidecar; default is 0.0.0.0
+# Offline voice (docker compose --profile offline-voice up -d):
+# STT_BASE_URL=http://whisper:9000/v1
+# TTS_BASE_URL=http://piper:5000
 ```
 
 ## Troubleshooting

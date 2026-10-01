@@ -2,6 +2,11 @@
 #   Full stack (app + database):   docker compose up -d
 #   With fully-local AI (Ollama):  docker compose --profile local-ai up -d
 #     then set AI_BASE_URL=http://ollama:11434/v1 in .env and restart the app.
+#   With offline voice (Piper + whisper.cpp):
+#     docker compose --profile offline-voice up -d
+#     then set STT_BASE_URL=http://whisper:9000/v1 and
+#     TTS_BASE_URL=http://piper:5000 in .env and restart the app.
+#     See docs/EMBEDDED.md, "Offline voice".
 services:
   app:
     build: .
@@ -14,6 +19,10 @@ services:
       AI_MODEL_PRO: ${AI_MODEL_PRO:-gpt-4o-mini}
       AI_MODEL_FLASH: ${AI_MODEL_FLASH:-gpt-4o-mini}
       AI_ROUTES: ${AI_ROUTES:-}
+      STT_BASE_URL: ${STT_BASE_URL:-}
+      STT_API_KEY: ${STT_API_KEY:-}
+      STT_MODEL: ${STT_MODEL:-}
+      TTS_BASE_URL: ${TTS_BASE_URL:-}
     volumes:
       # Uploaded video/images. Without this they vanish on every rebuild.
       - uploads:/app/data
@@ -47,7 +56,55 @@ services:
       - ollama:/root/.ollama
     restart: unless-stopped
 
+  # Optional: offline speech input. The whisper.cpp server behind the OpenAI
+  # transcription shape the app already posts to: --inference-path serves the
+  # inference endpoint at /v1/audio/transcriptions, so STT_BASE_URL stays
+  # http://whisper:9000/v1. The image ships ffmpeg, so --convert takes the
+  # app's webm recordings, and its build runs `make base.en`, which bakes the
+  # base.en model in at /app/models. Swap the command's --model and mount a
+  # volume for a bigger or multilingual model.
+  whisper:
+    image: ghcr.io/ggml-org/whisper.cpp:main
+    profiles: ["offline-voice"]
+    command: ["build/bin/whisper-server --host 0.0.0.0 --port 9000 --inference-path /v1/audio/transcriptions --convert --model /app/models/ggml-base.en.bin"]
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # Optional: offline speaking. Piper's HTTP server, pinned to the pip
+  # package. No official Piper image exists, so this builds a small one; the
+  # voice downloads into a named volume on first start (about 65 MB) and is
+  # reused after that. Speech is served as WAV: POST /synthesize
+  # {"text": "..."}.
+  piper:
+    image: wellofwisdom-piper-http:1.8.0
+    profiles: ["offline-voice"]
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM python:3.11-slim
+        RUN pip install --no-cache-dir piper-tts==1.8.0 flask
+    command: ["sh", "-c", "python -m piper.download_voices en_US-lessac-medium --download-dir /voices && exec python -m piper.http_server --model /voices/en_US-lessac-medium.onnx --host 0.0.0.0 --port 5000"]
+    ports:
+      - "5000:5000"
+    volumes:
+      - piper-voices:/voices
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/info')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
 volumes:
   pgdata:
   uploads:
   ollama:
+  piper-voices:

@@ -12,7 +12,7 @@ const aiConfig = require("../lib/aiConfig");
 const aiLimits = require("../lib/aiLimits");
 const sttRoute = require("./stt");
 
-const ENV_KEYS = ["STT_BASE_URL", "STT_API_KEY", "STT_MODEL", "STT_KEEP_RECORDINGS", "STT_DAILY_CAP", "INSTANCE_ADMIN_EMAILS"];
+const ENV_KEYS = ["STT_BASE_URL", "STT_API_KEY", "STT_MODEL", "STT_KEEP_RECORDINGS", "STT_DAILY_CAP", "TTS_BASE_URL", "KIE_API_KEY", "INSTANCE_ADMIN_EMAILS"];
 
 function withEnv(vars) {
   const prev = {};
@@ -181,6 +181,49 @@ test("a multipart body is accepted, options and all", async () => {
   } finally {
     await srv.close();
     provider.restore();
+    restore();
+  }
+});
+
+test("the status response names every speech tier the env brought up", async () => {
+  const on = withEnv({ STT_BASE_URL: "http://whisper:9000/v1", TTS_BASE_URL: "http://piper:5000", KIE_API_KEY: "fake-kie-key" });
+  const srv = serve(LEARNER);
+  try {
+    const body = await (await fetch(`${srv.base}/api/stt/status`)).json();
+    assert.deepEqual(body.tiers, {
+      tts: { kie: true, sidecar: true, browser: true },
+      stt: { sidecar: true, browser: true },
+    });
+  } finally {
+    await srv.close();
+    on();
+  }
+  const off = withEnv({});
+  const bare = serve(LEARNER);
+  try {
+    const body = await (await fetch(`${bare.base}/api/stt/status`)).json();
+    assert.deepEqual(body.tiers, {
+      tts: { kie: false, sidecar: false, browser: true },
+      stt: { sidecar: false, browser: true },
+    });
+  } finally {
+    await bare.close();
+    off();
+  }
+});
+
+test("the config response carries the tier ladder next to the vault fields", async () => {
+  const restore = withEnv({ TTS_BASE_URL: "http://piper:5000" });
+  const guideApp = serve(PARENT);
+  const restoreDb = stubAdminRows(OWNER_ROW);
+  try {
+    const body = await (await fetch(`${guideApp.base}/api/stt/config`)).json();
+    assert.equal(body.tiers.tts.sidecar, true);
+    assert.equal(body.tiers.stt.sidecar, false);
+    assert.equal(body.tiers.tts.browser, true);
+  } finally {
+    restoreDb();
+    await guideApp.close();
     restore();
   }
 });
