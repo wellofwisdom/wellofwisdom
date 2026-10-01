@@ -11,3 +11,6 @@ export { default as NumberlineForm } from "./NumberlineForm";
 export { default as FractionForm } from "./FractionForm";
 export { default as TranslateForm } from "./TranslateForm";
 export { default as DialogueForm } from "./DialogueForm";
+export { default as VocabCardForm } from "./VocabCardForm";
+export { default as SpokenForm } from "./SpokenForm";
+export { default as GradedReaderForm } from "./GradedReaderForm";

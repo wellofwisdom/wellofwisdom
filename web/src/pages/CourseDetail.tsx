@@ -17,7 +17,7 @@ import { RecordButton } from "../components/RecordButton";
 import type { UploadRow } from "../components/VideoUI";
 import * as KindForms from "../components/course-editor/kinds";
 
-const TYPE_ICON: Record<string, string> = { article: "📖", exercise: "✏️", video: "▶️", audio: "🔊", project: "🛠️" };
+const TYPE_ICON: Record<string, string> = { article: "📖", graded_reader: "📚", exercise: "✏️", video: "▶️", audio: "🔊", project: "🛠️" };
 
 
 const LICENSES = [
@@ -575,6 +575,16 @@ function ItemPreview({ item, onEdit, onDelete }: { item: ItemNode; onEdit: () =>
               </div>
             </>
           )}
+          {item.type === "graded_reader" && (
+            <>
+              <strong>{c.title ? `📚 ${c.title}` : "Reader"}{c.level ? ` · ${c.level}` : ""}</strong>
+              <div className="small muted" style={{ marginTop: 2 }}>
+                {String(c.body || "").slice(0, 120)}
+                {String(c.body || "").length > 120 ? "…" : ""}
+                {c.glosses && typeof c.glosses === "object" ? ` · ${Object.keys(c.glosses).length} gloss${Object.keys(c.glosses).length === 1 ? "" : "es"}` : ""}
+              </div>
+            </>
+          )}
           {item.type === "video" && (
             <>
               <strong>{c.title}</strong>
@@ -885,7 +895,15 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [pDesc, setPDesc] = useState(c.description ?? "");
   const [rubric, setRubric] = useState(c.rubric ?? "");
 
-  const isNewKind = ["multi", "order", "match", "categorize", "hotspot", "plot", "scenario", "cloze", "numberline", "fraction", "translate", "dialogue"].includes(kind);
+  const isNewKind = ["multi", "order", "match", "categorize", "hotspot", "plot", "scenario", "cloze", "numberline", "fraction", "translate", "dialogue", "vocab_card", "spoken"].includes(kind);
+  const [grTitle, setGrTitle] = useState((c as any).title ?? "");
+  const [grBody, setGrBody] = useState((c as any).body ?? "");
+  const [grLevel, setGrLevel] = useState((c as any).level ?? "A1");
+  const [grGlosses, setGrGlosses] = useState(() => {
+    const g = (c as any).glosses;
+    if (!g || typeof g !== "object" || Array.isArray(g)) return "";
+    return Object.entries(g as Record<string, string>).map(([k, v]) => `${k}=${v}`).join("\n");
+  });
 
   async function save() {
     setBusy(true);
@@ -922,6 +940,29 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
         if (explanation) content.explanation = explanation;
         if (hint) content.hint = hint;
       }
+    } else if (item.type === "graded_reader") {
+      const LEVELS = new Set(["A1", "A2", "B1", "B2", "C1", "C2"]);
+      const body = String(grBody).trim();
+      if (!body) { setError("Body is required."); setBusy(false); return; }
+      const lvl = String(grLevel).trim().toUpperCase().slice(0, 4);
+      if (!LEVELS.has(lvl)) { setError("Level is required: A1 to C2."); setBusy(false); return; }
+      const built: Record<string, unknown> = { title: String(grTitle).trim().slice(0, 300) || "Reader", body: body.slice(0, 20000), level: lvl };
+      const gt = String(grGlosses).trim();
+      if (gt) {
+        const lines = gt.split("\n").map((s) => s.trim()).filter(Boolean);
+        if (lines.length > 100) { setError("At most 100 glosses."); setBusy(false); return; }
+        const out: Record<string, string> = {};
+        for (const line of lines) {
+          const eq = line.indexOf("=");
+          if (eq === -1) { setError("Gloss lines must be word=meaning."); setBusy(false); return; }
+          const k = line.slice(0, eq).trim().slice(0, 100);
+          const v = line.slice(eq + 1).trim().slice(0, 500);
+          if (!k || !v) { setError("Each gloss needs a word and a meaning."); setBusy(false); return; }
+          if (out[k] == null) out[k] = v;
+        }
+        if (Object.keys(out).length) built.glosses = out;
+      }
+      content = built;
     } else if (item.type === "video") {
       const unpicked = unpickedQuestion(vQuestions);
       if (unpicked) { setError(`Pick the correct answer for question ${unpicked}.`); setBusy(false); return; }
@@ -995,6 +1036,8 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
               <option value="scenario">Scenario</option>
               <option value="translate">Translate</option>
               <option value="dialogue">Dialogue</option>
+              <option value="vocab_card">Vocab card</option>
+              <option value="spoken">Spoken</option>
             </select>
           </Field>
           {kind === "multi" && <KindForms.MultiForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
@@ -1009,6 +1052,8 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
           {kind === "scenario" && <KindForms.ScenarioForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
           {kind === "translate" && <KindForms.TranslateForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
           {kind === "dialogue" && <KindForms.DialogueForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "vocab_card" && <KindForms.VocabCardForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "spoken" && <KindForms.SpokenForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
           {!isNewKind && kind === "mcq" && (
             <>
               <Field label="Choices (one per line)">
@@ -1047,6 +1092,9 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
             onChange={setVQuestions}
           />
         </>
+      )}
+      {item.type === "graded_reader" && (
+        <KindForms.GradedReaderForm content={{ title: grTitle, body: grBody, level: grLevel, glosses: (() => { const out: Record<string, string> = {}; for (const l of String(grGlosses).split("\n").map((s) => s.trim()).filter(Boolean)) { const eq = l.indexOf("="); if (eq !== -1) out[l.slice(0, eq).trim()] = l.slice(eq + 1).trim(); } return Object.keys(out).length ? out : undefined; })(), explanation: "" }} onBuilt={(b) => { if (b) { setGrTitle((b as any).title ?? grTitle); setGrBody((b as any).body ?? grBody); setGrLevel((b as any).level ?? grLevel); if ((b as any).glosses) { const g = (b as any).glosses as Record<string, string>; setGrGlosses(Object.entries(g).map(([kk, vv]) => `${kk}=${vv}`).join("\n")); } } }} onPreview={() => {}} />
       )}
       {item.type === "project" && (
         <>
