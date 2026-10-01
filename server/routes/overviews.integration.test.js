@@ -3,13 +3,6 @@ const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert/strict");
 const harness = require("../test-support/db");
 const ctx = harness.prepare(__filename);
-
-// The generate route refuses work while the instance has no AI, and the job
-// reads the TTS gate from the key env. A dummy base and key satisfy both
-// checks; the job itself never dials anything because the test swaps
-// ai.chatJson and media.speechSegment before it runs.
-process.env.AI_BASE_URL = process.env.AI_BASE_URL || "http://127.0.0.1:9/v1";
-process.env.KIE_API_KEY = process.env.KIE_API_KEY || "test-key";
 async function app() { return require("../../server/index"); }
 async function http(a, path, opts = {}) {
   const m = require("node:http"); const body = opts.body != null ? JSON.stringify(opts.body) : null;
@@ -46,6 +39,16 @@ describe("audio overviews integration", () => {
 
   it("generates, stores, and replaces one overview per unit", async () => {
     if (ctx.skip) { console.log("# skip: TEST_DATABASE_URL not set"); return; }
+    // The generate route refuses work while the instance has no AI, and the
+    // job reads the TTS gate from the key env. A dummy base and key satisfy
+    // both checks; nothing dials out because chatJson and speechSegment are
+    // swapped below. Scoped here and restored after, so a same-process check
+    // run never sees a configured AI that is not there.
+    const savedAiBase = process.env.AI_BASE_URL;
+    const savedKie = process.env.KIE_API_KEY;
+    process.env.AI_BASE_URL = "http://127.0.0.1:9/v1";
+    process.env.KIE_API_KEY = "test-key";
+    try {
     const a = await app();
     const db = require("../lib/db");
     const ai = require("../lib/ai");
@@ -130,5 +133,9 @@ describe("audio overviews integration", () => {
     assert.equal(left, 1, "only the last overview survives");
     const gone = (await db.query("select count(*)::int as n from uploads where id = $1", [ov1.uploadId])).rows[0].n;
     assert.equal(gone, 0, "the old upload row is deleted");
+    } finally {
+      if (savedAiBase == null) delete process.env.AI_BASE_URL; else process.env.AI_BASE_URL = savedAiBase;
+      if (savedKie == null) delete process.env.KIE_API_KEY; else process.env.KIE_API_KEY = savedKie;
+    }
   });
 });
