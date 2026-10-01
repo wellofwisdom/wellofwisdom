@@ -18,6 +18,26 @@ function num(v) {
   return Number.isInteger(n) ? n : null;
 }
 
+// Tutor voice mode. The reply is spoken by the browser (speechSynthesis via
+// web/src/i18n speakWithLang); nothing here synthesizes, keeps, or persists
+// audio, and the route stays JSON in and JSON out. A client speaking the
+// reply may send its voice params next to the text; they come back validated
+// and normalized with the reply, so the spoken contract is part of the API
+// and a future server TTS tier can honor the same fields. A request without
+// voice params gets exactly the response it always did.
+const VOICE_LANGS = new Set(["en", "es", "fr"]);
+
+function voiceParams(body) {
+  const v = (body || {}).voice;
+  if (!v || typeof v !== "object") return null;
+  const rate = Number(v.rate);
+  const lang = String(v.lang || "").trim().toLowerCase().slice(0, 2);
+  return {
+    rate: Number.isFinite(rate) ? Math.min(1.5, Math.max(0.5, rate)) : 1,
+    lang: VOICE_LANGS.has(lang) ? lang : "en",
+  };
+}
+
 router.get("/modes", (_req, res) => {
   res.json({ modes: Object.values(tutor.MODES).map((m) => ({
     id: m.id, label: m.label, blurb: m.blurb, seesAnswer: m.seesAnswer,
@@ -74,7 +94,8 @@ router.post("/threads/:id/messages", async (req, res, next) => {
     const out = await tutor.ask({
       threadId: id, learnerId: req.user.id, familyId: req.user.familyId, text,
     });
-    res.json(out);
+    const voice = voiceParams(req.body);
+    res.json(voice ? { ...out, voice } : out);
   } catch (err) {
     if (err.message === "thread_not_found") return bad(res, "not_found", 404);
     if (err.message === "empty_message") return bad(res, "empty_message");
