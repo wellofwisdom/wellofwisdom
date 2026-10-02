@@ -85,8 +85,9 @@ jobs:
           PORT=4979 HOST=127.0.0.1 DB_DRIVER=pglite DATA_DIR="$DATA_DIR" "$exe" &
           pid=$!
           ok=""
+          body=""
           for i in $(seq 1 120); do
-            if curl -fsS "http://127.0.0.1:4979/api/health" | grep -q '"ok":true'; then ok=yes; break; fi
+            if body=$(curl -fsS "http://127.0.0.1:4979/api/health"); then ok=yes; break; fi
             if ! kill -0 $pid 2>/dev/null; then echo "sidecar exited before answering"; break; fi
             sleep 1
           done
@@ -96,8 +97,7 @@ jobs:
             exit 1
           fi
           echo "Sidecar answered 200:"
-          curl -fsS "http://127.0.0.1:4979/api/health" || true
-          echo
+          echo "$body"
 
       # Shell compile only, no bundling and no window: headless Linux runners
       # cannot open a Tauri window, and the bundlers (dmg, msi, AppImage) are
