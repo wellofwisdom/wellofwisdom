@@ -13,7 +13,11 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
+// Number(null) is 0, so an explicit JSON null (the client sends
+// lessonId: null for item-only threads) must be caught before the
+// conversion: a 0 in a foreign key column is a 500, not an absent value.
 function num(v) {
+  if (v === null || v === undefined || v === "") return null;
   const n = Number(v);
   return Number.isInteger(n) ? n : null;
 }

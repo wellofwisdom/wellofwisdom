@@ -26,7 +26,10 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
+// Same null rule as tutor.js: Number(null) is 0, and a 0 id is never an
+// absent value in a foreign key column.
 function num(v) {
+  if (v === null || v === undefined || v === "") return null;
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
 }
