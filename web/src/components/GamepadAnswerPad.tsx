@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // GamepadAnswerPad: controller answer entry for exercises.
-// MCQ: the four face buttons pick choices 1 to 4 while the exercise listens,
-// one pill per choice on the legend. Numeric: an on-screen number pad with
-// digits, / and . ; its enter key submits, gamepad B closes the pad.
+// MCQ: the four face buttons pick choices 1 to 4, one pill per choice on the
+// legend. They pick only while a choice of this exercise holds focus (tracked
+// with focusin/focusout); the root carries data-gamepad-active in exactly
+// those moments, so the shell yields its face buttons (PR 111 guard) while the
+// pad listens and acts normally the rest of the time. Move focus to the Check
+// button or any other data-nav control and A activates it, B goes back, X
+// reads and Y hints, exactly as the shell would with no pad listening.
+// Numeric: an on-screen number pad with digits, / and . ; its enter key
+// submits, gamepad B closes the pad, so the pad stays active while it is open.
 // Renders nothing until a pad connects, so mouse and keyboard users see no
-// change. The root carries data-gamepad-active while it consumes buttons so a
-// future shell update can yield its own face-button handling (the shell keeps
-// B back, X read, Y hint live; LearnerShell is Well 3's file). Rumble on a
-// correct answer stays in ExerciseItem submit(), which every path here uses.
-import { useCallback, useState } from "react";
+// change. Rumble on a correct answer stays in ExerciseItem submit(), which
+// every path here uses.
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useGamepad } from "../hooks/useGamepad";
 import ControllerLegend, { type LegendPill } from "./ControllerLegend";
 
@@ -59,11 +63,40 @@ export default function GamepadAnswerPad({
 }) {
   const [padOpen, setPadOpen] = useState(true);
   const listening = kind === "mcq" || padOpen;
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [focusOnChoice, setFocusOnChoice] = useState(false);
+
+  // The exercise's choices are the radio buttons of the radiogroup this pad
+  // renders in (ExerciseItem mounts the pad inside the group). Focus is read
+  // live because the choice buttons are siblings of the pad root, not
+  // descendants, so focusin/focusout on document drive the flag.
+  const focusIsOnChoice = useCallback((): boolean => {
+    const root = rootRef.current;
+    const el = document.activeElement;
+    if (!root || !el) return false;
+    const group = root.closest('[role="radiogroup"]');
+    return group !== null && group.contains(el) && el.matches('[role="radio"]');
+  }, []);
+
+  useEffect(() => {
+    if (kind !== "mcq") return;
+    const sync = () => setFocusOnChoice(focusIsOnChoice());
+    sync();
+    document.addEventListener("focusin", sync);
+    document.addEventListener("focusout", sync);
+    return () => {
+      document.removeEventListener("focusin", sync);
+      document.removeEventListener("focusout", sync);
+    };
+  }, [kind, focusIsOnChoice]);
 
   const onButtonDown = useCallback(
     (index: number) => {
       if (kind === "mcq") {
         if (busy) return;
+        // Pick only while the pad owns the face buttons (focus on a choice);
+        // otherwise the attribute is off and the shell handles A, B, X and Y.
+        if (!focusOnChoice) return;
         // Standard mapping: 0=A, 1=B, 2=X, 3=Y pick choices 1 to 4.
         const ch = choices[index];
         if (ch) onPick?.(ch.id);
@@ -72,7 +105,7 @@ export default function GamepadAnswerPad({
       if (!padOpen) return;
       if (index === 1) setPadOpen(false); // B closes the pad
     },
-    [kind, busy, choices, onPick, padOpen],
+    [kind, busy, choices, onPick, padOpen, focusOnChoice],
   );
 
   const { connected } = useGamepad({ enabled: listening, onButtonDown });
@@ -97,8 +130,9 @@ export default function GamepadAnswerPad({
     }));
     if (pills.length === 0) return null;
     return (
-      <div data-gamepad-active="true" style={{ marginTop: 6 }}>
+      <div ref={rootRef} data-gamepad-active={focusOnChoice ? "true" : undefined} style={{ marginTop: 6 }}>
         <ControllerLegend pills={pills} />
+        <div className="muted small">A picks while a choice is focused; on Check or help it presses the focused button.</div>
       </div>
     );
   }
