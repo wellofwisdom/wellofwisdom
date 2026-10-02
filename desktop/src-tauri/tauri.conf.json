@@ -45,9 +45,6 @@
     ],
     "windows": {
       "iconPath": "icons/icon.ico"
-    },
-    "macOS": {
-      "icon": "icons/icon.png"
     }
   }
 }
