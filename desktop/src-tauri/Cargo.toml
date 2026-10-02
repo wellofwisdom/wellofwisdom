@@ -7,6 +7,14 @@ edition = "2021"
 repository = "https://github.com/wellofwisdom/wellofwisdom"
 license = "AGPL-3.0-or-later"
 
+# The shell code lives in src/lib.rs and main.rs only calls into it, so the
+# lib crate needs its name declared. Without this section cargo names the lib
+# after the package (wellofwisdom_desktop) while main.rs expects
+# wellofwisdom_desktop_lib, and every OS dies with E0433.
+[lib]
+name = "wellofwisdom_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
