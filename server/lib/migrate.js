@@ -37,21 +37,24 @@ async function runMigrations({ log = console.log } = {}) {
   for (const file of files) {
     if (applied.has(file)) continue;
     const sql = fs.readFileSync(path.join(dir, file), "utf8");
-    await db.query("begin");
-    // The file's own SQL first: a unique violation raised by the migration must
-    // not be mistaken for the bookkeeping insert racing another process.
+    // One checked-out client for the whole file. db.query answers on the
+    // pool, where begin, the file's statements and the bookkeeping insert
+    // can each land on a different connection: a "transaction" that never
+    // was, and a half-applied migration when a statement fails.
     try {
-      await db.query(sql);
+      await db.transaction(async (client) => {
+        try {
+          await client.query(sql);
+        } catch (err) {
+          // Tag it so the race check below cannot mistake a unique
+          // violation raised by the file itself for the bookkeeping insert.
+          err.__wowMigrationSql = true;
+          throw err;
+        }
+        await client.query("insert into _migrations (name) values ($1)", [file]);
+      });
     } catch (err) {
-      await db.query("rollback");
-      throw new Error(`migration ${file} failed: ${err.message}`);
-    }
-    try {
-      await db.query("insert into _migrations (name) values ($1)", [file]);
-      await db.query("commit");
-    } catch (err) {
-      await db.query("rollback");
-      if (err.code === "23505") {
+      if (err && err.code === "23505" && !err.__wowMigrationSql) {
         // Another process applied this file between our read and our insert.
         log(`[migrate] ${file} was applied by another process`);
         continue;
