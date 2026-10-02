@@ -155,4 +155,27 @@ describe("tutor threads integration", () => {
     const threads = await db.query("select count(*)::int as n from tutor_threads where family_id=$1", [famA.familyId]);
     assert.equal(threads.rows[0].n, 0, "no thread row for a foreign item");
   });
+
+  it("a message on a keyless instance answers ai_not_configured, not a 500", async () => {
+    if (ctx.skip) {
+      console.log("# skip: TEST_DATABASE_URL not set");
+      return;
+    }
+    const a = await app();
+    const db = require("../lib/db");
+    const fam = await signupFamily(a, "keyless");
+    const seeded = await seedItem(db, fam.familyId, fam.userId);
+    const lj = await learnerJar(a, fam.familyId, "keyless");
+    const th = await http(a, "/api/tutor/threads", {
+      cookie: lj,
+      body: { lessonId: null, itemId: seeded.itemId },
+    });
+    assert.equal(th.status, 201, th.text);
+    const r = await http(a, `/api/tutor/threads/${th.json.threadId}/messages`, {
+      cookie: lj,
+      body: { text: "I do not know where to start" },
+    });
+    assert.equal(r.status, 503, r.text);
+    assert.equal(r.json.error, "ai_not_configured");
+  });
 });

@@ -114,6 +114,9 @@ router.post("/threads/:id/messages", async (req, res, next) => {
   } catch (err) {
     if (err.message === "thread_not_found") return bad(res, "not_found", 404);
     if (err.message === "empty_message") return bad(res, "empty_message");
+    // A family without an AI key still gets an honest answer, not a 500: the
+    // web client already carries a friendly string for this code.
+    if (String(err.message).startsWith("ai_not_configured")) return bad(res, "ai_not_configured", 503);
     next(err);
   }
 });
