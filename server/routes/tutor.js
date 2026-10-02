@@ -65,6 +65,17 @@ router.post("/threads", async (req, res, next) => {
       );
       if (!owns.rowCount) return bad(res, "lesson_not_found", 404);
     }
+    if (itemId) {
+      // Same scope as the lesson check: an item id from another family must
+      // not become tutor context, so it is refused here rather than trusted.
+      const owns = await db.query(
+        `select i.id from lesson_items i join lessons l on l.id = i.lesson_id
+           join units u on u.id = l.unit_id join courses c on c.id = u.course_id
+          where i.id = $1 and c.family_id = $2`,
+        [itemId, req.user.familyId]
+      );
+      if (!owns.rowCount) return bad(res, "item_not_found", 404);
+    }
 
     const existing = await db.query(
       `select id from tutor_threads

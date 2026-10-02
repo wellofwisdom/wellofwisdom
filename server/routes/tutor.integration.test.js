@@ -134,4 +134,25 @@ describe("tutor threads integration", () => {
     assert.equal(Number(row.rows[0].lesson_id), seeded.lessonId);
     assert.equal(row.rows[0].item_id, null, "item_id must stay null, not 0");
   });
+
+  it("another family's item id is refused, not adopted as tutor context", async () => {
+    if (ctx.skip) {
+      console.log("# skip: TEST_DATABASE_URL not set");
+      return;
+    }
+    const a = await app();
+    const db = require("../lib/db");
+    const famA = await signupFamily(a, "scopea");
+    const famB = await signupFamily(a, "scopeb");
+    const bItem = await seedItem(db, famB.familyId, famB.userId);
+    const lj = await learnerJar(a, famA.familyId, "scopea");
+    const r = await http(a, "/api/tutor/threads", {
+      cookie: lj,
+      body: { lessonId: null, itemId: bItem.itemId },
+    });
+    assert.equal(r.status, 404, r.text);
+    assert.equal(r.json.error, "item_not_found");
+    const threads = await db.query("select count(*)::int as n from tutor_threads where family_id=$1", [famA.familyId]);
+    assert.equal(threads.rows[0].n, 0, "no thread row for a foreign item");
+  });
 });
