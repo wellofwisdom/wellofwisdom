@@ -1,0 +1,125 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Triple platform desktop build (wave 6, Steam readiness). The desktop app had
+# only ever been hand-verified on one Windows box; Steam needs Windows, macOS
+# and Linux builds that are KNOWN to boot. Each runner proves its own sidecar:
+# web/dist builds, scripts/build-sea.js postjects the blob into the official
+# node binary of that platform, the sidecar is booted with DB_DRIVER=pglite and
+# a temp DATA_DIR, and /api/health must answer 200. Then the Tauri shell is
+# compiled with cargo.
+#
+# The CI bar stops there on purpose: the full Tauri window cannot open
+# headlessly on the Linux runner, and faking it would prove nothing. What still
+# needs a human on real hardware per OS is listed in docs/DESKTOP.md.
+name: Desktop build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/build-sea.js"
+      - "desktop/**"
+      - ".github/workflows/desktop-build.yml"
+  pull_request:
+    paths:
+      - "scripts/build-sea.js"
+      - "desktop/**"
+      - ".github/workflows/desktop-build.yml"
+
+jobs:
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri -> target
+
+      - name: Install Linux deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm --prefix web ci
+
+      - name: Build web/dist
+        run: npm run build
+
+      - name: Build SEA sidecar for this runner
+        run: npm run build:sea:ci
+
+      # The bar every OS must clear on its own: its sidecar boots against
+      # PGlite in a throwaway DATA_DIR and answers /api/health with 200. A cold
+      # first boot applies every migration, hence the two minute budget.
+      - name: Boot sidecar and probe /api/health
+        shell: bash
+        run: |
+          set -e
+          exe=(dist-desktop/wellofwisdom-server-*)
+          exe="${exe[0]}"
+          echo "Booting sidecar: $exe"
+          DATA_DIR="${RUNNER_TEMP:-$(mktemp -d)}/wow-sidecar-boot"
+          mkdir -p "$DATA_DIR"
+          PORT=4979 HOST=127.0.0.1 DB_DRIVER=pglite DATA_DIR="$DATA_DIR" "$exe" &
+          pid=$!
+          ok=""
+          for i in $(seq 1 120); do
+            if curl -fsS "http://127.0.0.1:4979/api/health" | grep -q '"ok":true'; then ok=yes; break; fi
+            if ! kill -0 $pid 2>/dev/null; then echo "sidecar exited before answering"; break; fi
+            sleep 1
+          done
+          kill $pid 2>/dev/null || true
+          if [ -z "$ok" ]; then
+            echo "FAIL: sidecar never answered 200 on /api/health"
+            exit 1
+          fi
+          echo "Sidecar answered 200:"
+          curl -fsS "http://127.0.0.1:4979/api/health" || true
+          echo
+
+      # Shell compile only, no bundling and no window: headless Linux runners
+      # cannot open a Tauri window, and the bundlers (dmg, msi, AppImage) are
+      # proven separately by the dispatch-only desktop.yml workflow.
+      - name: Build Tauri shell (cargo)
+        run: cargo build --release
+        working-directory: desktop/src-tauri
+
+      - name: Upload sidecar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sidecar-${{ matrix.os }}
+          path: dist-desktop/*
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload shell binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shell-${{ matrix.os }}
+          path: |
+            desktop/src-tauri/target/release/wellofwisdom-desktop
+            desktop/src-tauri/target/release/wellofwisdom-desktop.exe
+          if-no-files-found: error
+          retention-days: 14
