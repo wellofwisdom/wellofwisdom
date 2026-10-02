@@ -9,6 +9,13 @@
 // finds server/index.js near the executable and requires it, which keeps one
 // code path for `node server/index.js` and the exe. The verify step at the end
 // boots the exe and probes /api/health, so a build that cannot serve fails loudly.
+//
+// One option exists for the CI matrix: --out-dir <dir> writes the sidecar to
+// <dir>/wellofwisdom-server-<windows|macos|linux>-<arch>[.exe] so the three
+// runner artifacts never collide. Without the option nothing changes: the exe
+// lands in the repo root under its plain name. The dir may be relative to the
+// repo root. The macos build is ad-hoc signed only (no Developer ID cert, no
+// notarization); the loader says so in the boot log on every macOS start.
 const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
@@ -43,11 +50,47 @@ function human(n) {
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+// Depot-friendly slug: Steam talks windows/macos/linux, node says win32/darwin.
+function platformSlug() {
+  if (process.platform === "win32") return "windows";
+  if (process.platform === "darwin") return "macos";
+  return "linux";
+}
+
+function exeSuffix() {
+  return process.platform === "win32" ? ".exe" : "";
+}
+
+// The loader runs inside the exe before the server starts, so this line shows
+// up in the boot log of every macOS launch (CI included): the build is not
+// Developer ID signed and not notarized, and Gatekeeper blocks such binaries.
+const MACOS_UNSIGNED_NOTICE =
+  "[wellofwisdom-server] Unsigned macOS build: no Developer ID signature and no notarization. " +
+  "Gatekeeper will block it on a stock Mac. See docs/DESKTOP.md (Signing) for what is needed to change that.";
+
+function codesign(args, fatal) {
+  const res = spawnSync("codesign", args, { stdio: "inherit" });
+  if (res.status !== 0 && fatal) {
+    console.error(`[build:sea] codesign ${args.join(" ")} failed. macOS (Apple Silicon) kills an exe whose signature is invalid.`);
+    process.exit(res.status || 1);
+  }
+  return res.status === 0;
+}
+
 async function main() {
   ensureBuilt();
 
-  const outName = process.platform === "win32" ? "wellofwisdom-server.exe" : "wellofwisdom-server";
-  const outPath = path.join(ROOT, outName);
+  const outDirArg = process.argv.indexOf("--out-dir");
+  const outDir = outDirArg >= 0 ? path.resolve(ROOT, process.argv[outDirArg + 1] || "") : null;
+  if (outDirArg >= 0 && (!outDir || outDir === ROOT)) {
+    console.error("[build:sea] --out-dir needs a directory (relative to the repo root is fine), and it must not be the repo root itself.");
+    process.exit(1);
+  }
+  const outName = outDir
+    ? `wellofwisdom-server-${platformSlug()}-${process.arch}${exeSuffix()}`
+    : `wellofwisdom-server${exeSuffix()}`;
+  const outPath = outDir ? path.join(outDir, outName) : path.join(ROOT, outName);
+  if (outDir) fs.mkdirSync(outDir, { recursive: true });
   const seaTmp = path.join(os.tmpdir(), "wow-sea-" + Date.now());
   fs.mkdirSync(seaTmp, { recursive: true });
 
@@ -62,6 +105,7 @@ async function main() {
     "const { createRequire } = require('node:module');",
     "const path = require('node:path');",
     "const fs = require('node:fs');",
+    "if (process.platform === 'darwin') console.log(" + JSON.stringify(MACOS_UNSIGNED_NOTICE) + ");",
     "const exeDir = path.dirname(process.execPath);",
     "const candidates = [",
     "  path.join(exeDir, 'server', 'index.js'),",
@@ -113,6 +157,15 @@ async function main() {
     process.exit(1);
   }
 
+  // macOS: the official node binary is code signed, and modifying the file
+  // invalidates that signature. The Node SEA docs sequence is: strip the
+  // signature on the copy, inject, then ad-hoc sign the result. Stripping is
+  // best effort; the re-sign after injection is fatal when it fails, because
+  // Apple Silicon kills any executable whose signature does not match.
+  if (process.platform === "darwin" && !codesign(["--remove-signature", outPath], false)) {
+    console.warn("[build:sea] codesign --remove-signature failed (the copy may not have been signed); continuing.");
+  }
+
   // Find postject: prefer a local postject, otherwise npx postject, otherwise
   // try a global one on PATH. The inject flag is NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2.
   let postjectCmd = null;
@@ -136,8 +189,13 @@ async function main() {
     process.exit(inj.status || 1);
   }
 
+  if (process.platform === "darwin") {
+    codesign(["--sign", "-", outPath], true);
+    console.log(`[build:sea] macOS: ad-hoc signed only. ${MACOS_UNSIGNED_NOTICE}`);
+  }
+
   const st = fs.statSync(outPath);
-  console.log(`[build:sea] wrote ${outName} (${human(st.size)}) alongside ${path.basename(ROOT)}`);
+  console.log(`[build:sea] wrote ${outName} (${human(st.size)})${outDir ? ` in ${outDir}` : ` alongside ${path.basename(ROOT)}`}`);
 
   // Report the sizes of the tree that must ship beside the exe, so the docs
   // and the desktop bundling have real numbers.
