@@ -168,17 +168,21 @@ async function main() {
 
   // Find postject: prefer a local postject, otherwise npx postject, otherwise
   // try a global one on PATH. The inject flag is NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2.
+  // macOS also needs --macho-segment-name NODE_SEA: Node's SEA bootstrap reads
+  // the blob from the NODE_SEA segment, and postject's default (__POSTJECT)
+  // produces a binary that dies at exec on Apple Silicon (learned in CI).
+  const machoArgs = process.platform === "darwin" ? ["--macho-segment-name", "NODE_SEA"] : [];
   let postjectCmd = null;
   let postjectArgs = null;
   const localPostject = path.join(ROOT, "node_modules", ".bin", process.platform === "win32" ? "postject.cmd" : "postject");
   if (fs.existsSync(localPostject)) {
     postjectCmd = localPostject;
-    postjectArgs = [outPath, "NODE_SEA_BLOB", blobPath, "--sentinel-fuse", "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2"];
+    postjectArgs = [outPath, "NODE_SEA_BLOB", blobPath, "--sentinel-fuse", "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2", ...machoArgs];
   } else {
     // Fall back to npx postject. npx will fetch postject if not installed; it
     // works inside CI and on a dev machine without a global install.
     postjectCmd = process.platform === "win32" ? "npx.cmd" : "npx";
-    postjectArgs = ["--yes", "postject", outPath, "NODE_SEA_BLOB", blobPath, "--sentinel-fuse", "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2"];
+    postjectArgs = ["--yes", "postject", outPath, "NODE_SEA_BLOB", blobPath, "--sentinel-fuse", "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2", ...machoArgs];
   }
 
   console.log(`[build:sea] injecting blob into ${outName} via ${postjectCmd} ...`);
@@ -239,7 +243,7 @@ async function main() {
       console.warn(`[build:sea] verify: could not reach /api/health on ${port}: ${e.message}`);
     }
   } else {
-    console.warn("[build:sea] verify: could not determine port from output, skipping live check.");
+    console.warn(`[build:sea] verify: could not determine port from output${childCode !== null ? `, sidecar exited with code ${childCode} before listening` : ""}, skipping live check.`);
     console.warn(out.slice(0, 400));
     if (err.trim()) console.warn(err.slice(0, 400));
   }
