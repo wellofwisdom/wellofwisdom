@@ -78,7 +78,9 @@ async function seedItem(db, familyId, ownerId) {
 }
 async function learnerJar(a, fam, tag) {
   const db = require("../lib/db");
-  const uname = `t_${tag}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  // Max 24 chars: the route's username regex is ^[a-z0-9_.-]{2,24}$ and the
+  // old Date.now() suffix (13 digits) blew past it on CI (username_invalid).
+  const uname = `t_${tag}_${Math.random().toString(36).slice(2, 8)}`;
   // The learner must belong to the SAME family whose join code logs it in.
   // The first CI run failed 401 because a second signupFamily here created
   // the learner under a different family than the joinCode below belonged to.
