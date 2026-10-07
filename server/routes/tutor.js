@@ -13,7 +13,11 @@ function bad(res, msg, code = 400) {
   return res.status(code).json({ error: msg });
 }
 
+// Number(null) is 0, so an explicit JSON null (the client sends
+// lessonId: null for item-only threads) must be caught before the
+// conversion: a 0 in a foreign key column is a 500, not an absent value.
 function num(v) {
+  if (v === null || v === undefined || v === "") return null;
   const n = Number(v);
   return Number.isInteger(n) ? n : null;
 }
@@ -61,6 +65,17 @@ router.post("/threads", async (req, res, next) => {
       );
       if (!owns.rowCount) return bad(res, "lesson_not_found", 404);
     }
+    if (itemId) {
+      // Same scope as the lesson check: an item id from another family must
+      // not become tutor context, so it is refused here rather than trusted.
+      const owns = await db.query(
+        `select i.id from lesson_items i join lessons l on l.id = i.lesson_id
+           join units u on u.id = l.unit_id join courses c on c.id = u.course_id
+          where i.id = $1 and c.family_id = $2`,
+        [itemId, req.user.familyId]
+      );
+      if (!owns.rowCount) return bad(res, "item_not_found", 404);
+    }
 
     const existing = await db.query(
       `select id from tutor_threads
@@ -99,6 +114,9 @@ router.post("/threads/:id/messages", async (req, res, next) => {
   } catch (err) {
     if (err.message === "thread_not_found") return bad(res, "not_found", 404);
     if (err.message === "empty_message") return bad(res, "empty_message");
+    // A family without an AI key still gets an honest answer, not a 500: the
+    // web client already carries a friendly string for this code.
+    if (String(err.message).startsWith("ai_not_configured")) return bad(res, "ai_not_configured", 503);
     next(err);
   }
 });

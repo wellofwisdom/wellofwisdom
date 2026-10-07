@@ -165,11 +165,26 @@ async function ask({ threadId, learnerId, familyId, text }) {
     return { reply: refusal.reply, refused: true, alert: Boolean(refusal.alert) };
   }
 
+  // The thread row is family-scoped, but its item reference is only as old as
+  // the route's own checks: load the lesson and item through the family's
+  // course tree so a foreign id in an old row yields no context, not another
+  // family's exercise text.
   const lesson = thread.lesson_id
-    ? (await db.query("select id, title, summary from lessons where id = $1", [thread.lesson_id])).rows[0]
+    ? (await db.query(
+        `select l.id, l.title, l.summary from lessons l
+           join units u on u.id = l.unit_id join courses c on c.id = u.course_id
+          where l.id = $1 and c.family_id = $2`,
+        [thread.lesson_id, familyId]
+      )).rows[0]
     : null;
   const item = thread.item_id
-    ? (await db.query("select id, type, content from lesson_items where id = $1", [thread.item_id])).rows[0]
+    ? (await db.query(
+        `select i.id, i.type, i.content from lesson_items i
+           join lessons l on l.id = i.lesson_id
+           join units u on u.id = l.unit_id join courses c on c.id = u.course_id
+          where i.id = $1 and c.family_id = $2`,
+        [thread.item_id, familyId]
+      )).rows[0]
     : null;
   const attemptRows = thread.item_id
     ? (await db.query(
