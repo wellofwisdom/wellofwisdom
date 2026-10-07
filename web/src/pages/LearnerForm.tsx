@@ -111,16 +111,16 @@ export default function LearnerForm({ learnerId, onSaved }:
           <div className="row" style={{ gap: 12, alignItems: "flex-start" }}>
             <div className="grow">
               <div className="field">
-                <label>What should we call them?</label>
-                <input className="input biginput" value={name} onChange={(e) => setName(e.target.value)}
+                <label htmlFor="lf-name">What should we call them?</label>
+                <input id="lf-name" className="input biginput" value={name} onChange={(e) => setName(e.target.value)}
                   placeholder="Maya, Ms. Rivera, Alex…" maxLength={80} autoFocus={!editing} />
                 <div className="hint">Just what they go by. First name, nickname, formal, anything.</div>
               </div>
             </div>
             <div style={{ maxWidth: 130 }}>
               <div className="field">
-                <label>Grade</label>
-                <select className="input" value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)}>
+                <label htmlFor="lf-grade">Grade</label>
+                <select id="lf-grade" className="input" value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)}>
                   <option value="">Auto</option>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => <option key={g} value={g}>Grade {g}</option>)}
                   <option value="13">College</option>
@@ -130,16 +130,16 @@ export default function LearnerForm({ learnerId, onSaved }:
             </div>
             <div style={{ maxWidth: 130 }}>
               <div className="field">
-                <label>Reading level</label>
-                <select className="input" value={readingLevel} onChange={(e) => setReadingLevel(e.target.value)}>
+                <label htmlFor="lf-reading">Reading level</label>
+                <select id="lf-reading" className="input" value={readingLevel} onChange={(e) => setReadingLevel(e.target.value)}>
                   {READING_LEVELS.map((r) => <option key={r} value={r}>{r || "Auto"}</option>)}
                 </select>
               </div>
             </div>
             <div style={{ maxWidth: 120 }}>
               <div className="field">
-                <label>Language</label>
-                <select className="input" value={lang} onChange={(e) => setLang(e.target.value)}>
+                <label htmlFor="lf-lang">Language</label>
+                <select id="lf-lang" className="input" value={lang} onChange={(e) => setLang(e.target.value)}>
                   {LANGS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
@@ -150,8 +150,8 @@ export default function LearnerForm({ learnerId, onSaved }:
             <div className="row" style={{ gap: 12, marginTop: 8 }}>
               <div className="grow">
                 <div className="field">
-                  <label>Username (their login)</label>
-                  <input className="input" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                  <label htmlFor="lf-username">Username (their login)</label>
+                  <input id="lf-username" className="input" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())}
                     placeholder="maya, alex_t, wizard99…" autoCapitalize="none"
                     name="learner-username" autoComplete="off" autoCorrect="off" spellCheck={false}
                     data-lpignore="true" data-1p-ignore data-form-type="other" />
@@ -160,8 +160,8 @@ export default function LearnerForm({ learnerId, onSaved }:
               </div>
               <div style={{ maxWidth: 140 }}>
                 <div className="field">
-                  <label>PIN</label>
-                  <input className="input" type="password" inputMode="numeric" value={pin}
+                  <label htmlFor="lf-pin">PIN</label>
+                  <input id="lf-pin" className="input" type="password" inputMode="numeric" value={pin}
                     onChange={(e) => setPin(e.target.value)} placeholder="4-6 digits"
                     name="learner-pin" autoComplete="new-password"
                     data-lpignore="true" data-1p-ignore data-form-type="other" />
@@ -173,8 +173,8 @@ export default function LearnerForm({ learnerId, onSaved }:
             <div className="row" style={{ gap: 12, marginTop: 8 }}>
               <div style={{ maxWidth: 140 }}>
                 <div className="field">
-                  <label>New PIN (optional)</label>
-                  <input className="input" type="password" inputMode="numeric" value={pin}
+                  <label htmlFor="lf-newpin">New PIN (optional)</label>
+                  <input id="lf-newpin" className="input" type="password" inputMode="numeric" value={pin}
                     onChange={(e) => setPin(e.target.value)} placeholder="Leave blank to keep"
                     name="learner-new-pin" autoComplete="new-password"
                     data-lpignore="true" data-1p-ignore data-form-type="other" />
@@ -233,6 +233,7 @@ export default function LearnerForm({ learnerId, onSaved }:
             If they have an email, they can receive reminder notifications. Login stays username + PIN regardless.
           </p>
           <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+            aria-label="Email (optional)"
             placeholder="maya@example.com (leave blank if none)"
             name="learner-email" autoComplete="off"
             data-lpignore="true" data-1p-ignore data-form-type="other" />
