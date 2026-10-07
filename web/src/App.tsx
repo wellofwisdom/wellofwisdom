@@ -70,6 +70,17 @@ export default function App() {
     };
   }, []);
 
+  // A hash link (/#pricing or /features#studio followed from another page)
+  // lands before React has rendered the target section, so the browser's own
+  // anchor scroll finds nothing and the visitor stays at the top. Scroll once
+  // the route has rendered. Same-page clicks scroll natively and stay alone.
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.length < 2) return;
+    const el = document.getElementById(hash.slice(1));
+    if (el) el.scrollIntoView();
+  }, [route, loading]);
+
   const navigate = useCallback((id: string) => go(id), []);
 
   // Preview must be restored BEFORE the session bootstrap, or /api/me answers
