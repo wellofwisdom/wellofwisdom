@@ -435,7 +435,9 @@ async function backfillDemoFamilies() {
 // ---- routes ----
 
 router.get("/status", async (_req, res) => {
-  if (!demoEnabled()) return res.status(404).json({ error: "not_found" });
+  // 200 with enabled:false rather than 404: the web app probes this on every
+  // public page load, and a 404 reads as a console error on every visit.
+  if (!demoEnabled()) return res.json({ enabled: false, inviteRequired: false });
   // No auth needed. Says whether demo is live and whether the invite gate is on.
   const inviteRequired = Boolean(process.env.SIGNUP_INVITE_CODE && String(process.env.SIGNUP_INVITE_CODE).trim());
   res.json({ enabled: true, inviteRequired, sharedFamily: sharedFamilyMode() });
@@ -446,7 +448,8 @@ router.get("/status", async (_req, res) => {
  * No authRequired middleware here: we read req.user ourselves so the 401 is explicit.
  */
 router.get("/me", async (req, res) => {
-  if (!demoEnabled()) return res.status(404).json({ error: "not_found" });
+  // Same as /status: the shell probes this on every logged-in page load.
+  if (!demoEnabled()) return res.json({ isDemo: false });
   if (!req.user) return res.status(401).json({ error: "auth_required" });
   try {
     const { rows } = await db.query("select is_demo, demo_created_at from families where id = $1", [req.user.familyId]);

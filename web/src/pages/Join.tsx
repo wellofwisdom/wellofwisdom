@@ -47,7 +47,7 @@ export default function Join({ token }: { token: string }) {
 
   if (dead) {
     return (
-      <div className="landing">
+      <main id="main" className="landing">
         <div className="lcard">
           <div><Logo size={56} /></div>
           <h1>That invite is no longer good</h1>
@@ -55,14 +55,14 @@ export default function Join({ token }: { token: string }) {
             Invites are single-use and expire after a week. Ask whoever sent it for a fresh link.
           </p>
         </div>
-      </div>
+      </main>
     );
   }
 
-  if (!invite) return <div className="landing"><p className="muted">Checking that link…</p></div>;
+  if (!invite) return <main id="main" className="landing"><p className="muted">Checking that link…</p></main>;
 
   return (
-    <div className="landing">
+    <main id="main" className="landing">
       <div className="lcard">
         <div><Logo size={56} /></div>
         <h1>Join {invite.family_name}</h1>
@@ -99,6 +99,6 @@ export default function Join({ token }: { token: string }) {
           {busy ? "Joining…" : `Join as ${role ? role.label.toLowerCase() : "a guide"}`}
         </button>
       </div>
-    </div>
+    </main>
   );
 }

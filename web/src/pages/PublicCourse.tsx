@@ -125,7 +125,8 @@ function ItemView({ item }: { item: PublicItem }) {
   if (item.type === "exercise") {
     return (
       <div className="publicitem exercise">
-        <p><strong>Practice.</strong> <RichText text={String(c.prompt || "")} /></p>
+        {/* RichText renders its own block elements, so this cannot be a <p>. */}
+        <div className="publicprompt"><strong>Practice.</strong> <RichText text={String(c.prompt || "")} /></div>
         {c.choices && (
           <ul className="publicchoices">
             {c.choices.map((ch) => <li key={ch.id}>{ch.text}</li>)}

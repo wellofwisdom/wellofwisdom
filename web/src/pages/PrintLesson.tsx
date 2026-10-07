@@ -54,8 +54,10 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
     }
   }, [data]);
 
-  if (error) return <div className="printpage"><p>{error}</p></div>;
-  if (!data) return <div className="printpage"><p>Loading...</p></div>;
+  // main#main is the static shell's skip-link target; every top-level page
+  // renders one or keyboard users land on a link that goes nowhere.
+  if (error) return <main id="main" className="printpage"><p>{error}</p></main>;
+  if (!data) return <main id="main" className="printpage"><p>Loading...</p></main>;
 
   if (mode === "plan" && role === "parent") {
     return <LessonPlan data={data} onMode={setMode} />;
@@ -85,7 +87,7 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
   })();
   const flashcards = data.items.filter((it) => it.type === "flashcards");
   return (
-    <div className="printpage">
+    <main id="main" className="printpage">
       <div className="noprint row" style={{ marginBottom: 12, gap: 8 }}>
         <button className="btn" type="button" onClick={() => window.print()}>Print</button>
         <button className="btn ghost" type="button" onClick={() => window.close()}>Close</button>
@@ -461,7 +463,7 @@ export default function PrintLesson({ lessonId, role }: { lessonId: number; role
           </table>
         </section>
       )}
-    </div>
+    </main>
   );
 }
 
@@ -486,7 +488,7 @@ function LessonPlan({ data, onMode }: { data: LessonData; onMode: (m: "worksheet
   const exercises = data.items.filter((it) => it.type === "exercise");
 
   return (
-    <div className="printpage">
+    <main id="main" className="printpage">
       <div className="noprint row" style={{ marginBottom: 12, gap: 8 }}>
         <button className="btn" type="button" onClick={() => window.print()}>Print</button>
         <button className="btn ghost" type="button" onClick={() => window.close()}>Close</button>
@@ -590,6 +592,6 @@ function LessonPlan({ data, onMode }: { data: LessonData; onMode: (m: "worksheet
       )}
 
       {exercises.length === 0 && <p className="muted">No exercises in this lesson.</p>}
-    </div>
+    </main>
   );
 }

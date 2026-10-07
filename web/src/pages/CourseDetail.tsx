@@ -219,10 +219,10 @@ function VideoPanel({ courseId, trailerUploadId, onChanged }:
         <div style={{ marginTop: 12 }}>
           <h4 style={{ margin: "0 0 6px" }}>Add a video to a lesson</h4>
           <div className="row wrap" style={{ gap: 8 }}>
-            <select className="input" id="vid-pick" style={{ maxWidth: 220 }}>
+            <select className="input" id="vid-pick" aria-label="Uploaded video" style={{ maxWidth: 220 }}>
               {uploads.map((u) => <option key={u.id} value={u.id}>{u.title || u.original_name}</option>)}
             </select>
-            <select className="input" id="vid-lesson" style={{ maxWidth: 260 }}>
+            <select className="input" id="vid-lesson" aria-label="Add to lesson" style={{ maxWidth: 260 }}>
               {lessons.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
             </select>
             <button className="btn" type="button" onClick={() => {
@@ -246,12 +246,13 @@ function VideoPanel({ courseId, trailerUploadId, onChanged }:
             <input
               className="input"
               style={{ minWidth: 240, flex: 1 }}
+              aria-label="Video link"
               placeholder="https://www.youtube.com/watch?v=..."
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") addLinkToLesson(); }}
             />
-            <select className="input" style={{ maxWidth: 260 }}
+            <select className="input" style={{ maxWidth: 260 }} aria-label="Add link to lesson"
               value={linkLesson === "" ? (lessons[0]?.id ?? "") : linkLesson}
               onChange={(e) => setLinkLesson(e.target.value === "" ? "" : Number(e.target.value))}>
               {lessons.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}

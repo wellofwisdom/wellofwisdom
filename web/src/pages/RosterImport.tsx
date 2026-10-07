@@ -135,10 +135,10 @@ export default function RosterImport() {
       <Panel title="CSV" side="name, username (optional), grade, interests (semicolon), email (optional), target_language (optional: en, es, fr)">
         <p className="muted small">Accepts comma or semicolon delimiters, quoted fields, and a UTF-8 BOM. Cap 200 rows. Language defaults to en when blank.</p>
         <div className="field">
-          <label>Paste CSV</label>
-          <textarea className="input" rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder={TEMPLATE_CSV} />
+          <label htmlFor="roster-csv">Paste CSV</label>
+          <textarea id="roster-csv" className="input" rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder={TEMPLATE_CSV} />
         </div>
-        <div className="row" style={{ gap: 12, marginTop: 8 }}>
+        <div className="row wrap" style={{ gap: 12, marginTop: 8 }}>
           <label className="btn" style={{ cursor: "pointer" }}>
             Upload file
             <input type="file" accept=".csv,text/csv" onChange={onFile} style={{ display: "none" }} />

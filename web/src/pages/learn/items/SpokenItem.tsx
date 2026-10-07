@@ -4,6 +4,7 @@
 // rubric items go to the guide as needsReview.
 import { useMemo, useState } from "react";
 import { api, niceError } from "../../../api";
+import { useT } from "../../../i18n";
 import { triggerRumble } from "../../../lib/gamepad";
 import type { ItemNode } from "../../../types";
 import HintLadder from "./HintLadder";
@@ -47,6 +48,7 @@ export default function SpokenItem({
 }) {
   const data = useMemo(() => parseSpoken(item.content as Record<string, unknown>), [item.content]);
   const c = item.content as Record<string, unknown>;
+  const { t } = useT();
   const [transcript, setTranscript] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [pending, setPending] = useState<SpokenAnswer | null>(null);
@@ -76,7 +78,7 @@ export default function SpokenItem({
     }
     return (
       <section className="litem exercise" aria-label="Spoken">
-        <p className="muted small">Spoken item not ready yet.</p>
+        <p className="muted small">{t("stt.spokenEmpty")}</p>
       </section>
     );
   }
@@ -116,13 +118,13 @@ export default function SpokenItem({
       {!result && (
         <>
           <div style={{ marginTop: 10 }}>
-            <PushToTalk kind="text" onResult={onSpoken} label="Speak your answer" />
+            <PushToTalk kind="text" onResult={onSpoken} label={t("stt.speakYourAnswer")} />
           </div>
 
           {pending && (
             <div style={{ marginTop: 10, padding: 10, border: "1px solid var(--border, #ddd)", borderRadius: 8 }}>
-              <div className="small muted" style={{ marginBottom: 6 }}>Heard: &ldquo;{pending.transcript}&rdquo;</div>
-              <label className="small muted" htmlFor={`spoken-transcript-${item.id}`} style={{ display: "block", marginBottom: 6 }}>What we heard, fix it if needed</label>
+              <div className="small muted" style={{ marginBottom: 6 }}>{t("stt.heard", { text: pending.transcript })}</div>
+              <label className="small muted" htmlFor={`spoken-transcript-${item.id}`} style={{ display: "block", marginBottom: 6 }}>{t("stt.fixTranscript")}</label>
               <textarea
                 id={`spoken-transcript-${item.id}`}
                 className="input"
@@ -135,28 +137,28 @@ export default function SpokenItem({
               <div className="row wrap" style={{ marginTop: 8 }}>
                 <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
                   <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} data-nav />
-                  <span className="small">That is what I meant</span>
+                  <span className="small">{t("stt.thatIsWhatIMeant")}</span>
                 </label>
               </div>
               <div className="row wrap" style={{ marginTop: 8 }}>
                 <button className="btn primary" type="button" data-nav disabled={busy || !transcript.trim() || !confirmed} onClick={submit}>
-                  {busy ? "Checking..." : "Check"}
+                  {busy ? t("exercise.checking") : t("exercise.check")}
                 </button>
                 <button className="btn ghost" type="button" data-nav onClick={() => { setPending(null); setTranscript(""); setConfirmed(false); }}>
-                  Clear
+                  {t("stt.clear")}
                 </button>
               </div>
             </div>
           )}
 
           {!pending && (
-            <p className="muted small" style={{ marginTop: 8 }}>Hold the button and speak. You will see the transcript and confirm it before checking.</p>
+            <p className="muted small" style={{ marginTop: 8 }}>{t("stt.spokenHint")}</p>
           )}
 
           <div className="row wrap" style={{ marginTop: 8 }}>
             <HintLadder content={c} />
             <button className="btn ghost" type="button" data-nav onClick={() => setTutorOpen(true)}>
-              Ask for help
+              {t("exercise.askForHelp")}
             </button>
           </div>
         </>
@@ -168,22 +170,22 @@ export default function SpokenItem({
         <div className={`feedback ${needsReview ? "" : correct ? "good" : "bad"}`} role="status" aria-live="polite">
           <strong>
             {needsReview ? (
-              <>Sent for review</>
+              <>{t("stt.sentForReview")}</>
             ) : (
               <>
-                <span aria-hidden="true">{correct ? "\u2705" : "\u274C"}</span> {correct ? "Correct" : "Not quite"}
+                <span aria-hidden="true">{correct ? "\u2705" : "\u274C"}</span> {correct ? t("exercise.correct") : t("exercise.notQuite")}
               </>
             )}
           </strong>
           {result.reveal?.explanation && <p>{result.reveal.explanation}</p>}
           {!correct && !needsReview && (
             <button className="btn ghost" type="button" data-nav onClick={() => { setResult(null); setPending(null); setTranscript(""); setConfirmed(false); }} style={{ marginTop: 8 }}>
-              Try again
+              {t("exercise.tryAgain")}
             </button>
           )}
           {needsReview && (
             <button className="btn ghost" type="button" data-nav onClick={() => { setResult(null); setPending(null); setTranscript(""); setConfirmed(false); }} style={{ marginTop: 8 }}>
-              Try again
+              {t("exercise.tryAgain")}
             </button>
           )}
         </div>
