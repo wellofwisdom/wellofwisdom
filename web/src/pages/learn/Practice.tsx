@@ -47,7 +47,7 @@ export default function Practice({ onNavigate, onLogout }: {
     <div className="kid">
       <div className="kidtop">
         <button className="btn ghost" type="button" onClick={() => onNavigate("")}>← {t("shell.home")}</button>
-        <button className="iconbtn" onClick={onLogout} aria-label="Sign out" type="button"><IconLogout /></button>
+        <button className="iconbtn" onClick={onLogout} aria-label={t("shell.signOut")} type="button"><IconLogout /></button>
       </div>
       <div className="hi" style={{ fontSize: 26 }}>🔁 {t("practice.title")}</div>
       <p className="sub">

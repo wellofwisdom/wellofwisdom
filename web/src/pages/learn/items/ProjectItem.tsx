@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useEffect, useState } from "react";
 import { api, niceError } from "../../../api";
+import { useT, type TranslationKey } from "../../../i18n";
 import type { ItemNode, Submission } from "../../../types";
 import { RichText } from "../../../lib/rich";
 
-const OUTCOME_LABEL: Record<string, string> = {
-  not_yet: "not yet",
-  nearly: "nearly there",
-  met: "met",
-  exceptional: "exceptional",
+const OUTCOME_KEY: Record<string, TranslationKey> = {
+  not_yet: "project.outcomeNotYet",
+  nearly: "project.outcomeNearly",
+  met: "project.outcomeMet",
+  exceptional: "project.outcomeExceptional",
 };
 
 export default function ProjectItem({ item, submission, onSubmission }: {
@@ -17,6 +18,7 @@ export default function ProjectItem({ item, submission, onSubmission }: {
   onSubmission: (sub: Submission) => void;
 }) {
   const c = item.content || {};
+  const { t } = useT();
   const [text, setText] = useState(submission ? submission.body : "");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -42,7 +44,7 @@ export default function ProjectItem({ item, submission, onSubmission }: {
         body: { body: text, submit },
       });
       onSubmission(d.submission);
-      setMsg(submit ? "Handed in." : "Saved. Come back to it whenever you like.");
+      setMsg(submit ? t("project.handedIn") : t("project.savedDraft"));
     } catch (e) {
       setMsg(niceError(e));
     } finally {
@@ -52,37 +54,39 @@ export default function ProjectItem({ item, submission, onSubmission }: {
 
   return (
     <section className="litem project">
-      <h2>Project: {c.title}</h2>
+      <h2>{t("project.titlePrefix", { title: c.title || "" })}</h2>
       <RichText text={c.description || ""} />
       {c.rubric && (
         <details style={{ marginTop: 8 }} open={!frozen && status === "draft"}>
-          <summary className="muted small">What makes it good</summary>
+          <summary className="muted small">{t("project.rubricSummary")}</summary>
           <RichText text={c.rubric} />
         </details>
       )}
       {submission && submission.feedback && (
         <div className="feedback selfcheck" role="status" style={{ marginTop: 14 }}>
-          {fresh && <span className="tag" style={{ marginBottom: 6 }}>New</span>}{" "}
-          <strong>From your guide{submission.outcome ? `: ${OUTCOME_LABEL[submission.outcome] || submission.outcome}` : ""}</strong>
+          {fresh && <span className="tag" style={{ marginBottom: 6 }}>{t("project.new")}</span>}{" "}
+          <strong>{submission.outcome
+            ? t("project.fromGuideOutcome", { outcome: t(OUTCOME_KEY[submission.outcome] || "project.outcomeMet") })
+            : t("project.fromGuide")}</strong>
           <RichText text={submission.feedback} />
         </div>
       )}
       <div style={{ marginTop: 14 }}>
         <label className="muted small" htmlFor={`sub-${item.id}`}>
-          {frozen ? "What you handed in" : "Your write up"}
+          {frozen ? t("project.whatYouHandedIn") : t("project.yourWriteUp")}
         </label>
-        <textarea id={`sub-${item.id}`} className="input" rows={8} value={text} readOnly={frozen} placeholder="Describe what you made, how you made it, and what you would do differently." onChange={(e) => setText(e.target.value)} style={{ marginTop: 4 }} />
+        <textarea id={`sub-${item.id}`} className="input" rows={8} value={text} readOnly={frozen} placeholder={t("project.placeholder")} onChange={(e) => setText(e.target.value)} style={{ marginTop: 4 }} />
         <div className="row" style={{ marginTop: 8, alignItems: "center", gap: 10 }}>
           {frozen ? (
-            <span className="tag">Handed in. Waiting for your guide.</span>
+            <span className="tag">{t("project.handedInWaiting")}</span>
           ) : (
             <>
-              <button className="btn" type="button" data-nav disabled={busy} onClick={() => save(false)}>Save draft</button>
-              <button className="btn primary" type="button" data-nav disabled={busy || !text.trim()} onClick={() => save(true)}>{status === "returned" ? "Hand in again" : "Hand it in"}</button>
+              <button className="btn" type="button" data-nav disabled={busy} onClick={() => save(false)}>{t("project.saveDraft")}</button>
+              <button className="btn primary" type="button" data-nav disabled={busy || !text.trim()} onClick={() => save(true)}>{status === "returned" ? t("project.handInAgain") : t("project.handItIn")}</button>
             </>
           )}
           <span className="grow" />
-          <span className="muted small">{words} {words === 1 ? "word" : "words"}</span>
+          <span className="muted small">{words} {t(words === 1 ? "project.word" : "project.words")}</span>
         </div>
         {msg && <p className="small" role="status" style={{ marginTop: 6 }}>{msg}</p>}
       </div>

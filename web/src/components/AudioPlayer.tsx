@@ -5,7 +5,7 @@
 // it is what a parent reads, what a caption shows, and what the browser's
 // offline speech reads when no file is there yet.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { speakWithLang, currentLang } from "../i18n";
+import { speakWithLang, currentLang, useT } from "../i18n";
 
 export interface AudioContent {
   title?: string;
@@ -27,7 +27,8 @@ function cleanText(s: string): string {
 }
 
 export function AudioPlayer({ content }: { content: AudioContent }) {
-  const title = content.title || "Listen";
+  const { t } = useT();
+  const title = content.title || t("narrator.listenShort");
   const transcript = String(content.transcript || content.text || content.body || "").trim();
   const src = content.uploadId ? `/media/${content.uploadId}` : (content.audioUrl || content.url || null);
 
@@ -63,8 +64,8 @@ export function AudioPlayer({ content }: { content: AudioContent }) {
       <div className="litem audio litem-audio" style={{ borderLeft: "3px solid var(--accent, #7c6cff)", paddingLeft: 12 }}>
         <div className="row" style={{ alignItems: "center", gap: 10 }}>
           <strong>{title}</strong>
-          <button className="btn ghost small-btn" type="button" onClick={browserSpeak} aria-label={speaking ? "Stop reading aloud" : "Read this aloud"}>
-            {speaking ? "⏹️ Stop" : "🔊 Listen"}
+          <button className="btn ghost small-btn" type="button" onClick={browserSpeak} aria-label={speaking ? t("narrator.stopReadAloud") : t("narrator.readAloud")}>
+            {speaking ? `⏹️ ${t("narrator.stopShort")}` : `🔊 ${t("narrator.listenShort")}`}
           </button>
         </div>
         <p className="muted small" style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>{transcript}</p>
@@ -76,7 +77,7 @@ export function AudioPlayer({ content }: { content: AudioContent }) {
     <div className="litem audio litem-audio" style={{ borderLeft: "3px solid var(--accent, #7c6cff)", paddingLeft: 12 }}>
       <div className="row" style={{ alignItems: "center", gap: 10 }}>
         <strong>{title}</strong>
-        <span className="muted small">(press play, or read the words)</span>
+        <span className="muted small">{t("narrator.pressPlayOrRead")}</span>
       </div>
       <audio
         ref={audioRef}
@@ -89,12 +90,12 @@ export function AudioPlayer({ content }: { content: AudioContent }) {
           setSpeaking(false);
         }}
       >
-        <track kind="captions" srcLang="en" label="Captions" src={src.includes("/media/") ? `${src}/captions.vtt` : undefined as unknown as string} />
+        <track kind="captions" srcLang="en" label={t("narrator.captions")} src={src.includes("/media/") ? `${src}/captions.vtt` : undefined as unknown as string} />
       </audio>
       <p className="muted small" style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>{transcript}</p>
       <div className="row" style={{ marginTop: 6 }}>
-        <button className="btn ghost small-btn" type="button" onClick={browserSpeak} aria-label={speaking ? "Stop reading aloud" : "Read with browser voice instead"}>
-          {speaking ? "⏹️ Stop voice" : "🔊 Browser voice"}
+        <button className="btn ghost small-btn" type="button" onClick={browserSpeak} aria-label={speaking ? t("narrator.stopReadAloud") : t("narrator.readInstead")}>
+          {speaking ? `⏹️ ${t("narrator.stopVoice")}` : `🔊 ${t("narrator.browserVoice")}`}
         </button>
       </div>
     </div>

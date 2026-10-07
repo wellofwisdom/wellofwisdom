@@ -36,15 +36,24 @@ describe("i18n", () => {
     const path = await import("node:path").then((m) => (m as { default: typeof import("node:path") }).default ?? (m as unknown as typeof import("node:path")));
     const { fileURLToPath } = await import("node:url");
     const dir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../pages/learn");
-    const entries = src.readdirSync(dir);
     const violations: string[] = [];
-    for (const entry of entries) {
-      if (entry === "LessonPlayer.tsx") continue;
-      if (entry === "learn.smoke.test.tsx") continue;
-      const full = path.join(dir, entry);
-      const stat = src.statSync(full);
-      if (stat.isDirectory()) continue;
-      if (!entry.endsWith(".tsx")) continue;
+    // Walk the learn tree including subdirectories (items/ used to hide here).
+    // Test files only get scanned at the top level, as before: item test
+    // fixtures legitimately hold raw English.
+    const files: { full: string; rel: string }[] = [];
+    const walk = (d: string, top: boolean) => {
+      for (const entry of src.readdirSync(d)) {
+        const full = path.join(d, entry);
+        if (src.statSync(full).isDirectory()) { walk(full, false); continue; }
+        if (!entry.endsWith(".tsx")) continue;
+        if (entry === "LessonPlayer.tsx") continue;
+        if (entry === "learn.smoke.test.tsx") continue;
+        if (!top && entry.includes(".test.")) continue;
+        files.push({ full, rel: path.relative(dir, full) });
+      }
+    };
+    walk(dir, true);
+    for (const { full, rel } of files) {
       const text = src.readFileSync(full, "utf8");
       const re = />\s*([^<>{}\n]*[A-Za-z][^<>{}\n]*)\s*</g;
       let m: RegExpExecArray | null;
@@ -61,7 +70,10 @@ describe("i18n", () => {
         const lineSnippet = text.slice(snippetStart, snippetEnd).trim();
         if (lineSnippet.includes("t(") || lineSnippet.includes("t`")) continue;
         if (/^[A-Za-z]{1,3}$/.test(raw)) continue;
-        violations.push(`${entry}:${raw} :: ${lineSnippet.slice(0, 120)}`);
+        // TypeScript generics and comparisons between a > and a < are code,
+        // not copy: Record<string, x>, `count > 1 && count < 9`.
+        if (/[=()[\]{};?:]|&&/.test(raw)) continue;
+        violations.push(`${rel}:${raw} :: ${lineSnippet.slice(0, 120)}`);
       }
     }
     expect(violations, `bare English JSX text found in learn files (not wrapped in {expression}):\n${violations.join("\n")}`).toEqual([]);

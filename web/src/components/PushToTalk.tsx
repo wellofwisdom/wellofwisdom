@@ -12,6 +12,7 @@
 //      fails on the first press.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api";
+import { useT } from "../i18n";
 
 export interface SpokenAnswer {
   /** The string for the answer box, already normalised for the answer type. */
@@ -80,6 +81,7 @@ function friendlyError(code: string | undefined, status: number): string {
 }
 
 export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: Props) {
+  const { t } = useT();
   const [mode, setMode] = useState<"unknown" | "server" | "browser" | "none">("unknown");
   const [phase, setPhase] = useState<"idle" | "recording" | "working" | "confirm">("idle");
   const [pending, setPending] = useState<SpokenAnswer | null>(null);
@@ -187,7 +189,7 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
       const text = String((data && data.text) || "").trim();
       if (!text) {
         setPhase("idle");
-        setErr("Nothing was heard. Try again, a little closer to the microphone.");
+        setErr(t("stt.nothingHeard"));
         return;
       }
       setPending({
@@ -201,9 +203,9 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
       setPhase("confirm");
     } catch {
       setPhase("idle");
-      setErr("The recording could not be sent. Try again, or type it.");
+      setErr(t("stt.sendFailed"));
     }
-  }, [kind, choiceCount]);
+  }, [kind, choiceCount, t]);
 
   const startRecognition = useCallback(() => {
     const Ctor = recognitionCtor();
@@ -229,10 +231,10 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
       const code = e.error || "";
       setPhase("idle");
       setErr(code === "not-allowed" || code === "service-not-allowed"
-        ? "The browser blocked the microphone. Allow it, then try again."
+        ? t("stt.blocked")
         : code === "no-speech"
-          ? "Nothing was heard. Try again, a little closer to the microphone."
-          : "The browser could not transcribe that. Try again, or type it.");
+          ? t("stt.nothingHeard")
+          : t("stt.transcribeFailed"));
     };
     recog.onend = () => {
       const said = finalText.trim();
@@ -246,7 +248,7 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
     setLive("");
     setPhase("recording");
     try { recog.start(); } catch { setPhase("idle"); }
-  }, [kind]);
+  }, [kind, t]);
 
   const begin = useCallback(async () => {
     if (holdingRef.current || phaseRef.current !== "idle") return;
@@ -256,13 +258,13 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
     if (mode !== "server") return;
     if (!navigator.mediaDevices?.getUserMedia) {
       holdingRef.current = false;
-      setErr("This browser cannot record audio.");
+      setErr(t("stt.noRecord"));
       return;
     }
     // getUserMedia needs a secure page; a plain http self-host has to know why.
     if (!window.isSecureContext) {
       holdingRef.current = false;
-      setErr("Recording needs a secure page (https or localhost). Type the answer instead.");
+      setErr(t("stt.notSecure"));
       return;
     }
     setPhase("recording");
@@ -290,7 +292,7 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
         // Under a fifth of a second of audio is a mis-tap, not an answer.
         if (blob.size < 800) {
           setPhase("idle");
-          setErr("That was too short. Hold the button while you speak.");
+          setErr(t("stt.tooShort"));
           return;
         }
         send(blob);
@@ -298,7 +300,7 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
       rec.onerror = () => {
         stopTracks();
         setPhase("idle");
-        setErr("Recording failed. Try again, or type the answer.");
+        setErr(t("stt.recordFailed"));
       };
       recRef.current = rec;
       rec.start(250);
@@ -307,12 +309,12 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
       setPhase("idle");
       const name = e instanceof DOMException ? e.name : "";
       setErr(name === "NotAllowedError" || name === "PermissionDeniedError"
-        ? "The microphone was blocked. Allow it in the browser, then try again."
+        ? t("stt.micBlocked")
         : name === "NotFoundError"
-          ? "No microphone was found on this device."
-          : "The microphone could not be started.");
+          ? t("stt.noMic")
+          : t("stt.micStartFailed"));
     }
-  }, [mode, send, startMeter, startRecognition, stopTracks]);
+  }, [mode, send, startMeter, startRecognition, stopTracks, t]);
 
   const end = useCallback(() => {
     if (!holdingRef.current) return;
@@ -387,10 +389,10 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
   const recording = phase === "recording";
   const held = recording || phase === "working";
   const hint = recording
-    ? "Release to finish"
+    ? t("stt.releaseHint")
     : phase === "working"
-      ? "Reading what you said"
-      : "Hold to talk, or hold the space bar";
+      ? t("stt.readingHint")
+      : t("stt.holdHint");
 
   return (
     <span className="sttbox" style={{ display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -399,7 +401,7 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
         className={`btn ghost small-btn${recording ? " on" : ""}`}
         type="button"
         title={hint}
-        aria-label={recording ? "Recording, release when you are done" : "Hold to speak your answer"}
+        aria-label={recording ? t("stt.ariaRelease") : t("stt.ariaHold")}
         aria-pressed={recording}
         disabled={phase === "working"}
         onPointerDown={(e) => { e.preventDefault(); begin(); }}
@@ -408,7 +410,7 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
         onPointerCancel={end}
         onBlur={end}
       >
-        {recording ? "🎙️ Listening…" : phase === "working" ? "… Reading" : `🎙️ ${label || "Speak"}`}
+        {recording ? `🎙️ ${t("stt.listening")}` : phase === "working" ? `… ${t("stt.reading")}` : `🎙️ ${label || t("exercise.speak")}`}
       </button>
 
       {recording && (
@@ -419,18 +421,18 @@ export function PushToTalk({ kind = "text", choiceCount = 0, onResult, label }: 
 
       {phase === "confirm" && pending && (
         <>
-          <span className="muted small" role="status" aria-live="polite">Heard: “{pending.transcript}”</span>
+          <span className="muted small" role="status" aria-live="polite">{t("stt.heard", { text: pending.transcript })}</span>
           {kind === "mcq" && pending.choiceIndex === null && (
-            <span className="muted small">That did not sound like a choice. Tap the answer you meant.</span>
+            <span className="muted small">{t("stt.notAChoice")}</span>
           )}
-          <button className="btn primary small-btn" type="button" onClick={confirm}>Use this</button>
-          <button className="btn ghost small-btn" type="button" onClick={discard}>Say it again</button>
+          <button className="btn primary small-btn" type="button" onClick={confirm}>{t("stt.useThis")}</button>
+          <button className="btn ghost small-btn" type="button" onClick={discard}>{t("stt.sayAgain")}</button>
         </>
       )}
 
       {recording && live && <span className="muted small" aria-live="polite">{live}</span>}
       {err && <span className="formerror small" role="alert">{err}</span>}
-      {!held && !err && !pending && <span className="hint">Hold to talk</span>}
+      {!held && !err && !pending && <span className="hint">{t("stt.holdToTalk")}</span>}
     </span>
   );
 }

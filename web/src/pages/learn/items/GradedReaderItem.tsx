@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useState } from "react";
 import type { ItemNode } from "../../../types";
+import { useT } from "../../../i18n";
 
 function parseGlosses(content: Record<string, unknown>): Record<string, string> | null {
   const g = (content as { glosses?: unknown }).glosses;
@@ -92,6 +93,7 @@ function BodyWithGlosses({ body, glosses }: { body: string; glosses: Record<stri
 }
 
 export default function GradedReaderItem({ item }: { item: ItemNode }) {
+  const { t } = useT();
   const c = item.content as Record<string, unknown>;
   const title = String((c.title ?? "") as string).trim().slice(0, 300);
   const body = String((c.body ?? "") as string).trim();
@@ -101,7 +103,7 @@ export default function GradedReaderItem({ item }: { item: ItemNode }) {
   if (!body) {
     return (
       <section className="litem" aria-label={title || "Reader"}>
-        <p className="muted small">Reader text unavailable.</p>
+        <p className="muted small">{t("reader.empty")}</p>
       </section>
     );
   }
@@ -115,7 +117,7 @@ export default function GradedReaderItem({ item }: { item: ItemNode }) {
       {glosses ? <BodyWithGlosses body={body} glosses={glosses} /> : <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{body}</p>}
       {glosses && (
         <div style={{ marginTop: 12 }}>
-          <p className="muted small" style={{ marginBottom: 6 }}>Tap a highlighted word for its meaning</p>
+          <p className="muted small" style={{ marginBottom: 6 }}>{t("reader.tapHint")}</p>
           <div className="row wrap" style={{ gap: 6 }}>
             {Object.entries(glosses).map(([word, gloss]) => (
               <details key={word} style={{ display: "inline-block" }}>
