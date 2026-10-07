@@ -76,15 +76,18 @@ async function seedItem(db, familyId, ownerId) {
   );
   return { lessonId: Number(ls.rows[0].id), itemId: Number(it.rows[0].id) };
 }
-async function learnerJar(a, familyId, tag) {
+async function learnerJar(a, fam, tag) {
   const db = require("../lib/db");
   const uname = `t_${tag}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  // The learner must belong to the SAME family whose join code logs it in.
+  // The first CI run failed 401 because a second signupFamily here created
+  // the learner under a different family than the joinCode below belonged to.
   const cr = await http(a, "/api/family/learners", {
-    cookie: (await signupFamily(a, tag)).jar,
+    cookie: fam.jar,
     body: { name: uname, username: uname, pin: "1234" },
   });
-  void cr;
-  const joinCode = (await db.query("select join_code from families where id=$1", [familyId])).rows[0].join_code;
+  assert.equal(cr.status, 201, cr.text);
+  const joinCode = (await db.query("select join_code from families where id=$1", [fam.familyId])).rows[0].join_code;
   const lr = await http(a, "/api/auth/learner-login", { body: { joinCode, username: uname, pin: "1234" } });
   assert.equal(lr.status, 200, lr.text);
   return jar(lr);
@@ -103,7 +106,7 @@ describe("tutor threads integration", () => {
     const db = require("../lib/db");
     const fam = await signupFamily(a, "itemonly");
     const seeded = await seedItem(db, fam.familyId, fam.userId);
-    const lj = await learnerJar(a, fam.familyId, "itemonly");
+    const lj = await learnerJar(a, fam, "itemonly");
     const r = await http(a, "/api/tutor/threads", {
       cookie: lj,
       body: { lessonId: null, itemId: seeded.itemId },
@@ -124,7 +127,7 @@ describe("tutor threads integration", () => {
     const db = require("../lib/db");
     const fam = await signupFamily(a, "lessononly");
     const seeded = await seedItem(db, fam.familyId, fam.userId);
-    const lj = await learnerJar(a, fam.familyId, "lessononly");
+    const lj = await learnerJar(a, fam, "lessononly");
     const r = await http(a, "/api/tutor/threads", {
       cookie: lj,
       body: { lessonId: seeded.lessonId, itemId: null },
@@ -145,7 +148,7 @@ describe("tutor threads integration", () => {
     const famA = await signupFamily(a, "scopea");
     const famB = await signupFamily(a, "scopeb");
     const bItem = await seedItem(db, famB.familyId, famB.userId);
-    const lj = await learnerJar(a, famA.familyId, "scopea");
+    const lj = await learnerJar(a, famA, "scopea");
     const r = await http(a, "/api/tutor/threads", {
       cookie: lj,
       body: { lessonId: null, itemId: bItem.itemId },
@@ -165,7 +168,7 @@ describe("tutor threads integration", () => {
     const db = require("../lib/db");
     const fam = await signupFamily(a, "keyless");
     const seeded = await seedItem(db, fam.familyId, fam.userId);
-    const lj = await learnerJar(a, fam.familyId, "keyless");
+    const lj = await learnerJar(a, fam, "keyless");
     const th = await http(a, "/api/tutor/threads", {
       cookie: lj,
       body: { lessonId: null, itemId: seeded.itemId },
