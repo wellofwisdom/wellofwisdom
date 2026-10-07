@@ -15,6 +15,7 @@
     "check": "node scripts/check.js",
     "validate-course": "node scripts/validate-course.js",
     "build:sea": "node scripts/build-sea.js",
+    "build:sea:ci": "node scripts/build-sea.js --out-dir dist-desktop",
     "verify:install": "node scripts/verify-install.js"
   },
   "engines": {
