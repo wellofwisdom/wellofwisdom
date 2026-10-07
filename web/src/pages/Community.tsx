@@ -74,7 +74,7 @@ export default function Community({ onNavigate }: { onNavigate: (id: string) => 
         <span className="row" style={{ gap: 8, flexWrap: "wrap" }}>
           <input
             className="input"
-            style={{ width: 220 }}
+            style={{ width: 220, maxWidth: "100%" }}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search title, topic, lens"
@@ -82,7 +82,7 @@ export default function Community({ onNavigate }: { onNavigate: (id: string) => 
           />
           <select
             className="input"
-            style={{ width: 160 }}
+            style={{ width: 160, maxWidth: "100%" }}
             value={lensFilter}
             onChange={(e) => setLensFilter(e.target.value)}
             aria-label="Filter by lens"

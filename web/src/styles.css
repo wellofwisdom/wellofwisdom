@@ -324,9 +324,12 @@ a:hover { text-decoration: underline; }
 }
 .panel .panelhead {
   display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 .panel .panelhead h2 { flex: 1; }
-.panel .panelhead .side { font-size: 13px; color: var(--muted); }
+/* A wide side (search box, filters) must be able to shrink on a phone
+   instead of pushing the page 6px sideways. */
+.panel .panelhead .side { font-size: 13px; color: var(--muted); max-width: 100%; min-width: 0; }
 
 .statbar { display: grid; gap: 12px; margin-bottom: 18px; }
 .stat {
