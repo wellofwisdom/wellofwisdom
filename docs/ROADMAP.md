@@ -61,7 +61,12 @@ Status legend: ✅ shipped · 🚧 in progress · 📋 planned
 ## Later (research queue)
 
 - **Audio overviews** (NotebookLM-style): AI-written two-voice podcast summary of
-  any unit, read by local TTS (Piper/Kokoro): car-schooling gold
+  any unit. SHIPPED 2026-10-01 (PR 110): `server/lib/overview.js` drafts the
+  two-host script from the unit's lesson text and renders every line through
+  the configured TTS path in `media.js`, one overview per unit, guide panel
+  on the course page. Note the original wish said local TTS (Piper/Kokoro):
+  what shipped speaks through the configured provider (kie today); the local
+  tier is the half-done Piper sidecar in "Not shipped yet". Car-schooling gold.
 - **Free content importers**: Wikipedia/Wikiversity (CC BY-SA), Project Gutenberg
   EPUBs (public-domain literature for ELA), OpenStax chapters (CC BY-NC-SA
   free use only, never in paid packs)
@@ -775,21 +780,41 @@ renderer (Bevy), which is not planned.
 
 ## Not shipped yet
 
-These checklist items did not ship in the 2026-09-30 wave (PRs 82 to 103).
-Each line is checked against the code on main:
+Written by PR 104 against the 2026-09-30 wave, then re-checked line by line
+against the code after the wave 5 follow-ups (PRs 105 to 111, 2026-10-01):
 
-- MCQ answer entry on face buttons (and the on-screen number pad for
-  numeric): the pad reaches every surface, but answers still come from the
-  keyboard or from speech; the speech path for text answers did ship (see
-  Speech input).
-- Tutor voice mode: push-to-talk already fills the tutor composer, but the
-  narrator never reads replies back; TutorChat has no voice-out path.
-- Offline TTS tier (Piper sidecar or Kokoro in-browser): speak() falls back
-  from kie TTS to the browser's speechSynthesis, nothing more local exists.
-- Offline STT tier (whisper sidecar or in-browser whisper-tiny): the only
-  transcription paths are the OpenAI-compatible endpoint and the browser
-  recogniser; nothing runs offline.
-- Tauri auto-update and code signing: the desktop bundles build unsigned on
-  all three OSes and DESKTOP.md says "No signing yet"; no updater configured.
-- Pronunciation scoring (goodness of pronunciation, wav2vec2 CTC): absent;
-  it stays in the research queue at the top, as the plan says.
+- [x] **MCQ answer entry on face buttons and the on-screen number pad:
+      SHIPPED** (PR 106, with the shell yield fix in PR 111). Once a pad
+      connects, `GamepadAnswerPad` renders beside the exercise: A, B, X and
+      Y pick choices 1 to 4 on a multiple choice item, and numeric items get
+      an on-screen pad with digits, `/`, `.` and enter. LearnerShell gives up
+      its own face buttons while the pad listens (`data-gamepad-active`), so
+      B picks choice 2 instead of navigating back. Text answers still come
+      from the keyboard or speech: there is no on-screen pad for free text.
+- [x] **Tutor voice mode: SHIPPED** (PR 108). The narrator reads each fresh
+      tutor reply aloud, with a per-device mute in localStorage and the HUD
+      sound mute silencing it too. It speaks with the browser's own
+      speechSynthesis voice, not the kie narrator: the voice params cross
+      the message route (validated JSON both ways) so the server sanctions
+      the rate, but the audio itself is client side.
+- [ ] **Offline TTS tier: HALF IN** (PR 109). The `offline-voice` compose
+      profile builds a Piper HTTP sidecar, `TTS_BASE_URL` turns the
+      `tts.sidecar` tier on in the speech ladder at `/api/stt/status`, and
+      `docs/EMBEDDED.md` spells out bring-up. But nothing synthesizes
+      through the sidecar yet: speak() still falls back from kie TTS to the
+      browser's speechSynthesis, and the status ladder is the only reader
+      of the env. Wiring the narrator to fetch WAV from the Piper sidecar
+      is the missing half. Needs Docker for the sidecar, no key.
+- [x] **Offline STT tier: SHIPPED as a Docker sidecar** (PR 109). The same
+      `offline-voice` profile runs whisper.cpp as an OpenAI-compatible
+      `/v1/audio/transcriptions` endpoint, and `STT_BASE_URL` points the
+      existing stt-openai provider at it, so recordings never leave the
+      box. Needs Docker; without it the tiers are the cloud endpoint and
+      the browser recogniser, exactly as before. In-browser whisper-tiny
+      did not ship.
+- [ ] **Tauri auto-update and code signing: still not shipped.** The
+      desktop bundles build unsigned on all three OSes and DESKTOP.md says
+      "No signing yet"; no updater is configured, only prep notes.
+- [ ] **Pronunciation scoring: still absent** (goodness of pronunciation,
+      wav2vec2 CTC). It stays in the research queue at the top, as the plan
+      says.
