@@ -32,10 +32,11 @@ import Work from "./pages/Work";
 import Attendance from "./pages/Attendance";
 import Portfolio from "./pages/Portfolio";
 import Join from "./pages/Join";
-import NotFound from "./pages/NotFound";
+import NotFound, { PublicNotFound } from "./pages/NotFound";
 import RosterImport from "./pages/RosterImport";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
 import { I18nContext, normalizeLang, tKey } from "./i18n";
+import { titleFor } from "./titles";
 
 // Public site pages. Which pages exist is decided by server/lib/site.json, so
 // the sitemap, robots.txt, llms.txt and these routes can never disagree.
@@ -125,6 +126,23 @@ export default function App() {
     }
   }, [me, route]);
 
+  // One central place where the route becomes a document.title (web/src/
+  // titles.ts). Runs once the session has resolved, because the same path is
+  // a different page logged out (landing, public pages, 404) and signed in,
+  // and again when the course list lands, which upgrades "Course 12" to the
+  // course's real name without any fetch made just for a title.
+  useEffect(() => {
+    if (loading) return;
+    const user = me?.user;
+    const title = titleFor({
+      route,
+      session: !user ? "public" : user.role === "learner" ? "learner" : "guide",
+      courseTitle: (id) => courses?.find((c) => c.id === id)?.title,
+      learnerName: (id) => me?.learners?.find((l) => l.id === id)?.name,
+    });
+    if (title) document.title = title;
+  }, [route, loading, me, courses]);
+
   const logout = useCallback(async () => {
     await api("/api/auth/logout", { method: "POST" }).catch(() => {});
     go("dashboard");
@@ -165,7 +183,12 @@ export default function App() {
   const user = me?.user;
 
   if (!user) {
-    return <Landing onAuthed={refresh} />;
+    // The root is the landing page. Everything else that got this far was not
+    // a public page (those all returned above), so a logged-out visitor on it
+    // gets the public 404 with site chrome, not the signed-in console's
+    // NotFound card and not the landing page pretending the link was fine.
+    if (route === "dashboard") return <Landing onAuthed={refresh} />;
+    return <PublicNotFound path={route} />;
   }
 
   if (user.role === "learner") {
