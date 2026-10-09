@@ -511,6 +511,155 @@ function WaitlistPanel() {
   );
 }
 
+interface ImportSection {
+  key: string;
+  label: string;
+  create: number;
+  skipDuplicate: number;
+  skipOther: number;
+  notes?: string[];
+  error?: string | null;
+  pins?: { name: string; username: string; pin: string }[];
+}
+
+interface ImportReport {
+  dryRun: boolean;
+  ok?: boolean;
+  totalCreated?: number;
+  source: { familyName: string | null; exportedLearners: number; exportedCourses: number };
+  sections: ImportSection[];
+}
+
+async function fileToBase64(file: File): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+function ImportReportList({ report }: { report: ImportReport }) {
+  return (
+    <>
+      <p className="small" style={{ margin: "10px 0 4px" }}>
+        {report.source.familyName ? `Export from "${report.source.familyName}"` : "Export file"} ·{" "}
+        {report.source.exportedLearners} learner{report.source.exportedLearners === 1 ? "" : "s"} ·{" "}
+        {report.source.exportedCourses} course{report.source.exportedCourses === 1 ? "" : "s"}
+        {!report.dryRun && typeof report.totalCreated === "number" ? ` · ${report.totalCreated} items created` : ""}
+      </p>
+      {report.sections.map((s) => (
+        <div key={s.key} className="checkitem">
+          <span className="t">
+            <strong>{s.label}</strong>:{" "}
+            {s.create > 0 || s.skipDuplicate > 0 || s.skipOther > 0 ? (
+              <>
+                {s.create > 0 && <span>{s.create} created</span>}
+                {s.skipDuplicate > 0 && <span>{s.create > 0 ? ", " : ""}{s.skipDuplicate} already here</span>}
+                {s.skipOther > 0 && <span>{s.create > 0 || s.skipDuplicate > 0 ? ", " : ""}{s.skipOther} skipped</span>}
+              </>
+            ) : (
+              <span className="muted">none in this export</span>
+            )}
+            {s.error && <span style={{ color: "var(--danger, #b00)" }}> · failed: {s.error}</span>}
+            {(s.notes || []).map((n, i) => (
+              <span key={i} className="muted small" style={{ display: "block" }}>{n}</span>
+            ))}
+          </span>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function FamilyImportPanel() {
+  const [file, setFile] = useState<File | null>(null);
+  const [dry, setDry] = useState<ImportReport | null>(null);
+  const [result, setResult] = useState<ImportReport | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  async function send(confirm: boolean) {
+    if (!file) return;
+    setBusy(true);
+    setMsg("");
+    if (!confirm) setDry(null);
+    try {
+      const zip = await fileToBase64(file);
+      const r = await api<ImportReport & { error?: string; problems?: string[] }>("/api/family/import", {
+        method: "POST",
+        body: { zip, confirm },
+      });
+      if (r.error === "shape_invalid" && r.problems) {
+        setMsg(`This file is not a family export I can read. First problems: ${r.problems.slice(0, 3).join("; ")}`);
+        return;
+      }
+      if (r.error) {
+        setMsg(r.error === "zip_too_large" ? "That zip is too large to upload (about 18 MB is the ceiling)." : `Import failed: ${r.error}`);
+        return;
+      }
+      if (confirm) setResult(r);
+      else setDry(r);
+    } catch (e) {
+      setMsg(niceError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const planTotal = dry ? dry.sections.reduce((n, s) => n + s.create, 0) : 0;
+
+  return (
+    <>
+      <p className="hint" style={{ marginTop: 0 }}>
+        Moving a family or undoing a mistake: pick the zip a family export gave you. Two steps, nothing is written until
+        the second one.
+      </p>
+      <div className="row wrap">
+        <input
+          type="file"
+          accept=".zip,application/zip"
+          className="input"
+          style={{ maxWidth: 320 }}
+          onChange={(e) => { setFile(e.target.files?.[0] || null); setDry(null); setResult(null); setMsg(""); }}
+          aria-label="Family export zip"
+        />
+        <button className="btn" type="button" disabled={busy || !file} onClick={() => send(false)}>
+          {busy ? "Working…" : "Check first"}
+        </button>
+        <button className="btn primary" type="button" disabled={busy || !dry || planTotal === 0} onClick={() => send(true)}>
+          Import {planTotal > 0 ? `${planTotal} items` : ""} into this family
+        </button>
+      </div>
+      {msg && <p className="small" style={{ marginTop: 8 }}>{msg}</p>}
+      {dry && !result && <ImportReportList report={dry} />}
+      {result && (
+        <>
+          <p className="small" style={{ marginTop: 10 }}>Done. Here is what landed.</p>
+          <ImportReportList report={result} />
+          {result.sections.some((s) => s.pins?.length) && (
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
+              <p style={{ margin: "0 0 6px", fontWeight: 600 }}>New sign-in codes for restored learners (shown once)</p>
+              {result.sections.flatMap((s) => s.pins || []).map((p) => (
+                <div key={p.username} className="checkitem">
+                  <span className="t">{p.name} · username <code>{p.username}</code> · PIN <code>{p.pin}</code></span>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+      <p className="hint" style={{ marginTop: 10 }}>
+        The import never overwrites anything: rows already in this family are skipped and reported. Courses come back as
+        drafts. Learner attempt history and review schedules are not restorable (the export does not carry lesson item
+        ids). The zip travels inside the request, so about 18 MB is the practical ceiling: exports with large videos
+        will not fit.
+      </p>
+    </>
+  );
+}
+
 export default function Settings({ me }: { me: MeResponse }) {
   const user = me.user!;
   const admin = Boolean(user.instanceAdmin);
@@ -600,6 +749,12 @@ export default function Settings({ me }: { me: MeResponse }) {
           Download family export (.zip)
         </a>
       </Panel>
+
+      {user.guideRole === "owner" && (
+        <Panel title="Restore from an export" side="brings a family zip back">
+          <FamilyImportPanel />
+        </Panel>
+      )}
 
       <Panel title="System" side="this server">
         <div className="checkitem">
