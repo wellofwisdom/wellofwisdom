@@ -14,3 +14,5 @@ export { default as DialogueForm } from "./DialogueForm";
 export { default as VocabCardForm } from "./VocabCardForm";
 export { default as SpokenForm } from "./SpokenForm";
 export { default as GradedReaderForm } from "./GradedReaderForm";
+export { default as ListenChoiceForm } from "./ListenChoiceForm";
+export { default as ListenRepeatForm } from "./ListenRepeatForm";
