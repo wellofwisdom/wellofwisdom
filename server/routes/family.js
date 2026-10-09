@@ -20,19 +20,21 @@ function bad(res, msg, code = 400) {
 // Placed before the learners routes so /export is not captured as an id.
 // Each upload is appended as a read stream so a 500 MB video never sits
 // entirely in memory.
+// archiver v8 dropped the callable default for named classes, so this is
+// new ZipArchive(...) where older code wrote archiver(...).
 router.get("/export", async (req, res, next) => {
   try {
     if (!perm.can(req.user, "manage_family")) return bad(res, "not_allowed", 403);
     const exporter = require("../lib/export");
     const storage = require("../lib/storage");
-    const archiver = require("archiver");
+    const { ZipArchive } = require("archiver");
     const familyData = await exporter.collectFamily(req.user.familyId);
     const courseIds = await exporter.listCourseIds(req.user.familyId);
 
     res.setHeader("Content-Type", "application/zip");
     res.setHeader("Content-Disposition", `attachment; filename="wellofwisdom-family-${req.user.familyId}.zip"`);
 
-    const archive = archiver("zip", { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
     archive.on("error", (err) => next(err));
     archive.pipe(res);
 
@@ -68,6 +70,43 @@ router.get("/export", async (req, res, next) => {
     }
 
     await archive.finalize();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Family import: the restore side of /export (owner only, same perm). The
+// zip travels base64 inside a JSON body ({ zip, confirm }), so the request
+// runs under the big IMPORT_BODY_LIMIT parser mounted in index.js. With the
+// default 25mb body limit the practical ceiling is a zip of about 18 MB:
+// base64 adds a third, and exports holding large videos will not fit.
+// Without confirm this is a dry run: validate + report, zero writes. With
+// confirm, everything lands in the CURRENT family, section by section, and
+// the answer reports what landed, what was skipped as a duplicate and what
+// could not be restored.
+router.post("/import", async (req, res, next) => {
+  try {
+    if (!perm.can(req.user, "manage_family")) return bad(res, "not_allowed", 403);
+    const limit = auth.loginLimit(`${req.ip || "unknown"}:family-import`, { max: 20, windowMs: 10 * 60 * 1000 });
+    if (!limit.ok) return res.status(429).json({ error: "too_many_attempts", retryAfterSec: limit.retryAfterSec });
+    const zipB64 = req.body && typeof req.body.zip === "string" ? req.body.zip : "";
+    const confirm = Boolean(req.body && req.body.confirm);
+    if (!zipB64) return bad(res, "zip_required");
+    if (zipB64.length > 24 * 1024 * 1024) return bad(res, "zip_too_large");
+    const buffer = Buffer.from(zipB64, "base64");
+    if (!buffer.length) return bad(res, "zip_invalid");
+
+    const importer = require("../lib/familyimport");
+    let parsed;
+    try {
+      parsed = importer.parseFamilyZip(buffer);
+    } catch (err) {
+      if (err.code === "shape_invalid") return res.status(400).json({ error: "shape_invalid", problems: err.problems });
+      if (err.code === "zip_invalid" || err.code === "zip_too_big") return res.status(400).json({ error: err.code });
+      throw err;
+    }
+    if (confirm) return res.json(await importer.applyImport(parsed, req.user));
+    return res.json(await importer.planImport(parsed, req.user.familyId));
   } catch (err) {
     next(err);
   }

@@ -55,7 +55,7 @@ app.use((req, res, next) => {
 // one can stay small. express.json skips a body it has already parsed, so the
 // larger parser has to be mounted first.
 app.use(
-  ["/api/courses/import", "/api/courses/worksheet-import", "/api/courses/worksheet-ocr", "/api/community/import"],
+  ["/api/courses/import", "/api/courses/worksheet-import", "/api/courses/worksheet-ocr", "/api/community/import", "/api/family/import"],
   express.json({ limit: process.env.IMPORT_BODY_LIMIT || "25mb" })
 );
 app.use(express.json({ limit: "2mb" }));
