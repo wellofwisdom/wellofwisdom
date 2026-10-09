@@ -18,7 +18,11 @@ const ctx = harness.prepare(__filename);
 
 async function app() { return require("../../server/index"); }
 
-const auth = require("../lib/auth"); // hashPin only, no db touched at require time
+// lib/auth is required LAZILY, inside seedFamily: a module-top require would
+// cache lib/auth bound to the pre-setup lib/db module, and the harness evicts
+// db and routes from the require cache but not lib/auth. CI then answered
+// "relation sessions does not exist" because createSession ran on the public
+// schema instead of the throwaway one.
 
 function httpRaw(a, method, reqPath, opts = {}) {
   const m = require("node:http");
@@ -80,6 +84,7 @@ async function signup(a, tag) {
 }
 
 async function seedFamily(a, tag) {
+  const auth = require("../lib/auth");
   const fam = await signup(a, tag);
   const db = require("../lib/db");
   const fid = fam.familyId;
