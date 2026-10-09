@@ -100,14 +100,39 @@ function optStr(row, field, max) {
   return String(val).slice(0, max);
 }
 
-// An ISO timestamp string the way JSON.stringify writes one. undefined means
-// "absent or unusable", and the insert falls back to now().
+// An ISO timestamp string the way JSON.stringify writes one, or a Date the
+// way pg hands one back (dates in the manifest can be either). undefined
+// means "absent or unusable", and the insert falls back to now().
 function isoTs(v) {
-  if (!isStr(v) || !v) return undefined;
-  return Number.isNaN(new Date(v).getTime()) ? undefined : v;
+  if (isStr(v) && v) {
+    return Number.isNaN(new Date(v).getTime()) ? undefined : v;
+  }
+  if (v instanceof Date && !Number.isNaN(v.getTime())) return v.toISOString();
+  return undefined;
 }
 
-function isoDate(v) { return isStr(v) && DATE_RE.test(v) ? v : null; }
+// DATE columns come back from pg as Date objects pinned to UTC midnight, so
+// an export's JSON reads them as "...T00:00:00.000Z" regardless of server
+// timezone. Normalize to the UTC calendar day: both sides of the dup check
+// then agree in any timezone, and the restored date equals the date the
+// exporting family had. A date-only string passes through untouched.
+function utcDateOf(d) {
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}`;
+}
+
+function normalizeDate(v) {
+  if (isStr(v)) {
+    const s = v.trim();
+    if (DATE_RE.test(s)) return s;
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : utcDateOf(d);
+  }
+  if (v instanceof Date && !Number.isNaN(v.getTime())) return utcDateOf(v);
+  return null;
+}
+
+function isoDate(v) { return normalizeDate(v); }
 
 // Same ext table the export route uses to name upload entries.
 function extFor(mime) {
@@ -309,12 +334,16 @@ const dupKey = {
   events: (row) => `${optStr(row, "title", 200) || ""}|${isoDate(row.on_date)}|${optStr(row, "at_time", 8) || ""}`,
   notes: (row) => md5(`${optStr(row, "title", 200) || "Untitled"}\u0000${isStr(row.body) ? row.body : ""}`),
   resources: (row) => `${optStr(row, "title", 200) || ""}|${optStr(row, "url", 2000) || ""}|${row.type || "link"}`,
-  tutorThreads: (row) => `${asInt(row.learner_id)}|${optStr(row, "title", 200) || ""}|${isoTs(row.created_at) || ""}`,
+  // The learner id is the CURRENT family's id, not the manifest's old id:
+  // a second import must match the first import's threads even though the
+  // learners were renumbered. Callers resolve the id through the username.
+  tutorThreads: (row, learnerId) => `${learnerId ?? "?"}|${optStr(row, "title", 200) || ""}|${isoTs(row.created_at) || ""}`,
 };
 
 async function loadExisting(familyId) {
   const rows = await Promise.all([
-    db.query("select username from users where family_id = $1", [familyId]),
+    db.query("select id, username from users where family_id = $1 and role = 'learner'", [familyId]),
+    db.query("select id, username, role from users where family_id = $1", [familyId]),
     db.query("select id, title from courses where family_id = $1", [familyId]),
     db.query("select original_name, bytes, title from uploads where family_id = $1", [familyId]),
     db.query("select title, start_date, end_date from term_plans where family_id = $1", [familyId]),
@@ -324,14 +353,15 @@ async function loadExisting(familyId) {
     db.query("select learner_id, title, created_at from tutor_threads where family_id = $1", [familyId]),
   ]);
   return {
-    learnerUsernames: new Set(rows[0].rows.map((r) => String(r.username).toLowerCase())),
-    courseTitles: new Map(rows[1].rows.map((r) => [String(r.title), Number(r.id)])),
-    uploadKeys: new Set(rows[2].rows.map((r) => `${r.original_name || ""}|${Number(r.bytes)}|${r.title || ""}`)),
-    planKeys: new Map(rows[3].rows.map((r) => [dupKey.plans(r), Number(r.id)])),
-    eventKeys: new Set(rows[4].rows.map((r) => dupKey.events(r))),
-    noteKeys: new Set(rows[5].rows.map((r) => dupKey.notes(r))),
-    resourceKeys: new Set(rows[6].rows.map((r) => dupKey.resources(r))),
-    threadKeys: new Set(rows[7].rows.map((r) => `${Number(r.learner_id)}|${r.title || ""}|${new Date(r.created_at).toISOString()}`)),
+    learnerIdByUsername: new Map(rows[0].rows.map((r) => [String(r.username).toLowerCase(), Number(r.id)])),
+    learnerUsernames: new Set(rows[1].rows.map((r) => String(r.username).toLowerCase())),
+    courseTitles: new Map(rows[2].rows.map((r) => [String(r.title), Number(r.id)])),
+    uploadKeys: new Set(rows[3].rows.map((r) => `${r.original_name || ""}|${Number(r.bytes)}|${r.title || ""}`)),
+    planKeys: new Map(rows[4].rows.map((r) => [dupKey.plans(r), Number(r.id)])),
+    eventKeys: new Set(rows[5].rows.map((r) => dupKey.events(r))),
+    noteKeys: new Set(rows[6].rows.map((r) => dupKey.notes(r))),
+    resourceKeys: new Set(rows[7].rows.map((r) => dupKey.resources(r))),
+    threadKeys: new Set(rows[8].rows.map((r) => dupKey.tutorThreads(r, Number(r.learner_id)))),
   };
 }
 
@@ -374,8 +404,17 @@ async function buildPlan(parsed, familyId) {
     planFate.set(asInt(row.id), at != null ? { fate: "duplicate", planId: at } : { fate: "new" });
   }
   const threadFate = new Map(); // old thread id -> { fate }
+  // Thread dup keys compare against CURRENT learner ids: on a second import
+  // the manifest's old ids resolve through the username to the learners the
+  // first import created.
+  const oldLearnerUsername = new Map(m.learners.map((r) => [asInt(r.id), dupKey.learners(r)]));
+  const resolveCurrentLearner = (oldId) => {
+    const uname = oldLearnerUsername.get(oldId);
+    return (uname && existing.learnerIdByUsername.get(uname)) || null;
+  };
   for (const row of m.tutorThreads) {
-    threadFate.set(asInt(row.id), existing.threadKeys.has(dupKey.tutorThreads(row)) ? { fate: "duplicate" } : { fate: "new" });
+    const key = dupKey.tutorThreads(row, resolveCurrentLearner(asInt(row.learner_id)));
+    threadFate.set(asInt(row.id), existing.threadKeys.has(key) ? { fate: "duplicate" } : { fate: "new" });
   }
 
   const sections = [];
@@ -671,6 +710,21 @@ async function applyImport(parsed, user) {
     sections.push(s);
   }
 
+  // Child sections resolve a parent reference to the id it will have after
+  // this import: the new id when the parent was created, the existing id
+  // when it was a duplicate, null when there is nothing to point at.
+  const resolvePlan = (oldId) => {
+    const pf = plan.planFate.get(asInt(oldId));
+    if (!pf) return null;
+    if (pf.fate === "created") return planMap.get(asInt(oldId)) || null;
+    if (pf.fate === "duplicate") return pf.planId || null;
+    return null;
+  };
+  const resolveCourse = (oldId) => {
+    const cf = courseFate.get(asInt(oldId));
+    return cf && cf.courseId ? cf.courseId : null;
+  };
+
   // Plans
   await run("plans", async (client, s) => {
     for (const row of m.plans) {
@@ -746,21 +800,6 @@ async function applyImport(parsed, user) {
       s.create++;
     }
   });
-
-  // Child sections resolve a parent reference to the id it will have after
-  // this import: the new id when the parent was created, the existing id
-  // when it was a duplicate, null when there is nothing to point at.
-  const resolvePlan = (oldId) => {
-    const pf = plan.planFate.get(asInt(oldId));
-    if (!pf) return null;
-    if (pf.fate === "created") return planMap.get(asInt(oldId)) || null;
-    if (pf.fate === "duplicate") return pf.planId || null;
-    return null;
-  };
-  const resolveCourse = (oldId) => {
-    const cf = courseFate.get(asInt(oldId));
-    return cf && cf.courseId ? cf.courseId : null;
-  };
 
   // Calendar events (notified_at resets so reminders re-arm cleanly)
   await run("events", async (client, s) => {

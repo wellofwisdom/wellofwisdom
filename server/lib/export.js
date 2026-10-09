@@ -28,7 +28,7 @@ async function collectFamily(familyId) {
     [fid]
   );
 
-  const eventsRes = await db.query("select * from events where family_id = $1 order by starts_at", [fid]).catch(() => ({ rows: [] }));
+  const eventsRes = await db.query("select * from events where family_id = $1 order by on_date, at_time", [fid]).catch(() => ({ rows: [] }));
   const notesRes = await db.query("select * from workspace_pages where family_id = $1 order by created_at", [fid]);
   const resourcesRes = await db.query("select * from resources where family_id = $1 order by created_at", [fid]);
   const reportsRes = await db.query("select * from reports where family_id = $1 order by period_start", [fid]);
