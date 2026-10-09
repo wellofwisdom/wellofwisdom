@@ -40,7 +40,8 @@ Status legend: ✅ shipped · 🚧 in progress · 📋 planned
 - Transparent mastery (BKT-based; learner and parent can always see the math)
 - Progress: time by subject, portfolios (photos of real projects), summary
   reports, certificates, and transcripts where you need them
-- AI weekly planner (constraints → schedule)
+- [x] AI weekly planner (constraints → schedule) (shipped, see Working plan:
+      the Plan Assistant, plan templates and the calendar)
 - Photo-worksheet import (OCR → draft exercises)
 - Read-aloud (Piper/Kokoro) + dictation (Whisper)
 - Essay/project grading: AI drafts rubric feedback, parent approves
@@ -53,7 +54,8 @@ Status legend: ✅ shipped · 🚧 in progress · 📋 planned
 
 ## Phase 5: Public launch 📋
 
-- Hosted public demo instance
+- [x] Hosted public demo instance (shipped, live at wellofwisdom.app;
+      see Launch readiness)
 - Docs site; awesome-selfhosted submission
 - Launch week (Show HN + r/selfhosted, concentrated in one window)
 - [x] Course-sharing library (CC-BY): community publishes their lenses (shipped, see Working plan)
@@ -128,6 +130,17 @@ and why. Anything marked shipped has a commit and is live.
       capped. `FETCH_BLOCK_CIDRS` names the server's own public address.
 - [x] **House style enforced** (`900363c`, `d6bfb7a`). No em dashes anywhere in
       our own source; `npm run check` fails on any dash character.
+- [x] **Learning paths** (`e1bd398`, `6152b68`). Plan a unit, a term or a
+      whole year, then generate each course when it is time. The Plan
+      Assistant turns subject, goals, timeframe and learners into a milestone
+      sequence to review, the plan templates (Algebra 1, US History, Biology,
+      Intro to Python, Creative Writing) need no AI at all, each learner on a
+      path carries their own lens and instructions, and the calendar puts
+      sessions, deadlines, field trips and exams on one month grid with
+      reminder emails.
+- [x] **Workspace and Resource Library** (`f0a370e`, `1f3cc02`). Nested notes
+      pages for free-form planning, and a resource library with table, board,
+      calendar and gallery views.
 
 ## Now
 
