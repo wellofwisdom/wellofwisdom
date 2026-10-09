@@ -140,6 +140,29 @@ function prepare(testFile) {
     db.__testPool = appPool;
     db.__testSchema = schema;
 
+    // db.transaction checks out from the module-internal pool, which never
+    // sees the schema search_path; code under test that uses transactions
+    // (migrate, family import) would hit the public schema and fail with
+    // "relation ... does not exist". Same replacement shape as query: one
+    // checked-out appPool client, search path set for the whole transaction.
+    db.transaction = async (fn) => {
+      const conn = await appPool.connect();
+      try {
+        await conn.query(`set search_path to "${schema}", public`);
+        await conn.query("begin");
+        try {
+          const out = await fn(conn);
+          await conn.query("commit");
+          return out;
+        } catch (err) {
+          await conn.query("rollback").catch(() => {});
+          throw err;
+        }
+      } finally {
+        conn.release();
+      }
+    };
+
     for (const k of Object.keys(require.cache)) {
       if (k.includes("server\\routes") || k.includes("server/index")) delete require.cache[k];
     }
