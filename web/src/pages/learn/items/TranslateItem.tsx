@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { api, niceError } from "../../../api";
 import { triggerRumble } from "../../../lib/gamepad";
+import TextAnswerPad from "../../../components/TextAnswerPad";
 import type { ItemNode } from "../../../types";
 import { useT } from "../../../i18n";
 import HintLadder from "./HintLadder";
@@ -49,6 +50,8 @@ export default function TranslateItem({
   const [busy, setBusy] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
   const [err, setErr] = useState("");
+  // Serves the free-text pad: it offers itself when this textarea holds focus.
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const isSolved = solved[qKey] === true;
   const correct = result?.correct === true;
   const needsReview = result?.needsReview === true;
@@ -105,6 +108,7 @@ export default function TranslateItem({
             <label className="small muted" htmlFor={`translate-answer-${item.id}`} style={{ display: "block", marginBottom: 6 }}>{t("translate.inputLabel")}</label>
             <textarea
               id={`translate-answer-${item.id}`}
+              ref={inputRef}
               className="input"
               style={{ width: "100%", maxWidth: 520, minHeight: 88, resize: "vertical" }}
               value={answer}
@@ -123,6 +127,7 @@ export default function TranslateItem({
               {busy ? t("exercise.checking") : t("exercise.check")}
             </button>
           </div>
+          <TextAnswerPad inputRef={inputRef} value={answer} onInput={setAnswer} busy={busy} />
           <p className="muted small" style={{ marginTop: 6 }}>{t("translate.hint")}</p>
           <div className="row wrap" style={{ marginTop: 8 }}>
             <HintLadder content={c} />

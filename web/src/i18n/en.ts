@@ -481,6 +481,13 @@ const en = {
   "project.words": "words",
   "project.new": "New",
   "project.fromGuideOutcome": "From your guide: {outcome}",
+  "pad.textPad": "Text pad",
+  "pad.move": "move",
+  "pad.pressKey": "press key",
+  "pad.close": "close",
+  "pad.backspace": "Backspace",
+  "pad.space": "Space",
+  "pad.done": "Done",
 } as const;
 
 export type TranslationKey = keyof typeof en;

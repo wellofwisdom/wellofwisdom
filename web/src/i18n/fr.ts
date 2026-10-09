@@ -441,6 +441,13 @@ const fr: Record<TranslationKey, string> = {
   "project.words": "mots",
   "project.new": "Nouveau",
   "project.fromGuideOutcome": "De ta guide : {outcome}",
+  "pad.textPad": "Clavier",
+  "pad.move": "déplacer",
+  "pad.pressKey": "presser la touche",
+  "pad.close": "fermer",
+  "pad.backspace": "Effacer",
+  "pad.space": "Espace",
+  "pad.done": "Fin",
 };
 
 export default fr;
