@@ -16,6 +16,7 @@ import { api, niceError } from "../../api";
 import { RichText } from "../../lib/rich";
 import { useT, speakWithLang, currentLang } from "../../i18n";
 import { PushToTalk } from "../../components/PushToTalk";
+import TextAnswerPad from "../../components/TextAnswerPad";
 
 interface Msg { id?: number; role: "learner" | "tutor"; content: string; refused?: boolean }
 
@@ -165,6 +166,7 @@ export default function TutorChat({ lessonId, itemId, onClose }:
               if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
             }}
             aria-label={t("tutor.yourMessageLabel")}
+            data-nav
           />
           {/* Talking to the tutor, not answering a question: the heard words are
               appended so a follow up sentence does not wipe the last one. */}
@@ -184,6 +186,9 @@ export default function TutorChat({ lessonId, itemId, onClose }:
             {t("tutor.ask")}
           </button>
         </div>
+        {/* Done here sends the message (onSubmit is send); the pad offers
+            itself while this textarea holds focus. */}
+        <TextAnswerPad inputRef={inputRef} value={text} onInput={setText} onSubmit={send} busy={busy} />
         <p className="hint">
           {t("tutor.guideCanRead")}
         </p>

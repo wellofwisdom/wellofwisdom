@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { api, niceError } from "../../../api";
 import { PushToTalk } from "../../../components/PushToTalk";
 import { triggerRumble } from "../../../lib/gamepad";
 import GamepadAnswerPad from "../../../components/GamepadAnswerPad";
+import TextAnswerPad from "../../../components/TextAnswerPad";
 import type { ItemNode } from "../../../types";
 import { MathText } from "../../../lib/rich";
 import { useT } from "../../../i18n";
@@ -71,6 +72,8 @@ export default function ExerciseItem({
   const [explain, setExplain] = useState("");
   const [explainBusy, setExplainBusy] = useState(false);
   const [err, setErr] = useState("");
+  // Serves the free-text pad: it offers itself when this textarea holds focus.
+  const textRef = useRef<HTMLTextAreaElement | null>(null);
 
   const isSolved = solved[qKey] === true;
   const anchor = question && Number.isFinite(Number(question.atSec)) ? Number(question.atSec) : null;
@@ -236,6 +239,8 @@ export default function ExerciseItem({
           <textarea
             className="input"
             rows={3}
+            ref={textRef}
+            data-nav
             placeholder={t("exercise.writePlaceholder")}
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
@@ -256,6 +261,7 @@ export default function ExerciseItem({
             </button>
             <PushToTalk kind="text" onResult={(spoken) => setAnswer((current) => (current.trim() ? `${current.trim()} ${spoken.text}` : spoken.text))} />
           </div>
+          <TextAnswerPad inputRef={textRef} value={answer} onInput={setAnswer} />
         </div>
       )}
       {tutorOpen && <TutorChat itemId={item.id} onClose={() => setTutorOpen(false)} />}
