@@ -2,9 +2,10 @@
 // Audio overviews: a short two-host podcast summary of one unit, NotebookLM
 // style. The AI drafts a tight script from the unit's own lesson text (host A
 // curious, host B concrete), every line is rendered voice by voice through the
-// TTS path in media.js, and the mp3 bytes are concatenated into one upload
+// TTS path in media.js, and the audio bytes are concatenated into one upload
 // carrying ref_type "overview" and the unit id. Regenerating a unit replaces
-// its overview: the last one is the only one kept.
+// its overview: the last one is the only one kept. The stored format follows
+// the tier that answered: MP3 on the cloud tiers, WAV on the offline sidecar.
 //
 // Family data rule: the unit text goes to the configured AI provider (the
 // script draft) and then to the configured TTS provider (the read aloud), the
@@ -188,13 +189,17 @@ async function generateOverview({ unitId, familyId, userId }) {
       console.warn(`[overview] unit ${id}: skipped a segment (${err.message})`);
     }
   }
-  const audio = concatMp3(buffers);
+  // The tier that answered decides the format: the offline sidecar serves
+  // WAV, the cloud tiers MP3. The joiner keeps one format and drops the rest.
+  const joined = media.concatSpeechSegments(buffers);
+  skipped += joined.dropped;
+  const ext = joined.mime === "audio/wav" ? "wav" : "mp3";
 
-  const saved = await storage.put(familyId, "audio/mpeg", audio);
+  const saved = await storage.put(familyId, joined.mime, joined.bytes);
   const ins = await db.query(
     `insert into uploads (family_id, kind, mime, bytes, storage_key, original_name, title, meta, created_by)
-     values ($1,'audio','audio/mpeg',$2,$3,$4,$5,$6,$7) returning id`,
-    [familyId, saved.bytes, saved.key, `overview-unit-${id}-${Date.now()}.mp3`,
+     values ($1,'audio',$2,$3,$4,$5,$6,$7,$8) returning id`,
+    [familyId, joined.mime, saved.bytes, saved.key, `overview-unit-${id}-${Date.now()}.${ext}`,
       `${unitTitle} audio overview`,
       JSON.stringify({ refType: "overview", unitId: id, script, skipped }),
       userId || null]
