@@ -32,7 +32,7 @@ import Work from "./pages/Work";
 import Attendance from "./pages/Attendance";
 import Portfolio from "./pages/Portfolio";
 import Join from "./pages/Join";
-import NotFound from "./pages/NotFound";
+import NotFound, { PublicNotFound } from "./pages/NotFound";
 import RosterImport from "./pages/RosterImport";
 import PreviewBar, { restorePreview, clearPreview } from "./components/PreviewBar";
 import { I18nContext, normalizeLang, tKey } from "./i18n";
@@ -183,7 +183,12 @@ export default function App() {
   const user = me?.user;
 
   if (!user) {
-    return <Landing onAuthed={refresh} />;
+    // The root is the landing page. Everything else that got this far was not
+    // a public page (those all returned above), so a logged-out visitor on it
+    // gets the public 404 with site chrome, not the signed-in console's
+    // NotFound card and not the landing page pretending the link was fine.
+    if (route === "dashboard") return <Landing onAuthed={refresh} />;
+    return <PublicNotFound path={route} />;
   }
 
   if (user.role === "learner") {
