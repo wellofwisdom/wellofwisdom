@@ -88,9 +88,9 @@ function pickKind(...candidates) {
 
 /**
  * The speech ladder, env only, so a self-host can see every tier at a glance.
- * The client walks it top down: a server tier first (kie cloud, then the local
- * sidecar), the browser's own voices last, so a family's words stay on the box
- * when one is set up. Env, not the vault: the vault tunes a running install,
+ * The client walks it top down: a server tier first (the local sidecar when
+ * the deployment brought it up, then the kie cloud), the browser's own voices
+ * last, so a family's words stay on the box when one is set up. Env, not the vault: the vault tunes a running install,
  * while these say which tier the deployment itself brought up. The browser
  * tier always exists; the client decides what its own browser can use.
  */

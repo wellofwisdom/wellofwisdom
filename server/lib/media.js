@@ -288,17 +288,32 @@ async function generateMusic({ prompt, duration, purpose, refType, refId, family
 
 // ---------- speech segments (audio overviews) ----------
 
-// One short spoken line, returned as mp3 bytes so the caller can concatenate
-// a two-host script into a single file. Same provider path as narration:
-// kie Gemini TTS first, Google Cloud TTS as the fallback. `role` picks the
-// engine's two voices (narrator for host A, character for host B); an explicit
-// `voice` name always wins.
+// One short spoken line, returned as raw audio bytes so the caller can
+// concatenate a two-host script into a single file. The ladder walks
+// local-first so an offline deployment hears its own sidecar: the Piper
+// container (TTS_BASE_URL) first, then kie Gemini TTS, then Google Cloud TTS.
+// The bytes are WAV on the sidecar tier and MP3 on the cloud tiers; join them
+// with concatSpeechSegments, never Buffer.concat. `role` picks the cloud
+// engines' two voices (narrator for host A, character for host B); an explicit
+// `voice` name always wins, and the sidecar answers every role with the one
+// voice its container loaded.
 async function speechSegment({ text, voice, role }) {
   const clean = String(text || "").trim().slice(0, 4000);
   if (!clean) throw new Error("speech_empty_text");
   const requested = String(voice || "").trim();
   const voiceForRole = (prov, r) => { try { return prov.voiceFor(r); } catch { return null; } };
   let lastErr = null;
+  try {
+    const piper = require("./providers/piper-tts");
+    if (piper.configured()) {
+      const r = await piper.synthesize({ text: clean, voice: requested });
+      if (r && r.buffer && r.buffer.length) return r.buffer;
+    }
+  } catch (err) {
+    // Any sidecar failure (timeout, non-200, bad audio) falls down the cloud
+    // ladder, never aborts: the sidecar is a convenience tier, not a gate.
+    lastErr = err;
+  }
   try {
     const kv = require("./providers/kie-voice");
     if (kv.kieVoiceConfigured()) {
@@ -322,6 +337,10 @@ async function speechSegment({ text, voice, role }) {
 
 function speechStatus() {
   try {
+    const piper = require("./providers/piper-tts");
+    if (piper.configured()) return { configured: true, via: "piper" };
+  } catch { /* not installed is not an error here */ }
+  try {
     const kv = require("./providers/kie-voice");
     if (kv.kieVoiceConfigured()) return { configured: true, via: "kie" };
   } catch { /* not installed is not an error here */ }
@@ -330,6 +349,101 @@ function speechStatus() {
     if (gv.ttsConfigured()) return { configured: true, via: "google" };
   } catch { /* same */ }
   return { configured: false, via: null };
+}
+
+// ---------- joining spoken lines ----------
+
+// A WAV's two magic numbers plus a walk of its chunks: everything before the
+// data chunk is header, the data chunk carries the samples. Returns null for
+// anything else (an MP3, a truncated body, an error page).
+function wavParts(buf) {
+  if (!looksLikeWavShallow(buf)) return null;
+  let at = 12;
+  let fmt = null;
+  while (at + 8 <= buf.length) {
+    const id = buf.toString("latin1", at, at + 4);
+    const size = buf.readUInt32LE(at + 4);
+    if (id === "fmt ") fmt = buf.subarray(at + 8, Math.min(at + 8 + size, buf.length));
+    else if (id === "data") {
+      const avail = Math.min(size, buf.length - at - 8);
+      if (!fmt || avail <= 0) return null;
+      return { fmt, payload: buf.subarray(at + 8, at + 8 + avail) };
+    }
+    at += 8 + size + (size % 2); // chunks pad to even lengths
+  }
+  return null;
+}
+
+function looksLikeWavShallow(buf) {
+  return Boolean(buf) && buf.length >= 12
+    && buf.toString("latin1", 0, 4) === "RIFF"
+    && buf.toString("latin1", 8, 12) === "WAVE";
+}
+
+// Rebuild one WAV from many: the first segment's header (and its sample
+// format) wins, every payload is appended, both size fields are patched.
+function concatWav(parts) {
+  const wavs = parts.map(wavParts).filter(Boolean);
+  const dataLen = wavs.reduce((n, w) => n + w.payload.length, 0);
+  const fmt = wavs[0].fmt;
+  const head = Buffer.alloc(20 + fmt.length + 8);
+  head.write("RIFF", 0, "latin1");
+  head.writeUInt32LE(4 + (8 + fmt.length) + (8 + dataLen), 4);
+  head.write("WAVE", 8, "latin1");
+  head.write("fmt ", 12, "latin1");
+  head.writeUInt32LE(fmt.length, 16);
+  fmt.copy(head, 20);
+  head.write("data", 20 + fmt.length, "latin1");
+  head.writeUInt32LE(dataLen, 24 + fmt.length);
+  return Buffer.concat([head, ...wavs.map((w) => w.payload)]);
+}
+
+// MP3 frames decode independently, so joined bytes play as one stream once
+// the tags after the first segment are gone (same rule as the overview job's
+// own joiner, which stays for its tests).
+function concatMp3Parts(parts) {
+  const id3v2Size = (buf) => {
+    if (buf.length >= 10 && buf[0] === 0x49 && buf[1] === 0x44 && buf[2] === 0x33) {
+      const size = ((buf[6] & 0x7f) << 21) | ((buf[7] & 0x7f) << 14) | ((buf[8] & 0x7f) << 7) | (buf[9] & 0x7f);
+      return Math.min(10 + size, buf.length);
+    }
+    return 0;
+  };
+  const rest = parts.slice(1).map((b) => {
+    let seg = b.subarray(id3v2Size(b));
+    if (seg.length >= 128 && seg.subarray(seg.length - 128, seg.length - 125).toString("latin1") === "TAG") {
+      seg = seg.subarray(0, seg.length - 128);
+    }
+    return seg;
+  });
+  return Buffer.concat([parts[0], ...rest]);
+}
+
+/**
+ * Join per-line speech buffers into one playable file. The tier that answered
+ * decides the format (sidecar WAV, cloud MP3), and a tier switching mid-job
+ * can mix them in one batch, which no decoder plays. So the first buffer sets
+ * the format: same-format buffers join, the others count as dropped, and the
+ * caller reports them exactly like any other skipped line. Returns
+ * { bytes, mime, dropped }.
+ */
+function concatSpeechSegments(parts) {
+  const buffers = (parts || []).filter((b) => b && b.length);
+  if (!buffers.length) throw new Error("overview_no_audio");
+  const first = wavParts(buffers[0]);
+  const kept = [buffers[0]];
+  let dropped = 0;
+  for (const b of buffers.slice(1)) {
+    const w = wavParts(b);
+    // Same format means the same tier and, within WAV, the same sample
+    // format: two sample rates in one file plays at the wrong speed.
+    const same = first ? (w && w.fmt.equals(first.fmt)) : !w;
+    if (same) kept.push(b);
+    else dropped++;
+  }
+  return first
+    ? { bytes: concatWav(kept), mime: "audio/wav", dropped }
+    : { bytes: concatMp3Parts(kept), mime: "audio/mpeg", dropped };
 }
 
 // ---------- transcription (auto-captions) ----------
@@ -450,5 +564,6 @@ async function transcribe({ buffer, filename, mime, language }) {
 
 module.exports = {
   generateImage, generateVideo, generateSpeech, generateMusic, transcribe, status, resolveConfig, invalidateCache,
-  resultUrls, wordsToVtt, secToTs, transcriptFrom, speechSegment, speechStatus, IMAGE_MODELS, VIDEO_MODELS, AUDIO_MODELS,
+  resultUrls, wordsToVtt, secToTs, transcriptFrom, speechSegment, speechStatus, concatSpeechSegments,
+  IMAGE_MODELS, VIDEO_MODELS, AUDIO_MODELS,
 };

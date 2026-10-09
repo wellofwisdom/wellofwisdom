@@ -39,12 +39,19 @@ The server honours `HOST` (default `0.0.0.0`, `127.0.0.1` in the desktop). Most 
 
 ## Offline voice
 
-Speech comes in three tiers, checked in this order by the client: a server tier first, then the browser's own voices. The server reports which tiers the deployment brought up in `/api/stt/status` and `/api/stt/config` under `tiers`, so an operator can see the ladder at a glance:
+Speech comes in tiers. On the server, synthesis walks them in this order, first tier that answers wins:
 
-* `tts.kie`: speech output synthesized on kie.ai (`KIE_API_KEY` set).
+1. `piper`: the local sidecar (`TTS_BASE_URL` set). Any failure there (timeout, non-200, bad audio) falls through, never aborts.
+2. `kie`: Gemini TTS on kie.ai (`KIE_API_KEY` set).
+3. `google`: Google Cloud TTS (`GOOGLE_TTS_API_KEY`).
+4. The browser's own voices, always the last rung; the client decides what its browser can use.
+
+The server reports which tiers the deployment brought up in `/api/stt/status` and `/api/stt/config` under `tiers`, and the speech status surfaces (`/api/narration/status`, `/api/overviews/status`) answer truthfully about the tier that will synthesize, so an operator can see the ladder at a glance:
+
 * `tts.sidecar`: speech output from a local Piper HTTP container (`TTS_BASE_URL` set).
+* `tts.kie`: speech output synthesized on kie.ai (`KIE_API_KEY` set).
 * `stt.sidecar`: speech input through a local whisper.cpp container (`STT_BASE_URL` set).
-* `browser`: the browser's own speech recognition and synthesis, always present as the last rung; the client decides what its browser can use.
+* `browser`: the browser's own speech recognition and synthesis, always present.
 
 One command brings the sidecars up next to the app:
 
@@ -55,7 +62,7 @@ docker compose --profile offline-voice up -d
 That starts two containers on the compose network:
 
 * `whisper` (whisper.cpp server, image `ghcr.io/ggml-org/whisper.cpp:main`) listens on port 9000 and serves its inference endpoint at `/v1/audio/transcriptions`, the OpenAI shape the app already posts to. The image ships ffmpeg and the `base.en` model, so the app's webm recordings are converted and transcribed out of the box.
-* `piper` (Piper's HTTP server, built from the pinned `piper-tts` pip package) listens on port 5000 and serves speech as WAV: `POST /synthesize` with `{"text": "..."}`. The `en_US-lessac-medium` voice downloads into the `piper-voices` volume on first start (about 65 MB) and is reused after that.
+* `piper` (Piper's HTTP server, built from the pinned `piper-tts` pip package, 1.8.0) listens on port 5000. Its contract, verified against the pinned package source: `POST /synthesize` with `{"text": "...", "voice": "..."}` answers a WAV file body, and `GET /info` describes the loaded voice (the compose healthcheck). The voice field is optional; an unknown name is answered with the container's default voice, so the app passes cloud voice names through without harm. The `en_US-lessac-medium` voice downloads into the `piper-voices` volume on first start (about 65 MB) and is reused after that.
 
 Then point the app at them in `.env` and restart it:
 
@@ -64,9 +71,19 @@ STT_BASE_URL=http://whisper:9000/v1
 TTS_BASE_URL=http://piper:5000
 ```
 
-`STT_BASE_URL` is the existing speech-input setting: with it set, the microphone sends recordings to the whisper sidecar and no audio leaves the box. `TTS_BASE_URL` is where the Piper container serves speech; setting it turns the `tts.sidecar` tier on in the status responses. Narration still synthesizes on kie and the browser speaks when that is not configured; see `docs/ROADMAP.md`, "Speech input (voice answers) and a third voice-output tier".
+`STT_BASE_URL` is the existing speech-input setting: with it set, the microphone sends recordings to the whisper sidecar and no audio leaves the box. `TTS_BASE_URL` turns the sidecar tier on for synthesis: the audio overview job then renders every line through Piper and stores one WAV per unit (`concatSpeechSegments` joins the lines, keeps a single sample format, and reports anything else as a skipped line), and `/api/overviews/status` flips to generatable without any cloud key, so an offline box needs only AI plus the sidecar. What stays cloud-side: scene narration keeps its own kie-then-google path with the browser voice as the client fallback, and the sidecar answers both overview hosts with the one voice its container loaded. The sidecar is local and keyless: no key handling, and no audio leaves the box.
 
 Both env names are passed through the compose `app` service, so the same `.env` works for `docker compose up -d` and `docker compose --profile offline-voice up -d`. On a plain (non-docker) self-host, set the same variables to the sidecar addresses the host can reach.
+
+### Verifying offline voice end to end (needs a Docker box)
+
+This was wired and tested against a stub sidecar answering the exact Piper shape, not against a live container; before calling it done on a machine with Docker:
+
+1. `docker compose --profile offline-voice up -d`, wait for both healthchecks to pass.
+2. Set `STT_BASE_URL=http://whisper:9000/v1` and `TTS_BASE_URL=http://piper:5000` in `.env`, restart the app.
+3. With no `KIE_API_KEY` and no Google TTS key, check `/api/stt/status` reports `tiers.tts.sidecar: true` and `/api/overviews/status` reports `tts.configured: true`, `canGenerate` true once AI is configured.
+4. Generate an audio overview for a unit with no cloud keys set, and play it: it should be audible WAV, and `/media/:id` for the overview should answer `audio/wav`.
+5. Stop the piper container and regenerate: every line now fails fast on the sidecar and falls to the next configured tier. With no cloud key configured the job ends with `overview_no_audio` (the panel shows the error, nothing hangs); with a kie or Google key it still renders on that tier.
 
 ## Backup and restore
 
