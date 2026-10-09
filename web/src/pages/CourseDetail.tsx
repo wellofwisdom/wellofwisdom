@@ -575,6 +575,8 @@ function ItemPreview({ item, onEdit, onDelete }: { item: ItemNode; onEdit: () =>
               <div className="small muted" style={{ marginTop: 2 }}>
                 {c.kind === "mcq" ? `multiple choice · answer: ${answerText(c)}`
                   : c.kind === "numeric" ? `number · answer: ${unanswered ? "?" : c.answer}`
+                  : c.kind === "listen_choice" ? `listen and choose · answer: ${answerText(c)}`
+                  : c.kind === "listen_repeat" ? "listen and repeat"
                   : "written · self-check"}
               </div>
             </>
@@ -643,6 +645,7 @@ function lacksAnswer(item: ItemNode): boolean {
   if (item.type === "exercise") {
     if (c.kind === "numeric") return !(has(c.answer) && Number.isFinite(Number(c.answer)));
     if (c.kind === "text") return !has(c.answer);
+    if (c.kind === "listen_repeat") return !has(c.expected);
     return !keyed(c.choices, c.answer);
   }
   if (item.type === "video" && Array.isArray(c.questions)) {
@@ -899,7 +902,7 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
   const [pDesc, setPDesc] = useState(c.description ?? "");
   const [rubric, setRubric] = useState(c.rubric ?? "");
 
-  const isNewKind = ["multi", "order", "match", "categorize", "hotspot", "plot", "scenario", "cloze", "numberline", "fraction", "translate", "dialogue", "vocab_card", "spoken"].includes(kind);
+  const isNewKind = ["multi", "order", "match", "categorize", "hotspot", "plot", "scenario", "cloze", "numberline", "fraction", "translate", "dialogue", "vocab_card", "spoken", "listen_choice", "listen_repeat"].includes(kind);
   const [grTitle, setGrTitle] = useState((c as any).title ?? "");
   const [grBody, setGrBody] = useState((c as any).body ?? "");
   const [grLevel, setGrLevel] = useState((c as any).level ?? "A1");
@@ -1042,6 +1045,8 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
               <option value="dialogue">Dialogue</option>
               <option value="vocab_card">Vocab card</option>
               <option value="spoken">Spoken</option>
+              <option value="listen_choice">Listen and choose</option>
+              <option value="listen_repeat">Listen and repeat</option>
             </select>
           </Field>
           {kind === "multi" && <KindForms.MultiForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
@@ -1058,6 +1063,8 @@ function EditItemDialog({ item, onClose, onSaved }: { item: ItemNode; onClose: (
           {kind === "dialogue" && <KindForms.DialogueForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
           {kind === "vocab_card" && <KindForms.VocabCardForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
           {kind === "spoken" && <KindForms.SpokenForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "listen_choice" && <KindForms.ListenChoiceForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
+          {kind === "listen_repeat" && <KindForms.ListenRepeatForm content={{ prompt, ...c, hints: hintList, explanation }} onBuilt={(b, p) => { setKindBuilt(b); setKindProblem(p); }} onPreview={setPreviewItem} />}
           {!isNewKind && kind === "mcq" && (
             <>
               <Field label="Choices (one per line)">
