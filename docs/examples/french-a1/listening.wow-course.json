@@ -1,0 +1,87 @@
+{
+  "format": "wellofwisdom-course",
+  "version": 1,
+  "title": "French A1: Listening practice, hand-built",
+  "topic": "French A1 listening: hear a phrase, pick what you heard, then say it back",
+  "lens": null,
+  "gradeLevel": 5,
+  "description": "A tiny companion to the French A1 course: two listening exercises written by hand in the course builder, one where you pick the sentence you heard and one where you repeat it. Every item here was built with the builder's Listen and choose and Listen and repeat forms.",
+  "license": "CC-BY-4.0",
+  "author": "Well of Wisdom example pack",
+  "includesAnswers": true,
+  "units": [
+    {
+      "title": "Ecoutez bien",
+      "lessons": [
+        {
+          "title": "Hear it, pick it",
+          "summary": "One sentence is spoken. Choose the words you heard.",
+          "items": [
+            {
+              "type": "exercise",
+              "content": {
+                "prompt": "Qu'entends-tu ? Pick the sentence you heard.",
+                "kind": "listen_choice",
+                "audioText": "Je veux du pain, s'il vous plait.",
+                "choices": [
+                  { "id": "c1", "text": "Je veux du pain, s'il vous plait." },
+                  { "id": "c2", "text": "Je veux du the, s'il vous plait." },
+                  { "id": "c3", "text": "Je veux dormir, s'il vous plait." }
+                ],
+                "answer": "c1",
+                "explanation": "Pain means bread. The is tea, and dormir is to sleep.",
+                "hints": ["Listen for the food word: it comes right after je veux."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "prompt": "Qu'entends-tu ? Pick the sentence you heard.",
+                "kind": "listen_choice",
+                "audioUrl": "/media/12",
+                "audioText": "La maison est bleue.",
+                "choices": [
+                  { "id": "c1", "text": "La voiture est rouge." },
+                  { "id": "c2", "text": "La maison est bleue." },
+                  { "id": "c3", "text": "La porte est verte." }
+                ],
+                "answer": "c2",
+                "explanation": "Maison is house and bleue is blue (feminine)."
+              }
+            }
+          ]
+        },
+        {
+          "title": "Hear it, say it",
+          "summary": "Listen, then repeat the phrase out loud.",
+          "items": [
+            {
+              "type": "exercise",
+              "content": {
+                "prompt": "Listen and repeat: Le livre est rouge.",
+                "kind": "listen_repeat",
+                "expected": "Le livre est rouge.",
+                "audioText": "Le livre est rouge.",
+                "alternatives": ["le livre est rouge"],
+                "explanation": "Livre is book and rouge is red. The expected text shows after you answer.",
+                "hints": ["Say each word clearly: le, livre, est, rouge."]
+              }
+            },
+            {
+              "type": "exercise",
+              "content": {
+                "prompt": "Listen and repeat: Bonjour, comment ca va ?",
+                "kind": "listen_repeat",
+                "expected": "Bonjour, comment ca va ?",
+                "audioUrl": "/media/13",
+                "audioText": "Bonjour, comment ca va ?",
+                "alternatives": ["Bonjour, comment vas-tu ?"],
+                "hints": ["It is a greeting plus a question. Take them one at a time."]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
